@@ -251,6 +251,7 @@ nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:tra
   display:flex;
   flex-direction:column;
   align-items:center;
+  color:#fff;
 }
 .slide-badge{
   display:inline-flex;align-items:center;gap:.5rem;
@@ -509,7 +510,7 @@ h2 span{color:var(--red)}
 #testimonials::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 10% 50%,rgba(232,0,30,.07) 0%,transparent 50%),radial-gradient(circle at 90% 50%,rgba(50,0,150,.05) 0%,transparent 50%)}
 .testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.8rem;margin-top:2.5rem}
 .testi-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:2.2rem;border-radius:24px;transition:all .4s;backdrop-filter:blur(10px);position:relative}
-.testi-card::before{content:'"';position:absolute;top:-10px;left:22px;font-size:5rem;font-weight:900;color:rgba(232,0,30,.18);line-height:1;font-family:var(--font-head)}
+.testi-card::before{content:'\"';position:absolute;top:-10px;left:22px;font-size:5rem;font-weight:900;color:rgba(232,0,30,.18);line-height:1;font-family:var(--font-head)}
 .testi-card:hover{border-color:rgba(232,0,30,.35);background:rgba(232,0,30,.06);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .testi-stars{display:flex;gap:.3rem;margin-bottom:1rem}
 .testi-stars i{color:#f59e0b;font-size:.88rem}
@@ -565,7 +566,7 @@ h2 span{color:var(--red)}
 .about-list li:last-child{border:none}
 .about-list li i{color:var(--red);margin-right:.9rem;font-size:.92rem;flex-shrink:0;width:18px}
 .mission{background:var(--grad);color:#fff;padding:2rem;border-radius:20px;margin-top:1.8rem;box-shadow:0 14px 40px rgba(232,0,30,.32);position:relative;overflow:hidden}
-.mission::after{content:'"';position:absolute;top:-18px;right:18px;font-size:7rem;font-weight:900;color:rgba(255,255,255,.07);line-height:1;font-family:var(--font-head)}
+.mission::after{content:'\"';position:absolute;top:-18px;right:18px;font-size:7rem;font-weight:900;color:rgba(255,255,255,.07);line-height:1;font-family:var(--font-head)}
 .mission h4{color:#fff;margin-bottom:.65rem;font-size:1.15rem;font-weight:700;font-family:var(--font-head)}
 .mission p{color:rgba(255,255,255,.9);line-height:1.85;font-size:.93rem}
 .about-btns{margin-top:1.8rem;display:flex;gap:1rem;flex-wrap:wrap}
@@ -839,4 +840,53 @@ section,header,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100v
   .strip-link{font-size:.58rem}
   nav{padding:0 .5rem!important}
   section{padding:48px .75rem!important}
+}
+
+/* ===== CRITICAL VISUAL FIXES AFTER SEO UPDATE ===== */
+.slide-content,
+.slide-content h1,
+.slide-content p,
+.slide-content .slide-badge,
+.slide-content .hero-btns,
+.slide-content .hero-btns a,
+.slide-content .hero-stats,
+.slide-content .hstat,
+.slide-content .hstat h3,
+.slide-content .hstat p {
+  color:#fff !important;
+}
+
+.slide-content p,
+.slide-content .hstat p {
+  color:rgba(210,228,255,.88) !important;
+}
+
+.slide-content .hstat h3 {
+  color:#ff8fa0 !important;
+}
+
+#products,
+#services,
+#process,
+#projects,
+#clients,
+#faq,
+#about,
+#contact {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+#products .wrap,
+#services .wrap,
+#process .wrap,
+#projects .wrap,
+#clients .wrap,
+#faq .wrap,
+#about .wrap,
+#contact .wrap {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
 }
