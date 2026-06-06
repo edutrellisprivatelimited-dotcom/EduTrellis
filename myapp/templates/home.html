@@ -20,7 +20,6 @@
   --grad:linear-gradient(135deg,var(--red),#8b0011);
 }
 
-/* Prevent horizontal overflow everywhere */
 html{
   scroll-behavior:smooth;
   -webkit-text-size-adjust:100%;
@@ -75,7 +74,6 @@ img{max-width:100%;height:auto;display:block}
 }
 @keyframes shimmer{0%{background-position:300% 0}100%{background-position:-300% 0}}
 
-/* Strip inner container — flex, center, gap */
 .strip-inner{
   display:flex;
   align-items:center;
@@ -181,7 +179,6 @@ nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:tra
 .hamburger:hover{background:var(--red);border-color:var(--red)}
 .hamburger:hover span{background:#fff}
 
-/* Mobile nav dropdown */
 .mobile-menu{
   display:none;
   position:fixed;
@@ -308,7 +305,6 @@ nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:tra
 .hstat h3{font-family:var(--font-head);font-size:clamp(1.2rem,2.5vw,1.9rem);color:#ff8fa0;font-weight:900;line-height:1;white-space:nowrap}
 .hstat p{font-size:clamp(.6rem,1.2vw,.78rem);color:rgba(210,228,255,.8);margin:0;margin-top:3px}
 
-/* slider controls */
 .slider-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
 .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;border:none;transition:all .35s;padding:0}
 .dot.active{background:var(--red);width:28px;border-radius:4px}
@@ -327,7 +323,6 @@ nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:tra
 .sarr.prev{left:14px}
 .sarr.next{right:14px}
 
-/* scroll hint */
 .scroll-hint{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;z-index:10;animation:bobble 2.2s ease-in-out infinite}
 .scroll-hint span{width:26px;height:40px;border:2px solid rgba(255,255,255,.3);border-radius:14px;display:flex;align-items:flex-start;justify-content:center;padding-top:6px}
 .scroll-hint span::after{content:'';width:4px;height:8px;background:rgba(255,255,255,.6);border-radius:2px;animation:scrollDot 1.6s ease-in-out infinite}
@@ -705,7 +700,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 .wa-float a:hover{transform:scale(1.1);box-shadow:0 14px 40px rgba(37,211,102,.55)}
 @keyframes waBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
-/* ID scroll offset */
 [id]{scroll-margin-top:var(--offset)}
 
 /* ================================================
@@ -713,16 +707,13 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
    ================================================ */
 @media(max-width:992px){
   :root{--strip-h:34px;--nav-h:68px}
-
   nav{padding:0 1.4rem}
-  nav ul{display:none}/* hide desktop menu */
+  nav ul{display:none}
   .hamburger{display:flex}
   .cursor,.cursor-ring{display:none}
-
   section{padding:72px 1.8rem}
   .numbers-sec{padding:64px 1.8rem}
   #testimonials{padding:72px 1.8rem}
-
   .why-grid{grid-template-columns:1fr 1fr}
   .svc-grid{grid-template-columns:1fr 1fr}
   .prod-grid{grid-template-columns:1fr 1fr}
@@ -734,10 +725,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   .fg-row{grid-template-columns:1fr}
   .numbers-grid{grid-template-columns:repeat(2,1fr);gap:1.2rem}
   .foot-grid{grid-template-columns:1fr 1fr;gap:2rem}
-  .process-steps{
-    grid-template-columns:1fr 1fr;
-    gap:2rem;
-  }
+  .process-steps{grid-template-columns:1fr 1fr;gap:2rem}
   .process-steps::before{display:none}
   h2{font-size:1.85rem}
   .testi-grid{grid-template-columns:1fr 1fr}
@@ -747,68 +735,44 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
    MOBILE — 768px
    ================================================ */
 @media(max-width:768px){
-  :root{--strip-h:32px;--nav-h:60px}
-
-  /* ---- TOP STRIP mobile ---- */
+  :root{--strip-h:50px;--nav-h:60px}
+  .top-strip{height:var(--strip-h);padding:2px 0}
   .strip-inner{
-    justify-content:space-between;
-    gap:.4rem;
-    padding:0 .75rem;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-content:center;
+    gap:2px .4rem;
+    padding:0 .6rem;
+    max-width:100%;
+    overflow:hidden;
   }
-  /* Hide email on small screens */
-  .strip-email-link{display:none}
+  .strip-email-link{display:inline-flex!important;order:-1;flex-basis:100%;justify-content:center;margin-bottom:1px}
   .strip-sep{display:none}
-  .strip-link{font-size:.7rem;gap:.3rem}
-  .strip-link .strip-txt{display:none}/* hide text, show icon + number only */
-
+  .strip-pulse{display:none}
+  .strip-link{font-size:.62rem;gap:.22rem;white-space:nowrap}
+  .strip-link .strip-txt{display:none}
+  .strip-email-link .strip-txt{display:inline}
   nav{padding:0 1rem}
-
-  /* ---- HERO mobile ---- */
-  .slider-wrap{
-    height:calc(100svh - var(--offset));
-    min-height:540px;
-  }
-  .slide-content{
-    padding:1.5rem 1rem 5.5rem;
-  }
-  .slide-content h1{
-    font-size:clamp(1.6rem,6.5vw,2.4rem);
-    letter-spacing:-.8px;
-    margin-bottom:.75rem;
-  }
+  .slider-wrap{height:calc(100svh - var(--offset));min-height:540px;}
+  .slide-content{padding:1.5rem 1rem 5.5rem;}
+  .slide-content h1{font-size:clamp(1.6rem,6.5vw,2.4rem);letter-spacing:-.8px;margin-bottom:.75rem;}
   .slide-content p{font-size:.9rem;margin-bottom:1.3rem}
   .slide-badge{font-size:.63rem;padding:.33rem 1rem;margin-bottom:.9rem}
-
-  .hero-btns{
-    flex-direction:column;
-    align-items:stretch;
-    width:100%;max-width:300px;
-    gap:.6rem;margin-bottom:1.3rem;
-  }
+  .hero-btns{flex-direction:column;align-items:stretch;width:100%;max-width:300px;gap:.6rem;margin-bottom:1.3rem;}
   .hero-btns .cta-btn{justify-content:center;padding:12px 18px;font-size:.86rem}
-
-  .hero-stats{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:.45rem;
-    width:100%;max-width:340px;
-  }
+  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;max-width:340px;}
   .hstat{padding:.65rem .4rem;border-radius:12px}
   .hstat h3{font-size:1.1rem;white-space:nowrap}
   .hstat p{font-size:.58rem}
-
   .sarr{width:36px;height:36px;font-size:1.05rem}
   .sarr.prev{left:7px}
   .sarr.next{right:7px}
   .scroll-hint{display:none}
-
   section{padding:60px 1.1rem}
   .numbers-sec{padding:52px 1.1rem}
   #testimonials{padding:60px 1.1rem}
-
   h2{font-size:1.6rem}
   .sub{font-size:.9rem}
-
   .why-grid{grid-template-columns:1fr}
   .stats-grid{grid-template-columns:1fr 1fr}
   .numbers-grid{grid-template-columns:1fr 1fr;gap:.8rem}
@@ -820,25 +784,20 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   .testi-grid{grid-template-columns:1fr}
   .partners-grid{grid-template-columns:1fr 1fr}
   .process-steps{grid-template-columns:1fr 1fr;gap:1.2rem}
-
   .about-grid{grid-template-columns:1fr;gap:2rem}
   .about-img{height:250px}
   .about-badge{display:none}
   .about-btns{flex-direction:column}
   .about-btns .cta-btn{justify-content:center}
-
   .contact-grid{grid-template-columns:1fr;gap:1.6rem}
   .contact-info{padding:1.8rem 1.3rem}
   .contact-form-box{padding:1.6rem 1.2rem}
   .fg-row{grid-template-columns:1fr}
-
   .foot-grid{grid-template-columns:1fr;gap:1.6rem;padding-bottom:1.8rem;margin-bottom:1.5rem}
   .foot-bottom{flex-direction:column;text-align:center;gap:.75rem}
   .foot-links{justify-content:center;gap:.9rem}
-
   .partners-wrap{padding:1.8rem 1rem}
   .partners-wrap h3{font-size:1.4rem}
-
   #scrollTop{bottom:18px;right:14px;width:40px;height:40px;font-size:.95rem;border-radius:11px}
   .wa-float{bottom:66px;right:14px}
   .wa-float a{width:44px;height:44px;font-size:1.3rem;border-radius:13px}
@@ -848,7 +807,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
    VERY SMALL — 400px
    ================================================ */
 @media(max-width:400px){
-  :root{--strip-h:30px;--nav-h:56px}
+  :root{--strip-h:46px;--nav-h:52px}
   .strip-inner{padding:0 .5rem;gap:.3rem}
   .strip-link{font-size:.65rem}
   .slide-content h1{font-size:1.5rem}
@@ -860,6 +819,35 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   .process-steps{grid-template-columns:1fr}
   .partners-grid{grid-template-columns:1fr}
   h2{font-size:1.45rem}
+}
+
+html,body{overflow-x:hidden!important;max-width:100vw;}
+section,header,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overflow-x:hidden;}
+.wrap{overflow-x:hidden}
+@media(max-width:768px){
+  .slide-content{padding:1.5rem .9rem 5.5rem;max-width:100%;overflow:hidden;}
+  .slide-badge{font-size:.6rem;padding:.3rem .8rem;max-width:calc(100vw - 2rem);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hero-stats{width:calc(100% - 1rem);max-width:320px;}
+  .hstat h3{font-size:clamp(.85rem,2.8vw,1.1rem)!important}
+  .hstat p{font-size:.55rem!important}
+  nav{padding:0 .75rem!important}
+  .logo-sub{display:block;font-size:.48rem;letter-spacing:.12em;margin-top:2px}
+  .logo-txt{font-size:1.4rem;letter-spacing:-1px}
+  section{padding:60px .9rem!important}
+  .numbers-sec{padding:52px .9rem!important}
+  #testimonials{padding:60px .9rem!important}
+  .contact-info{padding:1.6rem 1rem}
+  .contact-form-box{padding:1.5rem 1rem}
+  .partners-wrap{padding:1.5rem .8rem}
+  footer{padding:3rem 1rem 2rem}
+  .foot-grid{padding-inline:0}
+}
+@media(max-width:400px){
+  .logo-txt{font-size:1.2rem}
+  .strip-inner{padding:0 .4rem;gap:2px .25rem}
+  .strip-link{font-size:.58rem}
+  nav{padding:0 .5rem!important}
+  section{padding:48px .75rem!important}
 }
 </style>
 </head>
@@ -879,21 +867,19 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 <!-- TOP STRIP -->
 <div class="top-strip" role="banner">
   <div class="strip-inner">
-    <div class="strip-pulse"></div>
-    <!-- Email: hidden on mobile via CSS -->
     <a href="mailto:support@edutrellis.in" class="strip-link strip-email-link" aria-label="Email us">
       <i class="fas fa-envelope"></i>
       <span class="strip-txt">support@edutrellis.in</span>
     </a>
     <span class="strip-sep"></span>
-    <a href="tel:+919695953183" class="strip-link" aria-label="Support line">
+    <a href="tel:+917905817391" class="strip-link" aria-label="Support line">
       <i class="fas fa-headset"></i>
-      <span class="strip-txt">Support: </span>+91&nbsp;96959&nbsp;53183
+      <span class="strip-txt">Support: </span>+91&nbsp;79058&nbsp;17391
     </a>
     <span class="strip-sep"></span>
-    <a href="tel:+917905817391" class="strip-link" aria-label="Sales line">
-      <i class="fas fa-phone-alt"></i>
-      <span class="strip-txt">Sales: </span>+91&nbsp;79058&nbsp;17391
+    <a href="https://wa.me/917607845679" class="strip-link" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+      <i class="fab fa-whatsapp"></i>
+      <span class="strip-txt">WhatsApp: </span>+91&nbsp;76078&nbsp;45679
     </a>
   </div>
 </div>
@@ -908,8 +894,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
         <div class="logo-sub">Digital Growth Partner</div>
       </div>
     </a>
-
-    <!-- Desktop nav -->
     <ul id="desktopNav">
       <li><a href="#home">Home</a></li>
       <li><a href="#products">Products</a></li>
@@ -919,15 +903,13 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
       <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact Us</a></li>
     </ul>
-
-    <!-- Hamburger -->
     <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
 </header>
 
-<!-- MOBILE MENU (separate from header to avoid stacking context issues) -->
+<!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile navigation">
   <ul>
     <li><a href="#home">Home</a></li>
@@ -949,7 +931,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
       <div class="slide-overlay"></div>
       <div class="slide-mesh"></div>
       <div class="slide-content">
-        <div class="slide-badge"><div class="strip-pulse"></div>&nbsp;India's #1 Digital Growth Partner</div>
+        <div class="slide-badge">● India's #1 Digital Growth Partner</div>
         <h1>Transform Your <em>Digital Presence</em> — Start Today</h1>
         <p>From Website to Success — Complete Digital Solutions Tailored for Indian Businesses</p>
         <div class="hero-btns">
@@ -978,7 +960,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
         </div>
         <div class="hero-stats">
           <div class="hstat"><h3>₹2,499</h3><p>From/Month</p></div>
-          <div class="hstat"><h3>50 Days</h3><p>1st Month</p></div>
+          <div class="hstat"><h3>3 Months</h3><p>1st Month</p></div>
           <div class="hstat"><h3>24/7</h3><p>Support</p></div>
         </div>
       </div>
@@ -1026,7 +1008,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
     <div class="marquee-item"><i class="fas fa-rupee-sign"></i>Starting ₹2,499/mo<span class="sep">✦</span></div>
     <div class="marquee-item"><i class="fas fa-star"></i>98% Satisfaction<span class="sep">✦</span></div>
     <div class="marquee-item"><i class="fas fa-graduation-cap"></i>Education Specialists<span class="sep">✦</span></div>
-    <!-- Duplicate for seamless loop -->
     <div class="marquee-item"><i class="fas fa-rocket"></i>Fast Delivery<span class="sep">✦</span></div>
     <div class="marquee-item"><i class="fas fa-shield-alt"></i>Quality Assured<span class="sep">✦</span></div>
     <div class="marquee-item"><i class="fas fa-headset"></i>24/7 Support<span class="sep">✦</span></div>
@@ -1104,7 +1085,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
             <h4>🎯 Special First Month Offer</h4>
             <ul class="feat-list" style="margin:0">
               <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span>Earn up to <strong>₹20,000/month</strong> from courses</span></li>
-              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span><strong>50 Days Access</strong> in the first month</span></li>
+              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span><strong>3 Months Access</strong> in the first month</span></li>
               <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span>Works even if business is <strong>inactive</strong></span></li>
             </ul>
           </div>
@@ -1227,7 +1208,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
     <div class="accent reveal d1"></div>
     <p class="sub reveal d2">Every service we offer, clearly priced and explained</p>
     <div class="svc-grid">
-      <div class="svc-item reveal d1"><div class="svc-inner"><div class="svc-num">01</div><h3>Complete Website Management</h3><p>Logo/banner updates, content management, course uploads, digital marketing on Instagram, Facebook &amp; Google, social handles creation, student traffic, SEO &amp; a dedicated website manager.</p><span class="svc-price">₹2,499/month &nbsp;|&nbsp; 50 Days First Month</span></div></div>
+      <div class="svc-item reveal d1"><div class="svc-inner"><div class="svc-num">01</div><h3>Complete Website Management</h3><p>Logo/banner updates, content management, course uploads, digital marketing on Instagram, Facebook &amp; Google, social handles creation, student traffic, SEO &amp; a dedicated website manager.</p><span class="svc-price">₹2,499/month &nbsp;|&nbsp; 3 Months First Month</span></div></div>
       <div class="svc-item reveal d2"><div class="svc-inner"><div class="svc-num">02</div><h3>Static Business Website</h3><p>Single-page business website — fully static with Home, About, Contact, Products/Services &amp; Owner Details. Mobile-friendly, fast &amp; SEO ready.</p><span class="svc-price">₹3,000–₹4,000 one-time</span></div></div>
       <div class="svc-item reveal d3"><div class="svc-inner"><div class="svc-num">03</div><h3>Dynamic / E-commerce Website</h3><p>Full-featured dynamic website for clothing stores, product sellers &amp; e-commerce. Admin panel, payment gateway, inventory, cart &amp; customer dashboard.</p><span class="svc-price">₹8,000–₹10,000 one-time</span></div></div>
       <div class="svc-item reveal d4"><div class="svc-inner"><div class="svc-num">04</div><h3>Custom Big Projects</h3><p>Large-scale custom web apps — educational platforms, portals, multi-vendor systems, complex integrations &amp; enterprise solutions built to your specification.</p><span class="svc-price">₹15,000+ custom quote</span></div></div>
@@ -1323,7 +1304,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
     <p class="sub reveal d2">Everything you need to know before getting started</p>
     <div class="faq-list">
       <div class="faq-item reveal d1"><div class="faq-q" onclick="toggleFaq(this)"><h4>What is the ₹2,499/month Website Management plan?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>It's our flagship monthly plan where we take complete ownership of your website and digital presence. We handle logo/banner updates, content uploads, SEO, social media, digital marketing on Instagram, Facebook &amp; Google, and assign a dedicated website manager — so you focus 100% on your core work.</p></div></div>
-      <div class="faq-item reveal d2"><div class="faq-q" onclick="toggleFaq(this)"><h4>What does "50 Days in the First Month" mean?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>As a special welcome offer, your first billing cycle gives you 50 days of access instead of the usual 30. This gives you extra time to see real results before your second billing cycle begins — it's our way of showing confidence in our service.</p></div></div>
+      <div class="faq-item reveal d2"><div class="faq-q" onclick="toggleFaq(this)"><h4>What does "3 Months in the First Month" mean?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>As a special welcome offer, your first billing cycle gives you 3 months of access instead of the usual 1 month. This gives you ample time to see real results before your next billing cycle begins — it's our way of showing confidence in our service.</p></div></div>
       <div class="faq-item reveal d3"><div class="faq-q" onclick="toggleFaq(this)"><h4>How long does it take to build my website?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>Static websites are typically delivered within 3–5 business days. Dynamic/e-commerce websites take 10–15 days depending on complexity. Custom large projects are discussed and planned during consultation, with realistic timelines provided upfront.</p></div></div>
       <div class="faq-item reveal d4"><div class="faq-q" onclick="toggleFaq(this)"><h4>Do I need a website already to use the management plan?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>No! The management plan works even if your business is currently inactive or you don't have a website yet. We'll help set everything up from scratch — website, social media handles, Google Business profile and more — all within the plan.</p></div></div>
       <div class="faq-item reveal d5"><div class="faq-q" onclick="toggleFaq(this)"><h4>What platforms do you work with?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>We work with all major platforms including Classplus, Apex, EduGorilla, WordPress, custom-built websites, Shopify, WooCommerce and more. During your free consultation, tell us your current platform and we'll tailor our services accordingly.</p></div></div>
@@ -1364,7 +1345,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
         </div>
         <div class="about-btns">
           <a href="#contact" class="cta-btn">Book FREE Consultation <i class="fas fa-arrow-right"></i></a>
-          <a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:linear-gradient(135deg,#25d366,#1da851);box-shadow:0 8px 28px rgba(37,211,102,.35)"><i class="fab fa-whatsapp"></i> Chat Now</a>
+          <a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:linear-gradient(135deg,#25d366,#1da851);box-shadow:0 8px 26px rgba(37,211,102,.35);"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
         </div>
       </div>
     </div>
@@ -1381,11 +1362,10 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
       <div class="contact-info reveal-left">
         <h3>Get In Touch</h3>
         <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Email Support</h4><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div></div>
-        <div class="ci-item"><div class="ci-icon"><i class="fas fa-headset"></i></div><div><h4>Customer Support</h4><a href="tel:+919695953183">+91 9695953183</a></div></div>
-        <div class="ci-item"><div class="ci-icon"><i class="fas fa-phone-alt"></i></div><div><h4>Sales Enquiry</h4><a href="tel:+917905817391">+91 7905817391</a></div></div>
-        <a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer" class="whatsapp-cta">
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-headset"></i></div><div><h4>Support (Call)</h4><a href="tel:+917905817391">+91 79058 17391</a></div></div>
+        <a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer" class="whatsapp-cta">
           <i class="fab fa-whatsapp"></i>
-          <div><span>Chat on WhatsApp</span><small>+91 9695953183 — We reply fast</small></div>
+          <div><span>Chat on WhatsApp</span><small>+91 76078 45679 — We reply fast</small></div>
         </a>
         <div class="biz-hours">
           <h4><i class="fas fa-clock" style="margin-right:.5rem;color:var(--red)"></i>Business Hours</h4>
@@ -1434,7 +1414,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
         <a href="#" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         <a href="#" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         <a href="#" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="https://wa.me/919695953183" title="WhatsApp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://wa.me/917607845679" title="WhatsApp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
       </div>
     </div>
     <div class="foot-col">
@@ -1462,9 +1442,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
     <div class="foot-col">
       <h4>Contact</h4>
       <div class="foot-contact-item"><i class="fas fa-envelope"></i><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div>
-      <div class="foot-contact-item"><i class="fas fa-headset"></i><a href="tel:+919695953183">+91 9695953183</a></div>
-      <div class="foot-contact-item"><i class="fas fa-phone-alt"></i><a href="tel:+917905817391">+91 7905817391</a></div>
-      <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer">WhatsApp Us</a></div>
+      <div class="foot-contact-item"><i class="fas fa-headset"></i><a href="tel:+917905817391">+91 79058 17391</a></div>
+      <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer">+91 76078 45679 (WhatsApp)</a></div>
     </div>
   </div>
   <div class="foot-bottom">
@@ -1479,7 +1458,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 
 <!-- FLOATING WA -->
 <div class="wa-float">
-  <a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
+  <a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
     <i class="fab fa-whatsapp"></i>
   </a>
 </div>
@@ -1524,7 +1503,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 })();
 
 /* ============================================================
-   MOBILE MENU — hamburger toggles separate .mobile-menu div
+   MOBILE MENU
    ============================================================ */
 var ham=document.getElementById('ham');
 var mobileMenu=document.getElementById('mobileMenu');
@@ -1541,23 +1520,19 @@ ham.addEventListener('click',function(e){
   var isOpen=mobileMenu.classList.toggle('open');
   ham.classList.toggle('open',isOpen);
   ham.setAttribute('aria-expanded',String(isOpen));
-  /* Prevent body scroll when menu open */
   document.body.style.overflow=isOpen?'hidden':'';
 });
 
-/* Close on any nav link click */
 mobileMenu.querySelectorAll('a').forEach(function(a){
   a.addEventListener('click',closeMobileMenu);
 });
 
-/* Close on outside tap */
 document.addEventListener('click',function(e){
   if(mobileMenu.classList.contains('open')&&!mobileMenu.contains(e.target)&&!ham.contains(e.target)){
     closeMobileMenu();
   }
 });
 
-/* Close on Escape */
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape')closeMobileMenu();
 });
@@ -1586,7 +1561,7 @@ function handleSubmit(e){
     btn.innerHTML='<i class="fas fa-check"></i> Message Sent!';
     btn.style.background='linear-gradient(135deg,#25d366,#1da851)';
     setTimeout(function(){
-      alert('Thank you! We will contact you shortly.\n\nFor immediate help:\nCall/WhatsApp: +91 9695953183\nEmail: support@edutrellis.in');
+      alert('Thank you! We will contact you shortly.\n\nFor immediate help:\nCall: +91 79058 17391\nWhatsApp: +91 76078 45679\nEmail: support@edutrellis.in');
       e.target.reset();
       btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Message & Get Callback';
       btn.style.background='';
@@ -1596,7 +1571,7 @@ function handleSubmit(e){
 }
 
 /* ============================================================
-   SCROLL-REVEAL (IntersectionObserver)
+   SCROLL-REVEAL
    ============================================================ */
 (function(){
   var ro=new IntersectionObserver(function(entries){
@@ -1646,13 +1621,11 @@ window.addEventListener('scroll',function(){
   function goTo(i){curSlide=i;updateSlider();resetTimer();}
   function resetTimer(){clearInterval(timer);timer=setInterval(function(){changeSlide(1);},6000);}
 
-  /* expose globally for onclick attributes */
   window.changeSlide=changeSlide;
   window.goTo=goTo;
 
   timer=setInterval(function(){changeSlide(1);},6000);
 
-  /* Touch / swipe support */
   var touchStartX=0;
   var sliderWrap=document.querySelector('.slider-wrap');
   sliderWrap.addEventListener('touchstart',function(e){touchStartX=e.touches[0].clientX;},{passive:true});
@@ -1698,5 +1671,6 @@ function toggleFaq(el){
 }
 window.toggleFaq=toggleFaq;
 </script>
+
 </body>
 </html>
