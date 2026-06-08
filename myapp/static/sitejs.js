@@ -77,26 +77,48 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
     if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
   });
 });
-
 /* ============================================================
    CONTACT FORM
    ============================================================ */
-function handleSubmit(e){
+function handleSubmit(e) {
   e.preventDefault();
-  var btn=document.getElementById('submitBtn');
-  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';
-  btn.disabled=true;
-  setTimeout(function(){
-    btn.innerHTML='<i class="fas fa-check"></i> Message Sent!';
-    btn.style.background='linear-gradient(135deg,#25d366,#1da851)';
-    setTimeout(function(){
-      alert('Thank you! We will contact you shortly.\n\nFor immediate help:\nCall: +91 79058 17391\nWhatsApp: +91 76078 45679\nEmail: support@edutrellis.in');
-      e.target.reset();
-      btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Message & Get Callback';
-      btn.style.background='';
-      btn.disabled=false;
-    },800);
-  },1200);
+  var form = e.target;
+  var btn = document.getElementById('submitBtn');
+
+  // Show loader on button
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+  btn.disabled = true;
+
+  var data = new FormData(form);
+
+  fetch('/contact/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': data.get('csrfmiddlewaretoken') },
+    body: data
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(json) {
+    if (json.status === 'ok') {
+      btn.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
+      btn.style.background = 'linear-gradient(135deg,#25d366,#1da851)';
+      setTimeout(function() {
+        alert('✅ Thank you! We received your message and will contact you shortly.\n\nCall: +91 79058 17391\nWhatsApp: +91 76078 45679');
+        form.reset();
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message & Get Callback';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 800);
+    } else {
+      btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed — Try Again';
+      btn.style.background = 'linear-gradient(135deg,#e8001e,#b00015)';
+      btn.disabled = false;
+    }
+  })
+  .catch(function() {
+    btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error — Try Again';
+    btn.style.background = 'linear-gradient(135deg,#e8001e,#b00015)';
+    btn.disabled = false;
+  });
 }
 
 /* ============================================================
