@@ -1,8 +1,12 @@
+import logging
+
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from myapp.forms import ContactLeadForm
+
+logger = logging.getLogger(__name__)
 
 
 def home(request):
@@ -45,11 +49,12 @@ Message : {message or 'No message provided'}
             subject,
             body,
             settings.EMAIL_HOST_USER,
-            ['webdevrnt@gmail.com'],
+            [settings.LEAD_RECIPIENT_EMAIL],
             fail_silently=False,
         )
         return JsonResponse({'status': 'ok', 'message': 'Message sent successfully.'})
-    except Exception:
+    except Exception as e:
+        logger.exception("SMTP send_mail failed: %s", e)
         return JsonResponse(
             {
                 'status': 'error',
