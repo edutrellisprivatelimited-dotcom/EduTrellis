@@ -607,13 +607,26 @@
       </div>
       <div class="contact-form-box reveal-right">
         <h3>Send Us a Message</h3>
-        <form id="contactForm" onsubmit="handleSubmit(event)">
-           {% csrf_token %}   
+        <form id="contactForm" onsubmit="handleSubmit(event)" novalidate>
+          {% csrf_token %}
+          <div id="formMessage" style="display:none;margin-bottom:1rem;padding:.85rem 1rem;border-radius:12px;font-size:.92rem;font-weight:600;"></div>
           <div class="fg-row">
-            <div class="fg"><label for="fname">Full Name *</label><input type="text" id="fname" name="name" required placeholder="Your full name" autocomplete="name"></div>
-            <div class="fg"><label for="fphone">Phone Number *</label><input type="tel" id="fphone" name="phone" required placeholder="+91 XXXXX XXXXX" autocomplete="tel"></div>
+            <div class="fg">
+              <label for="fname">Full Name *</label>
+              <input type="text" id="fname" name="name" required placeholder="Your full name" autocomplete="name">
+              <small class="field-error" data-error-for="name" style="display:none;color:#e8001e;font-size:.82rem;margin-top:.35rem"></small>
+            </div>
+            <div class="fg">
+              <label for="fphone">Phone Number *</label>
+              <input type="tel" id="fphone" name="phone" required placeholder="+91 XXXXX XXXXX" autocomplete="tel">
+              <small class="field-error" data-error-for="phone" style="display:none;color:#e8001e;font-size:.82rem;margin-top:.35rem"></small>
+            </div>
           </div>
-          <div class="fg"><label for="femail">Email Address *</label><input type="email" id="femail" name="email" required placeholder="your@email.com" autocomplete="email"></div>
+          <div class="fg">
+            <label for="femail">Email Address *</label>
+            <input type="email" id="femail" name="email" required placeholder="your@email.com" autocomplete="email">
+            <small class="field-error" data-error-for="email" style="display:none;color:#e8001e;font-size:.82rem;margin-top:.35rem"></small>
+          </div>
           <div class="fg">
             <label for="fservice">Service Interested In</label>
             <select id="fservice" name="service">
@@ -628,7 +641,11 @@
               <option>Multiple / Not Sure</option>
             </select>
           </div>
-          <div class="fg"><label for="fmsg">Message</label><textarea id="fmsg" name="message" rows="4" placeholder="Tell us about your business, current platform, and goals..."></textarea></div>
+          <div class="fg">
+            <label for="fmsg">Message</label>
+            <textarea id="fmsg" name="message" rows="4" placeholder="Tell us about your business, current platform, and goals..."></textarea>
+            <small class="field-error" data-error-for="message" style="display:none;color:#e8001e;font-size:.82rem;margin-top:.35rem"></small>
+          </div>
           <button type="submit" class="submit-btn" id="submitBtn"><i class="fas fa-paper-plane"></i> Send Message &amp; Get Callback</button>
         </form>
       </div>

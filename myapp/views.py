@@ -2,30 +2,42 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
+from myapp.forms import ContactLeadForm
+
 
 def home(request):
-    return render(request, "home.html")
+    return render(request, "home.html", {"contact_form": ContactLeadForm()})
 
-@csrf_exempt
+
 def contact_lead(request):
     if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'detail': 'POST only'}, status=405)
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
 
-    name    = request.POST.get('name', '').strip()
-    phone   = request.POST.get('phone', '').strip()
-    email   = request.POST.get('email', '').strip()
-    service = request.POST.get('service', '').strip()
-    message = request.POST.get('message', '').strip()
+    form = ContactLeadForm(request.POST)
+
+    if not form.is_valid():
+        return JsonResponse(
+            {
+                'status': 'validation_error',
+                'errors': {key: value[0] for key, value in form.errors.items()}
+            },
+            status=400,
+        )
+
+    name = form.cleaned_data['name']
+    phone = form.cleaned_data['phone']
+    email = form.cleaned_data['email']
+    service = form.cleaned_data.get('service', '')
+    message = form.cleaned_data.get('message', '')
 
     subject = f"New Lead from EduTrellis - {name}"
-    body = f"""New Lead Received
+    body = f"""New Lead Received from EduTrellis Website
 ==========================================
 Name    : {name}
 Phone   : {phone}
 Email   : {email}
-Service : {service}
-Message : {message}
+Service : {service or 'Not selected'}
+Message : {message or 'No message provided'}
 =========================================="""
 
     try:
@@ -36,6 +48,12 @@ Message : {message}
             ['webdevrnt@gmail.com'],
             fail_silently=False,
         )
-        return JsonResponse({'status': 'ok'})
-    except Exception as ex:
-        return JsonResponse({'status': 'error', 'detail': str(ex)}, status=500)
+        return JsonResponse({'status': 'ok', 'message': 'Message sent successfully.'})
+    except Exception:
+        return JsonResponse(
+            {
+                'status': 'error',
+                'detail': 'Unable to send your message right now. Please try again in a moment.'
+            },
+            status=500,
+        )

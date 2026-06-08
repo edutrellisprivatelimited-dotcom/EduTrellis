@@ -77,45 +77,157 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
     if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
   });
 });
+
 /* ============================================================
    CONTACT FORM
    ============================================================ */
+function clearFieldErrors(form){
+  form.querySelectorAll('.field-error').forEach(function(el){
+    el.textContent='';
+    el.style.display='none';
+  });
+  form.querySelectorAll('input, textarea, select').forEach(function(el){
+    el.style.borderColor='';
+  });
+}
+
+function setFieldError(form, fieldName, message){
+  var errorEl=form.querySelector('[data-error-for="'+fieldName+'"]');
+  var inputEl=form.querySelector('[name="'+fieldName+'"]');
+  if(errorEl){
+    errorEl.textContent=message;
+    errorEl.style.display='block';
+  }
+  if(inputEl){
+    inputEl.style.borderColor='#e8001e';
+  }
+}
+
+function showFormMessage(message, type){
+  var box=document.getElementById('formMessage');
+  if(!box)return;
+  box.textContent=message;
+  box.style.display='block';
+  if(type==='success'){
+    box.style.background='#e8fff1';
+    box.style.color='#127a3f';
+    box.style.border='1px solid #8ee0af';
+  }else{
+    box.style.background='#fff1f3';
+    box.style.color='#b00015';
+    box.style.border='1px solid #f3a7b1';
+  }
+}
+
+function hideFormMessage(){
+  var box=document.getElementById('formMessage');
+  if(!box)return;
+  box.style.display='none';
+  box.textContent='';
+}
+
+function validateContactForm(form){
+  clearFieldErrors(form);
+  hideFormMessage();
+
+  var name=(form.name.value || '').trim();
+  var phone=(form.phone.value || '').trim();
+  var email=(form.email.value || '').trim();
+  var isValid=true;
+
+  if(!name){
+    setFieldError(form,'name','Full name is required.');
+    isValid=false;
+  }else if(name.length < 2){
+    setFieldError(form,'name','Full name must be at least 2 characters long.');
+    isValid=false;
+  }
+
+  var digits=phone.replace(/\D/g,'');
+  if(!phone){
+    setFieldError(form,'phone','Phone number is required.');
+    isValid=false;
+  }else if(digits.length < 10){
+    setFieldError(form,'phone','Enter a valid phone number.');
+    isValid=false;
+  }
+
+  if(!email){
+    setFieldError(form,'email','Email address is required.');
+    isValid=false;
+  }else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    setFieldError(form,'email','Enter a valid email address.');
+    isValid=false;
+  }
+
+  if(!isValid){
+    showFormMessage('Please fix the highlighted fields and try again.','error');
+  }
+
+  return isValid;
+}
+
 function handleSubmit(e) {
   e.preventDefault();
   var form = e.target;
   var btn = document.getElementById('submitBtn');
+  var defaultBtnHtml = '<i class="fas fa-paper-plane"></i> Send Message & Get Callback';
 
-  // Show loader on button
+  if(!validateContactForm(form)){
+    return;
+  }
+
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
   btn.disabled = true;
+  hideFormMessage();
 
   var data = new FormData(form);
 
   fetch('/contact/', {
     method: 'POST',
-    headers: { 'X-CSRFToken': data.get('csrfmiddlewaretoken') },
+    headers: {
+      'X-CSRFToken': data.get('csrfmiddlewaretoken'),
+      'X-Requested-With': 'XMLHttpRequest'
+    },
     body: data
   })
-  .then(function(res) { return res.json(); })
-  .then(function(json) {
-    if (json.status === 'ok') {
+  .then(function(res) {
+    return res.json().then(function(json){
+      return { ok: res.ok, status: res.status, json: json };
+    });
+  })
+  .then(function(result) {
+    if (result.json.status === 'ok') {
       btn.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
       btn.style.background = 'linear-gradient(135deg,#25d366,#1da851)';
+      showFormMessage('Thank you! Your message has been sent successfully.','success');
+      form.reset();
+      clearFieldErrors(form);
       setTimeout(function() {
-        alert('✅ Thank you! We received your message and will contact you shortly.\n\nCall: +91 79058 17391\nWhatsApp: +91 76078 45679');
-        form.reset();
-        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message & Get Callback';
+        btn.innerHTML = defaultBtnHtml;
         btn.style.background = '';
         btn.disabled = false;
-      }, 800);
-    } else {
-      btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed — Try Again';
-      btn.style.background = 'linear-gradient(135deg,#e8001e,#b00015)';
-      btn.disabled = false;
+      }, 1200);
+      return;
     }
+
+    if (result.json.status === 'validation_error' && result.json.errors) {
+      clearFieldErrors(form);
+      Object.keys(result.json.errors).forEach(function(field){
+        setFieldError(form, field, result.json.errors[field]);
+      });
+      showFormMessage('Please fix the highlighted fields and try again.','error');
+    } else {
+      showFormMessage(result.json.detail || 'Something went wrong. Please try again.','error');
+    }
+
+    btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Try Again';
+    btn.style.background = 'linear-gradient(135deg,#e8001e,#b00015)';
+    btn.disabled = false;
   })
   .catch(function() {
-    btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error — Try Again';
+    showFormMessage('Unable to send your message right now. Please try again in a moment.','error');
+    btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Try Again';
     btn.style.background = 'linear-gradient(135deg,#e8001e,#b00015)';
     btn.disabled = false;
   });
