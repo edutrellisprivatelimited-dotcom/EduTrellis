@@ -608,6 +608,7 @@
       <div class="contact-form-box reveal-right">
         <h3>Send Us a Message</h3>
         <form id="contactForm" onsubmit="handleSubmit(event)" novalidate>
+           {% csrf_token %}   
           <div class="fg-row">
             <div class="fg"><label for="fname">Full Name *</label><input type="text" id="fname" name="name" required placeholder="Your full name" autocomplete="name"></div>
             <div class="fg"><label for="fphone">Phone Number *</label><input type="tel" id="fphone" name="phone" required placeholder="+91 XXXXX XXXXX" autocomplete="tel"></div>
