@@ -16,7 +16,8 @@
   --shadow-lg:0 28px 64px rgba(0,0,0,.16);
 }
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-body{font-family:var(--font-body);color:var(--text);background:var(--bg);overflow-x:hidden;line-height:1.6}
+html,body{overflow-x:hidden}
+body{font-family:var(--font-body);color:var(--text);background:var(--bg);line-height:1.6}
 a{text-decoration:none;color:inherit}
 img{max-width:100%;display:block}
 ul{list-style:none}
@@ -115,7 +116,7 @@ nav{max-width:1240px;margin:0 auto;padding:.9rem 2rem;display:flex;align-items:c
 @keyframes scrollHint{0%,100%{opacity:.3;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
 
 /* ===== MARQUEE ===== */
-.marquee-wrap{background:var(--grad);padding:.8rem 0;overflow:hidden}
+.marquee-wrap{background:var(--grad);padding:.8rem 0;overflow:hidden;width:100%;max-width:100%}
 .marquee-track{display:flex;width:max-content;animation:marquee 30s linear infinite}
 .marquee-track:hover{animation-play-state:paused}
 .marquee-item{display:flex;align-items:center;gap:.6rem;white-space:nowrap;color:#fff;font-size:.82rem;font-weight:700;padding:0 .5rem}
@@ -270,7 +271,7 @@ h2 span{color:var(--red)}
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:stretch}
 .about-img-wrap{position:relative;display:flex;flex-direction:column}
 .about-img{width:100%;height:100%;min-height:520px;object-fit:cover;border-radius:28px;box-shadow:0 28px 64px rgba(0,0,0,.16);display:block;flex:1}
-.about-badge{position:absolute;bottom:-20px;right:-20px;background:var(--grad);color:#fff;padding:1.4rem 1.8rem;border-radius:20px;text-align:center;box-shadow:0 14px 40px rgba(232,0,30,.38)}
+.about-badge{position:absolute;bottom:-20px;right:-20px;background:var(--grad);color:#fff;padding:1.4rem 1.8rem;border-radius:20px;text-align:center;box-shadow:0 14px 40px rgba(232,0,30,.38);max-width:160px}
 .about-badge .bn{font-family:var(--font-head);font-size:2.1rem;font-weight:900;line-height:1}
 .about-badge .bt{font-size:.73rem;opacity:.88;margin-top:3px}
 .about-decorative{position:absolute;top:-24px;left:-24px;width:100px;height:100px;border:3px solid rgba(232,0,30,.2);border-radius:28px;pointer-events:none}
@@ -370,6 +371,7 @@ footer{background:var(--dark);padding:64px 0 0}
   #desktopNav{display:none}
   .slide-content{margin-left:5vw;max-width:90%}
   .why-grid{grid-template-columns:1fr}
+  .why-bg-circle{display:none}
   .numbers-grid{grid-template-columns:repeat(2,1fr);gap:1rem}
   .prod-grid,.svc-grid,.proj-grid,.testi-grid{grid-template-columns:1fr}
   .process-steps{grid-template-columns:1fr}
@@ -377,19 +379,38 @@ footer{background:var(--dark);padding:64px 0 0}
   .partners-grid{grid-template-columns:1fr}
   .about-grid{grid-template-columns:1fr;gap:2rem}
   .about-img{height:280px;min-height:unset}
+  .about-img-wrap{overflow:hidden}
   .about-badge{display:none}
+  .about-decorative2{display:none}
   .about-btns{flex-direction:column}
-  .about-btns .cta-btn{justify-content:center}
+  .about-btns .cta-btn{justify-content:center;width:100%}
   .contact-grid{grid-template-columns:1fr}
   .fg-row{grid-template-columns:1fr}
   .foot-grid{grid-template-columns:1fr;gap:2rem}
   .foot-bottom{flex-direction:column;text-align:center}
   .sarr{display:none}
-  .hero-stats{gap:1.2rem}
+  .hero-stats{gap:1.2rem;flex-wrap:wrap}
   .hstat h3{font-size:1.3rem}
+  .mission{padding:1.4rem}
+  h2{font-size:clamp(1.4rem,5vw,2rem)}
+  .faq-q{padding:1.1rem 1.2rem}
+  .faq-a p{padding:0 1.2rem 1.1rem}
+  .strip-inner{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .strip-inner::-webkit-scrollbar{display:none}
 }
 @media(max-width:480px){
   .wrap{padding:0 1rem}
   nav{padding:.75rem 1rem}
-  section{padding:48px 0 .75rem!important}
+  section{padding:48px 0}
+  .numbers-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr}
+  .hstat h3{font-size:1.1rem}
+  .slide-content h1{font-size:clamp(1.6rem,7vw,2.2rem)}
+  .cta-btn{padding:.65rem 1.2rem;font-size:.85rem}
+  .why-card{padding:1.6rem 1.2rem}
+  .svc-inner{padding:1.4rem 1.2rem}
+  .faq-q{padding:1rem}
+  .faq-a p{padding:0 1rem 1rem}
+  .foot-bottom{padding:1.2rem 1rem}
+  h2{font-size:clamp(1.3rem,6vw,1.8rem)}
 }
