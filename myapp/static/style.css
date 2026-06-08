@@ -151,6 +151,36 @@ nav ul li:last-child a{
 nav ul li:last-child a::after{display:none}
 nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,0,30,.42)}
 
+/* ===== NAV SOCIAL ICONS (desktop) ===== */
+.nav-social-icons{
+  display:flex;
+  align-items:center;
+  gap:.3rem;
+  margin-left:.4rem;
+  padding-left:.5rem;
+  border-left:1.5px solid var(--border);
+}
+.nav-social-icons a{
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;
+  border-radius:9px;
+  border:1.5px solid var(--border) !important;
+  background:var(--bg2) !important;
+  color:var(--dark) !important;
+  font-size:.78rem;
+  text-decoration:none;
+  transition:all .25s;
+  padding:0 !important;
+}
+.nav-social-icons a::after{display:none !important}
+.nav-social-icons a:hover{
+  background:var(--red) !important;
+  border-color:var(--red) !important;
+  color:#fff !important;
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(232,0,30,.3);
+}
+
 .hamburger{
   display:none;
   flex-direction:column;
@@ -219,6 +249,38 @@ nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:tra
   background:var(--dark-red);
   padding-left:1.2rem;
 }
+
+/* ===== MOBILE SOCIAL ROW ===== */
+.mobile-social-row{
+  display:flex !important;
+  flex-wrap:wrap;
+  gap:.6rem;
+  padding:.8rem 1.2rem 1rem !important;
+  border-top:1px solid var(--border);
+  margin-top:.3rem;
+}
+.mobile-social-row a{
+  display:inline-flex !important;
+  align-items:center;
+  gap:.45rem;
+  padding:.55rem 1rem !important;
+  background:var(--bg2) !important;
+  border:1.5px solid var(--border) !important;
+  border-radius:50px !important;
+  color:var(--dark) !important;
+  font-size:.8rem !important;
+  font-weight:600;
+  text-decoration:none;
+  transition:all .25s;
+  border-left:1.5px solid var(--border) !important;
+}
+.mobile-social-row a:hover{
+  background:var(--red) !important;
+  border-color:var(--red) !important;
+  color:#fff !important;
+  transform:translateY(-2px);
+}
+.mobile-social-row a i{font-size:.82rem}
 
 /* ===== HERO ===== */
 .hero{margin-top:var(--offset);position:relative;overflow:hidden}
@@ -296,6 +358,42 @@ nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:tra
 .hstat:hover{transform:translateY(-5px);background:rgba(232,0,30,.22);border-color:rgba(232,0,30,.5)}
 .hstat h3{font-family:var(--font-head);font-size:clamp(1.2rem,2.5vw,1.9rem);color:#ff8fa0;font-weight:900;line-height:1;white-space:nowrap}
 .hstat p{font-size:clamp(.6rem,1.2vw,.78rem);color:rgba(210,228,255,.8);margin:0;margin-top:3px}
+
+/* ===== HERO SOCIAL LINKS ===== */
+.hero-social{
+  display:flex;
+  align-items:center;
+  gap:.65rem;
+  margin-top:1.6rem;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.hero-social span{
+  color:rgba(255,255,255,.55);
+  font-size:.72rem;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  margin-right:.2rem;
+}
+.hero-social a{
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;
+  border-radius:11px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.25);
+  color:#fff;
+  font-size:.95rem;
+  text-decoration:none;
+  transition:all .3s;
+  backdrop-filter:blur(8px);
+}
+.hero-social a:hover{
+  background:var(--red);
+  border-color:var(--red);
+  transform:translateY(-4px);
+  box-shadow:0 10px 28px rgba(232,0,30,.45);
+}
 
 .slider-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
 .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;border:none;transition:all .35s;padding:0}
@@ -571,6 +669,41 @@ h2 span{color:var(--red)}
 .mission p{color:rgba(255,255,255,.9);line-height:1.85;font-size:.93rem}
 .about-btns{margin-top:1.8rem;display:flex;gap:1rem;flex-wrap:wrap}
 
+/* ===== ABOUT SOCIAL LINKS ===== */
+.about-social{
+  display:flex;
+  align-items:center;
+  gap:.65rem;
+  margin-top:1.6rem;
+  flex-wrap:wrap;
+}
+.about-social span{
+  color:var(--text);
+  font-size:.78rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-right:.2rem;
+}
+.about-social a{
+  display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;
+  border-radius:12px;
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  color:var(--dark);
+  font-size:.95rem;
+  text-decoration:none;
+  transition:all .3s;
+}
+.about-social a:hover{
+  background:var(--red);
+  border-color:var(--red);
+  color:#fff;
+  transform:translateY(-4px);
+  box-shadow:0 10px 28px rgba(232,0,30,.35);
+}
+
 /* ===== CONTACT ===== */
 #contact{background:var(--bg2);position:relative;overflow:hidden}
 #contact::before{content:'';position:absolute;top:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(232,0,30,.04),transparent 70%);pointer-events:none}
@@ -692,6 +825,43 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 .wa-float a:hover{transform:scale(1.1);box-shadow:0 14px 40px rgba(37,211,102,.55)}
 @keyframes waBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
+/* ===== FLOATING SOCIAL BAR (Instagram + LinkedIn) ===== */
+.social-float{
+  position:fixed;
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:995;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  border-radius:0 14px 14px 0;
+  overflow:hidden;
+  box-shadow:4px 4px 28px rgba(0,0,0,.18);
+}
+.social-float a{
+  display:flex;align-items:center;justify-content:center;
+  width:44px;height:44px;
+  font-size:1.1rem;
+  color:#fff;
+  text-decoration:none;
+  transition:all .3s;
+}
+.social-float-insta{
+  background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);
+}
+.social-float-insta:hover{
+  width:52px !important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.25);
+}
+.social-float-linkedin{
+  background:#0077b5;
+}
+.social-float-linkedin:hover{
+  width:52px !important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.25);
+}
+
 [id]{scroll-margin-top:var(--offset)}
 
 /* ================================================
@@ -793,6 +963,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   #scrollTop{bottom:18px;right:14px;width:40px;height:40px;font-size:.95rem;border-radius:11px}
   .wa-float{bottom:66px;right:14px}
   .wa-float a{width:44px;height:44px;font-size:1.3rem;border-radius:13px}
+  .social-float{display:none}
+  .hero-social{margin-top:1rem;gap:.5rem}
+  .hero-social a{width:34px;height:34px;font-size:.85rem}
 }
 
 /* ================================================
