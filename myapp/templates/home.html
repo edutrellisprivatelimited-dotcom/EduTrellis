@@ -1,91 +1,1677 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-
-<!-- ═══════════════════════════════════════════════
-     PRIMARY SEO META TAGS
-═══════════════════════════════════════════════ -->
-<title>EduTrellis — Website Management, Digital Marketing & SEO Services | Lucknow, India</title>
-<meta name="description" content="EduTrellis Private Limited — India's #1 Complete Digital Growth Partner in Lucknow, UP. Expert website management, WordPress optimization, SEO, Meta Ads, digital marketing, e-commerce, Android app, LMS & online coaching solutions. Starting ₹2,999/month. 1200+ happy clients.">
-<meta name="keywords" content="website management, website creation, website optimization, WordPress management, WordPress optimization, Meta ads running, digital marketing, SEO, Indian website creation, Lucknow remote work, remote company, website management services, education platform, e-commerce website, Android app development, business portfolio website, online coaching platform, EduTrellis, Lucknow digital marketing, Uttar Pradesh SEO, India website design, educational website Lucknow, coaching website India, LMS development, social media marketing Lucknow">
-<meta name="author" content="EduTrellis Private Limited">
-<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-<meta name="revisit-after" content="7 days">
-<meta name="language" content="English">
-<meta name="rating" content="general">
-
-<link rel="canonical" href="https://www.edutrellis.in/">
-<meta name="geo.region" content="IN-UP">
-<meta name="geo.placename" content="Lucknow, Uttar Pradesh, India">
-<meta name="geo.position" content="26.8467;80.9462">
-<meta name="ICBM" content="26.8467, 80.9462">
-<meta name="DC.title" content="EduTrellis — Complete Digital Growth Partner, Lucknow">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="EduTrellis Private Limited">
-<meta property="og:url" content="https://www.edutrellis.in/">
-<meta property="og:title" content="EduTrellis — Website Management, Digital Marketing & SEO | Lucknow India">
-<meta property="og:description" content="Complete digital growth partner for coaches, institutes & businesses across India. Website management from ₹2,999/month. SEO, Meta Ads, e-commerce, LMS & more. 1200+ happy clients.">
-<meta property="og:image" content="https://www.edutrellis.in/static/og-banner.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="EduTrellis — Complete Digital Growth Partner for Indian Businesses, Lucknow">
-<meta property="og:locale" content="en_IN">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@edutrellis">
-<meta name="twitter:creator" content="@edutrellis">
-<meta name="twitter:title" content="EduTrellis — Website Management & Digital Marketing | Lucknow, India">
-<meta name="twitter:description" content="India's #1 complete digital growth partner. Website management, SEO, Meta Ads, e-commerce & LMS for coaches & businesses. Starting ₹2,999/month.">
-<meta name="twitter:image" content="https://www.edutrellis.in/static/og-banner.jpg">
-<meta name="twitter:image:alt" content="EduTrellis Digital Growth Partner — Lucknow India">
-<link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
-<link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon.ico' %}">
-<meta name="theme-color" content="#e8001e">
-<meta name="msapplication-TileColor" content="#e8001e">
-<meta name="application-name" content="EduTrellis">
-<meta name="apple-mobile-web-app-title" content="EduTrellis">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-<link rel="dns-prefetch" href="https://images.unsplash.com">
+<meta name="description" content="EduTrellis — India's #1 Complete Digital Growth Partner for Educational Businesses, Coaches & Creators. Website Management from ₹2,499/month.">
+<title>EduTrellis — Complete Digital Growth Partner</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'style.css' %}">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.edutrellis.in/#organization","name":"EduTrellis Private Limited","alternateName":"EduTrellis","description":"India's complete digital growth partner specializing in website management, WordPress optimization, SEO, Meta Ads, digital marketing, e-commerce, Android app development, LMS, and online coaching solutions for educational institutes, coaches and businesses across India.","url":"https://www.edutrellis.in","logo":"https://www.edutrellis.in/static/logo.png","image":"https://www.edutrellis.in/static/og-banner.jpg","telephone":["+917905817391","+917607845679"],"email":"support@edutrellis.in","foundingDate":"2020","priceRange":"₹₹","currenciesAccepted":"INR","paymentAccepted":"Cash, UPI, Net Banking, Credit Card, Debit Card","address":{"@type":"PostalAddress","addressLocality":"Lucknow","addressRegion":"Uttar Pradesh","addressCountry":"IN","postalCode":"226001"},"geo":{"@type":"GeoCoordinates","latitude":26.8467,"longitude":80.9462},"areaServed":[{"@type":"Country","name":"India"},{"@type":"State","name":"Uttar Pradesh"},{"@type":"City","name":"Lucknow"}],"serviceType":["Website Management","Website Creation","Website Optimization","WordPress Management","WordPress Optimization","Meta Ads","Digital Marketing","SEO","E-commerce Development","Android App Development","Business Portfolio Website","Online Coaching Platform","Education Platform (LMS)","Social Media Marketing","Google Ads","Branding & Design"],"sameAs":["https://www.instagram.com/edutrellis","https://www.linkedin.com/company/edutrellis","https://wa.me/917607845679"],"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"09:00","closes":"20:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":"Sunday","opens":"10:00","closes":"18:00"}],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5","bestRating":"5","worstRating":"1","ratingCount":"1200"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Digital Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Complete Website Management"},"price":"2999","priceCurrency":"INR","priceSpecification":{"@type":"UnitPriceSpecification","unitText":"month"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Static Business Website"},"price":"3000","priceCurrency":"INR"},{"@type":"Offer","itemOffered":{"@type":"Service","name":"E-commerce Website Development"},"price":"8000","priceCurrency":"INR"}]}}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"EduTrellis","url":"https://www.edutrellis.in","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://www.edutrellis.in/?q={search_term_string}"},"query-input":"required name=search_term_string"}}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.edutrellis.in/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://www.edutrellis.in/#services"},{"@type":"ListItem","position":3,"name":"Products","item":"https://www.edutrellis.in/#products"},{"@type":"ListItem","position":4,"name":"Contact","item":"https://www.edutrellis.in/#contact"}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the ₹2,999/month Website Management plan?","acceptedAnswer":{"@type":"Answer","text":"It's our flagship monthly plan where we take complete ownership of your website and digital presence. We handle logo/banner updates, content uploads, SEO, social media, digital marketing on Instagram, Facebook & Google, and assign a dedicated website manager."}},{"@type":"Question","name":"Does EduTrellis offer WordPress management and optimization?","acceptedAnswer":{"@type":"Answer","text":"Yes, EduTrellis provides complete WordPress management and optimization services including plugin updates, speed optimization, security hardening, and content management for coaching institutes and businesses across India."}},{"@type":"Question","name":"Does EduTrellis run Meta Ads and Google Ads?","acceptedAnswer":{"@type":"Answer","text":"Yes, we manage Meta Ads (Facebook & Instagram) and Google Ads as part of our digital marketing services. We handle ad creation, targeting, budget management, and reporting to maximize your ROI."}},{"@type":"Question","name":"Can EduTrellis build an e-commerce website or Android app?","acceptedAnswer":{"@type":"Answer","text":"Yes! We develop full-featured e-commerce websites with payment gateways (Razorpay, UPI), product management, and admin panels. We also develop Android apps for businesses and educational institutes. Contact us for a custom quote."}},{"@type":"Question","name":"Is EduTrellis based in Lucknow?","acceptedAnswer":{"@type":"Answer","text":"Yes, EduTrellis Private Limited is based in Lucknow, Uttar Pradesh, India. We operate as a remote-friendly company and serve clients across India including Lucknow, Delhi, Kanpur, Varanasi, Patna, Hyderabad, and all major cities."}},{"@type":"Question","name":"How long does it take to build my website?","acceptedAnswer":{"@type":"Answer","text":"Static websites are typically delivered within 3–5 business days. Dynamic/e-commerce websites take 10–15 days depending on complexity. Custom large projects are discussed and planned during consultation."}},{"@type":"Question","name":"What does \"3 Months in the First Month\" mean?","acceptedAnswer":{"@type":"Answer","text":"As a special welcome offer, your first billing cycle gives you 3 months of access instead of the usual 1 month. This gives you ample time to see real results before your next billing cycle begins."}}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","serviceType":"Digital Marketing & Website Management","provider":{"@type":"Organization","name":"EduTrellis Private Limited","url":"https://www.edutrellis.in"},"areaServed":{"@type":"Country","name":"India"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Website & Digital Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"SEO Services India"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Meta Ads Management"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"WordPress Management Lucknow"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"E-commerce Website Development India"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Android App Development"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Online Coaching Platform Development"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Education LMS Development"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Business Portfolio Website"}}]}}</script>
+<link rel="shortcut icon" href="https://www.dropbox.com/scl/fi/ikzkffr7f6fq8b2bt9p0w/favicon.ico?rlkey=ocv7aryunrxdi2wnx9vkshdni&raw=1" type="image/x-icon">
+<style>
+/* ===== RESET & ROOT ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#e8001e;--dark-red:#b8001a;--red-glow:rgba(232,0,30,0.18);
+  --bg:#fff;--bg2:#f7f8fc;--bg3:#f0f1f6;
+  --dark:#0f1623;--dark2:#1c2333;--text:#4a5568;--border:#e2e8f0;
+  --strip-h:38px;--nav-h:80px;--offset:calc(var(--strip-h) + var(--nav-h));
+  --r:20px;--shadow:0 8px 40px rgba(0,0,0,0.09);
+  --font-head:'Sora',sans-serif;--font-body:'DM Sans',sans-serif;
+  --grad:linear-gradient(135deg,var(--red),#8b0011);
+}
+
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+  width:100%;
+}
+body{
+  font-family:var(--font-body);
+  color:var(--dark);
+  background:var(--bg);
+  overflow-x:hidden;
+  line-height:1.65;
+  width:100%;
+  position:relative;
+}
+img{max-width:100%;height:auto;display:block}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#f0f0f0}
+::-webkit-scrollbar-thumb{background:var(--red);border-radius:4px}
+
+/* ===== CURSOR (desktop only) ===== */
+.cursor{position:fixed;width:12px;height:12px;background:var(--red);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform .1s,background .2s;mix-blend-mode:normal}
+.cursor-ring{position:fixed;width:38px;height:38px;border:2px solid rgba(232,0,30,.45);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:transform .18s ease,width .3s,height .3s,opacity .3s}
+
+/* ===== LOADER ===== */
+#loader{position:fixed;inset:0;background:var(--dark);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.4rem;transition:opacity .7s ease,visibility .7s ease}
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-logo{font-family:var(--font-head);font-size:3rem;font-weight:900;color:#fff;letter-spacing:-2px}
+.loader-logo span{color:var(--red)}
+.loader-progress{width:240px;height:2px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
+.loader-fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#ff8fa0);animation:loadFill 1.6s cubic-bezier(.77,0,.18,1) forwards}
+@keyframes loadFill{to{width:100%}}
+.loader-pct{color:rgba(255,255,255,.4);font-size:.78rem;letter-spacing:.14em;font-weight:500}
+
+/* ===== TOP STRIP ===== */
+.top-strip{
+  background:linear-gradient(90deg,#a8001a,var(--red),#a8001a);
+  background-size:300% 100%;
+  animation:shimmer 6s linear infinite;
+  color:#fff;
+  height:var(--strip-h);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  width:100%;
+  z-index:1100;
+  overflow:hidden;
+}
+@keyframes shimmer{0%{background-position:300% 0}100%{background-position:-300% 0}}
+
+.strip-inner{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.75rem;
+  padding:0 1rem;
+  width:100%;
+  max-width:1500px;
+  overflow:hidden;
+}
+.strip-pulse{width:7px;height:7px;background:#7fff7f;border-radius:50%;animation:pulse 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:.6}}
+.strip-link{
+  color:#fff;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  font-size:.77rem;
+  font-weight:600;
+  white-space:nowrap;
+  opacity:.92;
+  transition:opacity .2s;
+  flex-shrink:0;
+}
+.strip-link:hover{opacity:1;color:#fff}
+.strip-link i{font-size:.75rem;flex-shrink:0}
+.strip-sep{width:1px;height:12px;background:rgba(255,255,255,.3);flex-shrink:0}
+
+/* ===== HEADER ===== */
+header{
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  height:var(--nav-h);
+  position:fixed;
+  left:0;right:0;
+  top:var(--strip-h);
+  z-index:1000;
+  border-bottom:2.5px solid var(--red);
+  box-shadow:0 2px 24px rgba(0,0,0,.06);
+  transition:box-shadow .3s;
+}
+header.scrolled{box-shadow:0 8px 40px rgba(0,0,0,.1)}
+nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 2.5rem;
+  height:100%;
+  max-width:1500px;
+  margin:0 auto;
+  gap:1rem;
+}
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:.85rem;
+  cursor:pointer;
+  text-decoration:none;
+  flex-shrink:0;
+}
+.logo-img{height:46px;width:auto;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo-img:hover{transform:scale(1.1) rotate(-3deg)}
+.logo-txt{font-family:var(--font-head);font-size:1.75rem;font-weight:900;color:var(--dark);letter-spacing:-1.5px;line-height:1}
+.logo-txt span{color:var(--red)}
+.logo-sub{font-size:.58rem;font-weight:700;letter-spacing:.16em;color:var(--text);text-transform:uppercase;margin-top:3px}
+
+nav ul{display:flex;list-style:none;gap:.05rem;align-items:center}
+nav ul li a{
+  color:var(--dark);text-decoration:none;font-weight:600;font-size:.72rem;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:.45rem .85rem;border-radius:50px;border:1.5px solid transparent;
+  transition:all .25s;display:block;position:relative;white-space:nowrap;
+}
+nav ul li a::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--red);border-radius:2px;transition:width .3s}
+nav ul li a:hover::after,nav ul li a.active::after{width:60%}
+nav ul li a:hover,nav ul li a.active{color:var(--red)}
+nav ul li:last-child a{
+  background:var(--red);color:#fff;border-color:var(--red);
+  padding:.52rem 1.3rem;
+  box-shadow:0 4px 20px rgba(232,0,30,.32);
+}
+nav ul li:last-child a::after{display:none}
+nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,0,30,.42)}
+
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+  padding:8px;
+  border-radius:10px;
+  border:1.5px solid var(--border);
+  background:var(--bg2);
+  transition:all .25s;
+  flex-shrink:0;
+}
+.hamburger span{display:block;width:22px;height:2px;background:var(--dark);border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.hamburger:hover{background:var(--red);border-color:var(--red)}
+.hamburger:hover span{background:#fff}
+
+.mobile-menu{
+  display:none;
+  position:fixed;
+  top:calc(var(--strip-h) + var(--nav-h));
+  left:0;right:0;
+  background:rgba(255,255,255,.99);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  z-index:999;
+  border-top:2px solid var(--red);
+  box-shadow:0 16px 40px rgba(0,0,0,.14);
+  max-height:calc(100vh - var(--strip-h) - var(--nav-h));
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.mobile-menu.open{display:block}
+.mobile-menu ul{list-style:none;padding:1rem 1.2rem 1.5rem}
+.mobile-menu ul li a{
+  display:block;
+  padding:.85rem 1.2rem;
+  color:var(--dark);
+  text-decoration:none;
+  font-weight:700;
+  font-size:.95rem;
+  letter-spacing:.04em;
+  border-radius:14px;
+  transition:all .25s;
+  border-left:3px solid transparent;
+  margin-bottom:.2rem;
+}
+.mobile-menu ul li a:hover,
+.mobile-menu ul li a.active{
+  background:rgba(232,0,30,.06);
+  color:var(--red);
+  border-left-color:var(--red);
+  padding-left:1.6rem;
+}
+.mobile-menu ul li:last-child a{
+  background:var(--red);
+  color:#fff;
+  text-align:center;
+  border-left:none;
+  margin-top:.6rem;
+  box-shadow:0 6px 20px rgba(232,0,30,.3);
+}
+.mobile-menu ul li:last-child a:hover{
+  background:var(--dark-red);
+  padding-left:1.2rem;
+}
+
+/* ===== HERO ===== */
+.hero{margin-top:var(--offset);position:relative;overflow:hidden}
+.slider-wrap{
+  position:relative;
+  width:100%;
+  height:calc(100vh - var(--offset));
+  min-height:560px;
+  overflow:hidden;
+}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;display:flex;align-items:center;justify-content:center}
+.slide.active{opacity:1;z-index:2}
+.slide-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  filter:brightness(.55);
+  transform:scale(1.08);
+  transition:transform 9s ease;
+}
+.slide.active .slide-bg{transform:scale(1)}
+.slide-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(8,2,4,.8) 0%,rgba(0,8,30,.45) 100%)}
+.slide-mesh{position:absolute;inset:0;background-image:radial-gradient(circle at 20% 80%,rgba(232,0,30,.12) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(100,0,200,.08) 0%,transparent 50%);pointer-events:none;z-index:1}
+.slide-content{
+  position:relative;z-index:3;
+  text-align:center;
+  padding:2rem 2rem 6rem;
+  max-width:960px;
+  margin:0 auto;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.slide-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(232,0,30,.85);color:#fff;
+  font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:.4rem 1.3rem;border-radius:50px;margin-bottom:1.4rem;
+  border:1px solid rgba(255,255,255,.25);
+  backdrop-filter:blur(8px);
+  box-shadow:0 4px 20px rgba(232,0,30,.3);
+  white-space:nowrap;
+}
+.slide-content h1{
+  font-family:var(--font-head);
+  font-size:clamp(1.9rem,4.5vw,3.8rem);
+  font-weight:900;color:#fff;
+  margin-bottom:1rem;line-height:1.1;
+  text-shadow:0 4px 32px rgba(0,0,0,.35);
+  letter-spacing:-1.5px;
+  max-width:860px;
+}
+.slide-content h1 em{color:#ff7a8c;font-style:normal;position:relative;display:inline-block}
+.slide-content h1 em::after{content:'';position:absolute;bottom:0px;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff7a8c,transparent);border-radius:2px}
+.slide-content p{font-size:clamp(.9rem,1.8vw,1.18rem);color:rgba(210,228,255,.88);margin-bottom:1.8rem;font-weight:300;max-width:580px}
+.hero-btns{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem;width:100%}
+.hero-stats{
+  display:flex;
+  justify-content:center;
+  gap:.75rem;
+  width:100%;
+  max-width:480px;
+}
+.hstat{
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.18);
+  padding:.85rem 1rem;
+  border-radius:16px;
+  transition:all .35s;cursor:default;
+  flex:1;min-width:0;
+  text-align:center;
+}
+.hstat:hover{transform:translateY(-5px);background:rgba(232,0,30,.22);border-color:rgba(232,0,30,.5)}
+.hstat h3{font-family:var(--font-head);font-size:clamp(1.2rem,2.5vw,1.9rem);color:#ff8fa0;font-weight:900;line-height:1;white-space:nowrap}
+.hstat p{font-size:clamp(.6rem,1.2vw,.78rem);color:rgba(210,228,255,.8);margin:0;margin-top:3px}
+
+.slider-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;border:none;transition:all .35s;padding:0}
+.dot.active{background:var(--red);width:28px;border-radius:4px}
+.sarr{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,.9);color:var(--red);
+  border:none;border-radius:50%;
+  width:44px;height:44px;font-size:1.4rem;
+  cursor:pointer;z-index:10;
+  box-shadow:0 6px 28px rgba(0,0,0,.18);
+  transition:all .3s;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;
+}
+.sarr:hover{background:var(--red);color:#fff;transform:translateY(-50%) scale(1.1);box-shadow:0 12px 32px rgba(232,0,30,.38)}
+.sarr.prev{left:14px}
+.sarr.next{right:14px}
+
+.scroll-hint{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;z-index:10;animation:bobble 2.2s ease-in-out infinite}
+.scroll-hint span{width:26px;height:40px;border:2px solid rgba(255,255,255,.3);border-radius:14px;display:flex;align-items:flex-start;justify-content:center;padding-top:6px}
+.scroll-hint span::after{content:'';width:4px;height:8px;background:rgba(255,255,255,.6);border-radius:2px;animation:scrollDot 1.6s ease-in-out infinite}
+@keyframes scrollDot{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(8px);opacity:.2}}
+@keyframes bobble{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+.scroll-hint p{font-size:.65rem;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase}
+
+/* ===== CTA BUTTONS ===== */
+.cta-btn{
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:13px 28px;
+  background:var(--grad);color:#fff;
+  text-decoration:none;border-radius:50px;
+  font-weight:700;font-size:.88rem;
+  transition:all .3s;
+  box-shadow:0 8px 28px rgba(232,0,30,.38);
+  letter-spacing:.03em;
+  border:1px solid rgba(255,255,255,.15);
+  white-space:nowrap;
+  cursor:pointer;
+}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(232,0,30,.5);color:#fff}
+.cta-btn i{font-size:.82rem;transition:transform .3s}
+.cta-btn:hover i{transform:translateX(4px)}
+.cta-btn.ghost{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.4);box-shadow:none;color:#fff}
+.cta-btn.ghost:hover{background:rgba(255,255,255,.22);transform:translateY(-3px)}
+.cta-btn.outline{background:transparent;border:2px solid var(--red);color:var(--red);box-shadow:none}
+.cta-btn.outline:hover{background:var(--red);color:#fff;box-shadow:0 8px 28px rgba(232,0,30,.35)}
+.cta-btn.dark{background:var(--dark);border-color:var(--dark);box-shadow:0 8px 26px rgba(0,0,0,.25)}
+.cta-btn.dark:hover{background:#0e151f;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+
+/* ===== SECTION BASE ===== */
+section{width:100%;padding:90px 2.5rem}
+.wrap{max-width:1380px;margin:0 auto;width:100%}
+h2{font-family:var(--font-head);font-size:clamp(1.75rem,3.5vw,2.85rem);text-align:center;margin-bottom:.5rem;color:var(--dark);font-weight:900;letter-spacing:-.5px}
+h2 span{color:var(--red)}
+.sub{text-align:center;color:var(--text);margin-bottom:3rem;font-size:1rem;max-width:560px;margin-left:auto;margin-right:auto}
+.accent{width:54px;height:4px;background:linear-gradient(90deg,var(--red),#ff8fa0);margin:.8rem auto 1.1rem;border-radius:2px}
+
+/* ===== REVEAL ===== */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal-left.vis{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal-right.vis{opacity:1;transform:translateX(0)}
+.reveal-scale{opacity:0;transform:scale(.93);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal-scale.vis{opacity:1;transform:scale(1)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}.d6{transition-delay:.48s}
+
+/* ===== MARQUEE ===== */
+.marquee-wrap{background:var(--dark);padding:12px 0;overflow:hidden;position:relative;width:100%}
+.marquee-wrap::before,.marquee-wrap::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+.marquee-wrap::before{left:0;background:linear-gradient(90deg,var(--dark),transparent)}
+.marquee-wrap::after{right:0;background:linear-gradient(-90deg,var(--dark),transparent)}
+.marquee-track{display:flex;width:max-content;animation:marquee 28s linear infinite}
+.marquee-item{display:inline-flex;align-items:center;gap:.7rem;padding:0 2rem;font-size:.76rem;font-weight:600;color:rgba(255,255,255,.65);letter-spacing:.08em;text-transform:uppercase;flex-shrink:0}
+.marquee-item i{color:var(--red);font-size:.88rem}
+.marquee-item .sep{color:var(--red);font-size:1rem;opacity:.5}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ===== WHY US ===== */
+.why-sec{background:var(--bg);position:relative;overflow:hidden}
+.why-bg-circle{position:absolute;border-radius:50%;pointer-events:none}
+.why-bg-circle:nth-child(1){top:-120px;right:-120px;width:500px;height:500px;background:radial-gradient(circle,rgba(232,0,30,.04),transparent 70%)}
+.why-bg-circle:nth-child(2){bottom:-80px;left:-80px;width:350px;height:350px;background:radial-gradient(circle,rgba(0,100,255,.03),transparent 70%)}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.6rem;margin-top:2.5rem}
+.why-card{
+  background:var(--bg);padding:2.2rem 1.8rem;border-radius:24px;text-align:center;
+  border:2px solid var(--border);transition:all .4s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 4px 24px rgba(0,0,0,.04);position:relative;overflow:hidden;cursor:default;
+}
+.why-card::before{content:'';position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .4s;border-radius:22px}
+.why-card:hover::before{opacity:1}
+.why-card:hover{transform:translateY(-10px);border-color:var(--red);box-shadow:0 24px 56px rgba(232,0,30,.28)}
+.why-card:hover *{color:#fff!important}
+.why-card:hover .why-icon{background:rgba(255,255,255,.18)!important;border-color:rgba(255,255,255,.25)!important}
+.why-icon{width:68px;height:68px;background:rgba(232,0,30,.07);border:1.5px solid rgba(232,0,30,.15);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.4rem;transition:all .4s;position:relative;z-index:1}
+.why-card i{font-size:1.85rem;color:var(--red);transition:all .35s;display:block;position:relative;z-index:1}
+.why-card h3{color:var(--dark);margin-bottom:.6rem;font-size:1.05rem;font-weight:800;font-family:var(--font-head);position:relative;z-index:1}
+.why-card p{color:var(--text);font-size:.88rem;line-height:1.75;position:relative;z-index:1}
+
+/* ===== NUMBERS ===== */
+.numbers-sec{
+  background:linear-gradient(135deg,var(--dark) 0%,#1a0a0e 50%,var(--dark2) 100%);
+  position:relative;overflow:hidden;padding:72px 2.5rem;
+}
+.numbers-sec::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 20% 50%,rgba(232,0,30,.08) 0%,transparent 55%),radial-gradient(circle at 80% 50%,rgba(100,0,200,.05) 0%,transparent 55%)}
+.numbers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.8rem;max-width:1000px;margin:0 auto;position:relative;z-index:1}
+.num-card{text-align:center;padding:2rem 1rem;border:1px solid rgba(255,255,255,.07);border-radius:20px;background:rgba(255,255,255,.03);backdrop-filter:blur(10px);transition:all .4s}
+.num-card:hover{border-color:rgba(232,0,30,.35);background:rgba(232,0,30,.06);transform:translateY(-6px)}
+.num-card .icon{font-size:1.9rem;color:var(--red);margin-bottom:.75rem;display:block}
+.num-card h3{font-family:var(--font-head);font-size:2.6rem;color:#fff;font-weight:900;line-height:1;letter-spacing:-2px}
+.num-card h3 span{color:#ff8fa0}
+.num-card p{font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+
+/* ===== PRODUCTS ===== */
+#products{background:var(--bg2);position:relative;overflow:hidden}
+#products::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:2.5rem}
+.prod-card{
+  background:var(--bg);border-radius:26px;overflow:hidden;
+  box-shadow:0 4px 30px rgba(0,0,0,.07);
+  transition:all .4s cubic-bezier(.22,1,.36,1);
+  border:2px solid transparent;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+.prod-card:hover{transform:translateY(-8px);border-color:var(--red);box-shadow:0 28px 64px rgba(232,0,30,.18)}
+.prod-img{width:100%;height:190px;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.prod-card:hover .prod-img{transform:scale(1.06)}
+.prod-img-wrap{overflow:hidden;position:relative}
+.prod-img-wrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to top,rgba(0,0,0,.2),transparent)}
+.prod-badge{position:absolute;top:14px;right:14px;background:var(--red);color:#fff;font-size:.7rem;font-weight:700;padding:.33rem .85rem;border-radius:50px;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 4px 14px rgba(232,0,30,.4);z-index:2}
+.prod-body{padding:1.8rem;flex:1;display:flex;flex-direction:column}
+.prod-header{background:var(--grad);color:#fff;padding:1.6rem;border-radius:18px;margin-bottom:1.5rem;text-align:center;position:relative;overflow:hidden}
+.prod-header::before{content:'';position:absolute;top:-60%;right:-25%;width:200px;height:200px;background:rgba(255,255,255,.07);border-radius:50%}
+.prod-header::after{content:'';position:absolute;bottom:-40%;left:-20%;width:160px;height:160px;background:rgba(255,255,255,.04);border-radius:50%}
+.prod-header h3{font-family:var(--font-head);font-size:1.2rem;margin-bottom:.4rem;font-weight:800;position:relative;z-index:1}
+.prod-price{font-family:var(--font-head);font-size:2.4rem;font-weight:900;color:#fff;margin:.4rem 0;line-height:1;position:relative;z-index:1}
+.prod-price small{font-size:.88rem;opacity:.85;font-weight:400}
+.prod-sub{font-size:.8rem;opacity:.82;position:relative;z-index:1}
+.feat-list{list-style:none;margin:1rem 0}
+.feat-list li{padding:.6rem 0;display:flex;align-items:flex-start;gap:.7rem;border-bottom:1px solid var(--border);color:var(--dark);font-size:.87rem;line-height:1.5}
+.feat-list li:last-child{border:none}
+.feat-list li i{color:var(--red);font-size:.88rem;flex-shrink:0;margin-top:3px}
+.offer-box{background:linear-gradient(135deg,#fff8e6,#fff3cd);padding:1.3rem;border-radius:16px;margin-top:1.1rem;border-left:4px solid var(--red)}
+.offer-box h4{color:#c0392b;margin-bottom:.55rem;font-size:.95rem;font-weight:700}
+.prod-cta{margin-top:auto;padding-top:1.3rem;text-align:center}
+.popular-badge{position:absolute;top:-1px;right:20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:.67rem;font-weight:700;padding:.4rem 1rem;border-radius:0 0 12px 12px;letter-spacing:.06em;text-transform:uppercase;z-index:3;box-shadow:0 4px 14px rgba(245,158,11,.4)}
+
+/* ===== SERVICES ===== */
+#services{background:var(--bg);position:relative}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.6rem;margin-top:2.5rem}
+.svc-item{background:var(--bg);border:2px solid var(--border);border-radius:22px;padding:2rem;transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;cursor:default}
+.svc-item::before{content:'';position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .4s;border-radius:20px}
+.svc-item:hover::before{opacity:1}
+.svc-item:hover{border-color:var(--red);transform:translateY(-7px);box-shadow:0 24px 56px rgba(232,0,30,.24)}
+.svc-item:hover *{color:#fff!important}
+.svc-item:hover .svc-num{background:rgba(255,255,255,.2)!important;color:#fff!important}
+.svc-item:hover .svc-price{background:rgba(255,255,255,.2)!important;color:#fff!important}
+.svc-inner{position:relative;z-index:1}
+.svc-num{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:rgba(232,0,30,.09);border-radius:14px;font-family:var(--font-head);font-size:1.05rem;font-weight:900;color:var(--red);margin-bottom:1rem;transition:all .35s}
+.svc-item h3{font-family:var(--font-head);font-size:1.04rem;font-weight:800;color:var(--dark);margin-bottom:.5rem;transition:color .35s}
+.svc-item p{font-size:.86rem;color:var(--text);line-height:1.7;transition:color .35s}
+.svc-price{display:inline-block;margin-top:.85rem;background:rgba(232,0,30,.09);color:var(--red);font-weight:700;font-size:.82rem;padding:.3rem .9rem;border-radius:50px;transition:all .35s;border:1px solid rgba(232,0,30,.15)}
+
+/* ===== PROJECTS ===== */
+#projects{background:var(--bg2)}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.8rem;margin-top:2.5rem}
+.proj-card{background:var(--bg);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);transition:all .4s cubic-bezier(.22,1,.36,1)}
+.proj-card:hover{transform:translateY(-8px);box-shadow:0 28px 60px rgba(232,0,30,.18)}
+.proj-img-wrap{overflow:hidden;position:relative}
+.proj-img{width:100%;height:200px;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);display:block}
+.proj-card:hover .proj-img{transform:scale(1.08)}
+.proj-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,0,30,.9),rgba(100,0,17,.9));display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.6rem;opacity:0;transition:opacity .4s}
+.proj-card:hover .proj-overlay{opacity:1}
+.proj-overlay i{font-size:2.2rem;color:#fff;transform:translateY(8px);transition:transform .4s .05s}
+.proj-card:hover .proj-overlay i{transform:translateY(0)}
+.proj-overlay span{color:rgba(255,255,255,.85);font-size:.82rem;font-weight:600;transform:translateY(8px);transition:transform .4s .1s}
+.proj-card:hover .proj-overlay span{transform:translateY(0)}
+.proj-info{padding:1.5rem}
+.proj-info h3{font-family:var(--font-head);color:var(--dark);margin-bottom:.45rem;font-size:1.04rem;font-weight:800}
+.proj-info p{color:var(--text);font-size:.86rem;line-height:1.7}
+.proj-tag{display:inline-block;background:rgba(232,0,30,.09);color:var(--red);padding:.26rem .9rem;border-radius:50px;font-size:.73rem;margin-top:.85rem;font-weight:700;border:1px solid rgba(232,0,30,.2)}
+
+/* ===== CLIENTS ===== */
+#clients{background:var(--bg)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.8rem;margin-top:2.5rem}
+.stat-card{
+  background:var(--bg);padding:2.4rem 1.8rem;border-radius:24px;text-align:center;
+  box-shadow:0 4px 28px rgba(0,0,0,.06);border-top:4px solid var(--red);
+  transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;
+}
+.stat-card::after{content:'';position:absolute;bottom:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(232,0,30,.05),transparent 70%);border-radius:50%;pointer-events:none}
+.stat-card:hover{transform:translateY(-8px);box-shadow:0 28px 60px rgba(232,0,30,.15)}
+.stat-icon{width:62px;height:62px;background:rgba(232,0,30,.07);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;transition:all .4s}
+.stat-card:hover .stat-icon{background:var(--red)}
+.stat-card:hover .stat-icon i{color:#fff}
+.stat-card i{font-size:1.75rem;color:var(--red);transition:all .35s;display:block}
+.stat-card h3{font-family:var(--font-head);font-size:2.6rem;color:var(--dark);margin-bottom:.22rem;font-weight:900;letter-spacing:-2px}
+.stat-card p{color:var(--text);font-size:.88rem;font-weight:600}
+.partners-wrap{margin-top:3.5rem;background:var(--bg2);padding:2.8rem;border-radius:26px;box-shadow:0 6px 30px rgba(0,0,0,.05)}
+.partners-wrap h3{font-family:var(--font-head);color:var(--dark);text-align:center;font-size:1.7rem;font-weight:900;margin-bottom:.5rem}
+.partners-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.2rem;margin-top:1.8rem}
+.partner{background:var(--bg);padding:1.6rem 1.2rem;border-radius:18px;text-align:center;font-size:.95rem;font-weight:700;color:var(--dark);transition:all .4s;border:2px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.04);cursor:default}
+.partner i{font-size:1.8rem;color:var(--red);margin-bottom:.55rem;display:block;transition:all .35s}
+.partner:hover{background:var(--red);border-color:var(--red);color:#fff;transform:translateY(-6px);box-shadow:0 18px 44px rgba(232,0,30,.28)}
+.partner:hover i{color:#fff;transform:scale(1.15) rotate(-5deg)}
+
+/* ===== TESTIMONIALS ===== */
+#testimonials{background:linear-gradient(160deg,#0f1623,#1a0608);position:relative;overflow:hidden;padding:90px 2.5rem}
+#testimonials::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 10% 50%,rgba(232,0,30,.07) 0%,transparent 50%),radial-gradient(circle at 90% 50%,rgba(50,0,150,.05) 0%,transparent 50%)}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.8rem;margin-top:2.5rem}
+.testi-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:2.2rem;border-radius:24px;transition:all .4s;backdrop-filter:blur(10px);position:relative}
+.testi-card::before{content:'"';position:absolute;top:-10px;left:22px;font-size:5rem;font-weight:900;color:rgba(232,0,30,.18);line-height:1;font-family:var(--font-head)}
+.testi-card:hover{border-color:rgba(232,0,30,.35);background:rgba(232,0,30,.06);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.testi-stars{display:flex;gap:.3rem;margin-bottom:1rem}
+.testi-stars i{color:#f59e0b;font-size:.88rem}
+.testi-text{color:rgba(255,255,255,.78);font-size:.92rem;line-height:1.85;margin-bottom:1.6rem;position:relative;z-index:1}
+.testi-author{display:flex;align-items:center;gap:.85rem}
+.testi-avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,0,30,.4)}
+.testi-avatar-placeholder{width:46px;height:46px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:1.05rem;font-weight:900;color:#fff;flex-shrink:0}
+.testi-info h4{font-family:var(--font-head);color:#fff;font-size:.95rem;font-weight:700}
+.testi-info p{color:rgba(255,255,255,.45);font-size:.78rem;margin-top:.12rem}
+
+/* ===== PROCESS ===== */
+#process{background:var(--bg2);position:relative;overflow:hidden}
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:3rem;position:relative}
+.process-steps::before{content:'';position:absolute;top:43px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);pointer-events:none}
+.process-step{text-align:center;padding:1.6rem 1.2rem;position:relative;z-index:1}
+.step-num{width:84px;height:84px;border-radius:50%;background:var(--bg);border:3px solid var(--red);display:flex;align-items:center;justify-content:center;margin:0 auto 1.3rem;font-family:var(--font-head);font-size:1.7rem;font-weight:900;color:var(--red);box-shadow:0 8px 28px rgba(232,0,30,.15);transition:all .4s;position:relative}
+.step-num::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px dashed rgba(232,0,30,.2);animation:spin 14s linear infinite}
+.process-step:hover .step-num{background:var(--red);color:#fff;box-shadow:0 16px 40px rgba(232,0,30,.3);transform:scale(1.06)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.process-step h3{font-family:var(--font-head);color:var(--dark);font-size:1rem;font-weight:800;margin-bottom:.5rem}
+.process-step p{color:var(--text);font-size:.85rem;line-height:1.7}
+
+/* ===== FAQ ===== */
+#faq{background:var(--bg)}
+.faq-list{max-width:800px;margin:2.5rem auto 0}
+.faq-item{background:var(--bg);border:2px solid var(--border);border-radius:18px;margin-bottom:.85rem;overflow:hidden;transition:all .35s}
+.faq-item.open{border-color:var(--red);box-shadow:0 8px 32px rgba(232,0,30,.1)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:1.4rem 1.6rem;cursor:pointer;gap:1rem;user-select:none;-webkit-user-select:none}
+.faq-q h4{font-family:var(--font-head);font-size:.97rem;font-weight:700;color:var(--dark);transition:color .3s;line-height:1.4}
+.faq-item.open .faq-q h4{color:var(--red)}
+.faq-icon{width:34px;height:34px;border-radius:10px;background:rgba(232,0,30,.08);border:1.5px solid rgba(232,0,30,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s}
+.faq-icon i{color:var(--red);font-size:.82rem;transition:transform .3s}
+.faq-item.open .faq-icon{background:var(--red);border-color:var(--red)}
+.faq-item.open .faq-icon i{color:#fff;transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.22,1,.36,1),padding .3s}
+.faq-item.open .faq-a{max-height:300px}
+.faq-a p{padding:0 1.6rem 1.4rem;color:var(--text);font-size:.91rem;line-height:1.85}
+
+/* ===== ABOUT ===== */
+#about{background:var(--bg)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.about-img-wrap{position:relative}
+.about-img{width:100%;height:480px;object-fit:cover;border-radius:28px;box-shadow:0 28px 64px rgba(0,0,0,.16);display:block}
+.about-badge{position:absolute;bottom:-20px;right:-20px;background:var(--grad);color:#fff;padding:1.4rem 1.8rem;border-radius:20px;text-align:center;box-shadow:0 14px 40px rgba(232,0,30,.38)}
+.about-badge .bn{font-family:var(--font-head);font-size:2.1rem;font-weight:900;line-height:1}
+.about-badge .bt{font-size:.73rem;opacity:.88;margin-top:3px}
+.about-decorative{position:absolute;top:-24px;left:-24px;width:100px;height:100px;border:3px solid rgba(232,0,30,.2);border-radius:28px;pointer-events:none}
+.about-decorative2{position:absolute;bottom:60px;left:-16px;width:40px;height:150px;background:linear-gradient(180deg,var(--red),transparent);border-radius:20px;opacity:.12;pointer-events:none}
+.about-text h3{font-family:var(--font-head);color:var(--red);margin-bottom:.65rem;font-size:1.6rem;font-weight:800}
+.about-text p{line-height:1.95;color:var(--text);margin-bottom:1.2rem;font-size:.95rem}
+.about-list{list-style:none;margin-top:1.3rem}
+.about-list li{padding:.8rem 0;display:flex;align-items:center;font-size:.95rem;color:var(--dark);border-bottom:1px solid rgba(232,0,30,.07)}
+.about-list li:last-child{border:none}
+.about-list li i{color:var(--red);margin-right:.9rem;font-size:.92rem;flex-shrink:0;width:18px}
+.mission{background:var(--grad);color:#fff;padding:2rem;border-radius:20px;margin-top:1.8rem;box-shadow:0 14px 40px rgba(232,0,30,.32);position:relative;overflow:hidden}
+.mission::after{content:'"';position:absolute;top:-18px;right:18px;font-size:7rem;font-weight:900;color:rgba(255,255,255,.07);line-height:1;font-family:var(--font-head)}
+.mission h4{color:#fff;margin-bottom:.65rem;font-size:1.15rem;font-weight:700;font-family:var(--font-head)}
+.mission p{color:rgba(255,255,255,.9);line-height:1.85;font-size:.93rem}
+.about-btns{margin-top:1.8rem;display:flex;gap:1rem;flex-wrap:wrap}
+
+/* ===== CONTACT ===== */
+#contact{background:var(--bg2);position:relative;overflow:hidden}
+#contact::before{content:'';position:absolute;top:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(232,0,30,.04),transparent 70%);pointer-events:none}
+.contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:3rem}
+.contact-info{
+  background:linear-gradient(160deg,#141a2a,#1c2333);color:#fff;
+  padding:2.8rem;border-radius:26px;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  position:relative;overflow:hidden;
+}
+.contact-info::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(232,0,30,.12),transparent 70%);border-radius:50%}
+.contact-info::after{content:'';position:absolute;bottom:-40px;left:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(50,0,150,.08),transparent 70%);border-radius:50%}
+.contact-info h3{font-family:var(--font-head);font-size:1.6rem;font-weight:800;margin-bottom:1.8rem;position:relative;z-index:1}
+.ci-item{margin-bottom:1.6rem;display:flex;align-items:flex-start;gap:1rem;position:relative;z-index:1}
+.ci-icon{width:48px;height:48px;flex-shrink:0;background:rgba(232,0,30,.16);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--red);transition:all .35s}
+.ci-item:hover .ci-icon{background:var(--red);color:#fff;transform:scale(1.06)}
+.ci-item h4{margin-bottom:.25rem;font-size:.74rem;opacity:.6;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.ci-item a{color:#fff;text-decoration:none;transition:color .3s;font-size:.97rem;font-weight:500}
+.ci-item a:hover{color:#ff8fa0}
+.biz-hours{margin-top:2rem;background:rgba(232,0,30,.1);border:1px solid rgba(232,0,30,.22);padding:1.4rem;border-radius:16px;position:relative;z-index:1}
+.biz-hours h4{color:#ffd6d9;margin-bottom:.65rem;font-size:.92rem;font-weight:700}
+.biz-hours p{opacity:.78;font-size:.86rem;margin-bottom:.3rem}
+.whatsapp-cta{margin-top:1.8rem;display:flex;align-items:center;gap:.8rem;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.3);padding:1.1rem 1.4rem;border-radius:14px;text-decoration:none;transition:all .3s;position:relative;z-index:1}
+.whatsapp-cta:hover{background:rgba(37,211,102,.2);transform:translateX(4px)}
+.whatsapp-cta i{color:#25d366;font-size:1.7rem;flex-shrink:0}
+.whatsapp-cta span{color:#fff;font-size:.9rem;font-weight:600}
+.whatsapp-cta small{display:block;color:rgba(255,255,255,.5);font-size:.74rem;margin-top:.1rem}
+.contact-form-box{background:var(--bg);padding:2.8rem;border-radius:26px;box-shadow:0 8px 40px rgba(0,0,0,.07);border:2px solid var(--border)}
+.contact-form-box h3{font-family:var(--font-head);font-size:1.6rem;font-weight:800;margin-bottom:1.8rem;color:var(--dark)}
+.fg{margin-bottom:1.1rem}
+.fg label{display:block;margin-bottom:.4rem;font-weight:700;color:var(--dark);font-size:.8rem;letter-spacing:.03em;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:12px 15px;
+  border:2px solid var(--border);border-radius:13px;
+  font-family:var(--font-body);
+  transition:border .3s,box-shadow .3s;
+  font-size:.9rem;background:var(--bg2);color:var(--dark);
+  outline:none;
+  -webkit-appearance:none;appearance:none;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--red);background:var(--bg);box-shadow:0 0 0 4px rgba(232,0,30,.08)}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.submit-btn{
+  width:100%;padding:14px;
+  background:var(--grad);color:#fff;
+  border:none;border-radius:13px;
+  font-size:.95rem;font-weight:700;
+  cursor:pointer;transition:all .3s;
+  display:flex;align-items:center;justify-content:center;gap:.6rem;
+  letter-spacing:.04em;font-family:var(--font-body);
+  box-shadow:0 8px 28px rgba(232,0,30,.35);
+  -webkit-appearance:none;
+}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(232,0,30,.45)}
+.submit-btn i{transition:transform .3s}
+.submit-btn:hover i{transform:translateX(4px)}
+
+/* ===== FOOTER ===== */
+footer{
+  background:linear-gradient(160deg,#0f1623,#1c2333);
+  color:#fff;padding:4.5rem 2.5rem 2.5rem;
+  position:relative;overflow:hidden;
+}
+footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red),#ff8fa0,var(--red));background-size:200% 100%;animation:shimmer 4s linear infinite}
+.foot-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;gap:2.5rem;
+  max-width:1380px;margin:0 auto;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding-bottom:2.5rem;margin-bottom:2rem;
+}
+.foot-brand .foot-logo{font-family:var(--font-head);font-size:1.9rem;font-weight:900;letter-spacing:-.5px;margin-bottom:.4rem}
+.foot-brand .foot-logo span{color:var(--red)}
+.foot-brand p{color:rgba(255,255,255,.48);font-size:.86rem;line-height:1.8;max-width:270px;margin-bottom:1.4rem}
+.foot-col h4{font-family:var(--font-head);font-size:.97rem;font-weight:800;margin-bottom:1.2rem;color:#fff}
+.foot-col ul{list-style:none}
+.foot-col ul li{margin-bottom:.65rem}
+.foot-col ul li a{color:rgba(255,255,255,.48);text-decoration:none;font-size:.86rem;transition:all .25s;display:flex;align-items:center;gap:.5rem}
+.foot-col ul li a:hover{color:#ff8fa0;transform:translateX(3px)}
+.foot-col ul li a i{font-size:.73rem;color:var(--red)}
+.foot-contact-item{display:flex;align-items:flex-start;gap:.7rem;margin-bottom:.9rem}
+.foot-contact-item i{color:var(--red);margin-top:3px;font-size:.88rem;flex-shrink:0}
+.foot-contact-item a,.foot-contact-item span{color:rgba(255,255,255,.55);font-size:.84rem;text-decoration:none;transition:color .3s;line-height:1.5}
+.foot-contact-item a:hover{color:#ff8fa0}
+.socials{display:flex;gap:.65rem;margin-top:1.3rem;flex-wrap:wrap}
+.socials a{color:#fff;font-size:1rem;transition:all .35s;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+.socials a:hover{background:var(--red);border-color:var(--red);transform:translateY(-4px);box-shadow:0 10px 28px rgba(232,0,30,.35)}
+.foot-bottom{max-width:1380px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.foot-bottom p{opacity:.4;font-size:.8rem}
+.foot-links{display:flex;gap:1.4rem;flex-wrap:wrap}
+.foot-links a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.77rem;transition:color .3s}
+.foot-links a:hover{color:#ff8fa0}
+
+/* ===== SCROLL TOP ===== */
+#scrollTop{
+  position:fixed;bottom:28px;right:28px;
+  width:46px;height:46px;
+  background:var(--red);color:#fff;
+  border:none;border-radius:13px;
+  font-size:1.05rem;cursor:pointer;
+  box-shadow:0 8px 28px rgba(232,0,30,.38);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:translateY(16px);
+  transition:all .35s;z-index:997;
+}
+#scrollTop.show{opacity:1;transform:translateY(0)}
+#scrollTop:hover{background:var(--dark-red);transform:translateY(-3px)}
+
+/* ===== FLOATING WA ===== */
+.wa-float{position:fixed;bottom:82px;right:28px;z-index:996}
+.wa-float a{
+  display:flex;align-items:center;justify-content:center;
+  width:50px;height:50px;
+  background:#25d366;color:#fff;
+  border-radius:15px;font-size:1.45rem;
+  box-shadow:0 8px 28px rgba(37,211,102,.4);
+  transition:all .35s;text-decoration:none;
+  animation:waBounce 2.5s ease-in-out 2s infinite;
+}
+.wa-float a:hover{transform:scale(1.1);box-shadow:0 14px 40px rgba(37,211,102,.55)}
+@keyframes waBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+[id]{scroll-margin-top:var(--offset)}
+
+/* ================================================
+   TABLET — 992px
+   ================================================ */
+@media(max-width:992px){
+  :root{--strip-h:34px;--nav-h:68px}
+  nav{padding:0 1.4rem}
+  nav ul{display:none}
+  .hamburger{display:flex}
+  .cursor,.cursor-ring{display:none}
+  section{padding:72px 1.8rem}
+  .numbers-sec{padding:64px 1.8rem}
+  #testimonials{padding:72px 1.8rem}
+  .why-grid{grid-template-columns:1fr 1fr}
+  .svc-grid{grid-template-columns:1fr 1fr}
+  .prod-grid{grid-template-columns:1fr 1fr}
+  .proj-grid{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .about-grid{grid-template-columns:1fr;gap:2.5rem}
+  .about-badge{display:none}
+  .contact-grid{grid-template-columns:1fr;gap:2rem}
+  .fg-row{grid-template-columns:1fr}
+  .numbers-grid{grid-template-columns:repeat(2,1fr);gap:1.2rem}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:2rem}
+  .process-steps{grid-template-columns:1fr 1fr;gap:2rem}
+  .process-steps::before{display:none}
+  h2{font-size:1.85rem}
+  .testi-grid{grid-template-columns:1fr 1fr}
+}
+
+/* ================================================
+   MOBILE — 768px
+   ================================================ */
+@media(max-width:768px){
+  :root{--strip-h:50px;--nav-h:60px}
+  .top-strip{height:var(--strip-h);padding:2px 0}
+  .strip-inner{
+    flex-wrap:wrap;
+    justify-content:center;
+    align-content:center;
+    gap:2px .4rem;
+    padding:0 .6rem;
+    max-width:100%;
+    overflow:hidden;
+  }
+  .strip-email-link{display:inline-flex!important;order:-1;flex-basis:100%;justify-content:center;margin-bottom:1px}
+  .strip-sep{display:none}
+  .strip-pulse{display:none}
+  .strip-link{font-size:.62rem;gap:.22rem;white-space:nowrap}
+  .strip-link .strip-txt{display:none}
+  .strip-email-link .strip-txt{display:inline}
+  nav{padding:0 1rem}
+  .slider-wrap{height:calc(100svh - var(--offset));min-height:540px;}
+  .slide-content{padding:1.5rem 1rem 5.5rem;}
+  .slide-content h1{font-size:clamp(1.6rem,6.5vw,2.4rem);letter-spacing:-.8px;margin-bottom:.75rem;}
+  .slide-content p{font-size:.9rem;margin-bottom:1.3rem}
+  .slide-badge{font-size:.63rem;padding:.33rem 1rem;margin-bottom:.9rem}
+  .hero-btns{flex-direction:column;align-items:stretch;width:100%;max-width:300px;gap:.6rem;margin-bottom:1.3rem;}
+  .hero-btns .cta-btn{justify-content:center;padding:12px 18px;font-size:.86rem}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;max-width:340px;}
+  .hstat{padding:.65rem .4rem;border-radius:12px}
+  .hstat h3{font-size:1.1rem;white-space:nowrap}
+  .hstat p{font-size:.58rem}
+  .sarr{width:36px;height:36px;font-size:1.05rem}
+  .sarr.prev{left:7px}
+  .sarr.next{right:7px}
+  .scroll-hint{display:none}
+  section{padding:60px 1.1rem}
+  .numbers-sec{padding:52px 1.1rem}
+  #testimonials{padding:60px 1.1rem}
+  h2{font-size:1.6rem}
+  .sub{font-size:.9rem}
+  .why-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .numbers-grid{grid-template-columns:1fr 1fr;gap:.8rem}
+  .num-card{padding:1.5rem .75rem}
+  .num-card h3{font-size:2rem;letter-spacing:-1px}
+  .svc-grid{grid-template-columns:1fr}
+  .prod-grid{grid-template-columns:1fr}
+  .proj-grid{grid-template-columns:1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .partners-grid{grid-template-columns:1fr 1fr}
+  .process-steps{grid-template-columns:1fr 1fr;gap:1.2rem}
+  .about-grid{grid-template-columns:1fr;gap:2rem}
+  .about-img{height:250px}
+  .about-badge{display:none}
+  .about-btns{flex-direction:column}
+  .about-btns .cta-btn{justify-content:center}
+  .contact-grid{grid-template-columns:1fr;gap:1.6rem}
+  .contact-info{padding:1.8rem 1.3rem}
+  .contact-form-box{padding:1.6rem 1.2rem}
+  .fg-row{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr;gap:1.6rem;padding-bottom:1.8rem;margin-bottom:1.5rem}
+  .foot-bottom{flex-direction:column;text-align:center;gap:.75rem}
+  .foot-links{justify-content:center;gap:.9rem}
+  .partners-wrap{padding:1.8rem 1rem}
+  .partners-wrap h3{font-size:1.4rem}
+  #scrollTop{bottom:18px;right:14px;width:40px;height:40px;font-size:.95rem;border-radius:11px}
+  .wa-float{bottom:66px;right:14px}
+  .wa-float a{width:44px;height:44px;font-size:1.3rem;border-radius:13px}
+}
+
+/* ================================================
+   VERY SMALL — 400px
+   ================================================ */
+@media(max-width:400px){
+  :root{--strip-h:46px;--nav-h:52px}
+  .strip-inner{padding:0 .5rem;gap:.3rem}
+  .strip-link{font-size:.65rem}
+  .slide-content h1{font-size:1.5rem}
+  .hero-stats{max-width:300px}
+  .hstat h3{font-size:.95rem}
+  .hstat p{font-size:.53rem}
+  .stats-grid{grid-template-columns:1fr}
+  .numbers-grid{grid-template-columns:1fr 1fr}
+  .process-steps{grid-template-columns:1fr}
+  .partners-grid{grid-template-columns:1fr}
+  h2{font-size:1.45rem}
+}
+
+html,body{overflow-x:hidden!important;max-width:100vw;}
+section,header,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overflow-x:hidden;}
+.wrap{overflow-x:hidden}
+@media(max-width:768px){
+  .slide-content{padding:1.5rem .9rem 5.5rem;max-width:100%;overflow:hidden;}
+  .slide-badge{font-size:.6rem;padding:.3rem .8rem;max-width:calc(100vw - 2rem);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hero-stats{width:calc(100% - 1rem);max-width:320px;}
+  .hstat h3{font-size:clamp(.85rem,2.8vw,1.1rem)!important}
+  .hstat p{font-size:.55rem!important}
+  nav{padding:0 .75rem!important}
+  .logo-sub{display:block;font-size:.48rem;letter-spacing:.12em;margin-top:2px}
+  .logo-txt{font-size:1.4rem;letter-spacing:-1px}
+  section{padding:60px .9rem!important}
+  .numbers-sec{padding:52px .9rem!important}
+  #testimonials{padding:60px .9rem!important}
+  .contact-info{padding:1.6rem 1rem}
+  .contact-form-box{padding:1.5rem 1rem}
+  .partners-wrap{padding:1.5rem .8rem}
+  footer{padding:3rem 1rem 2rem}
+  .foot-grid{padding-inline:0}
+}
+@media(max-width:400px){
+  .logo-txt{font-size:1.2rem}
+  .strip-inner{padding:0 .4rem;gap:2px .25rem}
+  .strip-link{font-size:.58rem}
+  nav{padding:0 .5rem!important}
+  section{padding:48px .75rem!important}
+}
+</style>
 </head>
-<body itemscope itemtype="https://schema.org/WebPage">
+<body>
+
+<!-- CURSOR (desktop only) -->
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
-<div id="loader"><div class="loader-logo">Edu<span>Trellis</span></div><div class="loader-progress"><div class="loader-fill"></div></div><div class="loader-pct" id="loaderPct">0%</div></div>
-<div class="top-strip" role="banner"><div class="strip-inner"><a href="mailto:support@edutrellis.in" class="strip-link strip-email-link" aria-label="Email EduTrellis"><i class="fas fa-envelope"></i><span class="strip-txt">support@edutrellis.in</span></a><span class="strip-sep"></span><a href="tel:+917905817391" class="strip-link" aria-label="Call EduTrellis Support"><i class="fas fa-headset"></i><span class="strip-txt">Support: </span>+91&nbsp;79058&nbsp;17391</a><span class="strip-sep"></span><a href="https://wa.me/917607845679" class="strip-link" aria-label="WhatsApp EduTrellis" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i><span class="strip-txt">WhatsApp: </span>+91&nbsp;76078&nbsp;45679</a><span class="strip-sep"></span><a href="https://www.instagram.com/edutrellis" class="strip-link" aria-label="Follow EduTrellis on Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i><span class="strip-txt">Instagram</span></a><span class="strip-sep"></span><a href="https://www.linkedin.com/company/edutrellis/posts/?feedView=all&viewAsMember=true" class="strip-link" aria-label="Follow EduTrellis on LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i><span class="strip-txt">LinkedIn</span></a></div></div>
-<header id="mainHeader" itemscope itemtype="https://schema.org/SiteNavigationElement"><nav><a href="#home" class="logo-wrap" aria-label="EduTrellis — Digital Growth Partner Home"><img src="logo.png" alt="EduTrellis Private Limited — Digital Growth Partner Lucknow" class="logo-img" width="48" height="48" onerror="this.style.display='none'"><div><div class="logo-txt">Edu<span>Trellis</span></div><div class="logo-sub">Digital Growth Partner</div></div></a><ul id="desktopNav" role="menubar" aria-label="Main navigation"><li role="none"><a href="#home" role="menuitem">Home</a></li><li role="none"><a href="#products" role="menuitem">Products</a></li><li role="none"><a href="#services" role="menuitem">Services</a></li><li role="none"><a href="#projects" role="menuitem">Projects</a></li><li role="none"><a href="#clients" role="menuitem">Clients</a></li><li role="none"><a href="#about" role="menuitem">About</a></li><li role="none"><a href="#contact" role="menuitem">Contact Us</a></li></ul><button class="hamburger" id="ham" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu"><span></span><span></span><span></span></button></nav></header>
-<div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile navigation menu"><ul><li><a href="#home">Home</a></li><li><a href="#products">Products</a></li><li><a href="#services">Services</a></li><li><a href="#projects">Projects</a></li><li><a href="#clients">Clients</a></li><li><a href="#about">About</a></li><li><a href="#contact">Contact Us</a></li></ul><div class="mobile-socials"><a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="Follow EduTrellis on Instagram"><i class="fab fa-instagram"></i></a><a href="https://www.linkedin.com/company/edutrellis/posts/?feedView=all&viewAsMember=true" target="_blank" rel="noopener noreferrer" aria-label="Follow EduTrellis on LinkedIn"><i class="fab fa-linkedin-in"></i></a><a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer" aria-label="Chat with EduTrellis on WhatsApp"><i class="fab fa-whatsapp"></i></a></div></div>
-<div class="hero" id="home" role="main" itemscope itemtype="https://schema.org/WPHeader">
-  <div class="slider-wrap" aria-label="EduTrellis services highlight carousel">
-    <div class="slide active"><div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&auto=format&fit=crop')" role="img" aria-label="Digital marketing dashboard — EduTrellis website management services India"></div><div class="slide-overlay"></div><div class="slide-mesh"></div><div class="slide-content"><div class="slide-badge">● India's #1 Digital Growth Partner</div><h1 itemprop="headline">Transform Your <em>Digital Presence</em> — Start Today</h1><p itemprop="description">From Website to Success — Complete Digital Solutions Tailored for Indian Businesses, Coaches &amp; Institutes</p><div class="hero-btns"><a href="#contact" class="cta-btn" aria-label="Get started with EduTrellis digital services">Get Started Today <i class="fas fa-arrow-right"></i></a><a href="#products" class="cta-btn ghost" aria-label="Explore EduTrellis website management plans">Explore Plans <i class="fas fa-chevron-down"></i></a></div><div class="hero-stats"><div class="hstat"><h3>1200+</h3><p>Happy Clients</p></div><div class="hstat"><h3>500+</h3><p>Projects Done</p></div><div class="hstat"><h3>98%</h3><p>Satisfaction</p></div></div></div></div>
-    <div class="slide"><div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1920&auto=format&fit=crop')" role="img" aria-label="Team managing website and digital marketing — EduTrellis Lucknow"></div><div class="slide-overlay"></div><div class="slide-mesh"></div><div class="slide-content"><div class="slide-badge">🔥 Complete Management Plans</div><h2 class="slide-h1">Complete <em>Website Management</em> — We Handle It All</h2><p>Your website, WordPress management, Meta Ads &amp; growth — in expert hands, so you focus on what you love</p><div class="hero-btns"><a href="#products" class="cta-btn" aria-label="Explore website management plans">Explore Plans <i class="fas fa-arrow-right"></i></a><a href="#contact" class="cta-btn ghost" aria-label="Book free demo with EduTrellis">Book Free Demo <i class="fas fa-calendar"></i></a></div><div class="hero-stats"><div class="hstat"><h3>₹2,999</h3><p>From/Month</p></div><div class="hstat"><h3>3 Months</h3><p>1st Month</p></div><div class="hstat"><h3>24/7</h3><p>Support</p></div></div></div></div>
-    <div class="slide"><div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920&auto=format&fit=crop')" role="img" aria-label="Custom website development for Indian businesses — EduTrellis Lucknow UP"></div><div class="slide-overlay"></div><div class="slide-mesh"></div><div class="slide-content"><div class="slide-badge">🌐 Custom Website Development</div><h2 class="slide-h1">Custom <em>Websites Built</em> for Real Growth</h2><p>Professional, fast &amp; SEO-ready websites crafted for coaching institutes, e-commerce &amp; businesses across India</p><div class="hero-btns"><a href="#contact" class="cta-btn" aria-label="Book free website development demo">Book FREE Demo <i class="fas fa-arrow-right"></i></a><a href="#projects" class="cta-btn ghost" aria-label="See EduTrellis website projects">See Our Work <i class="fas fa-eye"></i></a></div><div class="hero-stats"><div class="hstat"><h3>500+</h3><p>Sites Built</p></div><div class="hstat"><h3>SEO</h3><p>Ready</p></div><div class="hstat"><h3>24/7</h3><p>Support</p></div></div></div></div>
-    <button class="sarr prev" onclick="changeSlide(-1)" aria-label="Previous slide">&#8249;</button><button class="sarr next" onclick="changeSlide(1)" aria-label="Next slide">&#8250;</button><div class="slider-dots" role="tablist" aria-label="Slider navigation"><button class="dot active" onclick="goTo(0)" aria-label="Go to slide 1" role="tab"></button><button class="dot" onclick="goTo(1)" aria-label="Go to slide 2" role="tab"></button><button class="dot" onclick="goTo(2)" aria-label="Go to slide 3" role="tab"></button></div><div class="scroll-hint" aria-hidden="true"><span></span><p>Scroll Down</p></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">Edu<span>Trellis</span></div>
+  <div class="loader-progress"><div class="loader-fill"></div></div>
+  <div class="loader-pct" id="loaderPct">0%</div>
+</div>
+
+<!-- TOP STRIP -->
+<div class="top-strip" role="banner">
+  <div class="strip-inner">
+    <a href="mailto:support@edutrellis.in" class="strip-link strip-email-link" aria-label="Email us">
+      <i class="fas fa-envelope"></i>
+      <span class="strip-txt">support@edutrellis.in</span>
+    </a>
+    <span class="strip-sep"></span>
+    <a href="tel:+917905817391" class="strip-link" aria-label="Support line">
+      <i class="fas fa-headset"></i>
+      <span class="strip-txt">Support: </span>+91&nbsp;79058&nbsp;17391
+    </a>
+    <span class="strip-sep"></span>
+    <a href="https://wa.me/917607845679" class="strip-link" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+      <i class="fab fa-whatsapp"></i>
+      <span class="strip-txt">WhatsApp: </span>+91&nbsp;76078&nbsp;45679
+    </a>
   </div>
 </div>
-<div class="marquee-wrap" aria-hidden="true" aria-label="EduTrellis key highlights"><div class="marquee-track"><div class="marquee-item"><i class="fas fa-rocket"></i>Fast Delivery<span class="sep">✦</span></div><div class="marquee-item"><i class="fas fa-shield-alt"></i>Quality Assured<span class="sep">✦</span></div><div class="marquee-item"><i class="fas fa-headset"></i>24/7 Support<span class="sep">✦</span></div><div class="marquee-item"><i class="fas fa-users"></i>1200+ Happy Clients<span class="sep">✦</span></div><div class="marquee-item"><i class="fas fa-chart-line"></i>Proven Growth<span class="sep">✦</span></div><div class="marquee-item"><i class="fas fa-rupee-sign"></i>Starting ₹2,999/mo<span class="sep">✦</span></div></div></div>
-<section class="why-sec" aria-labelledby="why-heading"><div class="why-bg-circle"></div><div class="why-bg-circle"></div><div class="wrap"><h2 id="why-heading" class="reveal">Why Choose <span>EduTrellis</span></h2><div class="accent reveal d1"></div><p class="sub reveal d2">Comprehensive digital solutions engineered for real, measurable business growth — from Lucknow to all of India</p><div class="why-grid"><div class="why-card reveal d1"><div class="why-icon"><i class="fas fa-rocket"></i></div><h3>Fast Delivery</h3><p>Quick turnaround without ever compromising quality or attention to detail</p></div><div class="why-card reveal d2"><div class="why-icon"><i class="fas fa-shield-alt"></i></div><h3>Quality Assured</h3><p>Every project delivered with full attention to quality, reliability and your satisfaction</p></div><div class="why-card reveal d3"><div class="why-icon"><i class="fas fa-headset"></i></div><h3>24/7 Support</h3><p>Round-the-clock dedicated customer support whenever you need assistance</p></div><div class="why-card reveal d4"><div class="why-icon"><i class="fas fa-users"></i></div><h3>Expert Team</h3><p>Experienced professionals dedicated 100% to growing your business digitally</p></div><div class="why-card reveal d5"><div class="why-icon"><i class="fas fa-chart-line"></i></div><h3>Proven Growth</h3><p>1200+ clients across India have grown their revenue and online presence with us</p></div><div class="why-card reveal d6"><div class="why-icon"><i class="fas fa-rupee-sign"></i></div><h3>Affordable Pricing</h3><p>Transparent plans starting at just ₹2,999/month — no hidden fees, ever</p></div></div></div></section>
+
+<!-- HEADER -->
+<header id="mainHeader">
+  <nav>
+    <a href="#home" class="logo-wrap" aria-label="EduTrellis Home">
+      <img src="logo.png" alt="EduTrellis" class="logo-img" onerror="this.style.display='none'">
+      <div>
+        <div class="logo-txt">Edu<span>Trellis</span></div>
+        <div class="logo-sub">Digital Growth Partner</div>
+      </div>
+    </a>
+    <ul id="desktopNav">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#products">Products</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#clients">Clients</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ul>
+    <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile navigation">
+  <ul>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#products">Products</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#clients">Clients</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact Us</a></li>
+  </ul>
+</div>
+
+<!-- HERO SLIDER -->
+<div class="hero" id="home">
+  <div class="slider-wrap">
+    <!-- Slide 1 -->
+    <div class="slide active">
+      <div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&auto=format&fit=crop')"></div>
+      <div class="slide-overlay"></div>
+      <div class="slide-mesh"></div>
+      <div class="slide-content">
+        <div class="slide-badge">● India's #1 Digital Growth Partner</div>
+        <h1>Transform Your <em>Digital Presence</em> — Start Today</h1>
+        <p>From Website to Success — Complete Digital Solutions Tailored for Indian Businesses</p>
+        <div class="hero-btns">
+          <a href="#contact" class="cta-btn">Get Started Today <i class="fas fa-arrow-right"></i></a>
+          <a href="#products" class="cta-btn ghost">Explore Plans <i class="fas fa-chevron-down"></i></a>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><h3>1200+</h3><p>Happy Clients</p></div>
+          <div class="hstat"><h3>500+</h3><p>Projects Done</p></div>
+          <div class="hstat"><h3>98%</h3><p>Satisfaction</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Slide 2 -->
+    <div class="slide">
+      <div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1920&auto=format&fit=crop')"></div>
+      <div class="slide-overlay"></div>
+      <div class="slide-mesh"></div>
+      <div class="slide-content">
+        <div class="slide-badge">🔥 Complete Management Plans</div>
+        <h1>Complete <em>Website Management</em> — We Handle It All</h1>
+        <p>Your website, marketing &amp; growth — in expert hands, so you focus on what you love</p>
+        <div class="hero-btns">
+          <a href="#products" class="cta-btn">Explore Plans <i class="fas fa-arrow-right"></i></a>
+          <a href="#contact" class="cta-btn ghost">Book Free Demo <i class="fas fa-calendar"></i></a>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><h3>₹2,499</h3><p>From/Month</p></div>
+          <div class="hstat"><h3>3 Months</h3><p>1st Month</p></div>
+          <div class="hstat"><h3>24/7</h3><p>Support</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Slide 3 -->
+    <div class="slide">
+      <div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920&auto=format&fit=crop')"></div>
+      <div class="slide-overlay"></div>
+      <div class="slide-mesh"></div>
+      <div class="slide-content">
+        <div class="slide-badge">🌐 Custom Website Development</div>
+        <h1>Custom <em>Websites Built</em> for Real Growth</h1>
+        <p>Professional, fast &amp; SEO-ready websites crafted for your specific business goals</p>
+        <div class="hero-btns">
+          <a href="#contact" class="cta-btn">Book FREE Demo <i class="fas fa-arrow-right"></i></a>
+          <a href="#projects" class="cta-btn ghost">See Our Work <i class="fas fa-eye"></i></a>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><h3>500+</h3><p>Sites Built</p></div>
+          <div class="hstat"><h3>SEO</h3><p>Ready</p></div>
+          <div class="hstat"><h3>24/7</h3><p>Support</p></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="sarr prev" onclick="changeSlide(-1)" aria-label="Previous slide">&#8249;</button>
+    <button class="sarr next" onclick="changeSlide(1)" aria-label="Next slide">&#8250;</button>
+    <div class="slider-dots">
+      <button class="dot active" onclick="goTo(0)" aria-label="Slide 1"></button>
+      <button class="dot" onclick="goTo(1)" aria-label="Slide 2"></button>
+      <button class="dot" onclick="goTo(2)" aria-label="Slide 3"></button>
+    </div>
+    <div class="scroll-hint" aria-hidden="true"><span></span><p>Scroll Down</p></div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track">
+    <div class="marquee-item"><i class="fas fa-rocket"></i>Fast Delivery<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-shield-alt"></i>Quality Assured<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-headset"></i>24/7 Support<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-users"></i>1200+ Happy Clients<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-chart-line"></i>Proven Growth<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-rupee-sign"></i>Starting ₹2,499/mo<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-star"></i>98% Satisfaction<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-graduation-cap"></i>Education Specialists<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-rocket"></i>Fast Delivery<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-shield-alt"></i>Quality Assured<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-headset"></i>24/7 Support<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-users"></i>1200+ Happy Clients<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-chart-line"></i>Proven Growth<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-rupee-sign"></i>Starting ₹2,499/mo<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-star"></i>98% Satisfaction<span class="sep">✦</span></div>
+    <div class="marquee-item"><i class="fas fa-graduation-cap"></i>Education Specialists<span class="sep">✦</span></div>
+  </div>
+</div>
+
+<!-- WHY US -->
+<section class="why-sec">
+  <div class="why-bg-circle"></div>
+  <div class="why-bg-circle"></div>
+  <div class="wrap">
+    <h2 class="reveal">Why Choose <span>EduTrellis</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Comprehensive digital solutions engineered for real, measurable business growth</p>
+    <div class="why-grid">
+      <div class="why-card reveal d1"><div class="why-icon"><i class="fas fa-rocket"></i></div><h3>Fast Delivery</h3><p>Quick turnaround without ever compromising quality or attention to detail</p></div>
+      <div class="why-card reveal d2"><div class="why-icon"><i class="fas fa-shield-alt"></i></div><h3>Quality Assured</h3><p>Every project delivered with full attention to quality, reliability and your satisfaction</p></div>
+      <div class="why-card reveal d3"><div class="why-icon"><i class="fas fa-headset"></i></div><h3>24/7 Support</h3><p>Round-the-clock dedicated customer support whenever you need assistance</p></div>
+      <div class="why-card reveal d4"><div class="why-icon"><i class="fas fa-users"></i></div><h3>Expert Team</h3><p>Experienced professionals dedicated 100% to growing your business</p></div>
+      <div class="why-card reveal d5"><div class="why-icon"><i class="fas fa-chart-line"></i></div><h3>Proven Growth</h3><p>1200+ clients have grown their revenue and online presence with us</p></div>
+      <div class="why-card reveal d6"><div class="why-icon"><i class="fas fa-rupee-sign"></i></div><h3>Affordable Pricing</h3><p>Transparent plans starting at just ₹2,499/month — no hidden fees, ever</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<section class="numbers-sec">
+  <div class="wrap">
+    <div class="numbers-grid">
+      <div class="num-card reveal d1"><i class="fas fa-users icon"></i><h3><span class="counter" data-target="1200">0</span>+</h3><p>Active Clients</p></div>
+      <div class="num-card reveal d2"><i class="fas fa-code icon"></i><h3><span class="counter" data-target="500">0</span>+</h3><p>Projects Delivered</p></div>
+      <div class="num-card reveal d3"><i class="fas fa-smile icon"></i><h3><span class="counter" data-target="98">0</span>%</h3><p>Satisfaction Rate</p></div>
+      <div class="num-card reveal d4"><i class="fas fa-star icon"></i><h3><span class="counter" data-target="5">0</span>★</h3><p>Average Rating</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="wrap">
+    <h2 class="reveal">Our <span>Products</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Choose the perfect plan for your digital growth journey</p>
+    <div class="prod-grid">
+
+      <div class="prod-card reveal d1">
+        <div class="popular-badge">⭐ Most Popular</div>
+        <div class="prod-img-wrap">
+          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=400&fit=crop" alt="Website Management" class="prod-img" loading="lazy">
+          <span class="prod-badge">₹2,499/mo</span>
+        </div>
+        <div class="prod-body">
+          <div class="prod-header">
+            <h3>Complete Website Management</h3>
+            <div class="prod-price">₹2,499<small>/month</small></div>
+            <div class="prod-sub">Everything You Need — We Handle It All</div>
+          </div>
+          <ul class="feat-list">
+            <li><i class="fas fa-check-circle"></i><span><strong>Complete Website Management</strong> — end to end</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Logo &amp; Banner Updates</strong> — fresh creatives</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Course Thumbnails &amp; Creative Design</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Content Upload &amp; Optimization</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Digital Marketing</strong> — Instagram, Facebook &amp; Google</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Social Media Handles</strong> — creation &amp; growth</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Student Traffic Generation</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>SEO &amp; Ranking</strong> — get found on Google</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Website Manager</strong> assigned to you</span></li>
+          </ul>
+          <div class="offer-box">
+            <h4>🎯 Special First Month Offer</h4>
+            <ul class="feat-list" style="margin:0">
+              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span>Earn up to <strong>₹20,000/month</strong> from courses</span></li>
+              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span><strong>3 Months Access</strong> in the first month</span></li>
+              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span>Works even if business is <strong>inactive</strong></span></li>
+            </ul>
+          </div>
+          <div class="prod-cta"><a href="#contact" class="cta-btn">Book FREE Demo <i class="fas fa-arrow-right"></i></a></div>
+        </div>
+      </div>
+
+      <div class="prod-card reveal d2">
+        <div class="prod-img-wrap">
+          <img src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&h=400&fit=crop" alt="Static Website" class="prod-img" loading="lazy">
+          <span class="prod-badge">₹3K–₹4K</span>
+        </div>
+        <div class="prod-body">
+          <div class="prod-header">
+            <h3>Static Business Website</h3>
+            <div class="prod-price">₹3,000<small>–₹4,000</small></div>
+            <div class="prod-sub">Single Page Professional Business Site</div>
+          </div>
+          <ul class="feat-list">
+            <li><i class="fas fa-check-circle"></i><span><strong>Hero Banner</strong> with your brand identity</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>About Us Section</strong> — mission &amp; vision</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Products / Services Showcase</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Contact Section</strong> with form &amp; map</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Fully Mobile Responsive</strong> design</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Fast Loading</strong> &amp; SEO-ready</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Free 1 Month</strong> maintenance included</span></li>
+          </ul>
+          <div class="offer-box"><h4>✨ Best For</h4><p style="font-size:.87rem;color:var(--text)">Coaches, educators, small businesses &amp; startups needing a quick online presence</p></div>
+          <div class="prod-cta"><a href="#contact" class="cta-btn">Get Quote <i class="fas fa-arrow-right"></i></a></div>
+        </div>
+      </div>
+
+      <div class="prod-card reveal d3">
+        <div class="prod-img-wrap">
+          <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=400&fit=crop" alt="E-commerce" class="prod-img" loading="lazy">
+          <span class="prod-badge">₹8K–₹10K</span>
+        </div>
+        <div class="prod-body">
+          <div class="prod-header">
+            <h3>Dynamic / E-commerce Website</h3>
+            <div class="prod-price">₹8,000<small>–₹10,000</small></div>
+            <div class="prod-sub">Full-Featured Online Store</div>
+          </div>
+          <ul class="feat-list">
+            <li><i class="fas fa-check-circle"></i><span><strong>Online Store</strong> — clothing, products &amp; more</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Payment Gateway</strong> — Razorpay, PayU &amp; UPI</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Product Catalog</strong> with filters &amp; search</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Admin Panel</strong> — manage orders &amp; customers</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Cart &amp; Checkout</strong> with coupon support</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Customer Dashboard</strong> with order tracking</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Secure &amp; Scalable</strong> architecture</span></li>
+          </ul>
+          <div class="offer-box"><h4>✨ Best For</h4><p style="font-size:.87rem;color:var(--text)">Clothing stores, product sellers &amp; businesses needing full e-commerce functionality</p></div>
+          <div class="prod-cta"><a href="#contact" class="cta-btn">Get Quote <i class="fas fa-arrow-right"></i></a></div>
+        </div>
+      </div>
+
+      <div class="prod-card reveal d4">
+        <div class="prod-img-wrap">
+          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=400&fit=crop" alt="Custom Projects" class="prod-img" loading="lazy">
+          <span class="prod-badge" style="background:var(--dark)">₹15K+</span>
+        </div>
+        <div class="prod-body">
+          <div class="prod-header" style="background:linear-gradient(135deg,#1c2333,#2c3e50)">
+            <h3>Custom Big Projects</h3>
+            <div class="prod-price">₹15,000<small>+</small></div>
+            <div class="prod-sub">Enterprise-Grade Custom Solutions</div>
+          </div>
+          <ul class="feat-list">
+            <li><i class="fas fa-check-circle"></i><span><strong>Full Custom Development</strong> — built to spec</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Large-Scale LMS Platforms</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Multi-vendor / Multi-role</strong> systems</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>API Integrations</strong> with third-party tools</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Advanced Analytics Dashboards</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Project Manager</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Training &amp; Full Documentation</strong></span></li>
+          </ul>
+          <div class="offer-box"><h4>✨ Best For</h4><p style="font-size:.87rem;color:var(--text)">Startups, institutes &amp; businesses needing a custom-built digital product</p></div>
+          <div class="prod-cta"><a href="#contact" class="cta-btn dark">Discuss Project <i class="fas fa-arrow-right"></i></a></div>
+        </div>
+      </div>
+
+      <div class="prod-card reveal d5">
+        <div class="popular-badge" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">💎 Best Value</div>
+        <div class="prod-img-wrap">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=400&fit=crop" alt="Complete Package" class="prod-img" loading="lazy">
+          <span class="prod-badge" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">6 Months</span>
+        </div>
+        <div class="prod-body">
+          <div class="prod-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
+            <h3>Complete Manager Package</h3>
+            <div class="prod-price">₹9,999<small>/6 months</small></div>
+            <div class="prod-sub">All Services in One — Maximum Savings</div>
+          </div>
+          <ul class="feat-list">
+            <li><i class="fas fa-check-circle"></i><span><strong>Everything in Website Management</strong> plan</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Logo, Banner &amp; Thumbnail Design</strong> for 6 months</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Google My Business Setup &amp; Management</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Google Maps Listing</strong> &amp; local SEO</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Social Media &amp; Digital Marketing</strong></span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>SEO + Student Traffic</strong> generation</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>1 Dedicated Manager</strong> for 6 full months</span></li>
+          </ul>
+          <div class="offer-box" style="background:linear-gradient(135deg,#f3e8ff,#ede9fe);border-left-color:#7c3aed">
+            <h4 style="color:#5b21b6">💡 Save Over ₹5,000 vs Monthly</h4>
+            <p style="font-size:.87rem;color:var(--text)">6 months of complete business management at a heavily discounted rate</p>
+          </div>
+          <div class="prod-cta"><a href="#contact" class="cta-btn" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);box-shadow:0 8px 26px rgba(124,58,237,.38)">Get This Package <i class="fas fa-arrow-right"></i></a></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <h2 class="reveal">All <span>Services</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Every service we offer, clearly priced and explained</p>
+    <div class="svc-grid">
+      <div class="svc-item reveal d1"><div class="svc-inner"><div class="svc-num">01</div><h3>Complete Website Management</h3><p>Logo/banner updates, content management, course uploads, digital marketing on Instagram, Facebook &amp; Google, social handles creation, student traffic, SEO &amp; a dedicated website manager.</p><span class="svc-price">₹2,499/month &nbsp;|&nbsp; 3 Months First Month</span></div></div>
+      <div class="svc-item reveal d2"><div class="svc-inner"><div class="svc-num">02</div><h3>Static Business Website</h3><p>Single-page business website — fully static with Home, About, Contact, Products/Services &amp; Owner Details. Mobile-friendly, fast &amp; SEO ready.</p><span class="svc-price">₹3,000–₹4,000 one-time</span></div></div>
+      <div class="svc-item reveal d3"><div class="svc-inner"><div class="svc-num">03</div><h3>Dynamic / E-commerce Website</h3><p>Full-featured dynamic website for clothing stores, product sellers &amp; e-commerce. Admin panel, payment gateway, inventory, cart &amp; customer dashboard.</p><span class="svc-price">₹8,000–₹10,000 one-time</span></div></div>
+      <div class="svc-item reveal d4"><div class="svc-inner"><div class="svc-num">04</div><h3>Custom Big Projects</h3><p>Large-scale custom web apps — educational platforms, portals, multi-vendor systems, complex integrations &amp; enterprise solutions built to your specification.</p><span class="svc-price">₹15,000+ custom quote</span></div></div>
+      <div class="svc-item reveal d5"><div class="svc-inner"><div class="svc-num">05</div><h3>Logo, Banner &amp; Thumbnail Design</h3><p>Professional logos, website banners, social media creatives, course thumbnails &amp; all visual branding assets — delivered for 2 full months.</p><span class="svc-price">₹2,999 for 2 months</span></div></div>
+      <div class="svc-item reveal d6"><div class="svc-inner"><div class="svc-num">06</div><h3>Google Business &amp; Maps Setup</h3><p>Set up, verify, optimize &amp; actively manage your Google My Business profile so local customers can discover you on Search and Maps.</p><span class="svc-price">₹3,499 first month</span></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">07</div><h3>Content Management Service</h3><p>For educational websites — upload new content, delete outdated material, create engaging content &amp; ensure everything is organized and optimized.</p><span class="svc-price">Custom pricing</span></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">08</div><h3>Complete Manager Package</h3><p>All services in one powerful package — a dedicated website manager handles everything for 6 full months. Maximum value, zero hassle, consistent growth.</p><span class="svc-price">₹9,999 for 6 months</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="wrap">
+    <h2 class="reveal">How We <span>Work</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">A simple, transparent process from start to success</p>
+    <div class="process-steps">
+      <div class="process-step reveal d1"><div class="step-num">01</div><h3>Free Consultation</h3><p>Book a free demo call — we understand your business, goals and requirements</p></div>
+      <div class="process-step reveal d2"><div class="step-num">02</div><h3>Plan &amp; Strategy</h3><p>We create a customized digital strategy tailored specifically to your business</p></div>
+      <div class="process-step reveal d3"><div class="step-num">03</div><h3>Build &amp; Launch</h3><p>Our team builds, tests and launches your website or campaign with precision</p></div>
+      <div class="process-step reveal d4"><div class="step-num">04</div><h3>Grow &amp; Scale</h3><p>We continuously optimize, market and manage — ensuring your growth never stops</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="wrap">
+    <h2 class="reveal">Our <span>Projects</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Showcasing excellence in digital solutions across India</p>
+    <div class="proj-grid">
+      <div class="proj-card reveal d1"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&h=400&fit=crop" alt="Educational Platform" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Educational Platform — EduTech Pro</h3><p>Complete LMS with 5000+ active students, video courses, live classes &amp; interactive quizzes</p><span class="proj-tag">Education</span></div></div>
+      <div class="proj-card reveal d2"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop" alt="E-commerce" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>E-commerce Store — ShopEase</h3><p>Full-featured online store with Razorpay integration, inventory management &amp; admin panel</p><span class="proj-tag">E-commerce</span></div></div>
+      <div class="proj-card reveal d3"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop" alt="Business Portfolio" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Business Portfolio — TechVision</h3><p>Professional corporate website with custom CMS, portfolio showcase &amp; lead generation forms</p><span class="proj-tag">Corporate</span></div></div>
+      <div class="proj-card reveal d4"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop" alt="Online Coaching" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Online Coaching — MasterClass</h3><p>Video course platform with subscription model, student dashboard &amp; certificate generation</p><span class="proj-tag">Education</span></div></div>
+      <div class="proj-card reveal d5"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=600&h=400&fit=crop" alt="Marketing Agency" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Marketing Agency — GrowthHub</h3><p>Digital marketing website with case studies, portfolio showcase &amp; client testimonials</p><span class="proj-tag">Marketing</span></div></div>
+      <div class="proj-card reveal d6"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop" alt="App Landing" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>App Landing Page — InnoApp</h3><p>Modern landing page with app download integration, feature showcase &amp; testimonials</p><span class="proj-tag">Mobile App</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CLIENTS -->
+<section id="clients">
+  <div class="wrap">
+    <h2 class="reveal">Our <span>Clients</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Numbers that speak for themselves</p>
+    <div class="stats-grid">
+      <div class="stat-card reveal d1"><div class="stat-icon"><i class="fas fa-users"></i></div><h3>1200+</h3><p>Active Clients</p></div>
+      <div class="stat-card reveal d2"><div class="stat-icon"><i class="fas fa-project-diagram"></i></div><h3>500+</h3><p>Projects Completed</p></div>
+      <div class="stat-card reveal d3"><div class="stat-icon"><i class="fas fa-smile"></i></div><h3>98%</h3><p>Client Satisfaction</p></div>
+      <div class="stat-card reveal d4"><div class="stat-icon"><i class="fas fa-headset"></i></div><h3>24/7</h3><p>Dedicated Support</p></div>
+    </div>
+    <div class="partners-wrap reveal">
+      <h3>Serving Clients Across India</h3>
+      <div class="accent"></div>
+      <div class="partners-grid">
+        <div class="partner reveal d1"><i class="fas fa-graduation-cap"></i>Educational Institutes</div>
+        <div class="partner reveal d2"><i class="fas fa-book-reader"></i>Online Coaching</div>
+        <div class="partner reveal d3"><i class="fas fa-chalkboard-teacher"></i>Course Creators</div>
+        <div class="partner reveal d4"><i class="fas fa-store"></i>Small Businesses</div>
+        <div class="partner reveal d5"><i class="fas fa-bullhorn"></i>Digital Coaches</div>
+        <div class="partner reveal d6"><i class="fas fa-laptop"></i>Freelancers &amp; Startups</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="wrap">
+    <h2 class="reveal" style="color:#fff">What Our <span>Clients Say</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2" style="color:rgba(255,255,255,.55)">Real results from real clients across India</p>
+    <div class="testi-grid">
+      <div class="testi-card reveal d1"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">EduTrellis completely transformed my coaching business. Within the first month, my website traffic tripled and I enrolled 40+ new students. The dedicated manager handles everything — I just focus on teaching!</p><div class="testi-author"><div class="testi-avatar-placeholder">RK</div><div class="testi-info"><h4>Ramesh Kumar</h4><p>Online Math Tutor, Lucknow</p></div></div></div>
+      <div class="testi-card reveal d2"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">I was skeptical at first, but the results speak for themselves. My e-commerce store went from 0 to ₹80,000/month in revenue in just 3 months. Their Google SEO work is exceptional!</p><div class="testi-author"><div class="testi-avatar-placeholder">PS</div><div class="testi-info"><h4>Priya Sharma</h4><p>Clothing Store Owner, Delhi</p></div></div></div>
+      <div class="testi-card reveal d3"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">The Complete Manager Package is the best investment I've made for my institute. Logo, website, social media — everything is taken care of. 24/7 support means I'm never stuck. Highly recommend!</p><div class="testi-author"><div class="testi-avatar-placeholder">AV</div><div class="testi-info"><h4>Anjali Verma</h4><p>IIT-JEE Coaching Centre, Patna</p></div></div></div>
+      <div class="testi-card reveal d4"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div><p class="testi-text">Fast delivery, professional design, and the team is super responsive. My static website was ready in 4 days and it looks amazing. Got 15 enquiries in the very first week!</p><div class="testi-author"><div class="testi-avatar-placeholder">MK</div><div class="testi-info"><h4>Mohammed Kaleem</h4><p>Fitness Trainer, Hyderabad</p></div></div></div>
+      <div class="testi-card reveal d5"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">Their Google My Business setup brought me local customers I never had before. My institute now shows up first on Google Maps. This was a game-changer for my offline walk-ins!</p><div class="testi-author"><div class="testi-avatar-placeholder">ST</div><div class="testi-info"><h4>Sunita Tripathi</h4><p>Dance Academy Owner, Kanpur</p></div></div></div>
+      <div class="testi-card reveal d6"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">The custom LMS they built for my institute handles 2000+ students seamlessly. From design to deployment, the team was professional, timely and incredibly helpful throughout.</p><div class="testi-author"><div class="testi-avatar-placeholder">VG</div><div class="testi-info"><h4>Vivek Gupta</h4><p>Director, EduPrime Institute, Varanasi</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <h2 class="reveal">Frequently Asked <span>Questions</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Everything you need to know before getting started</p>
+    <div class="faq-list">
+      <div class="faq-item reveal d1"><div class="faq-q" onclick="toggleFaq(this)"><h4>What is the ₹2,499/month Website Management plan?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>It's our flagship monthly plan where we take complete ownership of your website and digital presence. We handle logo/banner updates, content uploads, SEO, social media, digital marketing on Instagram, Facebook &amp; Google, and assign a dedicated website manager — so you focus 100% on your core work.</p></div></div>
+      <div class="faq-item reveal d2"><div class="faq-q" onclick="toggleFaq(this)"><h4>What does "3 Months in the First Month" mean?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>As a special welcome offer, your first billing cycle gives you 3 months of access instead of the usual 1 month. This gives you ample time to see real results before your next billing cycle begins — it's our way of showing confidence in our service.</p></div></div>
+      <div class="faq-item reveal d3"><div class="faq-q" onclick="toggleFaq(this)"><h4>How long does it take to build my website?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>Static websites are typically delivered within 3–5 business days. Dynamic/e-commerce websites take 10–15 days depending on complexity. Custom large projects are discussed and planned during consultation, with realistic timelines provided upfront.</p></div></div>
+      <div class="faq-item reveal d4"><div class="faq-q" onclick="toggleFaq(this)"><h4>Do I need a website already to use the management plan?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>No! The management plan works even if your business is currently inactive or you don't have a website yet. We'll help set everything up from scratch — website, social media handles, Google Business profile and more — all within the plan.</p></div></div>
+      <div class="faq-item reveal d5"><div class="faq-q" onclick="toggleFaq(this)"><h4>What platforms do you work with?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>We work with all major platforms including Classplus, Apex, EduGorilla, WordPress, custom-built websites, Shopify, WooCommerce and more. During your free consultation, tell us your current platform and we'll tailor our services accordingly.</p></div></div>
+      <div class="faq-item reveal d6"><div class="faq-q" onclick="toggleFaq(this)"><h4>Is there a contract or lock-in period?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>For the monthly plan (₹2,499/month), there's no long-term lock-in — you can cancel anytime after the first month. The 6-month Complete Manager Package is a fixed 6-month commitment at a discounted rate. One-time website projects have no recurring obligations.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <h2 class="reveal">About <span>Us</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Your trusted partner in digital success since 2020</p>
+    <div class="about-grid">
+      <div class="about-img-wrap reveal-left">
+        <div class="about-decorative"></div>
+        <div class="about-decorative2"></div>
+        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop" alt="Our Team" class="about-img" loading="lazy">
+        <div class="about-badge"><div class="bn">1200+</div><div class="bt">Happy Clients</div></div>
+      </div>
+      <div class="about-text reveal-right">
+        <h3>Who We Are</h3>
+        <p>EduTrellis Private Limited is your complete digital growth partner, specializing in website management and development solutions for educational businesses and coaches across India.</p>
+        <p>With 1200+ active clients, we've built a reputation for delivering real results — more students, more revenue, and a stronger digital presence that you can be proud of.</p>
+        <h3 style="margin-top:1.5rem">Why Choose Us?</h3>
+        <ul class="about-list">
+          <li><i class="fas fa-check-circle"></i> Transparent Pricing — No Hidden Charges</li>
+          <li><i class="fas fa-check-circle"></i> 1200+ Satisfied Clients Across India</li>
+          <li><i class="fas fa-check-circle"></i> Complete Business Handling — Focus on Your Growth</li>
+          <li><i class="fas fa-check-circle"></i> Free Demo &amp; Consultation — No Commitment</li>
+          <li><i class="fas fa-check-circle"></i> Dedicated Support Team &amp; Personal Manager</li>
+          <li><i class="fas fa-check-circle"></i> Proven Track Record Since 2020</li>
+        </ul>
+        <div class="mission">
+          <h4>🎯 Our Promise to You</h4>
+          <p>We don't just build websites — we build businesses. Whether you're just starting out or looking to scale, our team handles everything so you can focus on teaching and creating. Your growth is our mission.</p>
+        </div>
+        <div class="about-btns">
+          <a href="#contact" class="cta-btn">Book FREE Consultation <i class="fas fa-arrow-right"></i></a>
+          <a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:linear-gradient(135deg,#25d366,#1da851);box-shadow:0 8px 26px rgba(37,211,102,.35);"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <h2 class="reveal">Contact <span>Us</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Let's start your digital growth journey today — it's free to begin</p>
+    <div class="contact-grid">
+      <div class="contact-info reveal-left">
+        <h3>Get In Touch</h3>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Email Support</h4><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-headset"></i></div><div><h4>Support (Call)</h4><a href="tel:+917905817391">+91 79058 17391</a></div></div>
+        <a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer" class="whatsapp-cta">
+          <i class="fab fa-whatsapp"></i>
+          <div><span>Chat on WhatsApp</span><small>+91 76078 45679 — We reply fast</small></div>
+        </a>
+        <div class="biz-hours">
+          <h4><i class="fas fa-clock" style="margin-right:.5rem;color:var(--red)"></i>Business Hours</h4>
+          <p>Monday – Saturday: 9:00 AM – 8:00 PM</p>
+          <p>Sunday: 10:00 AM – 6:00 PM</p>
+        </div>
+      </div>
+      <div class="contact-form-box reveal-right">
+        <h3>Send Us a Message</h3>
+        <form id="contactForm" onsubmit="handleSubmit(event)" novalidate>
+          <div class="fg-row">
+            <div class="fg"><label for="fname">Full Name *</label><input type="text" id="fname" name="name" required placeholder="Your full name" autocomplete="name"></div>
+            <div class="fg"><label for="fphone">Phone Number *</label><input type="tel" id="fphone" name="phone" required placeholder="+91 XXXXX XXXXX" autocomplete="tel"></div>
+          </div>
+          <div class="fg"><label for="femail">Email Address *</label><input type="email" id="femail" name="email" required placeholder="your@email.com" autocomplete="email"></div>
+          <div class="fg">
+            <label for="fservice">Service Interested In</label>
+            <select id="fservice" name="service">
+              <option>Website Management (₹2,499/month)</option>
+              <option>Static Business Website (₹3K–₹4K)</option>
+              <option>Dynamic / E-commerce Website (₹8K–₹10K)</option>
+              <option>Custom Big Project (₹15K+)</option>
+              <option>Logo, Banner &amp; Thumbnail Design (₹2,999/2mo)</option>
+              <option>Google Business &amp; Maps Setup (₹3,499)</option>
+              <option>Content Management Service</option>
+              <option>Complete Manager Package (₹9,999/6mo)</option>
+              <option>Multiple / Not Sure</option>
+            </select>
+          </div>
+          <div class="fg"><label for="fmsg">Message</label><textarea id="fmsg" name="message" rows="4" placeholder="Tell us about your business, current platform, and goals..."></textarea></div>
+          <button type="submit" class="submit-btn" id="submitBtn"><i class="fas fa-paper-plane"></i> Send Message &amp; Get Callback</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div class="foot-logo">Edu<span>Trellis</span></div>
+      <p>India's complete digital growth partner for educational businesses, coaches and creators. 1200+ happy clients and growing.</p>
+      <div class="socials">
+        <a href="#" title="Facebook" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://wa.me/917607845679" title="WhatsApp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+    <div class="foot-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#home"><i class="fas fa-chevron-right"></i>Home</a></li>
+        <li><a href="#products"><i class="fas fa-chevron-right"></i>Products</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
+        <li><a href="#projects"><i class="fas fa-chevron-right"></i>Projects</a></li>
+        <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
+        <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Website Management</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Website Development</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>E-commerce Solutions</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Digital Marketing</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>SEO &amp; Google</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Logo &amp; Design</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Contact</h4>
+      <div class="foot-contact-item"><i class="fas fa-envelope"></i><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div>
+      <div class="foot-contact-item"><i class="fas fa-headset"></i><a href="tel:+917905817391">+91 79058 17391</a></div>
+      <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer">+91 76078 45679 (WhatsApp)</a></div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <p>&copy; 2025 EduTrellis Private Limited. All Rights Reserved.</p>
+    <div class="foot-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms &amp; Conditions</a>
+      <a href="#">Refund Policy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING WA -->
+<div class="wa-float">
+  <a href="https://wa.me/917607845679" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+</div>
+
+<!-- SCROLL TOP -->
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
 <script>
-(function(){if(!window.matchMedia('(pointer:fine)').matches){document.getElementById('cursor').style.display='none';document.getElementById('cursorRing').style.display='none';return;}const cur=document.getElementById('cursor');const ring=document.getElementById('cursorRing');let mx=0,my=0,rx=0,ry=0;document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});(function animRing(){rx+=(mx-rx)*.14;ry+=(my-ry)*.14;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();document.querySelectorAll('a,button,.prod-card,.why-card,.svc-item,.faq-q').forEach(function(el){el.addEventListener('mouseenter',function(){ring.style.width='58px';ring.style.height='58px';ring.style.borderColor='rgba(232,0,30,.7)';});el.addEventListener('mouseleave',function(){ring.style.width='38px';ring.style.height='38px';ring.style.borderColor='rgba(232,0,30,.45)';});});})();
-(function(){var pctEl=document.getElementById('loaderPct');var p=0;var pTimer=setInterval(function(){p=Math.min(p+Math.random()*12,99);pctEl.textContent=Math.floor(p)+'%';},80);window.addEventListener('load',function(){clearInterval(pTimer);pctEl.textContent='100%';setTimeout(function(){document.getElementById('loader').classList.add('hidden');},1500);});})();
-var ham=document.getElementById('ham');var mobileMenu=document.getElementById('mobileMenu');function closeMobileMenu(){mobileMenu.classList.remove('open');ham.classList.remove('open');ham.setAttribute('aria-expanded','false');document.body.style.overflow='';}
-ham.addEventListener('click',function(e){e.stopPropagation();var isOpen=mobileMenu.classList.toggle('open');ham.classList.toggle('open',isOpen);ham.setAttribute('aria-expanded',String(isOpen));document.body.style.overflow=isOpen?'hidden':'';});mobileMenu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',closeMobileMenu);});document.addEventListener('click',function(e){if(mobileMenu.classList.contains('open')&&!mobileMenu.contains(e.target)&&!ham.contains(e.target)){closeMobileMenu();}});document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMobileMenu();});
-document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var href=a.getAttribute('href');if(href==='#')return;var t=document.querySelector(href);if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
-function handleSubmit(e){e.preventDefault();var btn=document.getElementById('submitBtn');btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';btn.disabled=true;setTimeout(function(){btn.innerHTML='<i class="fas fa-check"></i> Message Sent!';btn.style.background='linear-gradient(135deg,#25d366,#1da851)';setTimeout(function(){alert('Thank you! We will contact you shortly.\n\nFor immediate help:\nCall: +91 79058 17391\nWhatsApp: +91 76078 45679\nEmail: support@edutrellis.in');document.getElementById('contactForm').reset();btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Message & Get Callback';btn.style.background='';btn.disabled=false;},2000);},1500);}
-(function(){var obs=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){entry.target.classList.add('vis');obs.unobserve(entry.target);}});},{threshold:0.12,rootMargin:'0px 0px -60px 0px'});document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(function(el){obs.observe(el);});})();
+/* ============================================================
+   CUSTOM CURSOR — desktop (pointer:fine) only
+   ============================================================ */
+(function(){
+  if(!window.matchMedia('(pointer:fine)').matches){
+    document.getElementById('cursor').style.display='none';
+    document.getElementById('cursorRing').style.display='none';
+    return;
+  }
+  const cur=document.getElementById('cursor');
+  const ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function animRing(){rx+=(mx-rx)*.14;ry+=(my-ry)*.14;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+  document.querySelectorAll('a,button,.prod-card,.why-card,.svc-item,.faq-q').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ring.style.width='58px';ring.style.height='58px';ring.style.borderColor='rgba(232,0,30,.7)';});
+    el.addEventListener('mouseleave',function(){ring.style.width='38px';ring.style.height='38px';ring.style.borderColor='rgba(232,0,30,.45)';});
+  });
+})();
+
+/* ============================================================
+   LOADER
+   ============================================================ */
+(function(){
+  var pctEl=document.getElementById('loaderPct');
+  var p=0;
+  var pTimer=setInterval(function(){p=Math.min(p+Math.random()*12,99);pctEl.textContent=Math.floor(p)+'%';},80);
+  window.addEventListener('load',function(){
+    clearInterval(pTimer);pctEl.textContent='100%';
+    setTimeout(function(){document.getElementById('loader').classList.add('hidden');},1500);
+  });
+})();
+
+/* ============================================================
+   MOBILE MENU
+   ============================================================ */
+var ham=document.getElementById('ham');
+var mobileMenu=document.getElementById('mobileMenu');
+
+function closeMobileMenu(){
+  mobileMenu.classList.remove('open');
+  ham.classList.remove('open');
+  ham.setAttribute('aria-expanded','false');
+  document.body.style.overflow='';
+}
+
+ham.addEventListener('click',function(e){
+  e.stopPropagation();
+  var isOpen=mobileMenu.classList.toggle('open');
+  ham.classList.toggle('open',isOpen);
+  ham.setAttribute('aria-expanded',String(isOpen));
+  document.body.style.overflow=isOpen?'hidden':'';
+});
+
+mobileMenu.querySelectorAll('a').forEach(function(a){
+  a.addEventListener('click',closeMobileMenu);
+});
+
+document.addEventListener('click',function(e){
+  if(mobileMenu.classList.contains('open')&&!mobileMenu.contains(e.target)&&!ham.contains(e.target)){
+    closeMobileMenu();
+  }
+});
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeMobileMenu();
+});
+
+/* ============================================================
+   SMOOTH SCROLL
+   ============================================================ */
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var href=a.getAttribute('href');
+    if(href==='#')return;
+    var t=document.querySelector(href);
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+
+/* ============================================================
+   CONTACT FORM
+   ============================================================ */
+function handleSubmit(e){
+  e.preventDefault();
+  var btn=document.getElementById('submitBtn');
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';
+  btn.disabled=true;
+  setTimeout(function(){
+    btn.innerHTML='<i class="fas fa-check"></i> Message Sent!';
+    btn.style.background='linear-gradient(135deg,#25d366,#1da851)';
+    setTimeout(function(){
+      alert('Thank you! We will contact you shortly.\n\nFor immediate help:\nCall: +91 79058 17391\nWhatsApp: +91 76078 45679\nEmail: support@edutrellis.in');
+      e.target.reset();
+      btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Message & Get Callback';
+      btn.style.background='';
+      btn.disabled=false;
+    },800);
+  },1200);
+}
+
+/* ============================================================
+   SCROLL-REVEAL
+   ============================================================ */
+(function(){
+  var ro=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){if(en.isIntersecting)en.target.classList.add('vis');});
+  },{threshold:0.06,rootMargin:'0px 0px -24px 0px'});
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(function(el){ro.observe(el);});
+})();
+
+/* ============================================================
+   HEADER SCROLL SHADOW + SCROLL-TOP BUTTON
+   ============================================================ */
+window.addEventListener('scroll',function(){
+  document.getElementById('mainHeader').classList.toggle('scrolled',window.scrollY>60);
+  document.getElementById('scrollTop').classList.toggle('show',window.scrollY>400);
+},{passive:true});
+
+/* ============================================================
+   ACTIVE NAV LINK
+   ============================================================ */
+(function(){
+  var secs=Array.from(document.querySelectorAll('section[id],div[id="home"]'));
+  var deskLinks=document.querySelectorAll('#desktopNav li a');
+  var mobLinks=document.querySelectorAll('#mobileMenu li a');
+  window.addEventListener('scroll',function(){
+    var c='';
+    secs.forEach(function(s){if(window.scrollY>=s.offsetTop-160)c=s.id;});
+    deskLinks.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+c);});
+    mobLinks.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+c);});
+  },{passive:true});
+})();
+
+/* ============================================================
+   HERO SLIDER
+   ============================================================ */
+(function(){
+  var curSlide=0;
+  var total=3;
+  var slides=document.querySelectorAll('.slide');
+  var dots=document.querySelectorAll('.dot');
+  var timer;
+
+  function updateSlider(){
+    slides.forEach(function(s,i){s.classList.toggle('active',i===curSlide);});
+    dots.forEach(function(d,i){d.classList.toggle('active',i===curSlide);});
+  }
+  function changeSlide(dir){curSlide=(curSlide+dir+total)%total;updateSlider();resetTimer();}
+  function goTo(i){curSlide=i;updateSlider();resetTimer();}
+  function resetTimer(){clearInterval(timer);timer=setInterval(function(){changeSlide(1);},6000);}
+
+  window.changeSlide=changeSlide;
+  window.goTo=goTo;
+
+  timer=setInterval(function(){changeSlide(1);},6000);
+
+  var touchStartX=0;
+  var sliderWrap=document.querySelector('.slider-wrap');
+  sliderWrap.addEventListener('touchstart',function(e){touchStartX=e.touches[0].clientX;},{passive:true});
+  sliderWrap.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-touchStartX;
+    if(Math.abs(dx)>45)changeSlide(dx<0?1:-1);
+  },{passive:true});
+})();
+
+/* ============================================================
+   COUNTER ANIMATION
+   ============================================================ */
+(function(){
+  var counterEls=document.querySelectorAll('.counter');
+  var cObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting&&!en.target.dataset.done){
+        en.target.dataset.done='1';
+        var target=+en.target.dataset.target;
+        var dur=1800;
+        var steps=60;
+        var inc=target/steps;
+        var curr=0;
+        var t=setInterval(function(){
+          curr=Math.min(curr+inc,target);
+          en.target.textContent=Math.floor(curr);
+          if(curr>=target)clearInterval(t);
+        },dur/steps);
+      }
+    });
+  },{threshold:0.5});
+  counterEls.forEach(function(el){cObs.observe(el);});
+})();
+
+/* ============================================================
+   FAQ ACCORDION
+   ============================================================ */
+function toggleFaq(el){
+  var item=el.closest('.faq-item');
+  var isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open');});
+  if(!isOpen)item.classList.add('open');
+}
+window.toggleFaq=toggleFaq;
 </script>
+
 </body>
 </html>
