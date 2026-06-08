@@ -112,18 +112,18 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # ------------------------------------------------------------------ #
-# EMAIL  —  Gmail SMTP via App Password                               #
-# Set EMAIL_HOST_PASSWORD as an environment variable in Railway.      #
-# How to get App Password:                                            #
-#   Google Account → Security → 2-Step Verification → App Passwords  #
-#   Select app: Mail | Select device: Other → name it "EduTrellis"   #
-#   Copy the 16-char password and paste it in Railway env vars.       #
+# EMAIL  —  Gmail SMTP                                                #
+# Sends FROM rudra2917@gmail.com  TO webdevrnt@gmail.com             #
+# EMAIL_HOST_PASSWORD = Gmail App Password for rudra2917@gmail.com   #
+# To regenerate: Google Account -> Security -> 2-Step Verification   #
+#                -> App Passwords -> Mail -> Other -> "EduTrellis"   #
+# Can also override via Railway env var: EMAIL_HOST_PASSWORD          #
 # ------------------------------------------------------------------ #
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'webdevrnt@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'webdevrnt@gmail.com')
+EMAIL_HOST_USER = 'rudra2917@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'zmqkbyhftnkoswcv')
+DEFAULT_FROM_EMAIL = 'rudra2917@gmail.com'
 LEAD_RECIPIENT_EMAIL = 'webdevrnt@gmail.com'
