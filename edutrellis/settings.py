@@ -133,3 +133,18 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'rudra2917@gmail.com'
+EMAIL_HOST_PASSWORD = 'zmqkbyhftnkoswcv'
+
+DEFAULT_FROM_EMAIL = 'rudra2917@gmail.com'
+LEAD_RECIPIENT_EMAIL = 'rudra2917@gmail.com'
