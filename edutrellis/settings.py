@@ -15,7 +15,10 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-2!^^*c(t)whrn^4w3xkoqx!1p85e5s!-xh0w+xai7&q*80tt@@'
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-2!^^*c(t)whrn^4w3xkoqx!1p85e5s!-xh0w+xai7&q*80tt@@'
+)
 
 DEBUG = False
 
@@ -77,7 +80,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
@@ -94,11 +97,23 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'rudra2917@gmail.com'
+# ── Email (Gmail SMTP via App Password) ─────────────────────────────────────
+# Set EMAIL_HOST_PASSWORD as an environment variable on Railway:
+#   Railway → your service → Variables → EMAIL_HOST_PASSWORD = <16-char app password>
+# The app password must have ALL SPACES REMOVED (Gmail shows it as "xxxx xxxx xxxx xxxx"
+# but you must store it as "xxxxxxxxxxxxxxxx" — 16 characters, no spaces).
+
+EMAIL_BACKEND  = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST     = 'smtp.gmail.com'
+EMAIL_PORT     = 587
+EMAIL_USE_TLS  = True
+EMAIL_USE_SSL  = False
+
+# Fail fast: if Gmail SMTP doesn't respond within 10 seconds, raise an error
+# instead of hanging the request for 30+ seconds (the root cause of the timeout).
+EMAIL_TIMEOUT  = 10
+
+EMAIL_HOST_USER     = 'rudra2917@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'zmqkbyhftnkoswcv')
-DEFAULT_FROM_EMAIL = 'rudra2917@gmail.com'
+DEFAULT_FROM_EMAIL  = 'EduTrellis <rudra2917@gmail.com>'
 LEAD_RECIPIENT_EMAIL = 'webdevrnt@gmail.com'
