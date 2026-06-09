@@ -34,9 +34,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',       # Required by django.contrib.sitemaps
     'myapp',
     'django.contrib.sitemaps',
 ]
+
+# Required by django.contrib.sites (sitemap framework uses this to build URLs)
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -112,7 +116,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # ------------------------------------------------------------------ #
-# EMAIL  —  Gmail SMTP                                                #
+# EMAIL  -  Gmail SMTP                                                #
 # Sends FROM rudra2917@gmail.com  TO webdevrnt@gmail.com             #
 # EMAIL_HOST_PASSWORD = Gmail App Password for rudra2917@gmail.com   #
 # To regenerate: Google Account -> Security -> 2-Step Verification   #
