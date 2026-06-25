@@ -41,12 +41,13 @@
  "@type":"LocalBusiness",
  "name":"EduTrellis",
  "url":"https://edutrellis.in",
- "telephone":"+91 7905817391",
  "email":"support@edutrellis.in",
  "address":{
    "@type":"PostalAddress",
+   "streetAddress":"P-109, Prembagh, Shahpur, Chinhat",
    "addressLocality":"Lucknow",
    "addressRegion":"Uttar Pradesh",
+   "postalCode":"226028",
    "addressCountry":"IN"
  },
  "areaServed":"India",
@@ -59,6 +60,210 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <link rel="stylesheet" href="{% static 'style.css' %}">
+
+<style>
+/* ===== PORTFOLIO SECTION ===== */
+#portfolio {
+  background: #f8f9fc;
+  padding: 5rem 0;
+}
+#portfolio h2 { text-align: center; }
+#portfolio .sub { text-align: center; }
+
+.portfolio-tabs {
+  display: flex;
+  justify-content: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin: 2rem 0 2.5rem;
+}
+.ptab {
+  padding: .5rem 1.4rem;
+  border-radius: 50px;
+  border: 2px solid var(--red, #e8001e);
+  background: transparent;
+  color: var(--red, #e8001e);
+  font-size: .88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .25s;
+}
+.ptab.active, .ptab:hover {
+  background: var(--red, #e8001e);
+  color: #fff;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+.portfolio-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  transition: transform .3s, box-shadow .3s;
+  display: flex;
+  flex-direction: column;
+}
+.portfolio-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.14);
+}
+.portfolio-card[data-cat] { display: flex; }
+.portfolio-card.hidden { display: none; }
+
+.pf-img-wrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+}
+.pf-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s;
+}
+.portfolio-card:hover .pf-img { transform: scale(1.06); }
+.pf-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.portfolio-card:hover .pf-overlay { opacity: 1; }
+.pf-overlay a {
+  background: #fff;
+  color: #111;
+  padding: .5rem 1rem;
+  border-radius: 50px;
+  font-size: .83rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  transition: background .2s, color .2s;
+}
+.pf-overlay a:hover { background: var(--red, #e8001e); color: #fff; }
+
+.pf-body {
+  padding: 1.2rem 1.4rem 1.4rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+.pf-tag {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--red, #e8001e);
+}
+.pf-body h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+.pf-body p {
+  font-size: .87rem;
+  color: #666;
+  margin: 0;
+}
+.pf-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-top: .5rem;
+}
+.pf-tech span {
+  background: #f0f4ff;
+  color: #3b5bdb;
+  font-size: .73rem;
+  font-weight: 700;
+  padding: .2rem .65rem;
+  border-radius: 50px;
+}
+
+/* Portfolio Images Gallery */
+.pf-gallery {
+  margin-top: 3rem;
+}
+.pf-gallery h3 {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1.6rem;
+  color: #111;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.gallery-item {
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  cursor: pointer;
+  position: relative;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s;
+}
+.gallery-item:hover img { transform: scale(1.08); }
+.gallery-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.7));
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .6rem .8rem;
+  transform: translateY(100%);
+  transition: transform .3s;
+}
+.gallery-item:hover .gallery-caption { transform: translateY(0); }
+
+/* Portfolio Stats Bar */
+.pf-stats-bar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  background: linear-gradient(135deg, #e8001e, #c0001a);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  margin-top: 3rem;
+  color: #fff;
+  text-align: center;
+}
+.pf-stat h4 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 .25rem;
+}
+.pf-stat p {
+  font-size: .83rem;
+  opacity: .85;
+  margin: 0;
+}
+</style>
+
 <body>
 
 <!-- CURSOR (desktop only) -->
@@ -78,11 +283,6 @@
     <a href="mailto:support@edutrellis.in" class="strip-link strip-email-link" aria-label="Email us">
       <i class="fas fa-envelope"></i>
       <span class="strip-txt">support@edutrellis.in</span>
-    </a>
-    <span class="strip-sep"></span>
-    <a href="tel:+917905817391" class="strip-link" aria-label="Support line">
-      <i class="fas fa-headset"></i>
-      <span class="strip-txt">Support: </span>+91&nbsp;79058&nbsp;17391
     </a>
     <span class="strip-sep"></span>
     <a href="https://wa.me/919695953183" class="strip-link" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
@@ -116,6 +316,7 @@
       <li><a href="#home">Home</a></li>
       <li><a href="#products">Products</a></li>
       <li><a href="#services">Services</a></li>
+      <li><a href="#portfolio">Portfolio</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#clients">Clients</a></li>
       <li><a href="#about">About</a></li>
@@ -133,6 +334,7 @@
     <li><a href="#home">Home</a></li>
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#projects">Projects</a></li>
     <li><a href="#clients">Clients</a></li>
     <li><a href="#about">About</a></li>
@@ -453,6 +655,161 @@
   </div>
 </section>
 
+<!-- ===== PORTFOLIO SECTION ===== -->
+<section id="portfolio">
+  <div class="wrap">
+    <h2 class="reveal">Our <span>Portfolio</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Real products, real results — handcrafted for businesses across India</p>
+
+    <!-- Filter Tabs -->
+    <div class="portfolio-tabs">
+      <button class="ptab active" onclick="filterPortfolio('all', this)">All</button>
+      <button class="ptab" onclick="filterPortfolio('education', this)">Education</button>
+      <button class="ptab" onclick="filterPortfolio('ecommerce', this)">E-commerce</button>
+      <button class="ptab" onclick="filterPortfolio('corporate', this)">Corporate</button>
+      <button class="ptab" onclick="filterPortfolio('marketing', this)">Marketing</button>
+    </div>
+
+    <!-- Product / Work Cards -->
+    <div class="portfolio-grid">
+
+      <div class="portfolio-card reveal d1" data-cat="education">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&h=400&fit=crop" alt="EduTech LMS Platform" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <span class="pf-tag">Education</span>
+          <h3>EduTech LMS Platform</h3>
+          <p>Full learning management system with 5000+ active students, video courses, live classes &amp; interactive quizzes.</p>
+          <div class="pf-tech"><span>Django</span><span>Video Streaming</span><span>Razorpay</span></div>
+        </div>
+      </div>
+
+      <div class="portfolio-card reveal d2" data-cat="ecommerce">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop" alt="ShopEase E-commerce" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <span class="pf-tag">E-commerce</span>
+          <h3>ShopEase Online Store</h3>
+          <p>Full-featured clothing store with Razorpay integration, inventory management, cart &amp; admin panel.</p>
+          <div class="pf-tech"><span>Django</span><span>Razorpay</span><span>Bootstrap</span></div>
+        </div>
+      </div>
+
+      <div class="portfolio-card reveal d3" data-cat="corporate">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop" alt="TechVision Corporate" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <span class="pf-tag">Corporate</span>
+          <h3>TechVision Business Portfolio</h3>
+          <p>Professional corporate website with custom CMS, portfolio showcase &amp; lead generation forms.</p>
+          <div class="pf-tech"><span>WordPress</span><span>SEO</span><span>Lead Gen</span></div>
+        </div>
+      </div>
+
+      <div class="portfolio-card reveal d4" data-cat="education">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop" alt="MasterClass Video Platform" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <span class="pf-tag">Education</span>
+          <h3>MasterClass Video Platform</h3>
+          <p>Online coaching platform with subscription model, student dashboard &amp; auto certificate generation.</p>
+          <div class="pf-tech"><span>Django</span><span>AWS S3</span><span>Stripe</span></div>
+        </div>
+      </div>
+
+      <div class="portfolio-card reveal d5" data-cat="marketing">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=600&h=400&fit=crop" alt="GrowthHub Marketing Agency" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <span class="pf-tag">Marketing</span>
+          <h3>GrowthHub Agency Website</h3>
+          <p>Digital marketing agency website with case studies, portfolio showcase &amp; client testimonials.</p>
+          <div class="pf-tech"><span>HTML/CSS</span><span>JS</span><span>SEO</span></div>
+        </div>
+      </div>
+
+      <div class="portfolio-card reveal d6" data-cat="corporate">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop" alt="InnoApp Mobile Landing" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <span class="pf-tag">Corporate</span>
+          <h3>InnoApp Landing Page</h3>
+          <p>Modern app landing page with feature showcase, download links &amp; animated testimonials.</p>
+          <div class="pf-tech"><span>HTML/CSS</span><span>GSAP</span><span>Mobile-First</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Images Gallery -->
+    <div class="pf-gallery reveal">
+      <h3>🖼️ Our Work — Snapshot Gallery</h3>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=500&h=375&fit=crop" alt="Website Design Work" loading="lazy" width="500" height="375">
+          <div class="gallery-caption">Website Design</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=375&fit=crop" alt="Analytics Dashboard" loading="lazy" width="500" height="375">
+          <div class="gallery-caption">Analytics Dashboard</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=500&h=375&fit=crop" alt="Team at Work" loading="lazy" width="500" height="375">
+          <div class="gallery-caption">Our Team</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500&h=375&fit=crop" alt="E-commerce Project" loading="lazy" width="500" height="375">
+          <div class="gallery-caption">E-commerce Project</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=375&fit=crop" alt="Digital Marketing" loading="lazy" width="500" height="375">
+          <div class="gallery-caption">Digital Marketing</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&h=375&fit=crop" alt="Mobile App Development" loading="lazy" width="500" height="375">
+          <div class="gallery-caption">Mobile Responsive</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="pf-stats-bar reveal">
+      <div class="pf-stat"><h4>500+</h4><p>Projects Delivered</p></div>
+      <div class="pf-stat"><h4>1200+</h4><p>Happy Clients</p></div>
+      <div class="pf-stat"><h4>98%</h4><p>Client Satisfaction</p></div>
+      <div class="pf-stat"><h4>5★</h4><p>Average Rating</p></div>
+      <div class="pf-stat"><h4>6+</h4><p>Years Experience</p></div>
+    </div>
+
+  </div>
+</section>
+<!-- ===== END PORTFOLIO SECTION ===== -->
+
 <!-- PROJECTS -->
 <section id="projects">
   <div class="wrap">
@@ -587,7 +944,7 @@
       <div class="contact-info reveal-left">
         <h3>Get In Touch</h3>
         <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Email Support</h4><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div></div>
-        <div class="ci-item"><div class="ci-icon"><i class="fas fa-headset"></i></div><div><h4>Support (Call)</h4><a href="tel:+917905817391">+91 79058 17391</a></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-map-marker-alt"></i></div><div><h4>Our Office</h4><p style="font-size:.92rem;color:var(--text);margin:0;line-height:1.6">P-109, Prembagh, Shahpur, Chinhat,<br>Lucknow, Uttar Pradesh 226028</p></div></div>
         <a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer" class="whatsapp-cta">
           <i class="fab fa-whatsapp"></i>
           <div><span>Chat on WhatsApp</span><small>+91 96959 53183 — We reply fast</small></div>
@@ -673,6 +1030,7 @@
         <li><a href="#home"><i class="fas fa-chevron-right"></i>Home</a></li>
         <li><a href="#products"><i class="fas fa-chevron-right"></i>Products</a></li>
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
+        <li><a href="#portfolio"><i class="fas fa-chevron-right"></i>Portfolio</a></li>
         <li><a href="#projects"><i class="fas fa-chevron-right"></i>Projects</a></li>
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact</a></li>
@@ -692,8 +1050,8 @@
     <div class="foot-col">
       <h4>Contact</h4>
       <div class="foot-contact-item"><i class="fas fa-envelope"></i><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div>
-      <div class="foot-contact-item"><i class="fas fa-headset"></i><a href="tel:+917905817391">+91 79058 17391</a></div>
       <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer">+91 96959 53183 (WhatsApp)</a></div>
+      <div class="foot-contact-item"><i class="fas fa-map-marker-alt"></i><span>P-109, Prembagh, Shahpur, Chinhat, Lucknow, UP 226028</span></div>
       <div class="foot-contact-item"><i class="fab fa-instagram"></i><a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer">@edutrellis</a></div>
       <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer">EduTrellis on LinkedIn</a></div>
     </div>
@@ -725,15 +1083,29 @@
  "@context": "https://schema.org",
  "@type": "LocalBusiness",
  "name": "EduTrellis",
- "telephone": "+917905817391",
  "email": "support@edutrellis.in",
  "address": {
    "@type": "PostalAddress",
+   "streetAddress": "P-109, Prembagh, Shahpur, Chinhat",
    "addressLocality": "Lucknow",
    "addressRegion": "Uttar Pradesh",
+   "postalCode": "226028",
    "addressCountry": "IN"
  },
  "url": "https://edutrellis.in"
+}
+</script>
+<script>
+function filterPortfolio(cat, btn) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.portfolio-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
 }
 </script>
 <script src="{% static 'sitejs.js' %}"></script>
