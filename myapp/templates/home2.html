@@ -63,40 +63,134 @@
   .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
   .hamburger span { width: 24px; height: 2px; background: var(--dark); border-radius: 2px; transition: all .3s; }
 
-  /* HERO */
+  /* ===================== HERO ===================== */
   #home-wrap { background: var(--light); position: relative; overflow: hidden; }
   #home-wrap::before { content:''; position:absolute; top:-80px; right:0; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%); pointer-events:none; }
   #home { min-height: 100vh; padding: 0; width: 100%; }
-  .hero-inner { max-width: 1180px; margin: 0 auto; padding: 104px 5% 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; position: relative; }
-  .hero-content { max-width: 520px; }
+
+  /* Hero grid — left col 55%, right col 45% on desktop */
+  .hero-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 104px 5% 64px;
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: 2.5rem;
+    align-items: center;
+    position: relative;
+  }
+
+  /* Left content — allow full column width */
+  .hero-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .hero-tag { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .28rem .8rem; border-radius: 50px; margin-bottom: 1rem; }
+
+  /* Slightly tightened headline to prevent early wrapping */
   .hero-headline {
     font-family: var(--heading);
-    font-size: clamp(2.6rem, 5vw, 4rem);
+    font-size: clamp(2.2rem, 3.8vw, 3.4rem);
     font-weight: 800;
-    line-height: 1.1;
+    line-height: 1.12;
     letter-spacing: -0.5px;
     color: var(--dark);
-    word-break: break-word;
+    word-break: normal;
+    overflow-wrap: break-word;
   }
   .hero-headline .accent { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .hero-sub { margin-top: 1.1rem; font-size: .9rem; color: var(--mid); line-height: 1.75; }
+
+  .hero-sub { margin-top: 1rem; font-size: .875rem; color: var(--mid); line-height: 1.75; }
   .hero-sub strong { color: var(--dark); font-weight: 600; }
-  .hero-tagline { margin-top: 1rem; font-style: italic; color: var(--gray); font-size: .85rem; border-left: 3px solid var(--orange); padding-left: .7rem; }
-  .hero-actions { margin-top: 1.5rem; display: flex; gap: .8rem; flex-wrap: wrap; }
-  .btn-hero { padding: .7rem 1.6rem; border-radius: 50px; font-weight: 700; font-size: .875rem; text-decoration: none; transition: all .2s; display: inline-flex; align-items: center; gap: .45rem; }
+  .hero-tagline { margin-top: .9rem; font-style: italic; color: var(--gray); font-size: .82rem; border-left: 3px solid var(--orange); padding-left: .7rem; }
+
+  /* Buttons — always on one row, no wrapping on desktop */
+  .hero-actions {
+    margin-top: 1.4rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: .75rem;
+    align-items: center;
+  }
+  .btn-hero {
+    padding: .65rem 1.4rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: .84rem;
+    text-decoration: none;
+    transition: all .2s;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    white-space: nowrap;
+  }
   .btn-hero.primary { background: var(--grad); color: #fff; box-shadow: 0 6px 20px rgba(232,51,26,.35); }
   .btn-hero.primary:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(232,51,26,.45); }
   .btn-hero.secondary { background: transparent; border: 2px solid var(--orange); color: var(--orange); }
   .btn-hero.secondary:hover { background: var(--orange); color: #fff; }
+
+  /* Right visual */
   .hero-visual { display: flex; align-items: center; justify-content: center; position: relative; }
-  .hero-svg-wrap { width: 100%; max-width: 420px; animation: floatY 4s ease-in-out infinite; }
+  .hero-svg-wrap { width: 100%; max-width: 400px; animation: floatY 4s ease-in-out infinite; }
   @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-  .hero-badge { position: absolute; bottom: 16px; left: 0; background: #fff; border-radius: 14px; padding: .65rem .95rem; box-shadow: 0 8px 30px rgba(0,0,0,.1); display: flex; align-items: center; gap: .55rem; font-size: .8rem; font-weight: 600; color: var(--dark); animation: floatY 4s ease-in-out infinite .5s; white-space: nowrap; }
-  .hero-badge .dot { width: 9px; height: 9px; background: #22C55E; border-radius: 50%; animation: pulse 1.5s infinite; flex-shrink: 0; }
+
+  /* ---- Floating stat badges ---- */
+  .hero-badge {
+    position: absolute;
+    background: #fff;
+    border-radius: 14px;
+    padding: .55rem .85rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,.1);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--dark);
+    white-space: nowrap;
+    border: 1px solid #FFE0CC;
+  }
+  .hero-badge .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 1.5s infinite;
+  }
+  .hero-badge .badge-num {
+    font-family: var(--heading);
+    font-size: .9rem;
+    font-weight: 800;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Badge positions + staggered float animations */
+  .hero-badge-1 {
+    bottom: 12px;
+    left: -8px;
+    animation: floatBadge1 4s ease-in-out infinite;
+  }
+  .hero-badge-2 {
+    top: 30px;
+    right: -10px;
+    animation: floatBadge2 4.4s ease-in-out infinite .3s;
+  }
+  .hero-badge-3 {
+    bottom: 80px;
+    right: -12px;
+    animation: floatBadge3 3.8s ease-in-out infinite .6s;
+  }
+
+  @keyframes floatBadge1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes floatBadge2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes floatBadge3 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-  /* SECTION SHARED */
+  /* ===================== SECTION SHARED ===================== */
   section { padding: 80px 5%; }
   .sec-wrap { max-width: 1180px; margin: 0 auto; }
   .section-label { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .28rem .85rem; border-radius: 50px; margin-bottom: .9rem; }
@@ -225,25 +319,35 @@
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s ease, transform .55s ease; }
   .reveal.visible { opacity: 1; transform: none; }
 
-  /* RESPONSIVE */
+  /* ===================== RESPONSIVE ===================== */
+  @media (max-width: 1180px) {
+    .hero-inner { grid-template-columns: 55% 45%; gap: 2rem; padding: 104px 4% 64px; }
+  }
   @media (max-width: 1024px) {
-    .hero-inner { grid-template-columns: 52% 48%; gap: 2rem; }
+    .hero-inner { grid-template-columns: 54% 46%; gap: 1.8rem; }
+    .hero-headline { font-size: clamp(2rem, 3.5vw, 3rem); }
     .footer-grid { grid-template-columns: 1fr 1fr; }
+    .hero-badge-2 { right: -4px; }
+    .hero-badge-3 { right: -4px; }
   }
   @media (max-width: 900px) {
     .nav-links, .nav-ctas { display: none; }
     .hamburger { display: flex; }
-    .hero-inner { grid-template-columns: 1fr; padding-top: 100px; text-align: center; }
-    .hero-content { max-width: 100%; }
-    .hero-visual { margin-top: 2rem; }
-    .hero-actions { justify-content: center; }
+    .hero-inner { grid-template-columns: 1fr; padding-top: 100px; text-align: center; gap: 1.5rem; }
+    .hero-content { max-width: 100%; width: 100%; }
+    .hero-visual { margin-top: 1.5rem; }
+    .hero-actions { justify-content: center; flex-wrap: wrap; }
     .hero-sub { margin: 1rem auto 0; }
     .hero-tagline { text-align: left; max-width: 360px; margin: .9rem auto 0; }
     .about-grid, .contact-grid { grid-template-columns: 1fr; }
     .about-stat-card { right: 8px; }
+    /* Reposition badges for single-column layout */
+    .hero-badge-1 { bottom: 8px; left: 50%; transform: translateX(-50%); animation: none; }
+    .hero-badge-2 { display: none; }
+    .hero-badge-3 { bottom: -44px; left: 50%; transform: translateX(-50%); animation: none; }
   }
   @media (max-width: 600px) {
-    .hero-headline { font-size: 2.2rem; }
+    .hero-headline { font-size: 2rem; }
     .section-title { font-size: 1.75rem; }
     .footer-grid { grid-template-columns: 1fr; }
     .stats-row { grid-template-columns: 1fr 1fr; }
@@ -252,9 +356,10 @@
     .services-grid { grid-template-columns: 1fr; }
     nav { padding: 0 4%; }
     .nav-logo { font-size: 1.4rem; }
+    .btn-hero { font-size: .8rem; padding: .6rem 1.1rem; }
   }
   @media (max-width: 400px) {
-    .hero-headline { font-size: 1.9rem; }
+    .hero-headline { font-size: 1.75rem; }
     .section-title { font-size: 1.55rem; }
     .stats-row { grid-template-columns: 1fr; }
   }
@@ -307,6 +412,8 @@
 <div id="home-wrap">
   <section id="home">
     <div class="hero-inner">
+
+      <!-- LEFT: Content -->
       <div class="hero-content">
         <span class="hero-tag">&#128640; Trusted Across India</span>
         <h1 class="hero-headline">
@@ -321,10 +428,12 @@
         </p>
         <p class="hero-tagline">Build fast. Grow smart. Dominate digitally.</p>
         <div class="hero-actions">
-          <a href="#services" class="btn-hero primary">Explore Services &rarr;</a>
-          <a href="#results" class="btn-hero secondary">View Our Work</a>
+          <a href="#services" class="btn-hero primary">Our Services &rarr;</a>
+          <a href="#contact" class="btn-hero secondary">Get a Free Quote</a>
         </div>
       </div>
+
+      <!-- RIGHT: Illustration + Floating Badges -->
       <div class="hero-visual">
         <div class="hero-svg-wrap">
           <!-- Digital Agency Illustration -->
@@ -342,10 +451,8 @@
             <rect x="122" y="128" width="120" height="10" rx="3" fill="#E8331A"/>
             <rect x="122" y="144" width="180" height="6" rx="3" fill="#FFD4B8"/>
             <rect x="122" y="155" width="160" height="6" rx="3" fill="#FFD4B8"/>
-            <rect x="122" y="170" width="80" height="24" rx="12" fill="#E8331A"/>
             <rect x="122" y="170" width="80" height="24" rx="12" fill="url(#heroGrad)"/>
             <!-- Hero image placeholder -->
-            <rect x="270" y="128" width="120" height="82" rx="8" fill="linear-gradient(135deg,#FFE0CC,#FFB088)"/>
             <rect x="270" y="128" width="120" height="82" rx="8" fill="#FFE0CC"/>
             <ellipse cx="330" cy="160" rx="24" ry="24" fill="#F97316" opacity=".3"/>
             <polygon points="322,152 322,170 340,161" fill="#E8331A"/>
@@ -371,7 +478,7 @@
             <!-- Star rating bubble -->
             <rect x="370" y="270" width="110" height="52" rx="12" fill="#fff" filter="drop-shadow(0 4px 16px rgba(0,0,0,.1))"/>
             <text x="380" y="293" font-size="13" fill="#FBBF24">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
-            <text x="382" y="312" font-size="9" fill="#6B7280" font-family="sans-serif" font-weight="600">1,200+ Happy Clients</text>
+            <text x="382" y="312" font-size="9" fill="#6B7280" font-family="sans-serif" font-weight="600">4.9 / 5 Avg Rating</text>
             <!-- Rocket -->
             <text x="46" y="330" font-size="2.2rem">&#128640;</text>
             <!-- Defs -->
@@ -383,10 +490,34 @@
             </defs>
           </svg>
         </div>
-        <div class="hero-badge">
-          <div class="dot"></div>
-          1,200+ businesses growing online
+
+        <!-- Floating Stat Badge 1 — Website Development (bottom-left) -->
+        <div class="hero-badge hero-badge-1">
+          <div class="dot" style="background:#E8331A;"></div>
+          <div>
+            <div class="badge-num">500+</div>
+            <div style="font-size:.68rem;color:var(--gray);font-weight:500;line-height:1.2;">Website Development<br/>Clients</div>
+          </div>
         </div>
+
+        <!-- Floating Stat Badge 2 — Website Management (top-right) -->
+        <div class="hero-badge hero-badge-2">
+          <div class="dot" style="background:#F97316;"></div>
+          <div>
+            <div class="badge-num">545+</div>
+            <div style="font-size:.68rem;color:var(--gray);font-weight:500;line-height:1.2;">Website Management<br/>Clients</div>
+          </div>
+        </div>
+
+        <!-- Floating Stat Badge 3 — Digital Marketing (mid-right) -->
+        <div class="hero-badge hero-badge-3">
+          <div class="dot" style="background:#FBBF24;"></div>
+          <div>
+            <div class="badge-num">345+</div>
+            <div style="font-size:.68rem;color:var(--gray);font-weight:500;line-height:1.2;">Digital Marketing<br/>Clients</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -428,7 +559,7 @@
             <li>Performance Optimisation</li>
             <li>Content Updates</li>
           </ul>
-          <div class="service-meta"><span>&#128101; 455+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+          <div class="service-meta"><span>&#128101; 545+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
       <!-- Digital Marketing -->
@@ -443,7 +574,7 @@
             <li>Content &amp; Email Marketing</li>
             <li>Analytics &amp; Reporting</li>
           </ul>
-          <div class="service-meta"><span>&#128101; 234+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+          <div class="service-meta"><span>&#128101; 345+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
     </div>
@@ -468,11 +599,11 @@
             <text x="59" y="131" font-size="7" fill="#6B7280" font-family="sans-serif">Web Clients</text>
             <rect x="125" y="95" width="60" height="40" rx="4" fill="#FFF4E6"/>
             <rect x="127" y="97" width="56" height="6" rx="2" fill="#FBBF24"/>
-            <text x="132" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">455+</text>
+            <text x="132" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">545+</text>
             <text x="126" y="131" font-size="7" fill="#6B7280" font-family="sans-serif">Mgmt Clients</text>
             <rect x="195" y="95" width="52" height="40" rx="4" fill="#FFEDE5"/>
             <rect x="197" y="97" width="48" height="6" rx="2" fill="#F97316"/>
-            <text x="200" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">234+</text>
+            <text x="200" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">345+</text>
             <text x="197" y="131" font-size="7" fill="#6B7280" font-family="sans-serif">Mktg Clients</text>
             <!-- Bar chart -->
             <rect x="55" y="145" width="192" height="40" rx="4" fill="#FFF7F0"/>
@@ -492,7 +623,7 @@
           </svg>
         </div>
         <div class="about-stat-card">
-          <div class="num">1,200+</div>
+          <div class="num">1,390+</div>
           <div class="lbl">Happy Clients<br/>Across India</div>
         </div>
       </div>
@@ -521,8 +652,8 @@
     </div>
     <div class="stats-row reveal">
       <div class="stat-box"><div class="num">500+</div><div class="lbl">Website Dev Clients</div></div>
-      <div class="stat-box"><div class="num">455+</div><div class="lbl">Website Mgmt Clients</div></div>
-      <div class="stat-box"><div class="num">234+</div><div class="lbl">Digital Mktg Clients</div></div>
+      <div class="stat-box"><div class="num">545+</div><div class="lbl">Website Mgmt Clients</div></div>
+      <div class="stat-box"><div class="num">345+</div><div class="lbl">Digital Mktg Clients</div></div>
       <div class="stat-box"><div class="num">98%</div><div class="lbl">Client Retention Rate</div></div>
       <div class="stat-box"><div class="num">4.9&#9733;</div><div class="lbl">Average Rating</div></div>
       <div class="stat-box"><div class="num">6+</div><div class="lbl">Years of Excellence</div></div>
