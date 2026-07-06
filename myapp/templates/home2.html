@@ -6,7 +6,7 @@
 <title>EduTrellis – Build Your Career Foundation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -20,6 +20,7 @@
     --white:  #FFFFFF;
     --gray:   #6B7280;
     --grad: linear-gradient(135deg, var(--red) 0%, var(--orange) 60%, var(--amber) 100%);
+    --heading: 'Plus Jakarta Sans', sans-serif;
   }
 
   html { scroll-behavior: smooth; }
@@ -33,7 +34,7 @@
     transition: opacity 0.5s ease, visibility 0.5s ease;
   }
   #page-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-  .loader-logo { font-family: 'Syne','Arial Black',sans-serif; font-size: 1.9rem; font-weight: 800; color: var(--dark); letter-spacing: -0.3px; }
+  .loader-logo { font-family: var(--heading); font-size: 1.9rem; font-weight: 800; color: var(--dark); letter-spacing: -0.3px; }
   .loader-logo span { color: var(--red); }
   .loader-spinner { width: 38px; height: 38px; border: 3px solid #FFE0CC; border-top-color: var(--orange); border-radius: 50%; animation: spin 0.75s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -45,7 +46,7 @@
   /* ── NAV ── */
   nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; height: 68px; background: rgba(255,255,255,.95); backdrop-filter: blur(10px); border-bottom: 1px solid #FFE0CC; display: flex; align-items: center; padding: 0 5%; }
   .nav-inner { max-width: 1180px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
-  .nav-logo { font-family: 'Syne',sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--dark); letter-spacing: -0.3px; }
+  .nav-logo { font-family: var(--heading); font-size: 1.4rem; font-weight: 800; color: var(--dark); letter-spacing: -0.3px; }
   .nav-logo span { color: var(--red); }
   .nav-links { display: flex; gap: 1.75rem; list-style: none; }
   .nav-links a { text-decoration: none; color: var(--mid); font-size: 0.875rem; font-weight: 500; transition: color .2s; }
@@ -64,18 +65,14 @@
   #home-wrap::before { content:''; position:absolute; top:-80px; right:0; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%); pointer-events:none; }
   #home { min-height: 100vh; padding: 0; width: 100%; }
   .hero-inner { max-width: 1180px; margin: 0 auto; padding: 100px 5% 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; position: relative; }
-
-  /* HERO TEXT — key fix: constrain width so text wraps naturally */
   .hero-content { max-width: 520px; }
   .hero-tag { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .28rem .8rem; border-radius: 50px; margin-bottom: 1rem; }
-
-  /* HEADLINE — fluid size, no negative letter-spacing stretch */
   .hero-headline {
-    font-family: 'Syne',sans-serif;
+    font-family: var(--heading);
     font-size: clamp(1.85rem, 3vw, 2.5rem);
     font-weight: 800;
     line-height: 1.15;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
     color: var(--dark);
     word-break: break-word;
   }
@@ -89,7 +86,6 @@
   .btn-hero.primary:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(232,51,26,.45); }
   .btn-hero.secondary { background: transparent; border: 2px solid var(--orange); color: var(--orange); }
   .btn-hero.secondary:hover { background: var(--orange); color: #fff; }
-
   .hero-visual { display: flex; align-items: center; justify-content: center; position: relative; }
   .hero-svg-wrap { width: 100%; max-width: 400px; animation: floatY 4s ease-in-out infinite; }
   @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
@@ -100,15 +96,13 @@
   /* ── SECTION SHARED ── */
   section { padding: 80px 5%; }
   .sec-wrap { max-width: 1180px; margin: 0 auto; }
-
-  /* SECTION HEADINGS — fluid, no stretch */
   .section-label { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .28rem .85rem; border-radius: 50px; margin-bottom: .9rem; }
   .section-title {
-    font-family: 'Syne',sans-serif;
+    font-family: var(--heading);
     font-size: clamp(1.55rem, 2.5vw, 1.95rem);
     font-weight: 800;
     line-height: 1.2;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.2px;
     color: var(--dark);
     word-break: break-word;
   }
@@ -129,7 +123,7 @@
   .course-card-top.maths{ background: linear-gradient(135deg,#FFF0F0,#FFCDD0); }
   .course-badge { position: absolute; top: 10px; right: 10px; background: var(--grad); color: #fff; font-size: .68rem; font-weight: 700; padding: .22rem .55rem; border-radius: 50px; }
   .course-card-body { padding: 1.15rem; }
-  .course-card-body h3 { font-family: 'Syne',sans-serif; font-size: 1rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
+  .course-card-body h3 { font-family: var(--heading); font-size: 1rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
   .course-card-body p { margin-top: .35rem; font-size: .83rem; color: var(--gray); line-height: 1.6; }
   .course-meta { margin-top: .85rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
   .course-meta span { font-size: .78rem; color: var(--mid); font-weight: 600; }
@@ -143,7 +137,7 @@
   .about-illustration { width: 100%; border-radius: 20px; background: linear-gradient(135deg,#FFDCCC,#FFB088); padding: 2rem; display: flex; align-items: center; justify-content: center; min-height: 300px; }
   .about-illustration svg { width: 100%; max-width: 300px; }
   .about-stat-card { position: absolute; bottom: -18px; right: -16px; background: #fff; border-radius: 14px; padding: .9rem 1.2rem; box-shadow: 0 8px 30px rgba(0,0,0,.1); text-align: center; }
-  .about-stat-card .num { font-family: 'Syne',sans-serif; font-size: 1.8rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .about-stat-card .num { font-family: var(--heading); font-size: 1.8rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .about-stat-card .lbl { font-size: .75rem; color: var(--gray); font-weight: 600; margin-top: .1rem; }
   .about-list { margin-top: 1.4rem; display: flex; flex-direction: column; gap: .85rem; }
   .about-item { display: flex; align-items: flex-start; gap: .85rem; }
@@ -157,12 +151,12 @@
   .stats-row { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 1.25rem; }
   .stat-box { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 1.6rem 1rem; text-align: center; transition: background .2s; }
   .stat-box:hover { background: rgba(249,115,22,.15); }
-  .stat-box .num { font-family: 'Syne',sans-serif; font-size: clamp(1.6rem,2.2vw,2.2rem); font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-box .num { font-family: var(--heading); font-size: clamp(1.6rem,2.2vw,2.2rem); font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .stat-box .lbl { margin-top: .3rem; font-size: .8rem; color: rgba(255,255,255,.6); font-weight: 500; }
   .toppers-grid { margin-top: 2.25rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 1.1rem; }
   .topper-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 1.1rem; display: flex; gap: .9rem; align-items: center; transition: transform .2s; }
   .topper-card:hover { transform: translateY(-4px); }
-  .topper-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne',sans-serif; font-weight: 800; font-size: 1rem; color: #fff; flex-shrink: 0; }
+  .topper-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--heading); font-weight: 800; font-size: 1rem; color: #fff; flex-shrink: 0; }
   .topper-card h4 { font-weight: 700; font-size: .88rem; color: #fff; }
   .topper-card p { font-size: .76rem; color: rgba(255,255,255,.55); margin-top: .12rem; }
   .topper-rank { font-size: .7rem; font-weight: 700; color: var(--amber); margin-top: .28rem; }
@@ -172,15 +166,15 @@
   .team-grid { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 1.4rem; }
   .team-card { background: var(--light); border-radius: 20px; padding: 1.75rem 1.4rem; text-align: center; border: 1px solid #FFE0CC; transition: transform .25s, box-shadow .25s; }
   .team-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(232,51,26,.12); }
-  .team-avatar { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto .85rem; display: flex; align-items: center; justify-content: center; font-family: 'Syne',sans-serif; font-size: 1.6rem; font-weight: 800; color: #fff; }
-  .team-card h3 { font-family: 'Syne',sans-serif; font-size: 1rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
+  .team-avatar { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto .85rem; display: flex; align-items: center; justify-content: center; font-family: var(--heading); font-size: 1.5rem; font-weight: 800; color: #fff; }
+  .team-card h3 { font-family: var(--heading); font-size: 1rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
   .team-card .role { font-size: .8rem; color: var(--red); font-weight: 600; margin-top: .22rem; }
   .team-card p { font-size: .8rem; color: var(--gray); margin-top: .55rem; line-height: 1.55; }
 
   /* ── CONTACT ── */
   #contact { background: var(--light); }
   .contact-grid { margin-top: 2.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: start; }
-  .contact-info h3 { font-family: 'Syne',sans-serif; font-size: clamp(1.1rem,1.8vw,1.3rem); font-weight: 800; color: var(--dark); line-height: 1.25; word-break: break-word; }
+  .contact-info h3 { font-family: var(--heading); font-size: clamp(1.1rem,1.8vw,1.3rem); font-weight: 800; color: var(--dark); line-height: 1.25; word-break: break-word; }
   .contact-info p { margin-top: .45rem; font-size: .9rem; color: var(--gray); line-height: 1.7; }
   .contact-details { margin-top: 1.6rem; display: flex; flex-direction: column; gap: .9rem; }
   .contact-row { display: flex; align-items: center; gap: .8rem; }
@@ -188,7 +182,7 @@
   .contact-row-text span { font-size: .8rem; color: var(--gray); display: block; }
   .contact-row-text strong { font-size: .88rem; color: var(--dark); font-weight: 600; }
   .contact-form { background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid #FFE0CC; }
-  .contact-form-title { font-family: 'Syne',sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--dark); margin-bottom: 1.2rem; }
+  .contact-form-title { font-family: var(--heading); font-size: 1.05rem; font-weight: 800; color: var(--dark); margin-bottom: 1.2rem; }
   .form-row { margin-bottom: 1rem; }
   .form-row label { font-size: .8rem; font-weight: 600; color: var(--mid); display: block; margin-bottom: .3rem; }
   .form-row input, .form-row select, .form-row textarea { width: 100%; padding: .65rem .9rem; border-radius: 10px; border: 1.5px solid #FFD4B8; font-size: .875rem; font-family: inherit; color: var(--dark); background: var(--light); outline: none; transition: border-color .2s; }
@@ -203,10 +197,10 @@
   footer { background: var(--dark); color: rgba(255,255,255,.6); padding: 56px 5% 28px; }
   .footer-inner { max-width: 1180px; margin: 0 auto; }
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid rgba(255,255,255,.08); }
-  .footer-brand .logo { font-family: 'Syne',sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; }
+  .footer-brand .logo { font-family: var(--heading); font-size: 1.3rem; font-weight: 800; color: #fff; }
   .footer-brand .logo span { color: var(--orange); }
   .footer-brand p { margin-top: .6rem; font-size: .83rem; line-height: 1.7; max-width: 230px; }
-  .footer-col h4 { font-family: 'Syne',sans-serif; color: #fff; font-size: .9rem; font-weight: 700; margin-bottom: .85rem; }
+  .footer-col h4 { font-family: var(--heading); color: #fff; font-size: .9rem; font-weight: 700; margin-bottom: .85rem; }
   .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
   .footer-col ul li a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .83rem; transition: color .2s; }
   .footer-col ul li a:hover { color: var(--orange); }
@@ -487,7 +481,7 @@
       <div class="stat-box"><div class="num">6</div><div class="lbl">Years of Excellence</div></div>
     </div>
     <div style="margin-top:2.25rem">
-      <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1.1rem;letter-spacing:0" class="reveal">&#127942; Top Rankers 2024</h3>
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1.1rem;letter-spacing:0" class="reveal">&#127942; Top Rankers 2024</h3>
       <div class="toppers-grid reveal">
         <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">R</div><div><h4>Rahul Sharma</h4><p>JEE Mains 2024</p><div class="topper-rank">AIR 847</div></div></div>
         <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">P</div><div><h4>Priya Gogoi</h4><p>NEET 2024</p><div class="topper-rank">Score 710/720</div></div></div>
