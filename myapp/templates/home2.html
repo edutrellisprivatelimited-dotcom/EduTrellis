@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EduTrellis – Build Your Career Foundation</title>
+<title>EduTrellis – Digital Growth Partner</title>
+<meta name="description" content="EduTrellis is a trusted web design, development & digital marketing agency helping businesses grow online across India." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -26,7 +27,7 @@
   html { scroll-behavior: smooth; }
   body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--dark); overflow-x: hidden; }
 
-  /* ── PAGE LOADER ── */
+  /* PAGE LOADER */
   #page-loader {
     position: fixed; inset: 0; z-index: 9999;
     background: var(--light);
@@ -43,16 +44,13 @@
   @keyframes loadProgress { 0%{width:0%} 50%{width:70%} 80%{width:88%} 100%{width:100%} }
   .loader-text { font-size: 0.78rem; color: var(--gray); font-weight: 500; letter-spacing: 0.05em; }
 
-  /* ── NAV ── */
+  /* NAV */
   nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; height: 72px; background: rgba(255,255,255,.95); backdrop-filter: blur(10px); border-bottom: 1px solid #FFE0CC; display: flex; align-items: center; padding: 0 5%; }
   .nav-inner { max-width: 1180px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
-
-  /* Logo block — bigger, bolder, with tagline */
   .nav-logo-wrap { display: flex; flex-direction: column; line-height: 1; gap: 2px; text-decoration: none; }
   .nav-logo { font-family: var(--heading); font-size: 1.75rem; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; line-height: 1; }
   .nav-logo span { color: var(--red); }
   .nav-logo-tagline { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); }
-
   .nav-links { display: flex; gap: 1.75rem; list-style: none; }
   .nav-links a { text-decoration: none; color: var(--mid); font-size: 0.875rem; font-weight: 500; transition: color .2s; }
   .nav-links a:hover, .nav-links a.active { color: var(--red); }
@@ -65,15 +63,13 @@
   .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
   .hamburger span { width: 24px; height: 2px; background: var(--dark); border-radius: 2px; transition: all .3s; }
 
-  /* ── HERO ── */
+  /* HERO */
   #home-wrap { background: var(--light); position: relative; overflow: hidden; }
   #home-wrap::before { content:''; position:absolute; top:-80px; right:0; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%); pointer-events:none; }
   #home { min-height: 100vh; padding: 0; width: 100%; }
   .hero-inner { max-width: 1180px; margin: 0 auto; padding: 104px 5% 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; position: relative; }
   .hero-content { max-width: 520px; }
   .hero-tag { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .28rem .8rem; border-radius: 50px; margin-bottom: 1rem; }
-
-  /* HERO HEADLINE */
   .hero-headline {
     font-family: var(--heading);
     font-size: clamp(2.6rem, 5vw, 4rem);
@@ -94,13 +90,13 @@
   .btn-hero.secondary { background: transparent; border: 2px solid var(--orange); color: var(--orange); }
   .btn-hero.secondary:hover { background: var(--orange); color: #fff; }
   .hero-visual { display: flex; align-items: center; justify-content: center; position: relative; }
-  .hero-svg-wrap { width: 100%; max-width: 400px; animation: floatY 4s ease-in-out infinite; }
+  .hero-svg-wrap { width: 100%; max-width: 420px; animation: floatY 4s ease-in-out infinite; }
   @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
   .hero-badge { position: absolute; bottom: 16px; left: 0; background: #fff; border-radius: 14px; padding: .65rem .95rem; box-shadow: 0 8px 30px rgba(0,0,0,.1); display: flex; align-items: center; gap: .55rem; font-size: .8rem; font-weight: 600; color: var(--dark); animation: floatY 4s ease-in-out infinite .5s; white-space: nowrap; }
   .hero-badge .dot { width: 9px; height: 9px; background: #22C55E; border-radius: 50%; animation: pulse 1.5s infinite; flex-shrink: 0; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-  /* ── SECTION SHARED ── */
+  /* SECTION SHARED */
   section { padding: 80px 5%; }
   .sec-wrap { max-width: 1180px; margin: 0 auto; }
   .section-label { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .28rem .85rem; border-radius: 50px; margin-bottom: .9rem; }
@@ -118,26 +114,28 @@
   .center { text-align: center; }
   .center .section-sub { margin-left: auto; margin-right: auto; }
 
-  /* ── COURSES ── */
-  #courses { background: var(--white); }
-  .courses-grid { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 1.4rem; }
-  .course-card { border-radius: 18px; overflow: hidden; background: var(--light); border: 1px solid #FFE0CC; transition: transform .25s, box-shadow .25s; cursor: pointer; }
-  .course-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(232,51,26,.15); }
-  .course-card-top { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; }
-  .course-card-top.jee  { background: linear-gradient(135deg,#FFF1EC,#FFD7C8); }
-  .course-card-top.neet { background: linear-gradient(135deg,#FFEDE5,#FFCAB5); }
-  .course-card-top.found{ background: linear-gradient(135deg,#FFF4E6,#FFE0A3); }
-  .course-card-top.maths{ background: linear-gradient(135deg,#FFF0F0,#FFCDD0); }
-  .course-badge { position: absolute; top: 10px; right: 10px; background: var(--grad); color: #fff; font-size: .68rem; font-weight: 700; padding: .22rem .55rem; border-radius: 50px; }
-  .course-card-body { padding: 1.15rem; }
-  .course-card-body h3 { font-family: var(--heading); font-size: 1rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
-  .course-card-body p { margin-top: .35rem; font-size: .83rem; color: var(--gray); line-height: 1.6; }
-  .course-meta { margin-top: .85rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
-  .course-meta span { font-size: .78rem; color: var(--mid); font-weight: 600; }
-  .course-meta a { font-size: .8rem; color: var(--red); font-weight: 700; text-decoration: none; white-space: nowrap; }
-  .course-meta a:hover { text-decoration: underline; }
+  /* SERVICES */
+  #services { background: var(--white); }
+  .services-grid { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 1.4rem; }
+  .service-card { border-radius: 18px; overflow: hidden; background: var(--light); border: 1px solid #FFE0CC; transition: transform .25s, box-shadow .25s; cursor: pointer; }
+  .service-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(232,51,26,.15); }
+  .service-card-top { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; }
+  .service-card-top.web  { background: linear-gradient(135deg,#FFF1EC,#FFD7C8); }
+  .service-card-top.mgmt { background: linear-gradient(135deg,#FFEDE5,#FFCAB5); }
+  .service-card-top.mktg { background: linear-gradient(135deg,#FFF4E6,#FFE0A3); }
+  .service-badge { position: absolute; top: 10px; right: 10px; background: var(--grad); color: #fff; font-size: .68rem; font-weight: 700; padding: .22rem .55rem; border-radius: 50px; }
+  .service-card-body { padding: 1.15rem; }
+  .service-card-body h3 { font-family: var(--heading); font-size: 1rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
+  .service-card-body p { margin-top: .35rem; font-size: .83rem; color: var(--gray); line-height: 1.6; }
+  .service-features { margin-top: .75rem; display: flex; flex-direction: column; gap: .3rem; }
+  .service-features li { font-size: .78rem; color: var(--mid); font-weight: 500; list-style: none; display: flex; align-items: center; gap: .4rem; }
+  .service-features li::before { content: '✓'; color: var(--orange); font-weight: 700; font-size: .8rem; }
+  .service-meta { margin-top: .85rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+  .service-meta span { font-size: .78rem; color: var(--mid); font-weight: 600; }
+  .service-meta a { font-size: .8rem; color: var(--red); font-weight: 700; text-decoration: none; white-space: nowrap; }
+  .service-meta a:hover { text-decoration: underline; }
 
-  /* ── ABOUT ── */
+  /* ABOUT */
   #about { background: var(--light); }
   .about-grid { margin-top: 2.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; }
   .about-img-wrap { position: relative; }
@@ -152,7 +150,7 @@
   .about-item-text h4 { font-weight: 700; font-size: .9rem; color: var(--dark); line-height: 1.3; }
   .about-item-text p { font-size: .82rem; color: var(--gray); margin-top: .12rem; line-height: 1.55; }
 
-  /* ── RESULTS ── */
+  /* RESULTS */
   #results { background: var(--dark); color: var(--white); }
   #results .section-title { color: var(--white); }
   .stats-row { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 1.25rem; }
@@ -160,15 +158,15 @@
   .stat-box:hover { background: rgba(249,115,22,.15); }
   .stat-box .num { font-family: var(--heading); font-size: clamp(1.6rem,2.2vw,2.2rem); font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .stat-box .lbl { margin-top: .3rem; font-size: .8rem; color: rgba(255,255,255,.6); font-weight: 500; }
-  .toppers-grid { margin-top: 2.25rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 1.1rem; }
-  .topper-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 1.1rem; display: flex; gap: .9rem; align-items: center; transition: transform .2s; }
-  .topper-card:hover { transform: translateY(-4px); }
-  .topper-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--heading); font-weight: 800; font-size: 1rem; color: #fff; flex-shrink: 0; }
-  .topper-card h4 { font-weight: 700; font-size: .88rem; color: #fff; }
-  .topper-card p { font-size: .76rem; color: rgba(255,255,255,.55); margin-top: .12rem; }
-  .topper-rank { font-size: .7rem; font-weight: 700; color: var(--amber); margin-top: .28rem; }
+  .projects-grid { margin-top: 2.25rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 1.1rem; }
+  .project-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 1.1rem; display: flex; gap: .9rem; align-items: center; transition: transform .2s; }
+  .project-card:hover { transform: translateY(-4px); }
+  .project-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+  .project-card h4 { font-weight: 700; font-size: .88rem; color: #fff; }
+  .project-card p { font-size: .76rem; color: rgba(255,255,255,.55); margin-top: .12rem; }
+  .project-tag { font-size: .7rem; font-weight: 700; color: var(--amber); margin-top: .28rem; }
 
-  /* ── TEAM ── */
+  /* TEAM */
   #team { background: var(--white); }
   .team-grid { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 1.4rem; }
   .team-card { background: var(--light); border-radius: 20px; padding: 1.75rem 1.4rem; text-align: center; border: 1px solid #FFE0CC; transition: transform .25s, box-shadow .25s; }
@@ -178,7 +176,7 @@
   .team-card .role { font-size: .8rem; color: var(--red); font-weight: 600; margin-top: .22rem; }
   .team-card p { font-size: .8rem; color: var(--gray); margin-top: .55rem; line-height: 1.55; }
 
-  /* ── CONTACT ── */
+  /* CONTACT */
   #contact { background: var(--light); }
   .contact-grid { margin-top: 2.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: start; }
   .contact-info h3 { font-family: var(--heading); font-size: clamp(1.1rem,1.8vw,1.3rem); font-weight: 800; color: var(--dark); line-height: 1.25; word-break: break-word; }
@@ -200,7 +198,7 @@
   .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(232,51,26,.4); }
   #form-msg { display: none; margin-top: .7rem; padding: .7rem; border-radius: 10px; background: rgba(34,197,94,.12); color: #16a34a; font-size: .85rem; font-weight: 600; text-align: center; }
 
-  /* ── FOOTER ── */
+  /* FOOTER */
   footer { background: var(--dark); color: rgba(255,255,255,.6); padding: 56px 5% 28px; }
   .footer-inner { max-width: 1180px; margin: 0 auto; }
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid rgba(255,255,255,.08); }
@@ -218,18 +216,19 @@
   .social-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; font-size: .85rem; transition: background .2s; cursor: pointer; text-decoration: none; }
   .social-btn:hover { background: var(--orange); }
 
-  /* ── MOBILE NAV ── */
+  /* MOBILE NAV */
   .mobile-menu { display: none; position: fixed; top: 72px; left: 0; width: 100%; background: #fff; border-bottom: 1px solid #FFE0CC; padding: 1.4rem 5%; z-index: 99; flex-direction: column; gap: .9rem; }
   .mobile-menu.open { display: flex; }
   .mobile-menu a { color: var(--dark); font-size: .95rem; font-weight: 600; text-decoration: none; padding: .45rem 0; border-bottom: 1px solid #FFF0E8; }
 
-  /* ── SCROLL REVEAL ── */
+  /* SCROLL REVEAL */
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s ease, transform .55s ease; }
   .reveal.visible { opacity: 1; transform: none; }
 
-  /* ── RESPONSIVE ── */
+  /* RESPONSIVE */
   @media (max-width: 1024px) {
     .hero-inner { grid-template-columns: 52% 48%; gap: 2rem; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 900px) {
     .nav-links, .nav-ctas { display: none; }
@@ -242,7 +241,6 @@
     .hero-tagline { text-align: left; max-width: 360px; margin: .9rem auto 0; }
     .about-grid, .contact-grid { grid-template-columns: 1fr; }
     .about-stat-card { right: 8px; }
-    .footer-grid { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 600px) {
     .hero-headline { font-size: 2.2rem; }
@@ -251,10 +249,14 @@
     .stats-row { grid-template-columns: 1fr 1fr; }
     .form-row-2 { grid-template-columns: 1fr; }
     .contact-grid { gap: 2rem; }
+    .services-grid { grid-template-columns: 1fr; }
+    nav { padding: 0 4%; }
+    .nav-logo { font-size: 1.4rem; }
   }
   @media (max-width: 400px) {
     .hero-headline { font-size: 1.9rem; }
     .section-title { font-size: 1.55rem; }
+    .stats-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -271,22 +273,21 @@
 <!-- NAV -->
 <nav id="navbar">
   <div class="nav-inner">
-    <!-- Logo with tagline -->
     <a href="#home" class="nav-logo-wrap">
       <div class="nav-logo">Edu<span>Trellis</span></div>
       <span class="nav-logo-tagline">Digital Growth Partner</span>
     </a>
     <ul class="nav-links">
       <li><a href="#home" class="active">Home</a></li>
-      <li><a href="#courses">Courses</a></li>
+      <li><a href="#services">Services</a></li>
       <li><a href="#about">About Us</a></li>
       <li><a href="#results">Results</a></li>
       <li><a href="#team">Our Team</a></li>
       <li><a href="#contact">Contact Us</a></li>
     </ul>
     <div class="nav-ctas">
-      <a href="#courses" class="btn-outline">Enter Arena</a>
-      <a href="#contact" class="btn-fill">Classroom Analytics</a>
+      <a href="#services" class="btn-outline">Our Services</a>
+      <a href="#contact" class="btn-fill">Get a Free Quote</a>
     </div>
     <div class="hamburger" id="hamburger" onclick="toggleMenu()">
       <span></span><span></span><span></span>
@@ -295,7 +296,7 @@
 </nav>
 <div class="mobile-menu" id="mobileMenu">
   <a href="#home" onclick="closeMenu()">Home</a>
-  <a href="#courses" onclick="closeMenu()">Courses</a>
+  <a href="#services" onclick="closeMenu()">Services</a>
   <a href="#about" onclick="closeMenu()">About Us</a>
   <a href="#results" onclick="closeMenu()">Results</a>
   <a href="#team" onclick="closeMenu()">Our Team</a>
@@ -307,121 +308,142 @@
   <section id="home">
     <div class="hero-inner">
       <div class="hero-content">
-        <span class="hero-tag">&#128640; Northeast India's Trusted EdTech</span>
+        <span class="hero-tag">&#128640; Trusted Across India</span>
         <h1 class="hero-headline">
           Let's build a strong<br/>
-          <span class="accent">Career Foundation</span><br/>
-          for your future
+          <span class="accent">Digital Presence</span><br/>
+          for your business
         </h1>
         <p class="hero-sub">
-          At <strong>EduTrellis,</strong> we don't just prepare students for exams.
-          We build clarity, discipline, and thinking ability.<br/><br/>
-          With strong academics, <strong>tech-driven learning,</strong> and personal mentorship, we help students from the Northeast compete confidently in JEE, NEET, and foundational programs &mdash; without needing to leave home.
+          At <strong>EduTrellis,</strong> we don't just build websites.
+          We craft powerful digital experiences that drive real growth.<br/><br/>
+          From stunning <strong>website design &amp; development</strong> to seamless management and result-driven digital marketing &mdash; we help businesses across India win online.
         </p>
-        <p class="hero-tagline">Start early. Think deeply. Build for life.</p>
+        <p class="hero-tagline">Build fast. Grow smart. Dominate digitally.</p>
         <div class="hero-actions">
-          <a href="#courses" class="btn-hero primary">Start Learning &rarr;</a>
-          <a href="#results" class="btn-hero secondary">View Results</a>
+          <a href="#services" class="btn-hero primary">Explore Services &rarr;</a>
+          <a href="#results" class="btn-hero secondary">View Our Work</a>
         </div>
       </div>
       <div class="hero-visual">
         <div class="hero-svg-wrap">
+          <!-- Digital Agency Illustration -->
           <svg viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="260" cy="390" rx="140" ry="18" fill="rgba(0,0,0,0.06)"/>
-            <rect x="130" y="340" width="260" height="38" rx="6" fill="#1A0A00"/>
-            <rect x="130" y="340" width="260" height="10" rx="3" fill="#E8331A"/>
-            <rect x="148" y="308" width="224" height="36" rx="6" fill="#F97316"/>
-            <rect x="148" y="308" width="224" height="10" rx="3" fill="#FBBF24"/>
-            <rect x="160" y="278" width="200" height="34" rx="6" fill="#4B2100"/>
-            <rect x="172" y="252" width="176" height="30" rx="6" fill="#E8331A"/>
-            <rect x="188" y="225" width="144" height="30" rx="6" fill="#FBBF24"/>
-            <rect x="188" y="225" width="144" height="10" rx="3" fill="#F97316" opacity=".7"/>
-            <rect x="250" y="185" width="22" height="40" rx="8" fill="#93C5FD"/>
-            <circle cx="261" cy="175" r="16" fill="#F4C5A1"/>
-            <ellipse cx="261" cy="162" rx="14" ry="9" fill="#1A0A00"/>
-            <rect x="253" y="222" width="8" height="32" rx="4" fill="#1E3A5F"/>
-            <rect x="263" y="228" width="8" height="26" rx="4" fill="#1E3A5F" transform="rotate(-15 267 228)"/>
-            <rect x="270" y="195" width="18" height="22" rx="3" fill="#1A0A00"/>
-            <rect x="271" y="196" width="16" height="4" rx="1" fill="#E8331A"/>
-            <rect x="234" y="192" width="16" height="8" rx="4" fill="#93C5FD"/>
-            <rect x="200" y="100" width="120" height="12" rx="3" fill="#4B2100"/>
-            <polygon points="260,68 320,112 200,112" fill="#2D1500"/>
-            <line x1="320" y1="108" x2="336" y2="130" stroke="#FBBF24" stroke-width="2.5"/>
-            <circle cx="336" cy="133" r="5" fill="#FBBF24"/>
-            <rect x="380" y="295" width="32" height="8" rx="2" fill="#FBBF24"/>
-            <rect x="390" y="303" width="12" height="18" rx="2" fill="#F97316"/>
-            <rect x="382" y="321" width="28" height="6" rx="2" fill="#FBBF24"/>
-            <path d="M380 265 Q364 255 366 238 Q368 225 380 225 L412 225 Q424 225 426 238 Q428 255 412 265 Z" fill="#FBBF24"/>
-            <path d="M374 244 Q362 238 364 230" stroke="#F97316" stroke-width="2" fill="none"/>
-            <path d="M418 244 Q430 238 428 230" stroke="#F97316" stroke-width="2" fill="none"/>
-            <rect x="356" y="170" width="90" height="60" rx="6" fill="rgba(255,255,255,0.6)"/>
-            <polyline points="366,220 386,205 406,195 426,178 436,165" stroke="#E8331A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            <rect x="368" y="208" width="8" height="12" rx="1" fill="#F97316" opacity=".5"/>
-            <rect x="382" y="198" width="8" height="22" rx="1" fill="#F97316" opacity=".5"/>
-            <rect x="396" y="188" width="8" height="32" rx="1" fill="#F97316" opacity=".5"/>
-            <rect x="410" y="178" width="8" height="42" rx="1" fill="#F97316" opacity=".5"/>
-            <polyline points="430,152 440,140 450,152" stroke="#22C55E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="440" y1="140" x2="440" y2="170" stroke="#22C55E" stroke-width="2.5"/>
-            <rect x="100" y="312" width="36" height="32" rx="4" fill="#93C5FD"/>
-            <rect x="102" y="310" width="6" height="20" rx="3" fill="#FBBF24"/>
-            <polygon points="105,292 108,292 108,310 105,310" fill="#FBBF24"/>
-            <polygon points="105,292 108,290" fill="#F97316"/>
-            <rect x="112" y="306" width="6" height="24" rx="3" fill="#E8331A"/>
-            <rect x="122" y="300" width="6" height="30" rx="3" fill="#4B2100"/>
-            <text x="70" y="200" font-size="13" fill="rgba(232,51,26,.18)" font-family="monospace">E=mc&#178;</text>
-            <text x="435" y="220" font-size="11" fill="rgba(232,51,26,.18)" font-family="monospace">&#8747;f(x)dx</text>
-            <text x="68" y="260" font-size="11" fill="rgba(232,51,26,.18)" font-family="monospace">PV=nRT</text>
-            <text x="92" y="160" font-size="10" fill="rgba(249,115,22,.2)" font-family="monospace">sin&#178;&#952;+cos&#178;&#952;=1</text>
+            <!-- Monitor -->
+            <rect x="100" y="80" width="320" height="210" rx="16" fill="#1A0A00"/>
+            <rect x="112" y="92" width="296" height="186" rx="8" fill="#fff"/>
+            <!-- Browser chrome -->
+            <rect x="112" y="92" width="296" height="26" rx="8" fill="#FFF7F0"/>
+            <circle cx="128" cy="105" r="5" fill="#E8331A"/>
+            <circle cx="144" cy="105" r="5" fill="#FBBF24"/>
+            <circle cx="160" cy="105" r="5" fill="#22C55E"/>
+            <rect x="178" y="99" width="180" height="12" rx="6" fill="#FFE0CC"/>
+            <!-- Web page content -->
+            <rect x="122" y="128" width="120" height="10" rx="3" fill="#E8331A"/>
+            <rect x="122" y="144" width="180" height="6" rx="3" fill="#FFD4B8"/>
+            <rect x="122" y="155" width="160" height="6" rx="3" fill="#FFD4B8"/>
+            <rect x="122" y="170" width="80" height="24" rx="12" fill="#E8331A"/>
+            <rect x="122" y="170" width="80" height="24" rx="12" fill="url(#heroGrad)"/>
+            <!-- Hero image placeholder -->
+            <rect x="270" y="128" width="120" height="82" rx="8" fill="linear-gradient(135deg,#FFE0CC,#FFB088)"/>
+            <rect x="270" y="128" width="120" height="82" rx="8" fill="#FFE0CC"/>
+            <ellipse cx="330" cy="160" rx="24" ry="24" fill="#F97316" opacity=".3"/>
+            <polygon points="322,152 322,170 340,161" fill="#E8331A"/>
+            <!-- Nav bar in design -->
+            <rect x="122" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
+            <rect x="170" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
+            <rect x="218" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
+            <rect x="266" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
+            <!-- Monitor stand -->
+            <rect x="235" y="290" width="50" height="28" rx="4" fill="#1A0A00"/>
+            <rect x="200" y="316" width="120" height="10" rx="5" fill="#1A0A00"/>
+            <!-- Floating elements -->
+            <!-- Growth chart bubble -->
+            <rect x="370" y="50" width="110" height="70" rx="12" fill="#fff" filter="drop-shadow(0 4px 16px rgba(0,0,0,.1))"/>
+            <polyline points="385,105 400,90 418,82 436,68 456,60" stroke="#22C55E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="456" cy="60" r="4" fill="#22C55E"/>
+            <text x="383" y="118" font-size="9" fill="#6B7280" font-family="sans-serif" font-weight="600">Website Traffic &#8593;</text>
+            <!-- Code bubble -->
+            <rect x="30" y="120" width="100" height="60" rx="12" fill="#1A0A00" opacity=".9"/>
+            <text x="44" y="142" font-size="10" fill="#E8331A" font-family="monospace">&lt;div&gt;</text>
+            <text x="52" y="156" font-size="9" fill="#FBBF24" font-family="monospace">class=&quot;hero&quot;</text>
+            <text x="44" y="170" font-size="10" fill="#E8331A" font-family="monospace">&lt;/div&gt;</text>
+            <!-- Star rating bubble -->
+            <rect x="370" y="270" width="110" height="52" rx="12" fill="#fff" filter="drop-shadow(0 4px 16px rgba(0,0,0,.1))"/>
+            <text x="380" y="293" font-size="13" fill="#FBBF24">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
+            <text x="382" y="312" font-size="9" fill="#6B7280" font-family="sans-serif" font-weight="600">1,200+ Happy Clients</text>
+            <!-- Rocket -->
+            <text x="46" y="330" font-size="2.2rem">&#128640;</text>
+            <!-- Defs -->
+            <defs>
+              <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#E8331A"/>
+                <stop offset="100%" stop-color="#FBBF24"/>
+              </linearGradient>
+            </defs>
           </svg>
         </div>
         <div class="hero-badge">
           <div class="dot"></div>
-          1,200+ students learning live
+          1,200+ businesses growing online
         </div>
       </div>
     </div>
   </section>
 </div>
 
-<!-- COURSES -->
-<section id="courses">
+<!-- SERVICES -->
+<section id="services">
   <div class="sec-wrap">
     <div class="center reveal">
       <span class="section-label">What We Offer</span>
-      <h2 class="section-title">Our <span class="accent">Courses</span></h2>
-      <p class="section-sub">Carefully crafted programs to build real understanding&mdash;not just exam shortcuts.</p>
+      <h2 class="section-title">Our <span class="accent">Services</span></h2>
+      <p class="section-sub">End-to-end digital solutions designed to build, manage, and grow your online presence.</p>
     </div>
-    <div class="courses-grid">
-      <div class="course-card reveal">
-        <div class="course-card-top jee">&#128300;<span class="course-badge">Popular</span></div>
-        <div class="course-card-body">
-          <h3>JEE Foundation &amp; Mains</h3>
-          <p>Physics, Chemistry &amp; Maths with concept-first teaching and weekly mock tests.</p>
-          <div class="course-meta"><span>&#128197; 2-Year Program</span><a href="#contact">Enroll Now &rarr;</a></div>
+    <div class="services-grid">
+      <!-- Website Design & Development -->
+      <div class="service-card reveal">
+        <div class="service-card-top web">&#128187;<span class="service-badge">Popular</span></div>
+        <div class="service-card-body">
+          <h3>Website Design &amp; Development</h3>
+          <p>Stunning, fast &amp; conversion-focused websites built for your business goals.</p>
+          <ul class="service-features">
+            <li>Custom UI/UX Design</li>
+            <li>Mobile-First &amp; Responsive</li>
+            <li>SEO-Optimised Structure</li>
+            <li>E-commerce &amp; CMS Solutions</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 500+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
-      <div class="course-card reveal">
-        <div class="course-card-top neet">&#129516;<span class="course-badge">New Batch</span></div>
-        <div class="course-card-body">
-          <h3>NEET Preparation</h3>
-          <p>Biology, Physics &amp; Chemistry aligned with NCERT and previous year patterns.</p>
-          <div class="course-meta"><span>&#128197; 1-Year Program</span><a href="#contact">Enroll Now &rarr;</a></div>
+      <!-- Website Management -->
+      <div class="service-card reveal">
+        <div class="service-card-top mgmt">&#128296;<span class="service-badge">Trusted</span></div>
+        <div class="service-card-body">
+          <h3>Website Management &amp; Maintenance</h3>
+          <p>Keep your website fast, secure, and up-to-date — without lifting a finger.</p>
+          <ul class="service-features">
+            <li>Regular Updates &amp; Backups</li>
+            <li>Security Monitoring</li>
+            <li>Performance Optimisation</li>
+            <li>Content Updates</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 455+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
-      <div class="course-card reveal">
-        <div class="course-card-top found">&#128218;</div>
-        <div class="course-card-body">
-          <h3>Class 9&ndash;10 Foundation</h3>
-          <p>Build the academic backbone early. Science &amp; Maths with olympiad exposure.</p>
-          <div class="course-meta"><span>&#128197; Annual Batch</span><a href="#contact">Enroll Now &rarr;</a></div>
-        </div>
-      </div>
-      <div class="course-card reveal">
-        <div class="course-card-top maths">&#128208;</div>
-        <div class="course-card-body">
-          <h3>Advanced Mathematics</h3>
-          <p>From calculus to coordinate geometry &mdash; deep problem-solving for competitive edge.</p>
-          <div class="course-meta"><span>&#128197; Short Course</span><a href="#contact">Enroll Now &rarr;</a></div>
+      <!-- Digital Marketing -->
+      <div class="service-card reveal">
+        <div class="service-card-top mktg">&#128200;<span class="service-badge">Growth</span></div>
+        <div class="service-card-body">
+          <h3>Digital Marketing</h3>
+          <p>Data-driven marketing that puts your brand in front of the right audience.</p>
+          <ul class="service-features">
+            <li>SEO &amp; Google Ads</li>
+            <li>Social Media Marketing</li>
+            <li>Content &amp; Email Marketing</li>
+            <li>Analytics &amp; Reporting</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 234+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
     </div>
@@ -435,42 +457,54 @@
       <div class="about-img-wrap reveal">
         <div class="about-illustration">
           <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
-            <rect x="20" y="30" width="260" height="160" rx="14" fill="rgba(255,255,255,0.5)"/>
-            <rect x="40" y="50" width="220" height="100" rx="8" fill="#fff"/>
-            <rect x="40" y="50" width="220" height="8" rx="4" fill="#E8331A"/>
-            <text x="60" y="90" font-size="14" fill="#4B2100" font-family="monospace" font-weight="600">y = mx + c</text>
-            <text x="60" y="115" font-size="11" fill="#F97316" font-family="monospace">&#8721;(xi - x&#772;)&#178; / n</text>
-            <text x="60" y="135" font-size="10" fill="#6B7280" font-family="monospace">F = ma  |  PV = nRT</text>
-            <circle cx="255" cy="85" r="10" fill="#4B2100"/>
-            <rect x="248" y="95" width="14" height="28" rx="5" fill="#4B2100"/>
-            <line x1="250" y1="108" x2="232" y2="115" stroke="#E8331A" stroke-width="2"/>
-            <circle cx="70" cy="180" r="9" fill="#F4C5A1"/>
-            <rect x="63" y="189" width="14" height="20" rx="4" fill="#93C5FD"/>
-            <circle cx="120" cy="178" r="9" fill="#C8A87A"/>
-            <rect x="113" y="187" width="14" height="20" rx="4" fill="#E8331A"/>
-            <circle cx="170" cy="180" r="9" fill="#F4C5A1"/>
-            <rect x="163" y="189" width="14" height="20" rx="4" fill="#FBBF24"/>
-            <circle cx="220" cy="178" r="9" fill="#C8A87A"/>
-            <rect x="213" y="187" width="14" height="20" rx="4" fill="#4B2100"/>
-            <rect x="50" y="208" width="230" height="6" rx="3" fill="rgba(0,0,0,0.1)"/>
-            <text x="95" y="245" font-size="18" fill="#FBBF24">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
-            <text x="99" y="258" font-size="10" fill="#6B7280" font-family="sans-serif">4.9 / 5 avg rating</text>
+            <!-- Laptop -->
+            <rect x="30" y="60" width="240" height="150" rx="12" fill="rgba(255,255,255,0.5)"/>
+            <rect x="45" y="75" width="210" height="120" rx="6" fill="#fff"/>
+            <rect x="45" y="75" width="210" height="10" rx="4" fill="#E8331A"/>
+            <!-- Dashboard UI -->
+            <rect x="55" y="95" width="60" height="40" rx="4" fill="#FFE0CC"/>
+            <rect x="57" y="97" width="56" height="6" rx="2" fill="#E8331A"/>
+            <text x="62" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">500+</text>
+            <text x="59" y="131" font-size="7" fill="#6B7280" font-family="sans-serif">Web Clients</text>
+            <rect x="125" y="95" width="60" height="40" rx="4" fill="#FFF4E6"/>
+            <rect x="127" y="97" width="56" height="6" rx="2" fill="#FBBF24"/>
+            <text x="132" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">455+</text>
+            <text x="126" y="131" font-size="7" fill="#6B7280" font-family="sans-serif">Mgmt Clients</text>
+            <rect x="195" y="95" width="52" height="40" rx="4" fill="#FFEDE5"/>
+            <rect x="197" y="97" width="48" height="6" rx="2" fill="#F97316"/>
+            <text x="200" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">234+</text>
+            <text x="197" y="131" font-size="7" fill="#6B7280" font-family="sans-serif">Mktg Clients</text>
+            <!-- Bar chart -->
+            <rect x="55" y="145" width="192" height="40" rx="4" fill="#FFF7F0"/>
+            <rect x="65" y="168" width="14" height="12" rx="2" fill="#E8331A"/>
+            <rect x="85" y="158" width="14" height="22" rx="2" fill="#F97316"/>
+            <rect x="105" y="153" width="14" height="27" rx="2" fill="#FBBF24"/>
+            <rect x="125" y="148" width="14" height="32" rx="2" fill="#E8331A"/>
+            <rect x="145" y="152" width="14" height="28" rx="2" fill="#F97316"/>
+            <rect x="165" y="155" width="14" height="25" rx="2" fill="#FBBF24"/>
+            <rect x="185" y="150" width="14" height="30" rx="2" fill="#E8331A"/>
+            <rect x="205" y="147" width="14" height="33" rx="2" fill="#F97316"/>
+            <!-- Keyboard base -->
+            <rect x="20" y="210" width="260" height="14" rx="7" fill="#4B2100"/>
+            <!-- Stars -->
+            <text x="95" y="248" font-size="18" fill="#FBBF24">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
+            <text x="99" y="260" font-size="10" fill="#6B7280" font-family="sans-serif">4.9 / 5 avg rating</text>
           </svg>
         </div>
         <div class="about-stat-card">
-          <div class="num">98%</div>
-          <div class="lbl">Pass Rate<br/>2024 Batch</div>
+          <div class="num">1,200+</div>
+          <div class="lbl">Happy Clients<br/>Across India</div>
         </div>
       </div>
       <div class="reveal">
         <span class="section-label">About Us</span>
         <h2 class="section-title">Why <span class="accent">EduTrellis?</span></h2>
-        <p class="section-sub">We're not just another coaching centre. We're a mission-driven platform built for Northeast India's brightest students.</p>
+        <p class="section-sub">We're not just another agency. We're a results-driven digital partner committed to your business growth.</p>
         <div class="about-list">
-          <div class="about-item"><div class="about-icon">&#129504;</div><div class="about-item-text"><h4>Concept-First Teaching</h4><p>We teach reasoning behind every formula &mdash; not rote memorisation.</p></div></div>
-          <div class="about-item"><div class="about-icon">&#128241;</div><div class="about-item-text"><h4>Tech-Driven Learning</h4><p>Live classes, recorded sessions, AI-powered analytics, and digital tests.</p></div></div>
-          <div class="about-item"><div class="about-icon">&#127919;</div><div class="about-item-text"><h4>Personal Mentorship</h4><p>1-on-1 doubt sessions and weekly progress reports for every student.</p></div></div>
-          <div class="about-item"><div class="about-icon">&#127968;</div><div class="about-item-text"><h4>Study from Home</h4><p>World-class preparation without leaving your hometown &mdash; stay close, aim high.</p></div></div>
+          <div class="about-item"><div class="about-icon">&#127912;</div><div class="about-item-text"><h4>Pixel-Perfect Design</h4><p>Every website we build is visually stunning, on-brand, and built to convert visitors into customers.</p></div></div>
+          <div class="about-item"><div class="about-icon">&#9889;</div><div class="about-item-text"><h4>Lightning-Fast Performance</h4><p>Optimised code, CDN delivery, and best practices ensure your site loads in under 2 seconds.</p></div></div>
+          <div class="about-item"><div class="about-icon">&#128200;</div><div class="about-item-text"><h4>Data-Driven Marketing</h4><p>We run campaigns backed by analytics &mdash; every rupee you spend is tracked and optimised for ROI.</p></div></div>
+          <div class="about-item"><div class="about-icon">&#128736;</div><div class="about-item-text"><h4>Ongoing Support</h4><p>From launch to long-term maintenance, our team is always a message away to keep things running smoothly.</p></div></div>
         </div>
       </div>
     </div>
@@ -483,23 +517,23 @@
     <div class="center reveal">
       <span class="section-label" style="background:rgba(249,115,22,.2);color:var(--amber)">Our Track Record</span>
       <h2 class="section-title">Numbers That <span class="accent">Speak</span></h2>
-      <p class="section-sub" style="color:rgba(255,255,255,.55)">Real results from real students &mdash; we let our outcomes do the talking.</p>
+      <p class="section-sub" style="color:rgba(255,255,255,.55)">Real results from real clients &mdash; we let our outcomes do the talking.</p>
     </div>
     <div class="stats-row reveal">
-      <div class="stat-box"><div class="num">1,200+</div><div class="lbl">Students Enrolled</div></div>
-      <div class="stat-box"><div class="num">340+</div><div class="lbl">JEE Qualifiers</div></div>
-      <div class="stat-box"><div class="num">210+</div><div class="lbl">NEET Qualifiers</div></div>
-      <div class="stat-box"><div class="num">98%</div><div class="lbl">Pass Rate</div></div>
+      <div class="stat-box"><div class="num">500+</div><div class="lbl">Website Dev Clients</div></div>
+      <div class="stat-box"><div class="num">455+</div><div class="lbl">Website Mgmt Clients</div></div>
+      <div class="stat-box"><div class="num">234+</div><div class="lbl">Digital Mktg Clients</div></div>
+      <div class="stat-box"><div class="num">98%</div><div class="lbl">Client Retention Rate</div></div>
       <div class="stat-box"><div class="num">4.9&#9733;</div><div class="lbl">Average Rating</div></div>
-      <div class="stat-box"><div class="num">6</div><div class="lbl">Years of Excellence</div></div>
+      <div class="stat-box"><div class="num">6+</div><div class="lbl">Years of Excellence</div></div>
     </div>
     <div style="margin-top:2.25rem">
-      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1.1rem;letter-spacing:0" class="reveal">&#127942; Top Rankers 2024</h3>
-      <div class="toppers-grid reveal">
-        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">R</div><div><h4>Rahul Sharma</h4><p>JEE Mains 2024</p><div class="topper-rank">AIR 847</div></div></div>
-        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">P</div><div><h4>Priya Gogoi</h4><p>NEET 2024</p><div class="topper-rank">Score 710/720</div></div></div>
-        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">A</div><div><h4>Arjun Borah</h4><p>JEE Advanced</p><div class="topper-rank">AIR 1,204</div></div></div>
-        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#059669,#10B981)">S</div><div><h4>Sneha Das</h4><p>NEET 2024</p><div class="topper-rank">Score 695/720</div></div></div>
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1.1rem;letter-spacing:0" class="reveal">&#127942; Featured Client Projects</h3>
+      <div class="projects-grid reveal">
+        <div class="project-card"><div class="project-icon" style="background:linear-gradient(135deg,#E8331A,#F97316)">&#127981;</div><div><h4>RetailPro India</h4><p>E-commerce Website</p><div class="project-tag">300% traffic growth</div></div></div>
+        <div class="project-card"><div class="project-icon" style="background:linear-gradient(135deg,#F97316,#FBBF24)">&#127968;</div><div><h4>NestEasy Realty</h4><p>Real Estate Portal</p><div class="project-tag">5&times; lead increase</div></div></div>
+        <div class="project-card"><div class="project-icon" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">&#128138;</div><div><h4>GlowUp Beauty</h4><p>D2C Brand Website</p><div class="project-tag">&#8377;12L revenue in 90 days</div></div></div>
+        <div class="project-card"><div class="project-icon" style="background:linear-gradient(135deg,#059669,#10B981)">&#127981;</div><div><h4>TechVenture SaaS</h4><p>Digital Marketing</p><div class="project-tag">2.4x ROAS on Ads</div></div></div>
       </div>
     </div>
   </div>
@@ -511,13 +545,13 @@
     <div class="center reveal">
       <span class="section-label">The People Behind It</span>
       <h2 class="section-title">Meet Our <span class="accent">Team</span></h2>
-      <p class="section-sub">IIT/NIT alumni and passionate educators dedicated to your success.</p>
+      <p class="section-sub">Designers, developers, and marketers passionate about building your digital future.</p>
     </div>
     <div class="team-grid">
-      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">VK</div><h3>Vikram Krishnan</h3><div class="role">Founder &amp; Physics Lead</div><p>IIT Bombay alumnus with 12 years of JEE teaching. 500+ selections under his mentorship.</p></div>
-      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">MA</div><h3>Meera Agarwal</h3><div class="role">Chemistry Expert</div><p>Former HOD at DPS with an MSc from BHU. Known for making organic chemistry intuitive.</p></div>
-      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#059669,#10B981)">RB</div><h3>Rajan Baruah</h3><div class="role">Mathematics Lead</div><p>NIT Silchar gold medallist. Specialises in calculus and algebra for competitive exams.</p></div>
-      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">SD</div><h3>Snehal Dutta</h3><div class="role">Biology &amp; NEET Lead</div><p>MBBS from AIIMS Guwahati. Brings clinical perspective to NEET biology preparation.</p></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">RN</div><h3>Rudra Narayan</h3><div class="role">Founder &amp; Lead Developer</div><p>Full-stack developer with 8+ years of experience building scalable web solutions for 200+ businesses.</p></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">PS</div><h3>Priya Sharma</h3><div class="role">UI/UX Design Lead</div><p>Award-winning designer specialising in conversion-first interfaces and brand identity systems.</p></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#059669,#10B981)">AK</div><h3>Arjun Kumar</h3><div class="role">Digital Marketing Head</div><p>Google &amp; Meta certified marketer. Expert in SEO, paid ads, and performance campaigns that deliver ROI.</p></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">SD</div><h3>Sneha Das</h3><div class="role">Client Success Manager</div><p>Dedicated to ensuring every client achieves their digital goals with proactive support and clear communication.</p></div>
     </div>
   </div>
 </section>
@@ -528,15 +562,15 @@
     <div class="center reveal">
       <span class="section-label">Get in Touch</span>
       <h2 class="section-title">Contact <span class="accent">Us</span></h2>
-      <p class="section-sub">Have questions about courses, batches, or fees? We're happy to help.</p>
+      <p class="section-sub">Ready to grow online? Let's talk about your project.</p>
     </div>
     <div class="contact-grid">
       <div class="reveal">
         <div class="contact-info">
-          <h3>Let's talk about your future</h3>
-          <p>Reach out anytime &mdash; our counsellors are available Monday&ndash;Saturday, 9&nbsp;AM to 7&nbsp;PM.</p>
+          <h3>Let's talk about your digital growth</h3>
+          <p>Reach out anytime &mdash; our team is available Monday&ndash;Saturday, 9&nbsp;AM to 7&nbsp;PM.</p>
           <div class="contact-details">
-            <div class="contact-row"><div class="icon">&#128205;</div><div class="contact-row-text"><span>Visit Us</span><strong>Guwahati, Assam, Northeast India</strong></div></div>
+            <div class="contact-row"><div class="icon">&#128205;</div><div class="contact-row-text"><span>Our Office</span><strong>Guwahati, Assam, Northeast India</strong></div></div>
             <div class="contact-row"><div class="icon">&#128222;</div><div class="contact-row-text"><span>Call / WhatsApp</span><strong>+91 98765 43210</strong></div></div>
             <div class="contact-row"><div class="icon">&#9993;&#65039;</div><div class="contact-row-text"><span>Email</span><strong>hello@edutrellis.in</strong></div></div>
             <div class="contact-row"><div class="icon">&#128336;</div><div class="contact-row-text"><span>Working Hours</span><strong>Mon&ndash;Sat, 9&nbsp;AM &ndash; 7&nbsp;PM</strong></div></div>
@@ -544,7 +578,7 @@
         </div>
       </div>
       <div class="contact-form reveal">
-        <p class="contact-form-title">Send us a message</p>
+        <p class="contact-form-title">Get a Free Quote</p>
         <div class="form-row-2">
           <div class="form-row"><label>First Name</label><input type="text" placeholder="Rahul" id="fname"/></div>
           <div class="form-row"><label>Last Name</label><input type="text" placeholder="Sharma" id="lname"/></div>
@@ -552,16 +586,16 @@
         <div class="form-row"><label>Email</label><input type="email" placeholder="you@example.com" id="email"/></div>
         <div class="form-row"><label>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" id="phone"/></div>
         <div class="form-row">
-          <label>Course Interested In</label>
-          <select id="course">
-            <option value="">Select a course</option>
-            <option>JEE Foundation &amp; Mains</option>
-            <option>NEET Preparation</option>
-            <option>Class 9&ndash;10 Foundation</option>
-            <option>Advanced Mathematics</option>
+          <label>Service Interested In</label>
+          <select id="service">
+            <option value="">Select a service</option>
+            <option>Website Design &amp; Development</option>
+            <option>Website Management &amp; Maintenance</option>
+            <option>Digital Marketing</option>
+            <option>Full Digital Package</option>
           </select>
         </div>
-        <div class="form-row"><label>Message</label><textarea placeholder="Any questions or special requirements&hellip;" id="msg"></textarea></div>
+        <div class="form-row"><label>Tell us about your project</label><textarea placeholder="Describe your project or requirements&hellip;" id="msg"></textarea></div>
         <button class="btn-submit" onclick="submitForm()">Send Message &rarr;</button>
         <div id="form-msg">&#9989; Thanks! We'll get back to you within 24 hours.</div>
       </div>
@@ -576,7 +610,7 @@
       <div class="footer-brand">
         <div class="logo">Edu<span>Trellis</span></div>
         <span class="logo-tagline">Digital Growth Partner</span>
-        <p>Building career foundations for Northeast India's brightest students through tech-driven, concept-first education.</p>
+        <p>Helping businesses across India grow online with expert web design, development, and digital marketing.</p>
         <div class="footer-social">
           <a class="social-btn" href="#" title="Instagram">&#128248;</a>
           <a class="social-btn" href="#" title="LinkedIn">&#128188;</a>
@@ -584,12 +618,12 @@
           <a class="social-btn" href="#" title="WhatsApp">&#128172;</a>
         </div>
       </div>
-      <div class="footer-col"><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#courses">Courses</a></li><li><a href="#about">About Us</a></li><li><a href="#results">Results</a></li></ul></div>
-      <div class="footer-col"><h4>Programs</h4><ul><li><a href="#courses">JEE Mains</a></li><li><a href="#courses">NEET Prep</a></li><li><a href="#courses">Class 9&ndash;10</a></li><li><a href="#courses">Mathematics</a></li></ul></div>
+      <div class="footer-col"><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#services">Services</a></li><li><a href="#about">About Us</a></li><li><a href="#results">Results</a></li></ul></div>
+      <div class="footer-col"><h4>Services</h4><ul><li><a href="#services">Web Design</a></li><li><a href="#services">Web Development</a></li><li><a href="#services">Web Management</a></li><li><a href="#services">Digital Marketing</a></li></ul></div>
       <div class="footer-col"><h4>Contact</h4><ul><li><a href="tel:+919876543210">+91 98765 43210</a></li><li><a href="mailto:hello@edutrellis.in">hello@edutrellis.in</a></li><li><a href="#contact">Guwahati, Assam</a></li><li><a href="#contact">Mon&ndash;Sat 9AM&ndash;7PM</a></li></ul></div>
     </div>
     <div class="footer-bottom">
-      <span>&copy; 2024 EduTrellis. All rights reserved.</span>
+      <span>&copy; 2026 EduTrellis. All rights reserved.</span>
       <span><a href="#">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="#">Terms of Use</a></span>
     </div>
   </div>
