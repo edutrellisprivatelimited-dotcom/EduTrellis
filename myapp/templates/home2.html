@@ -67,12 +67,14 @@
   .hero-inner { max-width: 1180px; margin: 0 auto; padding: 100px 5% 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; position: relative; }
   .hero-content { max-width: 520px; }
   .hero-tag { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .28rem .8rem; border-radius: 50px; margin-bottom: 1rem; }
+
+  /* HERO HEADLINE — increased for taller, bolder look */
   .hero-headline {
     font-family: var(--heading);
-    font-size: clamp(1.85rem, 3vw, 2.5rem);
+    font-size: clamp(2.6rem, 5vw, 4rem);
     font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -0.3px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
     color: var(--dark);
     word-break: break-word;
   }
@@ -97,12 +99,14 @@
   section { padding: 80px 5%; }
   .sec-wrap { max-width: 1180px; margin: 0 auto; }
   .section-label { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .28rem .85rem; border-radius: 50px; margin-bottom: .9rem; }
+
+  /* SECTION TITLE — increased proportionally */
   .section-title {
     font-family: var(--heading);
-    font-size: clamp(1.55rem, 2.5vw, 1.95rem);
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
     font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.2px;
+    line-height: 1.15;
+    letter-spacing: -0.3px;
     color: var(--dark);
     word-break: break-word;
   }
@@ -237,15 +241,16 @@
     .footer-grid { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 600px) {
-    .hero-headline { font-size: 1.75rem; }
-    .section-title { font-size: 1.45rem; }
+    .hero-headline { font-size: 2.2rem; }
+    .section-title { font-size: 1.75rem; }
     .footer-grid { grid-template-columns: 1fr; }
     .stats-row { grid-template-columns: 1fr 1fr; }
     .form-row-2 { grid-template-columns: 1fr; }
     .contact-grid { gap: 2rem; }
   }
   @media (max-width: 400px) {
-    .hero-headline { font-size: 1.55rem; }
+    .hero-headline { font-size: 1.9rem; }
+    .section-title { font-size: 1.55rem; }
   }
 </style>
 </head>
