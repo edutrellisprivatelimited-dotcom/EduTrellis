@@ -66,13 +66,22 @@
   /* ===================== HERO ===================== */
   #home-wrap { background: var(--light); position: relative; overflow: hidden; }
   #home-wrap::before { content:''; position:absolute; top:-80px; right:0; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%); pointer-events:none; }
-  #home { min-height: 100vh; padding: 0; width: 100%; }
+
+  /* Full-viewport height, content vertically centred */
+  #home {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    width: 100%;
+  }
 
   /* Hero grid — left col 55%, right col 45% on desktop */
   .hero-inner {
     max-width: 1180px;
+    width: 100%;
     margin: 0 auto;
-    padding: 104px 5% 64px;
+    padding: 104px 5% 80px;
     display: grid;
     grid-template-columns: 55% 45%;
     gap: 2.5rem;
@@ -88,7 +97,6 @@
 
   .hero-tag { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .28rem .8rem; border-radius: 50px; margin-bottom: 1rem; }
 
-  /* Slightly tightened headline to prevent early wrapping */
   .hero-headline {
     font-family: var(--heading);
     font-size: clamp(2.2rem, 3.8vw, 3.4rem);
@@ -321,7 +329,7 @@
 
   /* ===================== RESPONSIVE ===================== */
   @media (max-width: 1180px) {
-    .hero-inner { grid-template-columns: 55% 45%; gap: 2rem; padding: 104px 4% 64px; }
+    .hero-inner { grid-template-columns: 55% 45%; gap: 2rem; padding: 104px 4% 80px; }
   }
   @media (max-width: 1024px) {
     .hero-inner { grid-template-columns: 54% 46%; gap: 1.8rem; }
@@ -333,7 +341,8 @@
   @media (max-width: 900px) {
     .nav-links, .nav-ctas { display: none; }
     .hamburger { display: flex; }
-    .hero-inner { grid-template-columns: 1fr; padding-top: 100px; text-align: center; gap: 1.5rem; }
+    #home { align-items: flex-start; }
+    .hero-inner { grid-template-columns: 1fr; padding-top: 100px; padding-bottom: 60px; text-align: center; gap: 1.5rem; }
     .hero-content { max-width: 100%; width: 100%; }
     .hero-visual { margin-top: 1.5rem; }
     .hero-actions { justify-content: center; flex-wrap: wrap; }
@@ -341,7 +350,6 @@
     .hero-tagline { text-align: left; max-width: 360px; margin: .9rem auto 0; }
     .about-grid, .contact-grid { grid-template-columns: 1fr; }
     .about-stat-card { right: 8px; }
-    /* Reposition badges for single-column layout */
     .hero-badge-1 { bottom: 8px; left: 50%; transform: translateX(-50%); animation: none; }
     .hero-badge-2 { display: none; }
     .hero-badge-3 { bottom: -44px; left: 50%; transform: translateX(-50%); animation: none; }
@@ -436,52 +444,39 @@
       <!-- RIGHT: Illustration + Floating Badges -->
       <div class="hero-visual">
         <div class="hero-svg-wrap">
-          <!-- Digital Agency Illustration -->
           <svg viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg">
-            <!-- Monitor -->
             <rect x="100" y="80" width="320" height="210" rx="16" fill="#1A0A00"/>
             <rect x="112" y="92" width="296" height="186" rx="8" fill="#fff"/>
-            <!-- Browser chrome -->
             <rect x="112" y="92" width="296" height="26" rx="8" fill="#FFF7F0"/>
             <circle cx="128" cy="105" r="5" fill="#E8331A"/>
             <circle cx="144" cy="105" r="5" fill="#FBBF24"/>
             <circle cx="160" cy="105" r="5" fill="#22C55E"/>
             <rect x="178" y="99" width="180" height="12" rx="6" fill="#FFE0CC"/>
-            <!-- Web page content -->
             <rect x="122" y="128" width="120" height="10" rx="3" fill="#E8331A"/>
             <rect x="122" y="144" width="180" height="6" rx="3" fill="#FFD4B8"/>
             <rect x="122" y="155" width="160" height="6" rx="3" fill="#FFD4B8"/>
             <rect x="122" y="170" width="80" height="24" rx="12" fill="url(#heroGrad)"/>
-            <!-- Hero image placeholder -->
             <rect x="270" y="128" width="120" height="82" rx="8" fill="#FFE0CC"/>
             <ellipse cx="330" cy="160" rx="24" ry="24" fill="#F97316" opacity=".3"/>
             <polygon points="322,152 322,170 340,161" fill="#E8331A"/>
-            <!-- Nav bar in design -->
             <rect x="122" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
             <rect x="170" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
             <rect x="218" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
             <rect x="266" y="210" width="40" height="6" rx="3" fill="#4B2100"/>
-            <!-- Monitor stand -->
             <rect x="235" y="290" width="50" height="28" rx="4" fill="#1A0A00"/>
             <rect x="200" y="316" width="120" height="10" rx="5" fill="#1A0A00"/>
-            <!-- Floating elements -->
-            <!-- Growth chart bubble -->
             <rect x="370" y="50" width="110" height="70" rx="12" fill="#fff" filter="drop-shadow(0 4px 16px rgba(0,0,0,.1))"/>
             <polyline points="385,105 400,90 418,82 436,68 456,60" stroke="#22C55E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
             <circle cx="456" cy="60" r="4" fill="#22C55E"/>
             <text x="383" y="118" font-size="9" fill="#6B7280" font-family="sans-serif" font-weight="600">Website Traffic &#8593;</text>
-            <!-- Code bubble -->
             <rect x="30" y="120" width="100" height="60" rx="12" fill="#1A0A00" opacity=".9"/>
             <text x="44" y="142" font-size="10" fill="#E8331A" font-family="monospace">&lt;div&gt;</text>
             <text x="52" y="156" font-size="9" fill="#FBBF24" font-family="monospace">class=&quot;hero&quot;</text>
             <text x="44" y="170" font-size="10" fill="#E8331A" font-family="monospace">&lt;/div&gt;</text>
-            <!-- Star rating bubble -->
             <rect x="370" y="270" width="110" height="52" rx="12" fill="#fff" filter="drop-shadow(0 4px 16px rgba(0,0,0,.1))"/>
             <text x="380" y="293" font-size="13" fill="#FBBF24">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
             <text x="382" y="312" font-size="9" fill="#6B7280" font-family="sans-serif" font-weight="600">4.9 / 5 Avg Rating</text>
-            <!-- Rocket -->
             <text x="46" y="330" font-size="2.2rem">&#128640;</text>
-            <!-- Defs -->
             <defs>
               <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stop-color="#E8331A"/>
@@ -491,7 +486,7 @@
           </svg>
         </div>
 
-        <!-- Floating Stat Badge 1 — Website Development (bottom-left) -->
+        <!-- Badge 1 — Website Development (bottom-left) -->
         <div class="hero-badge hero-badge-1">
           <div class="dot" style="background:#E8331A;"></div>
           <div>
@@ -500,7 +495,7 @@
           </div>
         </div>
 
-        <!-- Floating Stat Badge 2 — Website Management (top-right) -->
+        <!-- Badge 2 — Website Management (top-right) -->
         <div class="hero-badge hero-badge-2">
           <div class="dot" style="background:#F97316;"></div>
           <div>
@@ -509,7 +504,7 @@
           </div>
         </div>
 
-        <!-- Floating Stat Badge 3 — Digital Marketing (mid-right) -->
+        <!-- Badge 3 — Digital Marketing (mid-right) -->
         <div class="hero-badge hero-badge-3">
           <div class="dot" style="background:#FBBF24;"></div>
           <div>
@@ -532,7 +527,6 @@
       <p class="section-sub">End-to-end digital solutions designed to build, manage, and grow your online presence.</p>
     </div>
     <div class="services-grid">
-      <!-- Website Design & Development -->
       <div class="service-card reveal">
         <div class="service-card-top web">&#128187;<span class="service-badge">Popular</span></div>
         <div class="service-card-body">
@@ -547,7 +541,6 @@
           <div class="service-meta"><span>&#128101; 500+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
-      <!-- Website Management -->
       <div class="service-card reveal">
         <div class="service-card-top mgmt">&#128296;<span class="service-badge">Trusted</span></div>
         <div class="service-card-body">
@@ -562,7 +555,6 @@
           <div class="service-meta"><span>&#128101; 545+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
-      <!-- Digital Marketing -->
       <div class="service-card reveal">
         <div class="service-card-top mktg">&#128200;<span class="service-badge">Growth</span></div>
         <div class="service-card-body">
@@ -588,11 +580,9 @@
       <div class="about-img-wrap reveal">
         <div class="about-illustration">
           <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
-            <!-- Laptop -->
             <rect x="30" y="60" width="240" height="150" rx="12" fill="rgba(255,255,255,0.5)"/>
             <rect x="45" y="75" width="210" height="120" rx="6" fill="#fff"/>
             <rect x="45" y="75" width="210" height="10" rx="4" fill="#E8331A"/>
-            <!-- Dashboard UI -->
             <rect x="55" y="95" width="60" height="40" rx="4" fill="#FFE0CC"/>
             <rect x="57" y="97" width="56" height="6" rx="2" fill="#E8331A"/>
             <text x="62" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">500+</text>
@@ -605,7 +595,6 @@
             <rect x="197" y="97" width="48" height="6" rx="2" fill="#F97316"/>
             <text x="200" y="120" font-size="11" fill="#4B2100" font-family="sans-serif" font-weight="700">345+</text>
             <text x="197" y="131" font-size="7" fill="#6B7280" font-family="sans-serif">Mktg Clients</text>
-            <!-- Bar chart -->
             <rect x="55" y="145" width="192" height="40" rx="4" fill="#FFF7F0"/>
             <rect x="65" y="168" width="14" height="12" rx="2" fill="#E8331A"/>
             <rect x="85" y="158" width="14" height="22" rx="2" fill="#F97316"/>
@@ -615,9 +604,7 @@
             <rect x="165" y="155" width="14" height="25" rx="2" fill="#FBBF24"/>
             <rect x="185" y="150" width="14" height="30" rx="2" fill="#E8331A"/>
             <rect x="205" y="147" width="14" height="33" rx="2" fill="#F97316"/>
-            <!-- Keyboard base -->
             <rect x="20" y="210" width="260" height="14" rx="7" fill="#4B2100"/>
-            <!-- Stars -->
             <text x="95" y="248" font-size="18" fill="#FBBF24">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
             <text x="99" y="260" font-size="10" fill="#6B7280" font-family="sans-serif">4.9 / 5 avg rating</text>
           </svg>
