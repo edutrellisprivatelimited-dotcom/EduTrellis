@@ -14,6 +14,10 @@ def home(request):
     return render(request, "home.html", {"contact_form": ContactLeadForm()})
 
 
+def home2(request):
+    return render(request, "home2.html", {})
+
+
 def contact_lead(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
@@ -84,7 +88,7 @@ def contact_lead(request):
                     'Our team will still see your inquiry — we\'ll contact you soon!'
                 )
             },
-            status=200,   # 200 so the JS shows a soft success (lead is saved in DB)
+            status=200,
         )
     except Exception as e:
         logger.exception("SMTP send_mail failed for lead from %s: %s", email, e)
@@ -96,7 +100,7 @@ def contact_lead(request):
                     'failed (%s). Our team will follow up shortly!' % type(e).__name__
                 )
             },
-            status=200,   # 200 — lead is persisted in DB; user shouldn’t see a hard error
+            status=200,
         )
 
     return JsonResponse({'status': 'ok', 'message': 'Message sent successfully.'})

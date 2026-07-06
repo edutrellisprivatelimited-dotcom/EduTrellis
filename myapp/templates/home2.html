@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,6 +22,68 @@
 
   html { scroll-behavior: smooth; }
   body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--dark); overflow-x: hidden; }
+
+  /* ── PAGE LOADER ── */
+  #page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+    transition: opacity 0.45s ease, visibility 0.45s ease;
+  }
+  #page-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .loader-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.5px;
+  }
+  .loader-logo span { color: var(--red); }
+  .loader-bar-wrap {
+    width: 200px;
+    height: 4px;
+    background: #FFE0CC;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .loader-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--grad);
+    border-radius: 99px;
+    animation: loadProgress 1.6s ease forwards;
+  }
+  @keyframes loadProgress {
+    0%   { width: 0%; }
+    60%  { width: 75%; }
+    85%  { width: 90%; }
+    100% { width: 100%; }
+  }
+  .loader-text {
+    font-size: 0.82rem;
+    color: var(--gray);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .loader-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #FFE0CC;
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── NAV ── */
   nav {
@@ -246,6 +307,14 @@
 </head>
 <body>
 
+<!-- PAGE LOADER -->
+<div id="page-loader">
+  <div class="loader-logo">Edu<span>Trellis</span></div>
+  <div class="loader-spinner"></div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="loader-text">Loading your experience…</div>
+</div>
+
 <!-- NAV -->
 <nav id="navbar">
 <div class="nav-inner">
@@ -394,8 +463,8 @@
     <div class="course-card reveal">
       <div class="course-card-top jee">🔬<span class="course-badge">Popular</span></div>
       <div class="course-card-body">
-        <h3>JEE Foundation & Mains</h3>
-        <p>Physics, Chemistry & Maths with concept-first teaching and weekly mock tests.</p>
+        <h3>JEE Foundation &amp; Mains</h3>
+        <p>Physics, Chemistry &amp; Maths with concept-first teaching and weekly mock tests.</p>
         <div class="course-meta">
           <span>📅 2-Year Program</span>
           <a href="#contact">Enroll Now →</a>
@@ -406,7 +475,7 @@
       <div class="course-card-top neet">🧬<span class="course-badge">New Batch</span></div>
       <div class="course-card-body">
         <h3>NEET Preparation</h3>
-        <p>Biology, Physics & Chemistry aligned with NCERT and previous year patterns.</p>
+        <p>Biology, Physics &amp; Chemistry aligned with NCERT and previous year patterns.</p>
         <div class="course-meta">
           <span>📅 1-Year Program</span>
           <a href="#contact">Enroll Now →</a>
@@ -417,7 +486,7 @@
       <div class="course-card-top found">📚</div>
       <div class="course-card-body">
         <h3>Class 9–10 Foundation</h3>
-        <p>Build the academic backbone early. Science & Maths with olympiad exposure.</p>
+        <p>Build the academic backbone early. Science &amp; Maths with olympiad exposure.</p>
         <div class="course-meta">
           <span>📅 Annual Batch</span>
           <a href="#contact">Enroll Now →</a>
@@ -556,7 +625,7 @@
     <div class="team-card reveal">
       <div class="team-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">VK</div>
       <h3>Vikram Krishnan</h3>
-      <div class="role">Founder & Physics Lead</div>
+      <div class="role">Founder &amp; Physics Lead</div>
       <p>IIT Bombay alumnus with 12 years of JEE teaching. 500+ selections under his mentorship.</p>
     </div>
     <div class="team-card reveal">
@@ -574,7 +643,7 @@
     <div class="team-card reveal">
       <div class="team-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">SD</div>
       <h3>Snehal Dutta</h3>
-      <div class="role">Biology & NEET Lead</div>
+      <div class="role">Biology &amp; NEET Lead</div>
       <p>MBBS from AIIMS Guwahati. Brings clinical perspective to NEET biology preparation.</p>
     </div>
   </div>
@@ -614,7 +683,7 @@
         <label>Course Interested In</label>
         <select id="course">
           <option value="">Select a course</option>
-          <option>JEE Foundation & Mains</option>
+          <option>JEE Foundation &amp; Mains</option>
           <option>NEET Preparation</option>
           <option>Class 9–10 Foundation</option>
           <option>Advanced Mathematics</option>
@@ -678,6 +747,13 @@
 </footer>
 
 <script>
+  // ── PAGE LOADER ──
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      document.getElementById('page-loader').classList.add('hidden');
+    }, 300);
+  });
+
   // Mobile menu
   function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
   function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
