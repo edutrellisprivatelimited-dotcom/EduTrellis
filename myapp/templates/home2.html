@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>EduTrellis – Build Your Career Foundation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,8 +35,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.4rem;
-    transition: opacity 0.45s ease, visibility 0.45s ease;
+    gap: 1.25rem;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
   }
   #page-loader.hidden {
     opacity: 0;
@@ -42,15 +44,24 @@
     pointer-events: none;
   }
   .loader-logo {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Syne', 'Arial Black', sans-serif;
     font-size: 2rem;
     font-weight: 800;
     color: var(--dark);
     letter-spacing: -0.5px;
   }
   .loader-logo span { color: var(--red); }
+  .loader-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3.5px solid #FFE0CC;
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .loader-bar-wrap {
-    width: 200px;
+    width: 220px;
     height: 4px;
     background: #FFE0CC;
     border-radius: 99px;
@@ -61,39 +72,34 @@
     width: 0%;
     background: var(--grad);
     border-radius: 99px;
-    animation: loadProgress 1.6s ease forwards;
+    animation: loadProgress 1.8s cubic-bezier(.4,0,.2,1) forwards;
   }
   @keyframes loadProgress {
     0%   { width: 0%; }
-    60%  { width: 75%; }
-    85%  { width: 90%; }
+    50%  { width: 70%; }
+    80%  { width: 88%; }
     100% { width: 100%; }
   }
   .loader-text {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--gray);
     font-weight: 500;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
   }
-  .loader-spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid #FFE0CC;
-    border-top-color: var(--orange);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
-    padding: 0 5%; height: 68px;
+    height: 68px;
     background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
     border-bottom: 1px solid #FFE0CC;
     display: flex; align-items: center;
+    padding: 0 5%;
   }
-  .nav-inner { max-width: 1180px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .nav-inner {
+    max-width: 1180px; margin: 0 auto; width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+  }
   .nav-logo { font-family: 'Syne', sans-serif; font-size: 1.45rem; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; }
   .nav-logo span { color: var(--red); }
   .nav-links { display: flex; gap: 2rem; list-style: none; }
@@ -108,17 +114,32 @@
   .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
   .hamburger span { width: 24px; height: 2px; background: var(--dark); border-radius: 2px; transition: all .3s; }
 
-  #home-wrap { background: var(--light); position: relative; overflow: hidden; }
+  /* ── HERO ── */
+  #home-wrap {
+    background: var(--light);
+    position: relative;
+    overflow: hidden;
+  }
   #home-wrap::before {
     content: ''; position: absolute; top: -80px; right: 0;
     width: 420px; height: 420px; border-radius: 50%;
     background: radial-gradient(circle, rgba(249,115,22,.13) 0%, transparent 70%);
     pointer-events: none;
   }
+  /* KEY FIX: section fills full width for bg, inner div constrains content */
   #home {
-    min-height: 100vh; padding: 100px 5% 60px;
-    display: grid; grid-template-columns: 55% 45%; gap: 2rem; align-items: center;
-    max-width: 1180px; margin: 0 auto;
+    min-height: 100vh;
+    padding: 0;
+    width: 100%;
+  }
+  .hero-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 104px 5% 64px;
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: 2rem;
+    align-items: center;
     position: relative;
   }
   .hero-tag { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .78rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .3rem .85rem; border-radius: 50px; margin-bottom: 1.1rem; }
@@ -167,17 +188,13 @@
   /* ── COURSES ── */
   #courses { background: var(--white); }
   .courses-grid { margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
-  .course-card {
-    border-radius: 18px; overflow: hidden;
-    background: var(--light); border: 1px solid #FFE0CC;
-    transition: transform .25s, box-shadow .25s; cursor: pointer;
-  }
+  .course-card { border-radius: 18px; overflow: hidden; background: var(--light); border: 1px solid #FFE0CC; transition: transform .25s, box-shadow .25s; cursor: pointer; }
   .course-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(232,51,26,.15); }
   .course-card-top { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; position: relative; }
-  .course-card-top.jee { background: linear-gradient(135deg, #FFF1EC, #FFD7C8); }
+  .course-card-top.jee  { background: linear-gradient(135deg, #FFF1EC, #FFD7C8); }
   .course-card-top.neet { background: linear-gradient(135deg, #FFEDE5, #FFCAB5); }
-  .course-card-top.found { background: linear-gradient(135deg, #FFF4E6, #FFE0A3); }
-  .course-card-top.maths { background: linear-gradient(135deg, #FFF0F0, #FFCDD0); }
+  .course-card-top.found{ background: linear-gradient(135deg, #FFF4E6, #FFE0A3); }
+  .course-card-top.maths{ background: linear-gradient(135deg, #FFF0F0, #FFCDD0); }
   .course-badge { position: absolute; top: 12px; right: 12px; background: var(--grad); color: #fff; font-size: .7rem; font-weight: 700; padding: .25rem .6rem; border-radius: 50px; }
   .course-card-body { padding: 1.25rem; }
   .course-card-body h3 { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--dark); }
@@ -193,12 +210,7 @@
   .about-img-wrap { position: relative; }
   .about-illustration { width: 100%; border-radius: 24px; background: linear-gradient(135deg, #FFDCCC, #FFB088); padding: 2.5rem; display: flex; align-items: center; justify-content: center; min-height: 320px; }
   .about-illustration svg { width: 100%; max-width: 320px; }
-  .about-stat-card {
-    position: absolute; bottom: -20px; right: -20px;
-    background: #fff; border-radius: 14px; padding: 1rem 1.4rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,.1);
-    text-align: center;
-  }
+  .about-stat-card { position: absolute; bottom: -20px; right: -20px; background: #fff; border-radius: 14px; padding: 1rem 1.4rem; box-shadow: 0 8px 30px rgba(0,0,0,.1); text-align: center; }
   .about-stat-card .num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .about-stat-card .lbl { font-size: .78rem; color: var(--gray); font-weight: 600; margin-top: .1rem; }
   .about-list { margin-top: 1.5rem; display: flex; flex-direction: column; gap: .9rem; }
@@ -215,7 +227,6 @@
   .stat-box:hover { background: rgba(249,115,22,.15); }
   .stat-box .num { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .stat-box .lbl { margin-top: .3rem; font-size: .82rem; color: rgba(255,255,255,.6); font-weight: 500; }
-
   .toppers-grid { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; }
   .topper-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 1.2rem; display: flex; gap: 1rem; align-items: center; transition: transform .2s; }
   .topper-card:hover { transform: translateY(-4px); }
@@ -247,11 +258,7 @@
   .contact-form { background: var(--white); border-radius: 20px; padding: 2rem; border: 1px solid #FFE0CC; }
   .form-row { margin-bottom: 1.1rem; }
   .form-row label { font-size: .82rem; font-weight: 600; color: var(--mid); display: block; margin-bottom: .35rem; }
-  .form-row input, .form-row select, .form-row textarea {
-    width: 100%; padding: .7rem .95rem; border-radius: 10px;
-    border: 1.5px solid #FFD4B8; font-size: .9rem; font-family: inherit;
-    color: var(--dark); background: var(--light); outline: none; transition: border-color .2s;
-  }
+  .form-row input, .form-row select, .form-row textarea { width: 100%; padding: .7rem .95rem; border-radius: 10px; border: 1.5px solid #FFD4B8; font-size: .9rem; font-family: inherit; color: var(--dark); background: var(--light); outline: none; transition: border-color .2s; }
   .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--orange); }
   .form-row textarea { resize: vertical; min-height: 100px; }
   .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -261,6 +268,7 @@
 
   /* ── FOOTER ── */
   footer { background: var(--dark); color: rgba(255,255,255,.6); padding: 60px 5% 30px; }
+  .footer-inner { max-width: 1180px; margin: 0 auto; }
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,.08); }
   .footer-brand .logo { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; }
   .footer-brand .logo span { color: var(--orange); }
@@ -288,7 +296,7 @@
   @media (max-width: 900px) {
     .nav-links, .nav-ctas { display: none; }
     .hamburger { display: flex; }
-    #home { grid-template-columns: 1fr; padding-top: 100px; text-align: center; }
+    .hero-inner { grid-template-columns: 1fr; padding-top: 100px; text-align: center; }
     .hero-visual { margin-top: 2rem; }
     .hero-actions { justify-content: center; }
     .hero-sub { margin: 1rem auto 0; }
@@ -312,29 +320,29 @@
   <div class="loader-logo">Edu<span>Trellis</span></div>
   <div class="loader-spinner"></div>
   <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
-  <div class="loader-text">Loading your experience…</div>
+  <div class="loader-text">Loading your experience&hellip;</div>
 </div>
 
 <!-- NAV -->
 <nav id="navbar">
-<div class="nav-inner">
-  <div class="nav-logo">Edu<span>Trellis</span></div>
-  <ul class="nav-links">
-    <li><a href="#home" class="active">Home</a></li>
-    <li><a href="#courses">Courses</a></li>
-    <li><a href="#about">About Us</a></li>
-    <li><a href="#results">Results</a></li>
-    <li><a href="#team">Our Team</a></li>
-    <li><a href="#contact">Contact Us</a></li>
-  </ul>
-  <div class="nav-ctas">
-    <a href="#courses" class="btn-outline">Enter Arena</a>
-    <a href="#contact" class="btn-fill">Classroom Analytics</a>
+  <div class="nav-inner">
+    <div class="nav-logo">Edu<span>Trellis</span></div>
+    <ul class="nav-links">
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#courses">Courses</a></li>
+      <li><a href="#about">About Us</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#team">Our Team</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ul>
+    <div class="nav-ctas">
+      <a href="#courses" class="btn-outline">Enter Arena</a>
+      <a href="#contact" class="btn-fill">Classroom Analytics</a>
+    </div>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
   </div>
-  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
-  </div>
-</div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
   <a href="#home" onclick="closeMenu()">Home</a>
@@ -347,430 +355,319 @@
 
 <!-- HERO -->
 <div id="home-wrap">
-<section id="home">
-  <div class="hero-content">
-    <span class="hero-tag">🚀 Northeast India's Trusted EdTech</span>
-    <h1 class="hero-headline">
-      Let's build a<br/>
-      strong <span class="accent">Career<br/>Foundation</span> for<br/>
-      your future
-    </h1>
-    <p class="hero-sub">
-      At <strong>EduTrellis,</strong> we don't just prepare students for exams.<br/>
-      We build clarity, discipline, and thinking ability.<br/><br/>
-      With strong academics, <strong>tech-driven learning,</strong> and personal mentorship, we help students from the Northeast compete confidently in JEE, NEET, and foundational programs — without needing to leave home.
-    </p>
-    <p class="hero-tagline">Start early. Think deeply. Build for life.</p>
-    <div class="hero-actions">
-      <a href="#courses" class="btn-hero primary">Start Learning →</a>
-      <a href="#results" class="btn-hero secondary">View Results</a>
+  <section id="home">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <span class="hero-tag">&#128640; Northeast India's Trusted EdTech</span>
+        <h1 class="hero-headline">
+          Let's build a<br/>
+          strong <span class="accent">Career<br/>Foundation</span> for<br/>
+          your future
+        </h1>
+        <p class="hero-sub">
+          At <strong>EduTrellis,</strong> we don't just prepare students for exams.<br/>
+          We build clarity, discipline, and thinking ability.<br/><br/>
+          With strong academics, <strong>tech-driven learning,</strong> and personal mentorship, we help students from the Northeast compete confidently in JEE, NEET, and foundational programs &mdash; without needing to leave home.
+        </p>
+        <p class="hero-tagline">Start early. Think deeply. Build for life.</p>
+        <div class="hero-actions">
+          <a href="#courses" class="btn-hero primary">Start Learning &rarr;</a>
+          <a href="#results" class="btn-hero secondary">View Results</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-svg-wrap">
+          <svg viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="260" cy="390" rx="140" ry="18" fill="rgba(0,0,0,0.06)"/>
+            <rect x="130" y="340" width="260" height="38" rx="6" fill="#1A0A00"/>
+            <rect x="130" y="340" width="260" height="10" rx="3" fill="#E8331A"/>
+            <rect x="148" y="308" width="224" height="36" rx="6" fill="#F97316"/>
+            <rect x="148" y="308" width="224" height="10" rx="3" fill="#FBBF24"/>
+            <rect x="160" y="278" width="200" height="34" rx="6" fill="#4B2100"/>
+            <rect x="172" y="252" width="176" height="30" rx="6" fill="#E8331A"/>
+            <rect x="188" y="225" width="144" height="30" rx="6" fill="#FBBF24"/>
+            <rect x="188" y="225" width="144" height="10" rx="3" fill="#F97316" opacity=".7"/>
+            <rect x="250" y="185" width="22" height="40" rx="8" fill="#93C5FD"/>
+            <circle cx="261" cy="175" r="16" fill="#F4C5A1"/>
+            <ellipse cx="261" cy="162" rx="14" ry="9" fill="#1A0A00"/>
+            <rect x="253" y="222" width="8" height="32" rx="4" fill="#1E3A5F"/>
+            <rect x="263" y="228" width="8" height="26" rx="4" fill="#1E3A5F" transform="rotate(-15 267 228)"/>
+            <rect x="270" y="195" width="18" height="22" rx="3" fill="#1A0A00"/>
+            <rect x="271" y="196" width="16" height="4" rx="1" fill="#E8331A"/>
+            <rect x="234" y="192" width="16" height="8" rx="4" fill="#93C5FD"/>
+            <rect x="200" y="100" width="120" height="12" rx="3" fill="#4B2100"/>
+            <polygon points="260,68 320,112 200,112" fill="#2D1500"/>
+            <line x1="320" y1="108" x2="336" y2="130" stroke="#FBBF24" stroke-width="2.5"/>
+            <circle cx="336" cy="133" r="5" fill="#FBBF24"/>
+            <rect x="380" y="295" width="32" height="8" rx="2" fill="#FBBF24"/>
+            <rect x="390" y="303" width="12" height="18" rx="2" fill="#F97316"/>
+            <rect x="382" y="321" width="28" height="6" rx="2" fill="#FBBF24"/>
+            <path d="M380 265 Q364 255 366 238 Q368 225 380 225 L412 225 Q424 225 426 238 Q428 255 412 265 Z" fill="#FBBF24"/>
+            <path d="M374 244 Q362 238 364 230" stroke="#F97316" stroke-width="2" fill="none"/>
+            <path d="M418 244 Q430 238 428 230" stroke="#F97316" stroke-width="2" fill="none"/>
+            <rect x="356" y="170" width="90" height="60" rx="6" fill="rgba(255,255,255,0.6)"/>
+            <polyline points="366,220 386,205 406,195 426,178 436,165" stroke="#E8331A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <rect x="368" y="208" width="8" height="12" rx="1" fill="#F97316" opacity=".5"/>
+            <rect x="382" y="198" width="8" height="22" rx="1" fill="#F97316" opacity=".5"/>
+            <rect x="396" y="188" width="8" height="32" rx="1" fill="#F97316" opacity=".5"/>
+            <rect x="410" y="178" width="8" height="42" rx="1" fill="#F97316" opacity=".5"/>
+            <polyline points="430,152 440,140 450,152" stroke="#22C55E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="440" y1="140" x2="440" y2="170" stroke="#22C55E" stroke-width="2.5"/>
+            <rect x="100" y="312" width="36" height="32" rx="4" fill="#93C5FD"/>
+            <rect x="102" y="310" width="6" height="20" rx="3" fill="#FBBF24"/>
+            <polygon points="105,292 108,292 108,310 105,310" fill="#FBBF24"/>
+            <polygon points="105,292 108,290" fill="#F97316"/>
+            <rect x="112" y="306" width="6" height="24" rx="3" fill="#E8331A"/>
+            <rect x="122" y="300" width="6" height="30" rx="3" fill="#4B2100"/>
+            <text x="70" y="200" font-size="13" fill="rgba(232,51,26,.18)" font-family="monospace">E=mc&#178;</text>
+            <text x="435" y="220" font-size="11" fill="rgba(232,51,26,.18)" font-family="monospace">&#8747;f(x)dx</text>
+            <text x="68" y="260" font-size="11" fill="rgba(232,51,26,.18)" font-family="monospace">PV=nRT</text>
+            <text x="92" y="160" font-size="10" fill="rgba(249,115,22,.2)" font-family="monospace">sin&#178;&#952;+cos&#178;&#952;=1</text>
+          </svg>
+        </div>
+        <div class="hero-badge">
+          <div class="dot"></div>
+          1,200+ students learning live
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="hero-visual">
-    <div class="hero-svg-wrap">
-      <svg viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg">
-        <!-- Stacked books base -->
-        <ellipse cx="260" cy="390" rx="140" ry="18" fill="rgba(0,0,0,0.06)"/>
-        <!-- Book 1 (bottom, large) -->
-        <rect x="130" y="340" width="260" height="38" rx="6" fill="#1A0A00"/>
-        <rect x="130" y="340" width="260" height="10" rx="3" fill="#E8331A"/>
-        <!-- Book 2 -->
-        <rect x="148" y="308" width="224" height="36" rx="6" fill="#F97316"/>
-        <rect x="148" y="308" width="224" height="10" rx="3" fill="#FBBF24"/>
-        <!-- Book 3 -->
-        <rect x="160" y="278" width="200" height="34" rx="6" fill="#4B2100"/>
-        <!-- Book 4 (small) -->
-        <rect x="172" y="252" width="176" height="30" rx="6" fill="#E8331A"/>
-        <!-- Gold cylinder top book -->
-        <rect x="188" y="225" width="144" height="30" rx="6" fill="#FBBF24"/>
-        <rect x="188" y="225" width="144" height="10" rx="3" fill="#F97316" opacity=".7"/>
-
-        <!-- Student walking up books -->
-        <!-- Body -->
-        <rect x="250" y="185" width="22" height="40" rx="8" fill="#93C5FD"/>
-        <!-- Head -->
-        <circle cx="261" cy="175" r="16" fill="#F4C5A1"/>
-        <!-- Hair -->
-        <ellipse cx="261" cy="162" rx="14" ry="9" fill="#1A0A00"/>
-        <!-- Left leg -->
-        <rect x="253" y="222" width="8" height="32" rx="4" fill="#1E3A5F"/>
-        <!-- Right leg (raised) -->
-        <rect x="263" y="228" width="8" height="26" rx="4" fill="#1E3A5F" transform="rotate(-15 267 228)"/>
-        <!-- Book in hand -->
-        <rect x="270" y="195" width="18" height="22" rx="3" fill="#1A0A00"/>
-        <rect x="271" y="196" width="16" height="4" rx="1" fill="#E8331A"/>
-        <!-- Left arm -->
-        <rect x="234" y="192" width="16" height="8" rx="4" fill="#93C5FD"/>
-
-        <!-- Graduation cap -->
-        <rect x="200" y="100" width="120" height="12" rx="3" fill="#4B2100"/>
-        <polygon points="260,68 320,112 200,112" fill="#2D1500"/>
-        <line x1="320" y1="108" x2="336" y2="130" stroke="#FBBF24" stroke-width="2.5"/>
-        <circle cx="336" cy="133" r="5" fill="#FBBF24"/>
-
-        <!-- Trophy -->
-        <rect x="380" y="295" width="32" height="8" rx="2" fill="#FBBF24"/>
-        <rect x="390" y="303" width="12" height="18" rx="2" fill="#F97316"/>
-        <rect x="382" y="321" width="28" height="6" rx="2" fill="#FBBF24"/>
-        <path d="M380 265 Q364 255 366 238 Q368 225 380 225 L412 225 Q424 225 426 238 Q428 255 412 265 Z" fill="#FBBF24"/>
-        <path d="M374 244 Q362 238 364 230" stroke="#F97316" stroke-width="2" fill="none"/>
-        <path d="M418 244 Q430 238 428 230" stroke="#F97316" stroke-width="2" fill="none"/>
-
-        <!-- Growth chart -->
-        <rect x="356" y="170" width="90" height="60" rx="6" fill="rgba(255,255,255,0.6)"/>
-        <polyline points="366,220 386,205 406,195 426,178 436,165" stroke="#E8331A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- Chart bars -->
-        <rect x="368" y="208" width="8" height="12" rx="1" fill="#F97316" opacity=".5"/>
-        <rect x="382" y="198" width="8" height="22" rx="1" fill="#F97316" opacity=".5"/>
-        <rect x="396" y="188" width="8" height="32" rx="1" fill="#F97316" opacity=".5"/>
-        <rect x="410" y="178" width="8" height="42" rx="1" fill="#F97316" opacity=".5"/>
-        <!-- Arrow up -->
-        <polyline points="430,152 440,140 450,152" stroke="#22C55E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="440" y1="140" x2="440" y2="170" stroke="#22C55E" stroke-width="2.5"/>
-
-        <!-- Pencil cup -->
-        <rect x="100" y="312" width="36" height="32" rx="4" fill="#93C5FD"/>
-        <rect x="102" y="310" width="6" height="20" rx="3" fill="#FBBF24"/>
-        <polygon points="105,292 108,292 108,310 105,310" fill="#FBBF24"/>
-        <polygon points="105,292 108,290" fill="#F97316"/>
-        <rect x="112" y="306" width="6" height="24" rx="3" fill="#E8331A"/>
-        <rect x="122" y="300" width="6" height="30" rx="3" fill="#4B2100"/>
-
-        <!-- Math formulas bg -->
-        <text x="70" y="200" font-size="13" fill="rgba(232,51,26,.18)" font-family="monospace">E=mc²</text>
-        <text x="435" y="220" font-size="11" fill="rgba(232,51,26,.18)" font-family="monospace">∫f(x)dx</text>
-        <text x="68" y="260" font-size="11" fill="rgba(232,51,26,.18)" font-family="monospace">PV=nRT</text>
-        <text x="92" y="160" font-size="10" fill="rgba(249,115,22,.2)" font-family="monospace">sin²θ+cos²θ=1</text>
-      </svg>
-    </div>
-    <div class="hero-badge">
-      <div class="dot"></div>
-      1,200+ students learning live
-    </div>
-  </div>
-</section>
+  </section>
 </div>
 
 <!-- COURSES -->
 <section id="courses">
   <div style="max-width:1180px;margin:0 auto">
-  <div class="center reveal">
-    <span class="section-label">What We Offer</span>
-    <h2 class="section-title">Our <span class="accent">Courses</span></h2>
-    <p class="section-sub">Carefully crafted programs to build real understanding—not just exam shortcuts.</p>
+    <div class="center reveal">
+      <span class="section-label">What We Offer</span>
+      <h2 class="section-title">Our <span class="accent">Courses</span></h2>
+      <p class="section-sub">Carefully crafted programs to build real understanding&mdash;not just exam shortcuts.</p>
+    </div>
+    <div class="courses-grid">
+      <div class="course-card reveal">
+        <div class="course-card-top jee">&#128300;<span class="course-badge">Popular</span></div>
+        <div class="course-card-body">
+          <h3>JEE Foundation &amp; Mains</h3>
+          <p>Physics, Chemistry &amp; Maths with concept-first teaching and weekly mock tests.</p>
+          <div class="course-meta"><span>&#128197; 2-Year Program</span><a href="#contact">Enroll Now &rarr;</a></div>
+        </div>
+      </div>
+      <div class="course-card reveal">
+        <div class="course-card-top neet">&#129516;<span class="course-badge">New Batch</span></div>
+        <div class="course-card-body">
+          <h3>NEET Preparation</h3>
+          <p>Biology, Physics &amp; Chemistry aligned with NCERT and previous year patterns.</p>
+          <div class="course-meta"><span>&#128197; 1-Year Program</span><a href="#contact">Enroll Now &rarr;</a></div>
+        </div>
+      </div>
+      <div class="course-card reveal">
+        <div class="course-card-top found">&#128218;</div>
+        <div class="course-card-body">
+          <h3>Class 9&ndash;10 Foundation</h3>
+          <p>Build the academic backbone early. Science &amp; Maths with olympiad exposure.</p>
+          <div class="course-meta"><span>&#128197; Annual Batch</span><a href="#contact">Enroll Now &rarr;</a></div>
+        </div>
+      </div>
+      <div class="course-card reveal">
+        <div class="course-card-top maths">&#128208;</div>
+        <div class="course-card-body">
+          <h3>Advanced Mathematics</h3>
+          <p>From calculus to coordinate geometry &mdash; deep problem-solving for competitive edge.</p>
+          <div class="course-meta"><span>&#128197; Short Course</span><a href="#contact">Enroll Now &rarr;</a></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="courses-grid">
-    <div class="course-card reveal">
-      <div class="course-card-top jee">🔬<span class="course-badge">Popular</span></div>
-      <div class="course-card-body">
-        <h3>JEE Foundation &amp; Mains</h3>
-        <p>Physics, Chemistry &amp; Maths with concept-first teaching and weekly mock tests.</p>
-        <div class="course-meta">
-          <span>📅 2-Year Program</span>
-          <a href="#contact">Enroll Now →</a>
-        </div>
-      </div>
-    </div>
-    <div class="course-card reveal">
-      <div class="course-card-top neet">🧬<span class="course-badge">New Batch</span></div>
-      <div class="course-card-body">
-        <h3>NEET Preparation</h3>
-        <p>Biology, Physics &amp; Chemistry aligned with NCERT and previous year patterns.</p>
-        <div class="course-meta">
-          <span>📅 1-Year Program</span>
-          <a href="#contact">Enroll Now →</a>
-        </div>
-      </div>
-    </div>
-    <div class="course-card reveal">
-      <div class="course-card-top found">📚</div>
-      <div class="course-card-body">
-        <h3>Class 9–10 Foundation</h3>
-        <p>Build the academic backbone early. Science &amp; Maths with olympiad exposure.</p>
-        <div class="course-meta">
-          <span>📅 Annual Batch</span>
-          <a href="#contact">Enroll Now →</a>
-        </div>
-      </div>
-    </div>
-    <div class="course-card reveal">
-      <div class="course-card-top maths">📐</div>
-      <div class="course-card-body">
-        <h3>Advanced Mathematics</h3>
-        <p>From calculus to coordinate geometry — deep problem-solving for competitive edge.</p>
-        <div class="course-meta">
-          <span>📅 Short Course</span>
-          <a href="#contact">Enroll Now →</a>
-        </div>
-      </div>
-    </div>
-  </div><!-- end max-width wrapper -->
 </section>
+
+<!-- ABOUT -->
 <section id="about">
   <div style="max-width:1180px;margin:0 auto">
-  <div class="about-grid">
-    <div class="about-img-wrap reveal">
-      <div class="about-illustration">
-        <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
-          <!-- Classroom / mentorship illustration -->
-          <rect x="20" y="30" width="260" height="160" rx="14" fill="rgba(255,255,255,0.5)"/>
-          <!-- Whiteboard -->
-          <rect x="40" y="50" width="220" height="100" rx="8" fill="#fff"/>
-          <rect x="40" y="50" width="220" height="8" rx="4" fill="#E8331A"/>
-          <!-- Formula on board -->
-          <text x="60" y="90" font-size="14" fill="#4B2100" font-family="monospace" font-weight="600">y = mx + c</text>
-          <text x="60" y="115" font-size="11" fill="#F97316" font-family="monospace">∑(xi - x̄)² / n</text>
-          <text x="60" y="135" font-size="10" fill="#6B7280" font-family="monospace">F = ma  |  PV = nRT</text>
-          <!-- Teacher silhouette -->
-          <circle cx="255" cy="85" r="10" fill="#4B2100"/>
-          <rect x="248" y="95" width="14" height="28" rx="5" fill="#4B2100"/>
-          <!-- Pointer -->
-          <line x1="250" y1="108" x2="232" y2="115" stroke="#E8331A" stroke-width="2"/>
-          <!-- Students at desks -->
-          <circle cx="70" cy="180" r="9" fill="#F4C5A1"/>
-          <rect x="63" y="189" width="14" height="20" rx="4" fill="#93C5FD"/>
-          <circle cx="120" cy="178" r="9" fill="#C8A87A"/>
-          <rect x="113" y="187" width="14" height="20" rx="4" fill="#E8331A"/>
-          <circle cx="170" cy="180" r="9" fill="#F4C5A1"/>
-          <rect x="163" y="189" width="14" height="20" rx="4" fill="#FBBF24"/>
-          <circle cx="220" cy="178" r="9" fill="#C8A87A"/>
-          <rect x="213" y="187" width="14" height="20" rx="4" fill="#4B2100"/>
-          <!-- Desk lines -->
-          <rect x="50" y="208" width="230" height="6" rx="3" fill="rgba(0,0,0,0.1)"/>
-          <!-- Stars / ratings -->
-          <text x="95" y="245" font-size="18" fill="#FBBF24">★★★★★</text>
-          <text x="99" y="258" font-size="10" fill="#6B7280" font-family="sans-serif">4.9 / 5 avg rating</text>
-        </svg>
+    <div class="about-grid">
+      <div class="about-img-wrap reveal">
+        <div class="about-illustration">
+          <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="30" width="260" height="160" rx="14" fill="rgba(255,255,255,0.5)"/>
+            <rect x="40" y="50" width="220" height="100" rx="8" fill="#fff"/>
+            <rect x="40" y="50" width="220" height="8" rx="4" fill="#E8331A"/>
+            <text x="60" y="90" font-size="14" fill="#4B2100" font-family="monospace" font-weight="600">y = mx + c</text>
+            <text x="60" y="115" font-size="11" fill="#F97316" font-family="monospace">&#8721;(xi - x&#772;)&#178; / n</text>
+            <text x="60" y="135" font-size="10" fill="#6B7280" font-family="monospace">F = ma  |  PV = nRT</text>
+            <circle cx="255" cy="85" r="10" fill="#4B2100"/>
+            <rect x="248" y="95" width="14" height="28" rx="5" fill="#4B2100"/>
+            <line x1="250" y1="108" x2="232" y2="115" stroke="#E8331A" stroke-width="2"/>
+            <circle cx="70" cy="180" r="9" fill="#F4C5A1"/>
+            <rect x="63" y="189" width="14" height="20" rx="4" fill="#93C5FD"/>
+            <circle cx="120" cy="178" r="9" fill="#C8A87A"/>
+            <rect x="113" y="187" width="14" height="20" rx="4" fill="#E8331A"/>
+            <circle cx="170" cy="180" r="9" fill="#F4C5A1"/>
+            <rect x="163" y="189" width="14" height="20" rx="4" fill="#FBBF24"/>
+            <circle cx="220" cy="178" r="9" fill="#C8A87A"/>
+            <rect x="213" y="187" width="14" height="20" rx="4" fill="#4B2100"/>
+            <rect x="50" y="208" width="230" height="6" rx="3" fill="rgba(0,0,0,0.1)"/>
+            <text x="95" y="245" font-size="18" fill="#FBBF24">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
+            <text x="99" y="258" font-size="10" fill="#6B7280" font-family="sans-serif">4.9 / 5 avg rating</text>
+          </svg>
+        </div>
+        <div class="about-stat-card">
+          <div class="num">98%</div>
+          <div class="lbl">Pass Rate<br/>2024 Batch</div>
+        </div>
       </div>
-      <div class="about-stat-card">
-        <div class="num">98%</div>
-        <div class="lbl">Pass Rate<br/>2024 Batch</div>
-      </div>
-    </div>
-    <div class="reveal">
-      <span class="section-label">About Us</span>
-      <h2 class="section-title">Why <span class="accent">EduTrellis?</span></h2>
-      <p class="section-sub">We're not just another coaching centre. We're a mission-driven platform built for Northeast India's brightest students.</p>
-      <div class="about-list">
-        <div class="about-item">
-          <div class="about-icon">🧠</div>
-          <div class="about-item-text">
-            <h4>Concept-First Teaching</h4>
-            <p>We teach reasoning behind every formula — not rote memorisation.</p>
-          </div>
-        </div>
-        <div class="about-item">
-          <div class="about-icon">📱</div>
-          <div class="about-item-text">
-            <h4>Tech-Driven Learning</h4>
-            <p>Live classes, recorded sessions, AI-powered analytics, and digital tests.</p>
-          </div>
-        </div>
-        <div class="about-item">
-          <div class="about-icon">🎯</div>
-          <div class="about-item-text">
-            <h4>Personal Mentorship</h4>
-            <p>1-on-1 doubt sessions and weekly progress reports for every student.</p>
-          </div>
-        </div>
-        <div class="about-item">
-          <div class="about-icon">🏠</div>
-          <div class="about-item-text">
-            <h4>Study from Home</h4>
-            <p>World-class preparation without leaving your hometown — stay close, aim high.</p>
-          </div>
+      <div class="reveal">
+        <span class="section-label">About Us</span>
+        <h2 class="section-title">Why <span class="accent">EduTrellis?</span></h2>
+        <p class="section-sub">We're not just another coaching centre. We're a mission-driven platform built for Northeast India's brightest students.</p>
+        <div class="about-list">
+          <div class="about-item"><div class="about-icon">&#129504;</div><div class="about-item-text"><h4>Concept-First Teaching</h4><p>We teach reasoning behind every formula &mdash; not rote memorisation.</p></div></div>
+          <div class="about-item"><div class="about-icon">&#128241;</div><div class="about-item-text"><h4>Tech-Driven Learning</h4><p>Live classes, recorded sessions, AI-powered analytics, and digital tests.</p></div></div>
+          <div class="about-item"><div class="about-icon">&#127919;</div><div class="about-item-text"><h4>Personal Mentorship</h4><p>1-on-1 doubt sessions and weekly progress reports for every student.</p></div></div>
+          <div class="about-item"><div class="about-icon">&#127968;</div><div class="about-item-text"><h4>Study from Home</h4><p>World-class preparation without leaving your hometown &mdash; stay close, aim high.</p></div></div>
         </div>
       </div>
     </div>
-  </div><!-- end about max-width -->
+  </div>
 </section>
 
 <!-- RESULTS -->
 <section id="results">
   <div style="max-width:1180px;margin:0 auto">
-  <div class="center reveal">
-    <span class="section-label" style="background:rgba(249,115,22,.2);color:var(--amber)">Our Track Record</span>
-    <h2 class="section-title">Numbers That <span class="accent">Speak</span></h2>
-    <p class="section-sub" style="color:rgba(255,255,255,.55)">Real results from real students — we let our outcomes do the talking.</p>
-  </div>
-  <div class="stats-row reveal">
-    <div class="stat-box"><div class="num">1,200+</div><div class="lbl">Students Enrolled</div></div>
-    <div class="stat-box"><div class="num">340+</div><div class="lbl">JEE Qualifiers</div></div>
-    <div class="stat-box"><div class="num">210+</div><div class="lbl">NEET Qualifiers</div></div>
-    <div class="stat-box"><div class="num">98%</div><div class="lbl">Pass Rate</div></div>
-    <div class="stat-box"><div class="num">4.9★</div><div class="lbl">Average Rating</div></div>
-    <div class="stat-box"><div class="num">6</div><div class="lbl">Years of Excellence</div></div>
-  </div>
-  <div style="margin-top:2.5rem;">
-    <h3 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1.25rem;" class="reveal">🏆 Top Rankers 2024</h3>
-    <div class="toppers-grid reveal">
-      <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">R</div><div><h4>Rahul Sharma</h4><p>JEE Mains 2024</p><div class="topper-rank">AIR 847</div></div></div>
-      <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">P</div><div><h4>Priya Gogoi</h4><p>NEET 2024</p><div class="topper-rank">Score 710/720</div></div></div>
-      <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">A</div><div><h4>Arjun Borah</h4><p>JEE Advanced</p><div class="topper-rank">AIR 1,204</div></div></div>
-      <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#059669,#10B981)">S</div><div><h4>Sneha Das</h4><p>NEET 2024</p><div class="topper-rank">Score 695/720</div></div></div>
+    <div class="center reveal">
+      <span class="section-label" style="background:rgba(249,115,22,.2);color:var(--amber)">Our Track Record</span>
+      <h2 class="section-title">Numbers That <span class="accent">Speak</span></h2>
+      <p class="section-sub" style="color:rgba(255,255,255,.55)">Real results from real students &mdash; we let our outcomes do the talking.</p>
+    </div>
+    <div class="stats-row reveal">
+      <div class="stat-box"><div class="num">1,200+</div><div class="lbl">Students Enrolled</div></div>
+      <div class="stat-box"><div class="num">340+</div><div class="lbl">JEE Qualifiers</div></div>
+      <div class="stat-box"><div class="num">210+</div><div class="lbl">NEET Qualifiers</div></div>
+      <div class="stat-box"><div class="num">98%</div><div class="lbl">Pass Rate</div></div>
+      <div class="stat-box"><div class="num">4.9&#9733;</div><div class="lbl">Average Rating</div></div>
+      <div class="stat-box"><div class="num">6</div><div class="lbl">Years of Excellence</div></div>
+    </div>
+    <div style="margin-top:2.5rem;">
+      <h3 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1.25rem;" class="reveal">&#127942; Top Rankers 2024</h3>
+      <div class="toppers-grid reveal">
+        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">R</div><div><h4>Rahul Sharma</h4><p>JEE Mains 2024</p><div class="topper-rank">AIR 847</div></div></div>
+        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">P</div><div><h4>Priya Gogoi</h4><p>NEET 2024</p><div class="topper-rank">Score 710/720</div></div></div>
+        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">A</div><div><h4>Arjun Borah</h4><p>JEE Advanced</p><div class="topper-rank">AIR 1,204</div></div></div>
+        <div class="topper-card"><div class="topper-avatar" style="background:linear-gradient(135deg,#059669,#10B981)">S</div><div><h4>Sneha Das</h4><p>NEET 2024</p><div class="topper-rank">Score 695/720</div></div></div>
+      </div>
     </div>
   </div>
-  </div><!-- end results max-width -->
 </section>
 
 <!-- TEAM -->
 <section id="team">
   <div style="max-width:1180px;margin:0 auto">
-  <div class="center reveal">
-    <span class="section-label">The People Behind It</span>
-    <h2 class="section-title">Meet Our <span class="accent">Team</span></h2>
-    <p class="section-sub">IIT/NIT alumni and passionate educators dedicated to your success.</p>
-  </div>
-  <div class="team-grid">
-    <div class="team-card reveal">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">VK</div>
-      <h3>Vikram Krishnan</h3>
-      <div class="role">Founder &amp; Physics Lead</div>
-      <p>IIT Bombay alumnus with 12 years of JEE teaching. 500+ selections under his mentorship.</p>
+    <div class="center reveal">
+      <span class="section-label">The People Behind It</span>
+      <h2 class="section-title">Meet Our <span class="accent">Team</span></h2>
+      <p class="section-sub">IIT/NIT alumni and passionate educators dedicated to your success.</p>
     </div>
-    <div class="team-card reveal">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">MA</div>
-      <h3>Meera Agarwal</h3>
-      <div class="role">Chemistry Expert</div>
-      <p>Former HOD at DPS with an MSc from BHU. Known for making organic chemistry intuitive.</p>
-    </div>
-    <div class="team-card reveal">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#059669,#10B981)">RB</div>
-      <h3>Rajan Baruah</h3>
-      <div class="role">Mathematics Lead</div>
-      <p>NIT Silchar gold medallist. Specialises in calculus and algebra for competitive exams.</p>
-    </div>
-    <div class="team-card reveal">
-      <div class="team-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">SD</div>
-      <h3>Snehal Dutta</h3>
-      <div class="role">Biology &amp; NEET Lead</div>
-      <p>MBBS from AIIMS Guwahati. Brings clinical perspective to NEET biology preparation.</p>
+    <div class="team-grid">
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#E8331A,#F97316)">VK</div><h3>Vikram Krishnan</h3><div class="role">Founder &amp; Physics Lead</div><p>IIT Bombay alumnus with 12 years of JEE teaching. 500+ selections under his mentorship.</p></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899)">MA</div><h3>Meera Agarwal</h3><div class="role">Chemistry Expert</div><p>Former HOD at DPS with an MSc from BHU. Known for making organic chemistry intuitive.</p></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#059669,#10B981)">RB</div><h3>Rajan Baruah</h3><div class="role">Mathematics Lead</div><p>NIT Silchar gold medallist. Specialises in calculus and algebra for competitive exams.</p></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:linear-gradient(135deg,#F97316,#FBBF24)">SD</div><h3>Snehal Dutta</h3><div class="role">Biology &amp; NEET Lead</div><p>MBBS from AIIMS Guwahati. Brings clinical perspective to NEET biology preparation.</p></div>
     </div>
   </div>
-  </div><!-- end team max-width -->
 </section>
 
 <!-- CONTACT -->
 <section id="contact">
   <div style="max-width:1180px;margin:0 auto">
-  <div class="center reveal">
-    <span class="section-label">Get in Touch</span>
-    <h2 class="section-title">Contact <span class="accent">Us</span></h2>
-    <p class="section-sub">Have questions about courses, batches, or fees? We're happy to help.</p>
-  </div>
-  <div class="contact-grid">
-    <div class="reveal">
-      <div class="contact-info">
-        <h3>Let's talk about your future</h3>
-        <p>Reach out anytime — our counsellors are available Monday–Saturday, 9 AM to 7 PM.</p>
-        <div class="contact-details">
-          <div class="contact-row"><div class="icon">📍</div><div class="contact-row-text"><span>Visit Us</span><strong>Guwahati, Assam, Northeast India</strong></div></div>
-          <div class="contact-row"><div class="icon">📞</div><div class="contact-row-text"><span>Call / WhatsApp</span><strong>+91 98765 43210</strong></div></div>
-          <div class="contact-row"><div class="icon">✉️</div><div class="contact-row-text"><span>Email</span><strong>hello@edutrellis.in</strong></div></div>
-          <div class="contact-row"><div class="icon">🕐</div><div class="contact-row-text"><span>Working Hours</span><strong>Mon–Sat, 9 AM – 7 PM</strong></div></div>
+    <div class="center reveal">
+      <span class="section-label">Get in Touch</span>
+      <h2 class="section-title">Contact <span class="accent">Us</span></h2>
+      <p class="section-sub">Have questions about courses, batches, or fees? We're happy to help.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="reveal">
+        <div class="contact-info">
+          <h3>Let's talk about your future</h3>
+          <p>Reach out anytime &mdash; our counsellors are available Monday&ndash;Saturday, 9 AM to 7 PM.</p>
+          <div class="contact-details">
+            <div class="contact-row"><div class="icon">&#128205;</div><div class="contact-row-text"><span>Visit Us</span><strong>Guwahati, Assam, Northeast India</strong></div></div>
+            <div class="contact-row"><div class="icon">&#128222;</div><div class="contact-row-text"><span>Call / WhatsApp</span><strong>+91 98765 43210</strong></div></div>
+            <div class="contact-row"><div class="icon">&#9993;&#65039;</div><div class="contact-row-text"><span>Email</span><strong>hello@edutrellis.in</strong></div></div>
+            <div class="contact-row"><div class="icon">&#128336;</div><div class="contact-row-text"><span>Working Hours</span><strong>Mon&ndash;Sat, 9 AM &ndash; 7 PM</strong></div></div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="contact-form reveal">
-      <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;">Send us a message</h3>
-      <div class="form-row-2">
-        <div class="form-row"><label>First Name</label><input type="text" placeholder="Rahul" id="fname"/></div>
-        <div class="form-row"><label>Last Name</label><input type="text" placeholder="Sharma" id="lname"/></div>
+      <div class="contact-form reveal">
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;">Send us a message</h3>
+        <div class="form-row-2">
+          <div class="form-row"><label>First Name</label><input type="text" placeholder="Rahul" id="fname"/></div>
+          <div class="form-row"><label>Last Name</label><input type="text" placeholder="Sharma" id="lname"/></div>
+        </div>
+        <div class="form-row"><label>Email</label><input type="email" placeholder="you@example.com" id="email"/></div>
+        <div class="form-row"><label>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" id="phone"/></div>
+        <div class="form-row">
+          <label>Course Interested In</label>
+          <select id="course">
+            <option value="">Select a course</option>
+            <option>JEE Foundation &amp; Mains</option>
+            <option>NEET Preparation</option>
+            <option>Class 9&ndash;10 Foundation</option>
+            <option>Advanced Mathematics</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Message</label><textarea placeholder="Any questions or special requirements&hellip;" id="msg"></textarea></div>
+        <button class="btn-submit" onclick="submitForm()">Send Message &rarr;</button>
+        <div id="form-msg">&#9989; Thanks! We'll get back to you within 24 hours.</div>
       </div>
-      <div class="form-row"><label>Email</label><input type="email" placeholder="you@example.com" id="email"/></div>
-      <div class="form-row"><label>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" id="phone"/></div>
-      <div class="form-row">
-        <label>Course Interested In</label>
-        <select id="course">
-          <option value="">Select a course</option>
-          <option>JEE Foundation &amp; Mains</option>
-          <option>NEET Preparation</option>
-          <option>Class 9–10 Foundation</option>
-          <option>Advanced Mathematics</option>
-        </select>
-      </div>
-      <div class="form-row"><label>Message</label><textarea placeholder="Any questions or special requirements…" id="msg"></textarea></div>
-      <button class="btn-submit" onclick="submitForm()">Send Message →</button>
-      <div id="form-msg">✅ Thanks! We'll get back to you within 24 hours.</div>
     </div>
   </div>
-  </div><!-- end contact max-width -->
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div style="max-width:1180px;margin:0 auto">
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <div class="logo">Edu<span>Trellis</span></div>
-      <p>Building career foundations for Northeast India's brightest students through tech-driven, concept-first education.</p>
-      <div class="footer-social">
-        <a class="social-btn" href="#" title="Instagram">📸</a>
-        <a class="social-btn" href="#" title="LinkedIn">💼</a>
-        <a class="social-btn" href="#" title="YouTube">▶️</a>
-        <a class="social-btn" href="#" title="WhatsApp">💬</a>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">Edu<span>Trellis</span></div>
+        <p>Building career foundations for Northeast India's brightest students through tech-driven, concept-first education.</p>
+        <div class="footer-social">
+          <a class="social-btn" href="#" title="Instagram">&#128248;</a>
+          <a class="social-btn" href="#" title="LinkedIn">&#128188;</a>
+          <a class="social-btn" href="#" title="YouTube">&#9654;&#65039;</a>
+          <a class="social-btn" href="#" title="WhatsApp">&#128172;</a>
+        </div>
       </div>
+      <div class="footer-col"><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#courses">Courses</a></li><li><a href="#about">About Us</a></li><li><a href="#results">Results</a></li></ul></div>
+      <div class="footer-col"><h4>Programs</h4><ul><li><a href="#courses">JEE Mains</a></li><li><a href="#courses">NEET Prep</a></li><li><a href="#courses">Class 9&ndash;10</a></li><li><a href="#courses">Mathematics</a></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul><li><a href="tel:+919876543210">+91 98765 43210</a></li><li><a href="mailto:hello@edutrellis.in">hello@edutrellis.in</a></li><li><a href="#contact">Guwahati, Assam</a></li><li><a href="#contact">Mon&ndash;Sat 9AM&ndash;7PM</a></li></ul></div>
     </div>
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#courses">Courses</a></li>
-        <li><a href="#about">About Us</a></li>
-        <li><a href="#results">Results</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Programs</h4>
-      <ul>
-        <li><a href="#courses">JEE Mains</a></li>
-        <li><a href="#courses">NEET Prep</a></li>
-        <li><a href="#courses">Class 9–10</a></li>
-        <li><a href="#courses">Mathematics</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <ul>
-        <li><a href="tel:+919876543210">+91 98765 43210</a></li>
-        <li><a href="mailto:hello@edutrellis.in">hello@edutrellis.in</a></li>
-        <li><a href="#contact">Guwahati, Assam</a></li>
-        <li><a href="#contact">Mon–Sat 9AM–7PM</a></li>
-      </ul>
+    <div class="footer-bottom">
+      <span>&copy; 2024 EduTrellis. All rights reserved.</span>
+      <span><a href="#">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="#">Terms of Use</a></span>
     </div>
   </div>
-  <div class="footer-bottom" style="max-width:1180px;margin:0 auto">
-    <span>© 2024 EduTrellis. All rights reserved.</span>
-    <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Use</a></span>
-  </div>
-  </div><!-- end footer max-width -->
 </footer>
 
 <script>
-  // ── PAGE LOADER ──
+  // PAGE LOADER — hide after fonts + assets loaded
   window.addEventListener('load', function () {
     setTimeout(function () {
       document.getElementById('page-loader').classList.add('hidden');
-    }, 300);
+    }, 400);
   });
 
   // Mobile menu
   function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
-  function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+  function closeMenu()  { document.getElementById('mobileMenu').classList.remove('open'); }
 
   // Active nav link on scroll
   const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
+  const navLinks  = document.querySelectorAll('.nav-links a');
   window.addEventListener('scroll', () => {
     let current = '';
     sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
-    navLinks.forEach(a => {
-      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
-    });
+    navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
   });
 
   // Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
+  const reveals  = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
   }, { threshold: 0.12 });
@@ -779,12 +676,11 @@
   // Counter animation for stats
   function animateCounter(el, target, suffix) {
     let start = 0;
-    const dur = 1600;
-    const step = timestamp => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / dur, 1);
-      const val = Math.floor(progress * target);
-      el.textContent = val.toLocaleString() + suffix;
+    const dur  = 1600;
+    const step = ts => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / dur, 1);
+      el.textContent = Math.floor(progress * target).toLocaleString() + suffix;
       if (progress < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
@@ -792,12 +688,11 @@
   const statObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        const nums = e.target.querySelectorAll('.num');
-        nums.forEach(n => {
-          const raw = n.textContent;
+        e.target.querySelectorAll('.num').forEach(n => {
+          const raw   = n.textContent;
           const match = raw.match(/[\d,]+/);
           if (match) {
-            const num = parseInt(match[0].replace(/,/g, ''));
+            const num    = parseInt(match[0].replace(/,/g, ''));
             const suffix = raw.replace(/[\d,]+/, '').trim();
             animateCounter(n, num, suffix);
           }
@@ -814,7 +709,7 @@
     const email = document.getElementById('email').value;
     if (!fname || !email) { alert('Please fill in your name and email.'); return; }
     document.getElementById('form-msg').style.display = 'block';
-    document.querySelector('.btn-submit').textContent = 'Sent! ✓';
+    document.querySelector('.btn-submit').textContent  = 'Sent! ✓';
     document.querySelector('.btn-submit').style.opacity = '.7';
   }
 </script>
