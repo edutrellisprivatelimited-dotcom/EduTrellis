@@ -44,10 +44,15 @@
   .loader-text { font-size: 0.78rem; color: var(--gray); font-weight: 500; letter-spacing: 0.05em; }
 
   /* ── NAV ── */
-  nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; height: 68px; background: rgba(255,255,255,.95); backdrop-filter: blur(10px); border-bottom: 1px solid #FFE0CC; display: flex; align-items: center; padding: 0 5%; }
+  nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; height: 72px; background: rgba(255,255,255,.95); backdrop-filter: blur(10px); border-bottom: 1px solid #FFE0CC; display: flex; align-items: center; padding: 0 5%; }
   .nav-inner { max-width: 1180px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
-  .nav-logo { font-family: var(--heading); font-size: 1.4rem; font-weight: 800; color: var(--dark); letter-spacing: -0.3px; }
+
+  /* Logo block — bigger, bolder, with tagline */
+  .nav-logo-wrap { display: flex; flex-direction: column; line-height: 1; gap: 2px; text-decoration: none; }
+  .nav-logo { font-family: var(--heading); font-size: 1.75rem; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; line-height: 1; }
   .nav-logo span { color: var(--red); }
+  .nav-logo-tagline { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); }
+
   .nav-links { display: flex; gap: 1.75rem; list-style: none; }
   .nav-links a { text-decoration: none; color: var(--mid); font-size: 0.875rem; font-weight: 500; transition: color .2s; }
   .nav-links a:hover, .nav-links a.active { color: var(--red); }
@@ -64,11 +69,11 @@
   #home-wrap { background: var(--light); position: relative; overflow: hidden; }
   #home-wrap::before { content:''; position:absolute; top:-80px; right:0; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%); pointer-events:none; }
   #home { min-height: 100vh; padding: 0; width: 100%; }
-  .hero-inner { max-width: 1180px; margin: 0 auto; padding: 100px 5% 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; position: relative; }
+  .hero-inner { max-width: 1180px; margin: 0 auto; padding: 104px 5% 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; position: relative; }
   .hero-content { max-width: 520px; }
   .hero-tag { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .28rem .8rem; border-radius: 50px; margin-bottom: 1rem; }
 
-  /* HERO HEADLINE — increased for taller, bolder look */
+  /* HERO HEADLINE */
   .hero-headline {
     font-family: var(--heading);
     font-size: clamp(2.6rem, 5vw, 4rem);
@@ -99,8 +104,6 @@
   section { padding: 80px 5%; }
   .sec-wrap { max-width: 1180px; margin: 0 auto; }
   .section-label { display: inline-block; background: rgba(232,51,26,.1); color: var(--red); font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .28rem .85rem; border-radius: 50px; margin-bottom: .9rem; }
-
-  /* SECTION TITLE — increased proportionally */
   .section-title {
     font-family: var(--heading);
     font-size: clamp(1.9rem, 3vw, 2.6rem);
@@ -201,8 +204,9 @@
   footer { background: var(--dark); color: rgba(255,255,255,.6); padding: 56px 5% 28px; }
   .footer-inner { max-width: 1180px; margin: 0 auto; }
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid rgba(255,255,255,.08); }
-  .footer-brand .logo { font-family: var(--heading); font-size: 1.3rem; font-weight: 800; color: #fff; }
+  .footer-brand .logo { font-family: var(--heading); font-size: 1.5rem; font-weight: 800; color: #fff; letter-spacing: -0.4px; }
   .footer-brand .logo span { color: var(--orange); }
+  .footer-brand .logo-tagline { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); margin-top: 2px; display: block; }
   .footer-brand p { margin-top: .6rem; font-size: .83rem; line-height: 1.7; max-width: 230px; }
   .footer-col h4 { font-family: var(--heading); color: #fff; font-size: .9rem; font-weight: 700; margin-bottom: .85rem; }
   .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
@@ -215,7 +219,7 @@
   .social-btn:hover { background: var(--orange); }
 
   /* ── MOBILE NAV ── */
-  .mobile-menu { display: none; position: fixed; top: 68px; left: 0; width: 100%; background: #fff; border-bottom: 1px solid #FFE0CC; padding: 1.4rem 5%; z-index: 99; flex-direction: column; gap: .9rem; }
+  .mobile-menu { display: none; position: fixed; top: 72px; left: 0; width: 100%; background: #fff; border-bottom: 1px solid #FFE0CC; padding: 1.4rem 5%; z-index: 99; flex-direction: column; gap: .9rem; }
   .mobile-menu.open { display: flex; }
   .mobile-menu a { color: var(--dark); font-size: .95rem; font-weight: 600; text-decoration: none; padding: .45rem 0; border-bottom: 1px solid #FFF0E8; }
 
@@ -230,7 +234,7 @@
   @media (max-width: 900px) {
     .nav-links, .nav-ctas { display: none; }
     .hamburger { display: flex; }
-    .hero-inner { grid-template-columns: 1fr; padding-top: 96px; text-align: center; }
+    .hero-inner { grid-template-columns: 1fr; padding-top: 100px; text-align: center; }
     .hero-content { max-width: 100%; }
     .hero-visual { margin-top: 2rem; }
     .hero-actions { justify-content: center; }
@@ -267,7 +271,11 @@
 <!-- NAV -->
 <nav id="navbar">
   <div class="nav-inner">
-    <div class="nav-logo">Edu<span>Trellis</span></div>
+    <!-- Logo with tagline -->
+    <a href="#home" class="nav-logo-wrap">
+      <div class="nav-logo">Edu<span>Trellis</span></div>
+      <span class="nav-logo-tagline">Digital Growth Partner</span>
+    </a>
     <ul class="nav-links">
       <li><a href="#home" class="active">Home</a></li>
       <li><a href="#courses">Courses</a></li>
@@ -567,6 +575,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo">Edu<span>Trellis</span></div>
+        <span class="logo-tagline">Digital Growth Partner</span>
         <p>Building career foundations for Northeast India's brightest students through tech-driven, concept-first education.</p>
         <div class="footer-social">
           <a class="social-btn" href="#" title="Instagram">&#128248;</a>
