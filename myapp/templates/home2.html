@@ -299,11 +299,39 @@
   .services-grid { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 1.4rem; }
   .service-card { border-radius: 18px; overflow: hidden; background: var(--light); border: 1px solid #FFE0CC; transition: transform .25s, box-shadow .25s; cursor: pointer; }
   .service-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(232,51,26,.15); }
-  .service-card-top { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; }
-  .service-card-top.web  { background: linear-gradient(135deg,#FFF1EC,#FFD7C8); }
-  .service-card-top.mgmt { background: linear-gradient(135deg,#FFEDE5,#FFCAB5); }
-  .service-card-top.mktg { background: linear-gradient(135deg,#FFF4E6,#FFE0A3); }
-  .service-badge { position: absolute; top: 10px; right: 10px; background: var(--grad); color: #fff; font-size: .68rem; font-weight: 700; padding: .22rem .55rem; border-radius: 50px; }
+  .service-card-top { 
+    height: 190px; display: flex; align-items: center; justify-content: center; position: relative;
+    background-size: cover; background-position: center; isolation: isolate;
+  }
+  .service-card-top::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(26,10,0,.08) 0%, rgba(26,10,0,.26) 48%, rgba(26,10,0,.48) 100%);
+    z-index: 0;
+  }
+  .service-card-top.web  { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/2060aa3295ee97905ee8f47e8e4a25d626771057.jpg'); }
+  .service-card-top.mgmt { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/2e498f2597b2db192814043fda6966ec9f5c73ac.jpg'); }
+  .service-card-top.mktg { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/a5df131783cfebd3382cef88f5dca01821982012.jpg'); }
+  .service-card-top.wp   { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/d92199c0956f776223d3726698459d8082ad1d97.jpg'); }
+  .service-card-top.meta { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/609f76b9c8dc562e54a608310b0679cc749737df.jpg'); }
+  .service-card-top.smm  { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/a0863607cb3d2ce507aef89691a02c87b500cd5f.jpg'); }
+  .service-card-top.gbp  { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/6b3f8e8d5240c4cd9fe1163e11a8c1d05c65ba54.jpg'); }
+  .service-card-top.dm2  { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/6a257202d064a977eb4f11ca72e83f935c673940.jpg'); }
+  .service-card-top.seo  { background-image: url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/8b128bdeec17a62ddb78f0f4b4d3dba25153f814.jpg'); }
+  .service-badge { position: absolute; top: 10px; right: 10px; background: var(--grad); color: #fff; font-size: .68rem; font-weight: 700; padding: .22rem .55rem; border-radius: 50px; z-index: 2; box-shadow: 0 8px 20px rgba(26,10,0,.22); }
+  /* Service illustration chip — replaces emoji with a clean vector icon tile */
+  .service-icon {
+    width: 60px; height: 60px;
+    background: rgba(255,255,255,.96);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px rgba(74,33,0,.22);
+    color: var(--red);
+    transition: transform .25s ease;
+    position: relative; z-index: 1;
+    backdrop-filter: blur(4px);
+  }
+  .service-card:hover .service-icon { transform: translateY(-3px) scale(1.04); }
+  .service-icon svg { width: 30px; height: 30px; }
   .service-card-body { padding: 1.15rem; }
   .service-card-body h3 { font-family: var(--heading); font-size: 1rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
   .service-card-body p { margin-top: .35rem; font-size: .83rem; color: var(--gray); line-height: 1.6; }
@@ -606,7 +634,12 @@
     </div>
     <div class="services-grid">
       <div class="service-card reveal">
-        <div class="service-card-top web">&#128187;<span class="service-badge">Popular</span></div>
+        <div class="service-card-top web">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><path d="M8.5 13.5L6.5 15.5l2 2M15.5 13.5l2 2-2 2"/></svg>
+          </div>
+          <span class="service-badge">Popular</span>
+        </div>
         <div class="service-card-body">
           <h3>Website Design &amp; Development</h3>
           <p>Stunning, fast &amp; conversion-focused websites built for your business goals.</p>
@@ -620,7 +653,12 @@
         </div>
       </div>
       <div class="service-card reveal">
-        <div class="service-card-top mgmt">&#128296;<span class="service-badge">Trusted</span></div>
+        <div class="service-card-top mgmt">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V19a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H4a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H10a1.65 1.65 0 001-1.51V4a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V10a1.65 1.65 0 001.51 1H20a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+          <span class="service-badge">Trusted</span>
+        </div>
         <div class="service-card-body">
           <h3>Website Management &amp; Maintenance</h3>
           <p>Keep your website fast, secure, and up-to-date — without lifting a finger.</p>
@@ -634,7 +672,12 @@
         </div>
       </div>
       <div class="service-card reveal">
-        <div class="service-card-top mktg">&#128200;<span class="service-badge">Growth</span></div>
+        <div class="service-card-top mktg">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 001 1h2l5 3.2V6.8L6 10H4a1 1 0 00-1 1z"/><path d="M14.5 8.5a4.5 4.5 0 010 7M17.5 5.5a8.5 8.5 0 010 13"/></svg>
+          </div>
+          <span class="service-badge">Growth</span>
+        </div>
         <div class="service-card-body">
           <h3>Digital Marketing</h3>
           <p>Data-driven marketing that puts your brand in front of the right audience.</p>
@@ -645,6 +688,120 @@
             <li>Analytics &amp; Reporting</li>
           </ul>
           <div class="service-meta"><span>&#128101; 345+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-card-top wp">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.5 9l3 8L11 12l2.5 5 3-8"/></svg>
+          </div>
+          <span class="service-badge">CMS Pro</span>
+        </div>
+        <div class="service-card-body">
+          <h3>WordPress Customization &amp; Maintenance</h3>
+          <p>Custom WordPress builds and ongoing care to keep your site fast, secure, and on-brand.</p>
+          <ul class="service-features">
+            <li>Custom Theme &amp; Plugin Setup</li>
+            <li>Speed &amp; Security Hardening</li>
+            <li>Regular Updates &amp; Backups</li>
+            <li>Bug Fixes &amp; Support</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 300+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-card-top meta">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          </div>
+          <span class="service-badge">ROI Focused</span>
+        </div>
+        <div class="service-card-body">
+          <h3>Meta Ads Management</h3>
+          <p>Facebook &amp; Instagram ad campaigns built to lower cost-per-lead and scale conversions.</p>
+          <ul class="service-features">
+            <li>Campaign Strategy &amp; Setup</li>
+            <li>Audience Targeting &amp; Retargeting</li>
+            <li>Creative &amp; Copy Testing</li>
+            <li>Budget &amp; ROI Optimisation</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 250+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-card-top smm">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          </div>
+          <span class="service-badge">Engage+</span>
+        </div>
+        <div class="service-card-body">
+          <h3>Social Media Management</h3>
+          <p>Consistent, on-brand content and community management across your social channels.</p>
+          <ul class="service-features">
+            <li>Content Calendar &amp; Scheduling</li>
+            <li>Reels, Posts &amp; Stories Design</li>
+            <li>Community Engagement</li>
+            <li>Monthly Performance Reports</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 400+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-card-top gbp">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><path d="M12 7.3l1 2.1 2.3.2-1.7 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.7-1.6 2.3-.2z" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <span class="service-badge">Local SEO</span>
+        </div>
+        <div class="service-card-body">
+          <h3>Google Business Profile Optimization</h3>
+          <p>Get found on Google Maps &amp; local search with a fully optimised business profile.</p>
+          <ul class="service-features">
+            <li>Profile Setup &amp; Verification</li>
+            <li>Reviews &amp; Ratings Management</li>
+            <li>Local Keyword Optimisation</li>
+            <li>Photos &amp; Posts Updates</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 280+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-card-top dm2">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+          </div>
+          <span class="service-badge">Full-Funnel</span>
+        </div>
+        <div class="service-card-body">
+          <h3>Digital Marketing</h3>
+          <p>Full-funnel digital marketing strategy that turns clicks into paying customers.</p>
+          <ul class="service-features">
+            <li>Multi-Channel Ad Campaigns</li>
+            <li>Conversion Rate Optimisation</li>
+            <li>Email &amp; Retargeting Funnels</li>
+            <li>Data-Backed Strategy</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 320+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-card-top seo">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/><path d="M6.5 10.5l1.8-1.8 1.8 1.8L13.5 7"/></svg>
+          </div>
+          <span class="service-badge">Rank #1</span>
+        </div>
+        <div class="service-card-body">
+          <h3>SEO &amp; Google Ranking</h3>
+          <p>On-page &amp; technical SEO to help your website rank higher and drive organic traffic.</p>
+          <ul class="service-features">
+            <li>Keyword Research &amp; Strategy</li>
+            <li>On-Page &amp; Technical SEO</li>
+            <li>Link Building</li>
+            <li>Monthly Ranking Reports</li>
+          </ul>
+          <div class="service-meta"><span>&#128101; 360+ Clients</span><a href="#contact">Get Started &rarr;</a></div>
         </div>
       </div>
     </div>
@@ -787,7 +944,12 @@
             <option value="">Select a service</option>
             <option>Website Design &amp; Development</option>
             <option>Website Management &amp; Maintenance</option>
+            <option>WordPress Customization &amp; Maintenance</option>
+            <option>Meta Ads Management</option>
+            <option>Social Media Management</option>
+            <option>Google Business Profile Optimization</option>
             <option>Digital Marketing</option>
+            <option>SEO &amp; Google Ranking</option>
             <option>Full Digital Package</option>
           </select>
         </div>
