@@ -67,7 +67,6 @@
   #home-wrap { background: var(--light); position: relative; overflow: hidden; }
   #home-wrap::before { content:''; position:absolute; top:-80px; right:0; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%); pointer-events:none; }
 
-  /* Full-viewport height, content vertically centred */
   #home {
     min-height: 100vh;
     display: flex;
@@ -76,7 +75,6 @@
     width: 100%;
   }
 
-  /* Hero grid — left col 55%, right col 45% on desktop */
   .hero-inner {
     max-width: 1180px;
     width: 100%;
@@ -89,7 +87,6 @@
     position: relative;
   }
 
-  /* Left content — allow full column width */
   .hero-content {
     width: 100%;
     max-width: 100%;
@@ -113,7 +110,6 @@
   .hero-sub strong { color: var(--dark); font-weight: 600; }
   .hero-tagline { margin-top: .9rem; font-style: italic; color: var(--gray); font-size: .82rem; border-left: 3px solid var(--orange); padding-left: .7rem; }
 
-  /* Buttons — always on one row, no wrapping on desktop */
   .hero-actions {
     margin-top: 1.4rem;
     display: flex;
@@ -176,7 +172,6 @@
     background-clip: text;
   }
 
-  /* Badge positions + staggered float animations */
   .hero-badge-1 {
     bottom: 12px;
     left: -8px;
@@ -197,6 +192,89 @@
   @keyframes floatBadge2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
   @keyframes floatBadge3 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ===================== HERO ANIMATION ===================== */
+
+  /* Core keyframes */
+  @keyframes heroFadeUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes heroFadeRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes heroSlideLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes heroBadgePop {
+    from { opacity: 0; transform: translateY(16px) scale(0.88); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Initial hidden states — applied before hero enters viewport */
+  .hero-anim-tag,
+  .hero-anim-headline,
+  .hero-anim-sub,
+  .hero-anim-tagline,
+  .hero-anim-cta,
+  .hero-anim-visual,
+  .hero-anim-badge {
+    opacity: 0;
+  }
+
+  /* Triggered when .hero-animated is added to .hero-inner */
+  .hero-animated .hero-anim-tag {
+    animation: heroFadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+  }
+  .hero-animated .hero-anim-headline {
+    animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+  }
+  .hero-animated .hero-anim-sub {
+    animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.34s both;
+  }
+  .hero-animated .hero-anim-tagline {
+    animation: heroSlideLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both;
+  }
+  .hero-animated .hero-anim-cta {
+    animation: heroFadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+  }
+  .hero-animated .hero-anim-visual {
+    animation: heroFadeRight 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+  }
+  .hero-animated .hero-anim-badge-1 {
+    animation: heroBadgePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s both;
+  }
+  .hero-animated .hero-anim-badge-2 {
+    animation: heroBadgePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.88s both;
+  }
+  .hero-animated .hero-anim-badge-3 {
+    animation: heroBadgePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 1.0s both;
+  }
+
+  /* Override badge float animation until hero is animated (prevents conflict) */
+  .hero-anim-badge { animation: none !important; }
+  .hero-animated .hero-anim-badge-1 { animation: heroBadgePop 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.75s both, floatBadge1 4s ease-in-out 1.4s infinite !important; }
+  .hero-animated .hero-anim-badge-2 { animation: heroBadgePop 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.88s both, floatBadge2 4.4s ease-in-out 1.55s infinite !important; }
+  .hero-animated .hero-anim-badge-3 { animation: heroBadgePop 0.55s cubic-bezier(0.34,1.56,0.64,1) 1.0s both, floatBadge3 3.8s ease-in-out 1.7s infinite !important; }
+
+  /* Accessibility — respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-anim-tag,
+    .hero-anim-headline,
+    .hero-anim-sub,
+    .hero-anim-tagline,
+    .hero-anim-cta,
+    .hero-anim-visual,
+    .hero-anim-badge {
+      opacity: 1 !important;
+      animation: none !important;
+      transform: none !important;
+    }
+    .hero-badge-1, .hero-badge-2, .hero-badge-3 { animation: none !important; }
+    .hero-svg-wrap { animation: none !important; }
+  }
 
   /* ===================== SECTION SHARED ===================== */
   section { padding: 80px 5%; }
@@ -419,30 +497,30 @@
 <!-- HERO -->
 <div id="home-wrap">
   <section id="home">
-    <div class="hero-inner">
+    <div class="hero-inner" id="heroInner">
 
       <!-- LEFT: Content -->
       <div class="hero-content">
-        <span class="hero-tag">&#128640; Trusted Across India</span>
-        <h1 class="hero-headline">
+        <span class="hero-tag hero-anim-tag">&#128640; Trusted Across India</span>
+        <h1 class="hero-headline hero-anim-headline">
           Let's build a strong<br/>
           <span class="accent">Digital Presence</span><br/>
           for your business
         </h1>
-        <p class="hero-sub">
+        <p class="hero-sub hero-anim-sub">
           At <strong>EduTrellis,</strong> we don't just build websites.
           We craft powerful digital experiences that drive real growth.<br/><br/>
           From stunning <strong>website design &amp; development</strong> to seamless management and result-driven digital marketing &mdash; we help businesses across India win online.
         </p>
-        <p class="hero-tagline">Build fast. Grow smart. Dominate digitally.</p>
-        <div class="hero-actions">
+        <p class="hero-tagline hero-anim-tagline">Build fast. Grow smart. Dominate digitally.</p>
+        <div class="hero-actions hero-anim-cta">
           <a href="#services" class="btn-hero primary">Our Services &rarr;</a>
           <a href="#contact" class="btn-hero secondary">Get a Free Quote</a>
         </div>
       </div>
 
       <!-- RIGHT: Illustration + Floating Badges -->
-      <div class="hero-visual">
+      <div class="hero-visual hero-anim-visual">
         <div class="hero-svg-wrap">
           <svg viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg">
             <rect x="100" y="80" width="320" height="210" rx="16" fill="#1A0A00"/>
@@ -487,7 +565,7 @@
         </div>
 
         <!-- Badge 1 — Website Development (bottom-left) -->
-        <div class="hero-badge hero-badge-1">
+        <div class="hero-badge hero-badge-1 hero-anim-badge hero-anim-badge-1">
           <div class="dot" style="background:#E8331A;"></div>
           <div>
             <div class="badge-num">500+</div>
@@ -496,7 +574,7 @@
         </div>
 
         <!-- Badge 2 — Website Management (top-right) -->
-        <div class="hero-badge hero-badge-2">
+        <div class="hero-badge hero-badge-2 hero-anim-badge hero-anim-badge-2">
           <div class="dot" style="background:#F97316;"></div>
           <div>
             <div class="badge-num">545+</div>
@@ -505,7 +583,7 @@
         </div>
 
         <!-- Badge 3 — Digital Marketing (mid-right) -->
-        <div class="hero-badge hero-badge-3">
+        <div class="hero-badge hero-badge-3 hero-anim-badge hero-anim-badge-3">
           <div class="dot" style="background:#FBBF24;"></div>
           <div>
             <div class="badge-num">345+</div>
@@ -748,15 +826,18 @@
 </footer>
 
 <script>
+  /* ── PAGE LOADER ── */
   window.addEventListener('load', function () {
     setTimeout(function () {
       document.getElementById('page-loader').classList.add('hidden');
     }, 400);
   });
 
+  /* ── MOBILE NAV ── */
   function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
   function closeMenu()  { document.getElementById('mobileMenu').classList.remove('open'); }
 
+  /* ── ACTIVE NAV LINK ── */
   const sections = document.querySelectorAll('section[id]');
   const navLinks  = document.querySelectorAll('.nav-links a');
   window.addEventListener('scroll', () => {
@@ -765,12 +846,38 @@
     navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
   });
 
+  /* ── SCROLL REVEAL (non-hero sections) ── */
   const reveals  = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
   }, { threshold: 0.12 });
   reveals.forEach(r => observer.observe(r));
 
+  /* ── HERO SECTION ANIMATION (viewport-triggered, fires once) ── */
+  (function () {
+    var heroInner = document.getElementById('heroInner');
+    if (!heroInner) return;
+
+    /* Respect prefers-reduced-motion */
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      heroInner.classList.add('hero-animated');
+      return;
+    }
+
+    var heroObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('hero-animated');
+          heroObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    heroObserver.observe(heroInner);
+  })();
+
+  /* ── STATS COUNTER ── */
   function animateCounter(el, target, suffix) {
     let start = 0;
     const dur  = 1600;
@@ -800,6 +907,7 @@
   }, { threshold: 0.3 });
   document.querySelectorAll('.stats-row').forEach(r => statObs.observe(r));
 
+  /* ── CONTACT FORM ── */
   function submitForm() {
     const fname = document.getElementById('fname').value;
     const email = document.getElementById('email').value;
