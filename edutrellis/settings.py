@@ -20,7 +20,7 @@ SECRET_KEY = os.environ.get(
     'django-insecure-2!^^*c(t)whrn^4w3xkoqx!1p85e5s!-xh0w+xai7&q*80tt@@'
 )
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -89,13 +89,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'myapp' / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_BROWSER_XSS_FILTER = True
+# X_FRAME_OPTIONS = 'DENY'
+# SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # ── Email (Gmail SMTP via App Password) ─────────────────────────────────────
 # Set EMAIL_HOST_PASSWORD as an environment variable on Railway:
@@ -117,3 +117,6 @@ EMAIL_HOST_USER     = 'rudra2917@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'zmqkbyhftnkoswcv')
 DEFAULT_FROM_EMAIL  = 'EduTrellis <rudra2917@gmail.com>'
 LEAD_RECIPIENT_EMAIL = 'webdevrnt@gmail.com'
+
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

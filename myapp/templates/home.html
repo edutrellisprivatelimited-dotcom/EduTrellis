@@ -280,25 +280,64 @@
 <!-- TOP STRIP -->
 <div class="top-strip" role="banner">
   <div class="strip-inner">
-    <a href="mailto:support@edutrellis.in" class="strip-link strip-email-link" aria-label="Email us">
+
+    <!-- Email -->
+    <a href="mailto:support@edutrellis.in"
+       class="strip-link strip-email-link"
+       aria-label="Email us">
       <i class="fas fa-envelope"></i>
       <span class="strip-txt">support@edutrellis.in</span>
     </a>
+
     <span class="strip-sep"></span>
-    <a href="https://wa.me/919695953183" class="strip-link" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+
+    <!-- WhatsApp -->
+    <a href="https://wa.me/919695953183"
+       class="strip-link"
+       aria-label="WhatsApp"
+       target="_blank"
+       rel="noopener noreferrer">
       <i class="fab fa-whatsapp"></i>
-      <span class="strip-txt">WhatsApp: </span>+91&nbsp;96959&nbsp;53183
+      <span class="strip-txt">WhatsApp:</span>
+      <span>+91&nbsp;96959&nbsp;53183</span>
     </a>
+
     <span class="strip-sep"></span>
-    <a href="https://www.instagram.com/edutrellis" class="strip-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/edutrellis"
+       class="strip-link"
+       aria-label="Instagram"
+       target="_blank"
+       rel="noopener noreferrer">
       <i class="fab fa-instagram"></i>
       <span class="strip-txt">@edutrellis</span>
     </a>
+
     <span class="strip-sep"></span>
-    <a href="https://www.linkedin.com/company/edutrellis" class="strip-link" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+
+    <!-- LinkedIn -->
+    <a href="https://www.linkedin.com/company/edutrellis"
+       class="strip-link"
+       aria-label="LinkedIn"
+       target="_blank"
+       rel="noopener noreferrer">
       <i class="fab fa-linkedin-in"></i>
       <span class="strip-txt">EduTrellis</span>
     </a>
+
+    <span class="strip-sep"></span>
+
+    <!-- Facebook -->
+    <a href="https://www.facebook.com/people/Edutrellis/61590850943948/"
+       class="strip-link"
+       aria-label="Facebook"
+       target="_blank"
+       rel="noopener noreferrer">
+      <i class="fab fa-facebook-f"></i>
+      <span class="strip-txt">EduTrellis</span>
+    </a>
+
   </div>
 </div>
 
@@ -316,9 +355,10 @@
       <li><a href="#home">Home</a></li>
       <li><a href="#products">Products</a></li>
       <li><a href="#services">Services</a></li>
+      <li><a href="https://www.edutrellis.in/websitecreation">Website Creation</a></li>
       <li><a href="#portfolio">Portfolio</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#clients">Clients</a></li>
+      <li><a href="#projects">Blog</a></li>
+      <li><a href="#clients">Founder</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact Us</a></li>
     </ul>
@@ -335,8 +375,8 @@
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#clients">Clients</a></li>
+    <li><a href="#projects">Blog</a></li>
+    <li><a href="#clients">Founder</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#contact">Contact Us</a></li>
   </ul>
@@ -347,7 +387,8 @@
   <div class="slider-wrap">
     <!-- Slide 1 -->
     <div class="slide active">
-      <div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&auto=format&fit=crop')"></div>
+   <div class="slide-bg" style="background-image:url('{% static "img/banner1.webp" %}')"></div>
+   <div class="slide-overlay"></div>
       <div class="slide-overlay"></div>
       <div class="slide-mesh"></div>
       <div class="slide-content">
@@ -367,7 +408,9 @@
     </div>
     <!-- Slide 2 -->
     <div class="slide">
-      <div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1920&auto=format&fit=crop')"></div>
+{% load static %}
+
+<div class="slide-bg" style="background-image:url('{% static "img/banner2.webp" %}')"></div>
       <div class="slide-overlay"></div>
       <div class="slide-mesh"></div>
       <div class="slide-content">
@@ -387,7 +430,7 @@
     </div>
     <!-- Slide 3 -->
     <div class="slide">
-      <div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920&auto=format&fit=crop')"></div>
+<div class="slide-bg" style="background-image:url('{% static "img/banner3.webp" %}')"></div>
       <div class="slide-overlay"></div>
       <div class="slide-mesh"></div>
       <div class="slide-content">
@@ -470,6 +513,8 @@
   </div>
 </section>
 
+
+
 <!-- PRODUCTS -->
 <section id="products">
   <div class="wrap">
@@ -481,7 +526,7 @@
       <div class="prod-card reveal d1">
         <div class="popular-badge">⭐ Most Popular</div>
         <div class="prod-img-wrap">
-          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=400&fit=crop" alt="Website Management" class="prod-img" loading="lazy">
+          <img src="{% static 'img/product1.png' %}" alt="Website Management" class="prod-img" loading="lazy">
           <span class="prod-badge">₹2,999/mo</span>
         </div>
         <div class="prod-body">
@@ -493,35 +538,25 @@
           <ul class="feat-list">
             <li><i class="fas fa-check-circle"></i><span><strong>Complete Website Management</strong> — end to end</span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Logo &amp; Banner Updates</strong> — fresh creatives</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Course Thumbnails &amp; Creative Design</strong></span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Content Upload &amp; Optimization</strong></span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Digital Marketing</strong> — Instagram, Facebook &amp; Google</span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Social Media Handles</strong> — creation &amp; growth</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Student Traffic Generation</strong></span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>SEO &amp; Ranking</strong> — get found on Google</span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Website Manager</strong> assigned to you</span></li>
           </ul>
-          <div class="offer-box">
-            <h4>🎯 Special First Month Offer</h4>
-            <ul class="feat-list" style="margin:0">
-              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span>Earn up to <strong>₹20,000/month</strong> from courses</span></li>
-              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span><strong>1 Month + 15 Days FREE</strong> on first enroll</span></li>
-              <li style="border:none;padding:.3rem 0"><i class="fas fa-star" style="color:#f59e0b"></i><span>Works even if business is <strong>inactive</strong></span></li>
-            </ul>
-          </div>
           <div class="prod-cta"><a href="#contact" class="cta-btn">Book FREE Demo <i class="fas fa-arrow-right"></i></a></div>
         </div>
       </div>
 
       <div class="prod-card reveal d2">
         <div class="prod-img-wrap">
-          <img src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&h=400&fit=crop" alt="Static Website" class="prod-img" loading="lazy">
-          <span class="prod-badge">₹3K–₹4K</span>
+          <img src="{% static 'img/product2.png' %}" alt="Static Website" class="prod-img" loading="lazy">
+          <span class="prod-badge">₹8,999</span>
         </div>
         <div class="prod-body">
           <div class="prod-header">
             <h3>Static Business Website</h3>
-            <div class="prod-price">₹3,000<small>–₹4,000</small></div>
+            <div class="prod-price">₹8,999</div>
             <div class="prod-sub">Single Page Professional Business Site</div>
           </div>
           <ul class="feat-list">
@@ -533,20 +568,19 @@
             <li><i class="fas fa-check-circle"></i><span><strong>Fast Loading</strong> &amp; SEO-ready</span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Free 1 Month</strong> maintenance included</span></li>
           </ul>
-          <div class="offer-box"><h4>✨ Best For</h4><p style="font-size:.87rem;color:var(--text)">Coaches, educators, small businesses &amp; startups needing a quick online presence</p></div>
           <div class="prod-cta"><a href="#contact" class="cta-btn">Get Quote <i class="fas fa-arrow-right"></i></a></div>
         </div>
       </div>
 
       <div class="prod-card reveal d3">
         <div class="prod-img-wrap">
-          <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=400&fit=crop" alt="E-commerce" class="prod-img" loading="lazy">
-          <span class="prod-badge">₹8K–₹10K</span>
+          <img src="{% static 'img/product3.png' %}" alt="E-commerce" class="prod-img" loading="lazy">
+          <span class="prod-badge">₹14,999</span>
         </div>
         <div class="prod-body">
           <div class="prod-header">
             <h3>Dynamic / E-commerce Website</h3>
-            <div class="prod-price">₹8,000<small>–₹10,000</small></div>
+            <div class="prod-price">₹14,999</div>
             <div class="prod-sub">Full-Featured Online Store</div>
           </div>
           <ul class="feat-list">
@@ -558,20 +592,19 @@
             <li><i class="fas fa-check-circle"></i><span><strong>Customer Dashboard</strong> with order tracking</span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Secure &amp; Scalable</strong> architecture</span></li>
           </ul>
-          <div class="offer-box"><h4>✨ Best For</h4><p style="font-size:.87rem;color:var(--text)">Clothing stores, product sellers &amp; businesses needing full e-commerce functionality</p></div>
           <div class="prod-cta"><a href="#contact" class="cta-btn">Get Quote <i class="fas fa-arrow-right"></i></a></div>
         </div>
       </div>
 
       <div class="prod-card reveal d4">
         <div class="prod-img-wrap">
-          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=400&fit=crop" alt="Custom Projects" class="prod-img" loading="lazy">
-          <span class="prod-badge" style="background:var(--dark)">₹15K+</span>
+          <img src="{% static 'img/product4.png' %}" alt="Custom Projects" class="prod-img" loading="lazy">
+          <span class="prod-badge" style="background:var(--dark)">₹19,999</span>
         </div>
         <div class="prod-body">
           <div class="prod-header" style="background:linear-gradient(135deg,#1c2333,#2c3e50)">
             <h3>Custom Big Projects</h3>
-            <div class="prod-price">₹15,000<small>+</small></div>
+            <div class="prod-price">₹19,999</div>
             <div class="prod-sub">Enterprise-Grade Custom Solutions</div>
           </div>
           <ul class="feat-list">
@@ -583,36 +616,30 @@
             <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Project Manager</strong></span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Training &amp; Full Documentation</strong></span></li>
           </ul>
-          <div class="offer-box"><h4>✨ Best For</h4><p style="font-size:.87rem;color:var(--text)">Startups, institutes &amp; businesses needing a custom-built digital product</p></div>
           <div class="prod-cta"><a href="#contact" class="cta-btn dark">Discuss Project <i class="fas fa-arrow-right"></i></a></div>
         </div>
       </div>
 
       <div class="prod-card reveal d5">
-        <div class="popular-badge" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">💎 Best Value</div>
         <div class="prod-img-wrap">
-          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=400&fit=crop" alt="Complete Package" class="prod-img" loading="lazy">
-          <span class="prod-badge" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">6 Months</span>
+          <img src="{% static 'img/product5.png' %}" alt="Complete Package" class="prod-img" loading="lazy">
+          <span class="prod-badge" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">₹29,999</span>
         </div>
         <div class="prod-body">
           <div class="prod-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
             <h3>Complete Manager Package</h3>
-            <div class="prod-price">₹9,999<small>/6 months</small></div>
-            <div class="prod-sub">All Services in One — Maximum Savings</div>
+            <div class="prod-price">₹29,999</div>
+            <div class="prod-sub">Website + Management — All in One</div>
           </div>
           <ul class="feat-list">
-            <li><i class="fas fa-check-circle"></i><span><strong>Everything in Website Management</strong> plan</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Logo, Banner &amp; Thumbnail Design</strong> for 6 months</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Custom Website Development</strong> included</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Logo, Banner &amp; Thumbnail Design</strong></span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Google My Business Setup &amp; Management</strong></span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Google Maps Listing</strong> &amp; local SEO</span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>Social Media &amp; Digital Marketing</strong></span></li>
             <li><i class="fas fa-check-circle"></i><span><strong>SEO + Student Traffic</strong> generation</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>1 Dedicated Manager</strong> for 6 full months</span></li>
+            <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Manager</strong> for ongoing support</span></li>
           </ul>
-          <div class="offer-box" style="background:linear-gradient(135deg,#f3e8ff,#ede9fe);border-left-color:#7c3aed">
-            <h4 style="color:#5b21b6">💡 Save Over ₹5,000 vs Monthly</h4>
-            <p style="font-size:.87rem;color:var(--text)">6 months of complete business management at a heavily discounted rate</p>
-          </div>
           <div class="prod-cta"><a href="#contact" class="cta-btn" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);box-shadow:0 8px 26px rgba(124,58,237,.38)">Get This Package <i class="fas fa-arrow-right"></i></a></div>
         </div>
       </div>
@@ -621,6 +648,7 @@
   </div>
 </section>
 
+
 <!-- SERVICES -->
 <section id="services">
   <div class="wrap">
@@ -628,14 +656,18 @@
     <div class="accent reveal d1"></div>
     <p class="sub reveal d2">Every service we offer, clearly priced and explained</p>
     <div class="svc-grid">
-      <div class="svc-item reveal d1"><div class="svc-inner"><div class="svc-num">01</div><h3>Complete Website Management</h3><p>Logo/banner updates, content management, course uploads, digital marketing on Instagram, Facebook &amp; Google, social handles creation, student traffic, SEO &amp; a dedicated website manager.</p><span class="svc-price">₹2,999/month &nbsp;|&nbsp; +15 Days FREE on First Enroll</span></div></div>
-      <div class="svc-item reveal d2"><div class="svc-inner"><div class="svc-num">02</div><h3>Static Business Website</h3><p>Single-page business website — fully static with Home, About, Contact, Products/Services &amp; Owner Details. Mobile-friendly, fast &amp; SEO ready.</p><span class="svc-price">₹3,000–₹4,000 one-time</span></div></div>
-      <div class="svc-item reveal d3"><div class="svc-inner"><div class="svc-num">03</div><h3>Dynamic / E-commerce Website</h3><p>Full-featured dynamic website for clothing stores, product sellers &amp; e-commerce. Admin panel, payment gateway, inventory, cart &amp; customer dashboard.</p><span class="svc-price">₹8,000–₹10,000 one-time</span></div></div>
-      <div class="svc-item reveal d4"><div class="svc-inner"><div class="svc-num">04</div><h3>Custom Big Projects</h3><p>Large-scale custom web apps — educational platforms, portals, multi-vendor systems, complex integrations &amp; enterprise solutions built to your specification.</p><span class="svc-price">₹15,000+ custom quote</span></div></div>
-      <div class="svc-item reveal d5"><div class="svc-inner"><div class="svc-num">05</div><h3>Logo, Banner &amp; Thumbnail Design</h3><p>Professional logos, website banners, social media creatives, course thumbnails &amp; all visual branding assets — delivered for 2 full months.</p><span class="svc-price">₹2,999 for 2 months</span></div></div>
-      <div class="svc-item reveal d6"><div class="svc-inner"><div class="svc-num">06</div><h3>Google Business &amp; Maps Setup</h3><p>Set up, verify, optimize &amp; actively manage your Google My Business profile so local customers can discover you on Search and Maps.</p><span class="svc-price">₹3,499 first month</span></div></div>
-      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">07</div><h3>Content Management Service</h3><p>For educational websites — upload new content, delete outdated material, create engaging content &amp; ensure everything is organized and optimized.</p><span class="svc-price">Custom pricing</span></div></div>
-      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">08</div><h3>Complete Manager Package</h3><p>All services in one powerful package — a dedicated website manager handles everything for 6 full months. Maximum value, zero hassle, consistent growth.</p><span class="svc-price">₹9,999 for 6 months</span></div></div>
+      <div class="svc-item reveal d1"><div class="svc-inner"><div class="svc-num">01</div><h3>🌐 Complete Website Management</h3><p>Logo/banner updates, content management, course uploads, digital marketing on Instagram, Facebook &amp; Google, social handles creation, student traffic, SEO &amp; a dedicated website manager.</p></div></div>
+      <div class="svc-item reveal d2"><div class="svc-inner"><div class="svc-num">02</div><h3>💼 Static Business Website</h3><p>Single-page business website — fully static with Home, About, Contact, Products/Services &amp; Owner Details. Mobile-friendly, fast &amp; SEO ready.</p></div></div>
+      <div class="svc-item reveal d3"><div class="svc-inner"><div class="svc-num">03</div><h3>🛒 Dynamic / E-commerce Website</h3><p>Full-featured dynamic website for clothing stores, product sellers &amp; e-commerce. Admin panel, payment gateway, inventory, cart &amp; customer dashboard.</p></div></div>
+      <div class="svc-item reveal d4"><div class="svc-inner"><div class="svc-num">04</div><h3>🚀 Custom Big Projects</h3><p>Large-scale custom web apps — educational platforms, portals, multi-vendor systems, complex integrations &amp; enterprise solutions built to your specification.</p></div></div>
+      <div class="svc-item reveal d5"><div class="svc-inner"><div class="svc-num">05</div><h3>🎨 Logo, Banner &amp; Thumbnail Design</h3><p>Professional logos, website banners, social media creatives, course thumbnails &amp; all visual branding assets — delivered for 2 full months.</p></div></div>
+      <div class="svc-item reveal d6"><div class="svc-inner"><div class="svc-num">06</div><h3>📍 Google Business &amp; Maps Setup</h3><p>Set up, verify, optimize &amp; actively manage your Google My Business profile so local customers can discover you on Search and Maps.</p></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">07</div><h3>📚 Content Management Service</h3><p>For educational websites — upload new content, delete outdated material, create engaging content &amp; ensure everything is organized and optimized.</p></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">08</div><h3>👑 Complete Manager Package</h3><p>All services in one powerful package — a dedicated website manager handles everything for 6 full months. Maximum value, zero hassle, consistent growth.</p></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">09</div><h3>📈 SEO &amp; Search Ranking</h3><p>On-page &amp; technical SEO, keyword optimization, meta tags &amp; ongoing ranking improvements to help your site get found on Google.</p></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">10</div><h3>✨ Social Media Handle Creation &amp; Growth</h3><p>Setup &amp; management of Instagram, Facebook &amp; other handles — consistent posting, engagement &amp; follower growth strategy.</p></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">11</div><h3>🛠️ Website Maintenance &amp; Support</h3><p>Ongoing bug fixes, updates, backups &amp; technical support to keep your website running smoothly year-round.</p></div></div>
+      <div class="svc-item reveal"><div class="svc-inner"><div class="svc-num">12</div><h3>💳 Payment Gateway Integration</h3><p>Seamless integration of Razorpay, PayU or UPI payment gateways into your website or store for secure transactions.</p></div></div>
     </div>
   </div>
 </section>
@@ -654,7 +686,6 @@
     </div>
   </div>
 </section>
-
 <!-- ===== PORTFOLIO SECTION ===== -->
 <section id="portfolio">
   <div class="wrap">
@@ -764,37 +795,36 @@
         </div>
       </div>
 
-    </div>
-
-    <!-- Images Gallery -->
-    <div class="pf-gallery reveal">
-      <h3>🖼️ Our Work — Snapshot Gallery</h3>
-      <div class="gallery-grid">
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=500&h=375&fit=crop" alt="Website Design Work" loading="lazy" width="500" height="375">
-          <div class="gallery-caption">Website Design</div>
+      <div class="portfolio-card reveal d1" data-cat="ecommerce">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=400&fit=crop" alt="StyleCart Fashion Store" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
         </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=375&fit=crop" alt="Analytics Dashboard" loading="lazy" width="500" height="375">
-          <div class="gallery-caption">Analytics Dashboard</div>
-        </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=500&h=375&fit=crop" alt="Team at Work" loading="lazy" width="500" height="375">
-          <div class="gallery-caption">Our Team</div>
-        </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500&h=375&fit=crop" alt="E-commerce Project" loading="lazy" width="500" height="375">
-          <div class="gallery-caption">E-commerce Project</div>
-        </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=375&fit=crop" alt="Digital Marketing" loading="lazy" width="500" height="375">
-          <div class="gallery-caption">Digital Marketing</div>
-        </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&h=375&fit=crop" alt="Mobile App Development" loading="lazy" width="500" height="375">
-          <div class="gallery-caption">Mobile Responsive</div>
+        <div class="pf-body">
+          <span class="pf-tag">E-commerce</span>
+          <h3>StyleCart Fashion Store</h3>
+          <p>Multi-category fashion store with wishlist, product filters, coupon system &amp; customer order tracking.</p>
+          <div class="pf-tech"><span>Django</span><span>UPI</span><span>Cart System</span></div>
         </div>
       </div>
+
+      <div class="portfolio-card reveal d2" data-cat="marketing">
+        <div class="pf-img-wrap">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" alt="BrandBoost Ad Campaign Site" class="pf-img" loading="lazy" width="600" height="338">
+          <div class="pf-overlay">
+            <a href="#contact"><i class="fas fa-eye"></i> Get Similar</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <span class="pf-tag">Marketing</span>
+          <h3>BrandBoost Campaign Landing</h3>
+          <p>High-converting landing page for ad campaigns with lead capture forms &amp; real-time analytics tracking.</p>
+          <div class="pf-tech"><span>HTML/CSS</span><span>Google Ads</span><span>Analytics</span></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Stats Bar -->
@@ -809,67 +839,126 @@
   </div>
 </section>
 <!-- ===== END PORTFOLIO SECTION ===== -->
+<style>
+  .gallery-imgbox {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform .4s;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none; /* blocks drag-to-save and right-click on the box itself */
+}
+.gallery-item:hover .gallery-imgbox { transform: scale(1.08); }
 
-<!-- PROJECTS -->
+</style>
+<!-- ===== BLOG SECTION (was Projects) ===== -->
 <section id="projects">
   <div class="wrap">
-    <h2 class="reveal">Our <span>Projects</span></h2>
+    <h2 class="reveal">Our <span>Blog</span></h2>
     <div class="accent reveal d1"></div>
-    <p class="sub reveal d2">Showcasing excellence in digital solutions across India</p>
-    <div class="proj-grid">
-      <div class="proj-card reveal d1"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&h=400&fit=crop" alt="Educational Platform" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Educational Platform — EduTech Pro</h3><p>Complete LMS with 5000+ active students, video courses, live classes &amp; interactive quizzes</p><span class="proj-tag">Education</span></div></div>
-      <div class="proj-card reveal d2"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop" alt="E-commerce" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>E-commerce Store — ShopEase</h3><p>Full-featured online store with Razorpay integration, inventory management &amp; admin panel</p><span class="proj-tag">E-commerce</span></div></div>
-      <div class="proj-card reveal d3"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop" alt="Business Portfolio" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Business Portfolio — TechVision</h3><p>Professional corporate website with custom CMS, portfolio showcase &amp; lead generation forms</p><span class="proj-tag">Corporate</span></div></div>
-      <div class="proj-card reveal d4"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop" alt="Online Coaching" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Online Coaching — MasterClass</h3><p>Video course platform with subscription model, student dashboard &amp; certificate generation</p><span class="proj-tag">Education</span></div></div>
-      <div class="proj-card reveal d5"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=600&h=400&fit=crop" alt="Marketing Agency" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>Marketing Agency — GrowthHub</h3><p>Digital marketing website with case studies, portfolio showcase &amp; client testimonials</p><span class="proj-tag">Marketing</span></div></div>
-      <div class="proj-card reveal d6"><div class="proj-img-wrap"><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop" alt="App Landing" class="proj-img" loading="lazy"><div class="proj-overlay"><i class="fas fa-external-link-alt"></i><span>View Project</span></div></div><div class="proj-info"><h3>App Landing Page — InnoApp</h3><p>Modern landing page with app download integration, feature showcase &amp; testimonials</p><span class="proj-tag">Mobile App</span></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CLIENTS -->
-<section id="clients">
-  <div class="wrap">
-    <h2 class="reveal">Our <span>Clients</span></h2>
-    <div class="accent reveal d1"></div>
-    <p class="sub reveal d2">Numbers that speak for themselves</p>
-    <div class="stats-grid">
-      <div class="stat-card reveal d1"><div class="stat-icon"><i class="fas fa-users"></i></div><h3>1200+</h3><p>Active Clients</p></div>
-      <div class="stat-card reveal d2"><div class="stat-icon"><i class="fas fa-project-diagram"></i></div><h3>500+</h3><p>Projects Completed</p></div>
-      <div class="stat-card reveal d3"><div class="stat-icon"><i class="fas fa-smile"></i></div><h3>98%</h3><p>Client Satisfaction</p></div>
-      <div class="stat-card reveal d4"><div class="stat-icon"><i class="fas fa-headset"></i></div><h3>24/7</h3><p>Dedicated Support</p></div>
-    </div>
-    <div class="partners-wrap reveal">
-      <h3>Serving Clients Across India</h3>
-      <div class="accent"></div>
-      <div class="partners-grid">
-        <div class="partner reveal d1"><i class="fas fa-graduation-cap"></i>Educational Institutes</div>
-        <div class="partner reveal d2"><i class="fas fa-book-reader"></i>Online Coaching</div>
-        <div class="partner reveal d3"><i class="fas fa-chalkboard-teacher"></i>Course Creators</div>
-        <div class="partner reveal d4"><i class="fas fa-store"></i>Small Businesses</div>
-        <div class="partner reveal d5"><i class="fas fa-bullhorn"></i>Digital Coaches</div>
-        <div class="partner reveal d6"><i class="fas fa-laptop"></i>Freelancers &amp; Startups</div>
+    <p class="sub reveal d2">Tips, insights &amp; ideas to help your business grow online</p>
+    <div class="pf-gallery reveal">
+      <h3>📝 Latest Articles</h3>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal1.webp' %}')" role="img" aria-label="Why Every Business Needs a Website" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Why Every Business Needs a Website in 2026</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal2.webp' %}')" role="img" aria-label="SEO Tips for Small Businesses" oncontextmenu="return false"></div>
+          <div class="gallery-caption">5 SEO Tips to Rank Higher on Google</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal3.webp' %}')" role="img" aria-label="E-commerce Growth Strategies" oncontextmenu="return false"></div>
+          <div class="gallery-caption">How to Scale Your Online Store</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal4.webp' %}')" role="img" aria-label="Digital Marketing Trends" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Digital Marketing Trends to Watch</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal5.webp' %}')" role="img" aria-label="Building a Strong Brand" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Building a Brand That Customers Trust</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal6.webp' %}')" role="img" aria-label="Mobile-First Design Importance" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Why Mobile-First Design Matters</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal7.webp' %}')" role="img" aria-label="Building a Strong Brand" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Building a Brand That Customers Trust</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal8.webp' %}')" role="img" aria-label="Mobile-First Design Importance" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Why Mobile-First Design Matters</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal9.webp' %}')" role="img" aria-label="Building a Strong Brand" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Building a Brand That Customers Trust</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal10.webp' %}')" role="img" aria-label="Mobile-First Design Importance" oncontextmenu="return false"></div>
+          <div class="gallery-caption">Why Mobile-First Design Matters</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
+<script>
+  // Disable right-click and drag-save on blog images
+document.querySelectorAll('.gallery-imgbox').forEach(el => {
+  el.addEventListener('contextmenu', e => e.preventDefault());
+  el.addEventListener('dragstart', e => e.preventDefault());
+});
+</script>
+<!-- ===== END BLOG SECTION ===== -->
 
-<!-- TESTIMONIALS -->
-<section id="testimonials">
+
+
+<!-- ===== MEET THE FOUNDER (was Clients) ===== -->
+<section id="clients">
   <div class="wrap">
-    <h2 class="reveal" style="color:#fff">What Our <span>Clients Say</span></h2>
+    <h2 class="reveal">Meet Our <span>Founder</span></h2>
     <div class="accent reveal d1"></div>
-    <p class="sub reveal d2" style="color:rgba(255,255,255,.55)">Real results from real clients across India</p>
-    <div class="testi-grid">
-      <div class="testi-card reveal d1"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">EduTrellis completely transformed my coaching business. Within the first month, my website traffic tripled and I enrolled 40+ new students. The dedicated manager handles everything — I just focus on teaching!</p><div class="testi-author"><div class="testi-avatar-placeholder">RK</div><div class="testi-info"><h4>Ramesh Kumar</h4><p>Online Math Tutor, Lucknow</p></div></div></div>
-      <div class="testi-card reveal d2"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">I was skeptical at first, but the results speak for themselves. My e-commerce store went from 0 to ₹80,000/month in revenue in just 3 months. Their Google SEO work is exceptional!</p><div class="testi-author"><div class="testi-avatar-placeholder">PS</div><div class="testi-info"><h4>Priya Sharma</h4><p>Clothing Store Owner, Delhi</p></div></div></div>
-      <div class="testi-card reveal d3"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">The Complete Manager Package is the best investment I've made for my institute. Logo, website, social media — everything is taken care of. 24/7 support means I'm never stuck. Highly recommend!</p><div class="testi-author"><div class="testi-avatar-placeholder">AV</div><div class="testi-info"><h4>Anjali Verma</h4><p>IIT-JEE Coaching Centre, Patna</p></div></div></div>
-      <div class="testi-card reveal d4"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div><p class="testi-text">Fast delivery, professional design, and the team is super responsive. My static website was ready in 4 days and it looks amazing. Got 15 enquiries in the very first week!</p><div class="testi-author"><div class="testi-avatar-placeholder">MK</div><div class="testi-info"><h4>Mohammed Kaleem</h4><p>Fitness Trainer, Hyderabad</p></div></div></div>
-      <div class="testi-card reveal d5"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">Their Google My Business setup brought me local customers I never had before. My institute now shows up first on Google Maps. This was a game-changer for my offline walk-ins!</p><div class="testi-author"><div class="testi-avatar-placeholder">ST</div><div class="testi-info"><h4>Sunita Tripathi</h4><p>Dance Academy Owner, Kanpur</p></div></div></div>
-      <div class="testi-card reveal d6"><div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="testi-text">The custom LMS they built for my institute handles 2000+ students seamlessly. From design to deployment, the team was professional, timely and incredibly helpful throughout.</p><div class="testi-author"><div class="testi-avatar-placeholder">VG</div><div class="testi-info"><h4>Vivek Gupta</h4><p>Director, EduPrime Institute, Varanasi</p></div></div></div>
+    <p class="sub reveal d2">The vision and leadership behind EduTrellis</p>
+    <div class="about-grid">
+      <div class="about-img-wrap reveal-left" style="padding:1rem">
+        <div class="about-decorative"></div>
+        <div class="about-decorative2"></div>
+        <img src="{% static 'img/founder.png' %}" alt="Vijay Tiwari - EduTrellis Founder" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
+        <div class="about-badge"><div class="bn">10+</div><div class="bt">Years Experience</div></div>
+      </div>
+      <div class="about-text reveal-right">
+        <h3>Vijay Tiwari</h3>
+        <p style="font-size:.85rem;color:var(--red);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:-.5rem">Founder &amp; CEO, EduTrellis</p>
+        <p style="font-size:.9rem;color:var(--text);display:flex;align-items:center;gap:.5rem;margin-top:.3rem"><i class="fas fa-envelope" style="color:var(--red)"></i> <a href="mailto:ceo@edutrellis.in" style="color:var(--text);text-decoration:none">ceo@edutrellis.in</a></p>
+        <p style="margin-top:1rem">Our founder started EduTrellis in 2020 with a simple goal — to make professional digital growth accessible and affordable for every business and educator in India.</p>
+        <p>Today, that vision has grown into a trusted digital partner serving 1200+ clients, built on transparency, hard work and genuine care for every client's success.</p>
+        <h3 style="margin-top:1.5rem">Founder's Belief</h3>
+        <ul class="about-list">
+          <li><i class="fas fa-check-circle"></i> Every business deserves a strong digital presence</li>
+          <li><i class="fas fa-check-circle"></i> Honesty &amp; transparency in every client relationship</li>
+          <li><i class="fas fa-check-circle"></i> Results should be measurable, not just promised</li>
+          <li><i class="fas fa-check-circle"></i> Personal attention — clients aren't just numbers</li>
+        </ul>
+        <div class="mission">
+          <h4>🎯 A Personal Note</h4>
+          <p>"I started EduTrellis because I saw how many great businesses were being held back by outdated or missing websites. Every client we work with becomes part of our journey — and their growth is what drives us every single day."</p>
+        </div>
+        <div class="about-btns">
+          <a href="mailto:ceo@edutrellis.in" class="cta-btn">Connect With Us <i class="fas fa-arrow-right"></i></a>
+          <a href="https://www.linkedin.com/in/vijaytiwariii/" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:#0077b5;box-shadow:0 8px 26px rgba(0,119,181,.35);"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+<!-- ===== END MEET THE FOUNDER ===== -->
+
+
 
 <!-- FAQ -->
 <section id="faq">
@@ -887,7 +976,6 @@
     </div>
   </div>
 </section>
-
 <!-- ABOUT -->
 <section id="about">
   <div class="wrap">
@@ -898,42 +986,42 @@
       <div class="about-img-wrap reveal-left">
         <div class="about-decorative"></div>
         <div class="about-decorative2"></div>
-        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop" alt="Our Team" class="about-img" loading="lazy">
+        <img src="{% static 'img/aboutus.png' %}" alt="Our Team" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
         <div class="about-badge"><div class="bn">1200+</div><div class="bt">Happy Clients</div></div>
       </div>
-      <div class="about-text reveal-right">
-        <h3>Who We Are</h3>
-        <p>EduTrellis Private Limited is your complete digital growth partner, specializing in website management and development for educational businesses and coaches across India.</p>
-        <p>With 1200+ active clients, we deliver real results — more students, more revenue, and a stronger digital presence.</p>
-        <h3 style="margin-top:1.5rem">Why Choose Us?</h3>
-        <ul class="about-list">
-          <li><i class="fas fa-check-circle"></i> Transparent Pricing — No Hidden Charges</li>
-          <li><i class="fas fa-check-circle"></i> 1200+ Satisfied Clients Across India</li>
-          <li><i class="fas fa-check-circle"></i> Complete Business Handling — Focus on Your Growth</li>
-          <li><i class="fas fa-check-circle"></i> Free Demo &amp; Consultation — No Commitment</li>
-          <li><i class="fas fa-check-circle"></i> Dedicated Support Team &amp; Personal Manager</li>
-          <li><i class="fas fa-check-circle"></i> Proven Track Record Since 2020</li>
+      <div class="about-text reveal-right" style="line-height:1.45">
+        <h3 style="margin-bottom:.4rem">Who We Are</h3>
+        <p style="margin-bottom:.5rem">EduTrellis Private Limited is your complete digital growth partner, specializing in website management and development for educational businesses and coaches across India.</p>
+        <p style="margin-bottom:.5rem">With 1200+ active clients, we deliver real results — more students, more revenue, and a stronger digital presence.</p>
+        <h3 style="margin-top:.9rem;margin-bottom:.4rem">Why Choose Us?</h3>
+        <ul class="about-list" style="margin-bottom:.7rem">
+          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Transparent Pricing — No Hidden Charges</li>
+          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> 1200+ Satisfied Clients Across India</li>
+          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Complete Business Handling — Focus on Your Growth</li>
+          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Free Demo &amp; Consultation — No Commitment</li>
+          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Dedicated Support Team &amp; Personal Manager</li>
+          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Proven Track Record Since 2020</li>
         </ul>
-        <div class="mission">
-          <h4>🎯 Our Promise to You</h4>
-          <p>We don't just build websites — we build businesses. Whether you're just starting out or looking to scale, our team handles everything so you can focus on teaching and creating. Your growth is our mission.</p>
+        <div class="mission" style="margin-bottom:.9rem">
+          <h4 style="margin-bottom:.3rem">🎯 Our Promise to You</h4>
+          <p style="margin:0">We don't just build websites — we build businesses. Whether you're just starting out or looking to scale, our team handles everything so you can focus on teaching and creating. Your growth is our mission.</p>
         </div>
         <div class="about-btns">
           <a href="#contact" class="cta-btn">Book FREE Consultation <i class="fas fa-arrow-right"></i></a>
           <a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:linear-gradient(135deg,#25d366,#1da851);box-shadow:0 8px 26px rgba(37,211,102,.35);"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
         </div>
-        <div style="margin-top:1.4rem">
-          <p style="font-size:.82rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem">Connect With Us</p>
+        <div style="margin-top:.9rem">
+          <p style="font-size:.82rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Connect With Us</p>
           <div style="display:flex;gap:.65rem;flex-wrap:wrap">
             <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:linear-gradient(135deg,#e1306c,#833ab4);color:#fff;text-decoration:none;padding:.5rem 1.1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 16px rgba(225,48,108,.28)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'"><i class="fab fa-instagram"></i>@edutrellis</a>
             <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#0077b5;color:#fff;text-decoration:none;padding:.5rem 1.1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 16px rgba(0,119,181,.28)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'"><i class="fab fa-linkedin-in"></i>EduTrellis</a>
+            <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#1877f2;color:#fff;text-decoration:none;padding:.5rem 1.1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 16px rgba(24,119,242,.28)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'"><i class="fab fa-facebook-f"></i>EduTrellis</a>
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-
 <!-- CONTACT -->
 <section id="contact">
   <div class="wrap">
@@ -944,6 +1032,7 @@
       <div class="contact-info reveal-left">
         <h3>Get In Touch</h3>
         <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Email Support</h4><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Email CEO</h4><a href="mailto:ceo@edutrellis.in">ceo@edutrellis.in</a></div></div>
         <div class="ci-item"><div class="ci-icon"><i class="fas fa-map-marker-alt"></i></div><div><h4>Our Office</h4><p style="font-size:.92rem;color:var(--text);margin:0;line-height:1.6">P-109, Prembagh, Shahpur, Chinhat,<br>Lucknow, Uttar Pradesh 226028</p></div></div>
         <a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer" class="whatsapp-cta">
           <i class="fab fa-whatsapp"></i>
@@ -959,6 +1048,7 @@
           <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
             <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:linear-gradient(135deg,#e1306c,#833ab4);color:#fff;text-decoration:none;padding:.5rem 1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:all .3s;box-shadow:0 4px 16px rgba(225,48,108,.3)"><i class="fab fa-instagram"></i>Instagram</a>
             <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#0077b5;color:#fff;text-decoration:none;padding:.5rem 1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:all .3s;box-shadow:0 4px 16px rgba(0,119,181,.3)"><i class="fab fa-linkedin-in"></i>LinkedIn</a>
+            <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#1877f2;color:#fff;text-decoration:none;padding:.5rem 1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:all .3s;box-shadow:0 4px 16px rgba(24,119,242,.3)"><i class="fab fa-facebook-f"></i>Facebook</a>
           </div>
         </div>
       </div>
@@ -988,13 +1078,13 @@
             <label for="fservice">Service Interested In</label>
             <select id="fservice" name="service">
               <option>Website Management (₹2,999/month)</option>
-              <option>Static Business Website (₹3K–₹4K)</option>
-              <option>Dynamic / E-commerce Website (₹8K–₹10K)</option>
-              <option>Custom Big Project (₹15K+)</option>
+              <option>Static Business Website (₹8,999)</option>
+              <option>Dynamic / E-commerce Website (₹14,999)</option>
+              <option>Custom Big Project (₹19,999+)</option>
               <option>Logo, Banner &amp; Thumbnail Design (₹2,999/2mo)</option>
               <option>Google Business &amp; Maps Setup (₹3,499)</option>
               <option>Content Management Service</option>
-              <option>Complete Manager Package (₹9,999/6mo)</option>
+              <option>Complete Manager Package (₹29,999/6mo)</option>
               <option>Multiple / Not Sure</option>
             </select>
           </div>
@@ -1017,13 +1107,13 @@
       <div class="foot-logo">Edu<span>Trellis</span></div>
       <p>India's complete digital growth partner for educational businesses, coaches and creators. 1200+ happy clients and growing.</p>
       <div class="socials">
-        <a href="https://www.facebook.com/people/Edutrellis/61590850943948" title="Facebook" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.facebook.com/people/Edutrellis/61590850943948/" title="Facebook" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
         <a href="https://www.instagram.com/edutrellis" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
         <a href="https://www.linkedin.com/company/edutrellis" title="LinkedIn" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
         <a href="https://wa.me/919695953183" title="WhatsApp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
       </div>
     </div>
+
     <div class="foot-col">
       <h4>Quick Links</h4>
       <ul>
@@ -1031,11 +1121,13 @@
         <li><a href="#products"><i class="fas fa-chevron-right"></i>Products</a></li>
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
         <li><a href="#portfolio"><i class="fas fa-chevron-right"></i>Portfolio</a></li>
-        <li><a href="#projects"><i class="fas fa-chevron-right"></i>Projects</a></li>
+        <li><a href="#projects"><i class="fas fa-chevron-right"></i>Blog</a></li>
+        <li><a href="#clients"><i class="fas fa-chevron-right"></i>Founder</a></li>
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact</a></li>
       </ul>
     </div>
+
     <div class="foot-col">
       <h4>Services</h4>
       <ul>
@@ -1047,13 +1139,17 @@
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Logo &amp; Design</a></li>
       </ul>
     </div>
+
     <div class="foot-col">
       <h4>Contact</h4>
       <div class="foot-contact-item"><i class="fas fa-envelope"></i><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div>
+      <div class="foot-contact-item"><i class="fas fa-user-tie"></i><a href="mailto:ceo@edutrellis.in">ceo@edutrellis.in (CEO)</a></div>
       <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer">+91 96959 53183 (WhatsApp)</a></div>
       <div class="foot-contact-item"><i class="fas fa-map-marker-alt"></i><span>P-109, Prembagh, Shahpur, Chinhat, Lucknow, UP 226028</span></div>
       <div class="foot-contact-item"><i class="fab fa-instagram"></i><a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer">@edutrellis</a></div>
+      <div class="foot-contact-item"><i class="fab fa-facebook-f"></i><a href="https://www.facebook.com/people/Edutrellis/61590850943948/" target="_blank" rel="noopener noreferrer">EduTrellis on Facebook</a></div>
       <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer">EduTrellis on LinkedIn</a></div>
+      <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/in/vijaytiwariii/" target="_blank" rel="noopener noreferrer">Vijay Tiwari (Founder) on LinkedIn</a></div>
     </div>
   </div>
   <div class="foot-bottom">
