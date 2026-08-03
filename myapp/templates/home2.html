@@ -1,13 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EduTrellis – Digital Growth Partner</title>
-<meta name="description" content="EduTrellis is a trusted web design, development & digital marketing agency helping businesses grow online across India." />
+
+<!-- ===================== PRIMARY SEO META ===================== -->
+<title>Website Design & Development Company in India | EduTrellis Digital Agency</title>
+<meta name="description" content="EduTrellis is a trusted website design & development company in India offering custom websites, WordPress, SEO, and digital marketing services for 1,300+ businesses. Get a free quote today." />
+<meta name="keywords" content="website design company India, web development agency India, website designing company Lucknow, digital marketing agency India, WordPress development company, SEO company India, website management services, Meta ads management India" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta name="author" content="EduTrellis" />
+<meta name="language" content="English" />
+<link rel="canonical" href="https://www.edutrellis.in/" />
+<link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}" />
+
+<!-- ===================== LOCAL / GEO SEO ===================== -->
+<meta name="geo.region" content="IN-UP" />
+<meta name="geo.placename" content="Lucknow" />
+<meta name="geo.position" content="26.8467;80.9462" />
+<meta name="ICBM" content="26.8467, 80.9462" />
+
+<!-- ===================== OPEN GRAPH (Facebook / LinkedIn / WhatsApp) ===================== -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="EduTrellis" />
+<meta property="og:title" content="Website Design & Development Company in India | EduTrellis" />
+<meta property="og:description" content="Custom website design, development, WordPress, SEO & digital marketing for businesses across India. 1,300+ happy clients. Get a free quote." />
+<meta property="og:url" content="https://www.edutrellis.in/" />
+<meta property="og:image" content="{% static 'img/og-cover.jpg' %}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="en_IN" />
+
+<!-- ===================== TWITTER CARD ===================== -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Website Design & Development Company in India | EduTrellis" />
+<meta name="twitter:description" content="Custom website design, development, WordPress, SEO & digital marketing for businesses across India. Get a free quote." />
+<meta name="twitter:image" content="{% static 'img/og-cover.jpg' %}" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!-- ===================== STRUCTURED DATA (JSON-LD) ===================== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "EduTrellis",
+  "alternateName": "EduTrellis Digital Growth Partner",
+  "description": "EduTrellis is a website design, development, and digital marketing company in India providing custom websites, WordPress development, SEO, and social media/Meta ads management.",
+  "url": "https://www.edutrellis.in/",
+  "telephone": "+91-96959-53183",
+  "email": "support@edutrellis.in",
+  "priceRange": "$$",
+  "image": "{% static 'img/og-cover.jpg' %}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "P-109, Prembagh, Shahpur, Chinhat",
+    "addressLocality": "Lucknow",
+    "addressRegion": "Uttar Pradesh",
+    "postalCode": "226028",
+    "addressCountry": "IN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "26.8467",
+    "longitude": "80.9462"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "India"
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+      "opens": "09:00",
+      "closes": "20:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Sunday"],
+      "opens": "10:00",
+      "closes": "18:00"
+    }
+  ],
+  "sameAs": [
+    "https://www.instagram.com/edutrellis",
+    "https://www.linkedin.com/company/edutrellis",
+    "https://www.facebook.com/profile.php?id=61590850943948"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Digital Services",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Website Design & Development" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Website Management & Maintenance" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Digital Marketing" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "WordPress Customization & Maintenance" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Meta Ads Management" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Social Media Management" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Google Business Profile Optimization" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "SEO & Google Ranking" } }
+    ]
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.edutrellis.in/" }
+  ]
+}
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -26,6 +134,7 @@
 
   html { scroll-behavior: smooth; }
   body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--dark); overflow-x: hidden; }
+  img { max-width: 100%; height: auto; }
 
   /* PAGE LOADER */
   #page-loader {
@@ -39,7 +148,7 @@
   .loader-logo span { color: var(--red); }
   .loader-spinner { width: 38px; height: 38px; border: 3px solid #FFE0CC; border-top-color: var(--orange); border-radius: 50%; animation: spin 0.75s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loader-bar-wrap { width: 200px; height: 4px; background: #FFE0CC; border-radius: 99px; overflow: hidden; }
+  .loader-bar-wrap { width: 200px; height: 4px; background: #FFE0CC; border-radius: 99px; overflow: hidden; max-width: 70vw; }
   .loader-bar { height: 100%; width: 0%; background: var(--grad); border-radius: 99px; animation: loadProgress 1.8s cubic-bezier(.4,0,.2,1) forwards; }
   @keyframes loadProgress { 0%{width:0%} 50%{width:70%} 80%{width:88%} 100%{width:100%} }
   .loader-text { font-size: 0.78rem; color: var(--gray); font-weight: 500; letter-spacing: 0.05em; }
@@ -51,17 +160,24 @@
   .nav-logo { font-family: var(--heading); font-size: 1.75rem; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; line-height: 1; }
   .nav-logo span { color: var(--red); }
   .nav-logo-tagline { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); }
-  .nav-links { display: flex; gap: 1.75rem; list-style: none; }
-  .nav-links a { text-decoration: none; color: var(--mid); font-size: 0.875rem; font-weight: 500; transition: color .2s; }
+  .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; }
+  .nav-links a { text-decoration: none; color: var(--mid); font-size: 0.85rem; font-weight: 500; transition: color .2s; white-space: nowrap; }
   .nav-links a:hover, .nav-links a.active { color: var(--red); }
   .nav-links a.active { border-bottom: 2px solid var(--orange); padding-bottom: 2px; }
-  .nav-ctas { display: flex; gap: .65rem; }
+  .nav-ctas { display: flex; gap: .65rem; flex-shrink: 0; }
   .btn-outline { padding: .45rem 1.1rem; border: 2px solid var(--red); border-radius: 50px; color: var(--red); font-weight: 600; font-size: .82rem; text-decoration: none; transition: all .2s; white-space: nowrap; }
   .btn-outline:hover { background: var(--red); color: #fff; }
   .btn-fill { padding: .45rem 1.1rem; border-radius: 50px; background: var(--grad); color: #fff; font-weight: 600; font-size: .82rem; text-decoration: none; box-shadow: 0 4px 14px rgba(232,51,26,.35); transition: transform .2s, box-shadow .2s; white-space: nowrap; }
   .btn-fill:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,51,26,.45); }
-  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 12px; margin: -12px; }
   .hamburger span { width: 24px; height: 2px; background: var(--dark); border-radius: 2px; transition: all .3s; }
+
+  /* Nav collapses to hamburger earlier than the hero layout breakpoint,
+     so tablets (iPad-width devices) never get a squeezed/wrapped nav bar */
+  @media (max-width: 1150px) {
+    .nav-links, .nav-ctas { display: none; }
+    .hamburger { display: flex; }
+  }
 
   /* ===================== HERO ===================== */
   #home-wrap { background: var(--light); position: relative; overflow: hidden; }
@@ -114,7 +230,7 @@
     margin-top: 1.4rem;
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: .75rem;
     align-items: center;
   }
@@ -136,7 +252,7 @@
   .btn-hero.secondary:hover { background: var(--orange); color: #fff; }
 
   /* Right visual */
-  .hero-visual { display: flex; align-items: center; justify-content: center; position: relative; }
+  .hero-visual { display: flex; align-items: center; justify-content: center; position: relative; width: 100%; }
   .hero-svg-wrap { width: 100%; max-width: 400px; animation: floatY 4s ease-in-out infinite; }
   @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
 
@@ -155,6 +271,7 @@
     color: var(--dark);
     white-space: nowrap;
     border: 1px solid #FFE0CC;
+    max-width: calc(100vw - 2.5rem);
   }
   .hero-badge .dot {
     width: 8px; height: 8px;
@@ -349,6 +466,7 @@
   .about-img-wrap { position: relative; }
   .about-illustration { width: 100%; border-radius: 20px; background: linear-gradient(135deg,#FFDCCC,#FFB088); padding: 2rem; display: flex; align-items: center; justify-content: center; min-height: 300px; }
   .about-illustration svg { width: 100%; max-width: 300px; }
+  .about-illustration img.about-img { width: 100%; max-width: 300px; height: auto; display: block; border-radius: 12px; }
   .about-stat-card { position: absolute; bottom: -18px; right: -16px; background: #fff; border-radius: 14px; padding: .9rem 1.2rem; box-shadow: 0 8px 30px rgba(0,0,0,.1); text-align: center; }
   .about-stat-card .num { font-family: var(--heading); font-size: 1.8rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .about-stat-card .lbl { font-size: .75rem; color: var(--gray); font-weight: 600; margin-top: .1rem; }
@@ -425,18 +543,22 @@
   .social-btn:hover { background: var(--orange); }
 
   /* MOBILE NAV */
-  .mobile-menu { display: none; position: fixed; top: 72px; left: 0; width: 100%; background: #fff; border-bottom: 1px solid #FFE0CC; padding: 1.4rem 5%; z-index: 99; flex-direction: column; gap: .9rem; }
+  .mobile-menu { display: none; position: fixed; top: 72px; left: 0; width: 100%; height: calc(100vh - 72px); overflow-y: auto; background: #fff; border-bottom: 1px solid #FFE0CC; padding: 1.4rem 5%; z-index: 99; flex-direction: column; gap: .9rem; }
   .mobile-menu.open { display: flex; }
-  .mobile-menu a { color: var(--dark); font-size: .95rem; font-weight: 600; text-decoration: none; padding: .45rem 0; border-bottom: 1px solid #FFF0E8; }
+  .mobile-menu a { color: var(--dark); font-size: 1rem; font-weight: 600; text-decoration: none; padding: .7rem 0; border-bottom: 1px solid #FFF0E8; }
 
   /* SCROLL REVEAL */
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s ease, transform .55s ease; }
   .reveal.visible { opacity: 1; transform: none; }
 
   /* ===================== RESPONSIVE ===================== */
+
+  /* Large tablets / small laptops */
   @media (max-width: 1180px) {
     .hero-inner { grid-template-columns: 55% 45%; gap: 2rem; padding: 104px 4% 80px; }
   }
+
+  /* Tablet landscape (iPad Pro / Air landscape, small laptops) */
   @media (max-width: 1024px) {
     .hero-inner { grid-template-columns: 54% 46%; gap: 1.8rem; }
     .hero-headline { font-size: clamp(2rem, 3.5vw, 3rem); }
@@ -444,9 +566,9 @@
     .hero-badge-2 { right: -4px; }
     .hero-badge-3 { right: -4px; }
   }
+
+  /* Tablet portrait (iPad, iPad mini) — hero stacks, two-column grids collapse */
   @media (max-width: 900px) {
-    .nav-links, .nav-ctas { display: none; }
-    .hamburger { display: flex; }
     #home { align-items: flex-start; }
     .hero-inner { grid-template-columns: 1fr; padding-top: 100px; padding-bottom: 60px; text-align: center; gap: 1.5rem; }
     .hero-content { max-width: 100%; width: 100%; }
@@ -454,16 +576,31 @@
     .hero-actions { justify-content: center; flex-wrap: wrap; }
     .hero-sub { margin: 1rem auto 0; }
     .hero-tagline { text-align: left; max-width: 360px; margin: .9rem auto 0; }
-    .about-grid, .contact-grid { grid-template-columns: 1fr; }
+    .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
     .about-stat-card { right: 8px; }
     .hero-badge-1 { bottom: 8px; left: 50%; transform: translateX(-50%); animation: none; }
     .hero-badge-2 { display: none; }
     .hero-badge-3 { bottom: -44px; left: 50%; transform: translateX(-50%); animation: none; }
+    section { padding: 64px 5%; }
   }
+
+  /* Small tablets / large phones (portrait) */
+  @media (max-width: 700px) {
+    .services-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .team-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+    .team-card { padding: 1.4rem 1rem; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .contact-form { padding: 1.4rem; }
+  }
+
+  /* Phones */
   @media (max-width: 600px) {
+    nav { height: 64px; }
+    .mobile-menu { top: 64px; height: calc(100vh - 64px); }
     .hero-headline { font-size: 2rem; }
     .section-title { font-size: 1.75rem; }
-    .footer-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; gap: 1.8rem; }
     .stats-row { grid-template-columns: 1fr 1fr; }
     .form-row-2 { grid-template-columns: 1fr; }
     .contact-grid { gap: 2rem; }
@@ -471,11 +608,22 @@
     nav { padding: 0 4%; }
     .nav-logo { font-size: 1.4rem; }
     .btn-hero { font-size: .8rem; padding: .6rem 1.1rem; }
+    .btn-hero { width: 100%; justify-content: center; }
+    .hero-actions { flex-direction: column; align-items: stretch; }
+    .about-illustration { padding: 1.25rem; min-height: 220px; }
+    .about-stat-card { position: static; margin: 1rem auto 0; width: fit-content; }
+    .team-card { text-align: center; }
+    .contact-row { align-items: flex-start; }
+    .footer-bottom { flex-direction: column; text-align: center; }
   }
+
+  /* Small phones (iPhone SE and similar) */
   @media (max-width: 400px) {
     .hero-headline { font-size: 1.75rem; }
     .section-title { font-size: 1.55rem; }
     .stats-row { grid-template-columns: 1fr; }
+    .hero-badge { font-size: .68rem; padding: .45rem .7rem; }
+    .service-card-top { height: 160px; }
   }
 </style>
 </head>
@@ -516,6 +664,7 @@
 </nav>
 <div class="mobile-menu" id="mobileMenu">
   <a href="#home" onclick="closeMenu()">Home</a>
+  <a href="https://www.edutrellis.in">EduTrellis Homepage</a>
   <a href="#services" onclick="closeMenu()">Services</a>
   <a href="#about" onclick="closeMenu()">About Us</a>
   <a href="#results" onclick="closeMenu()">Results</a>
@@ -537,7 +686,7 @@
           for your business
         </h1>
         <p class="hero-sub hero-anim-sub">
-          At <strong>EduTrellis,</strong> we don't just build websites.
+          At <strong>EduTrellis,</strong> a website design and development company in India, we don't just build websites.
           We craft powerful digital experiences that drive real growth.<br/><br/>
           From end-to-end <strong>digital solutions &amp; ongoing management</strong> to result-driven digital marketing &mdash; we help businesses across India win online.
         </p>
@@ -631,7 +780,7 @@
     <div class="center reveal">
       <span class="section-label">What We Offer</span>
       <h2 class="section-title">Our <span class="accent">Services</span></h2>
-      <p class="section-sub">End-to-end digital solutions designed to build, manage, and grow your online presence.</p>
+      <p class="section-sub">As a full-service website design and digital marketing company in India, we offer end-to-end solutions to build, manage, and grow your online presence.</p>
     </div>
     <div class="services-grid">
       <div class="service-card reveal">
@@ -798,7 +947,7 @@
     <div class="about-grid">
       <div class="about-img-wrap reveal">
         <div class="about-illustration">
-          <img src="{% static 'img/gal4.webp' %}" alt="EduTrellis - Web Design, Management & Marketing" class="about-img"/>
+          <img src="{% static 'img/gal4.webp' %}" alt="EduTrellis team providing website design, development and digital marketing services in India" class="about-img" loading="lazy" width="600" height="450"/>
         </div>
         <div class="about-stat-card">
           <div class="num">1,390+</div>
@@ -863,7 +1012,7 @@
           <span class="avatar-guard">
             <img src="{% static 'img/founder.png' %}"
                  onerror="this.onerror=null;this.src='{% static 'images/team/default-avatar.png' %}'"
-                 alt="Vijay Tiwari" class="team-avatar-img"
+                 alt="Vijay Tiwari, Founder and CEO of EduTrellis" class="team-avatar-img" loading="lazy" width="96" height="96"
                  oncontextmenu="return false;" draggable="false" ondragstart="return false;"/>
           </span>
         </a>
@@ -878,7 +1027,7 @@
         <span class="avatar-guard">
           <img src="{% static 'img/founder3.png' %}"
                onerror="this.onerror=null;this.src='{% static 'images/team/default-avatar.png' %}'"
-               alt="Rudra Tiwari" class="team-avatar-img"
+               alt="Rudra Tiwari, Team Leader at EduTrellis" class="team-avatar-img" loading="lazy" width="96" height="96"
                oncontextmenu="return false;" draggable="false" ondragstart="return false;"/>
         </span>
         <h3>Rudra Tiwari</h3>
@@ -890,7 +1039,7 @@
         <span class="avatar-guard">
           <img src="{% static 'img/founder2.png' %}"
                onerror="this.onerror=null;this.src='{% static 'images/team/default-avatar.png' %}'"
-               alt="Priya Sharma" class="team-avatar-img"
+               alt="Priya Sharma, UI/UX Design Lead at EduTrellis" class="team-avatar-img" loading="lazy" width="96" height="96"
                oncontextmenu="return false;" draggable="false" ondragstart="return false;"/>
         </span>
         <h3>Priya Sharma</h3>
@@ -902,7 +1051,7 @@
         <span class="avatar-guard">
           <img src="{% static 'img/founder5.png' %}"
                onerror="this.onerror=null;this.src='{% static 'images/team/default-avatar.png' %}'"
-               alt="Arjun Kumar" class="team-avatar-img"
+               alt="Arjun Kumar, Digital Marketing Head at EduTrellis" class="team-avatar-img" loading="lazy" width="96" height="96"
                oncontextmenu="return false;" draggable="false" ondragstart="return false;"/>
         </span>
         <h3>Arjun Kumar</h3>
@@ -914,7 +1063,7 @@
         <span class="avatar-guard">
           <img src="{% static 'img/founder4.png' %}"
                onerror="this.onerror=null;this.src='{% static 'images/team/default-avatar.png' %}'"
-               alt="Sneha Das" class="team-avatar-img"
+               alt="Sneha Das, Client Success Manager at EduTrellis" class="team-avatar-img" loading="lazy" width="96" height="96"
                oncontextmenu="return false;" draggable="false" ondragstart="return false;"/>
         </span>
         <h3>Sneha Das</h3>
