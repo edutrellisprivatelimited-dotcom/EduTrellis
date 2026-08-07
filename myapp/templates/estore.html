@@ -3,29 +3,1608 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>E-Store | EduTrellis</title>
-<meta name="description" content="Shop the EduTrellis E-Store — coming soon.">
-<meta name="robots" content="noindex, follow">
-<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+
+<title>EduTrellis Store — Buy Earbuds, Smartwatches, Keyboards &amp; Tech Gadgets Online</title>
+<meta name="description" content="Official gadget store of EduTrellis Private Limited, Lucknow. Shop earbuds, headphones, smartwatches, keyboards, power banks, chargers and smart home devices with warranty and fast delivery across India.">
+<meta name="keywords" content="buy earbuds online India, smartwatch store, mechanical keyboard India, power bank online, tech gadgets store Lucknow, EduTrellis store">
+<meta name="author" content="EduTrellis Private Limited">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://store.edutrellis.in/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="EduTrellis Store — Tech Gadgets, Delivered Fast">
+<meta property="og:description" content="An EduTrellis company store. Audio, wearables, accessories and smart home gadgets with warranty and easy returns.">
+<meta property="og:url" content="https://store.edutrellis.in/">
+
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"OnlineStore",
+ "name":"EduTrellis Store",
+ "url":"https://store.edutrellis.in",
+ "email":"support@edutrellis.in",
+ "parentOrganization":{"@type":"Organization","name":"EduTrellis Private Limited","url":"https://edutrellis.in"},
+ "address":{
+   "@type":"PostalAddress",
+   "streetAddress":"P-109, Prembagh, Shahpur, Chinhat",
+   "addressLocality":"Lucknow",
+   "addressRegion":"Uttar Pradesh",
+   "postalCode":"226028",
+   "addressCountry":"IN"
+ },
+ "areaServed":"India"
+}
+</script>
+
 <style>
-  body{display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;background:var(--bg2, #f7f8fc)}
-  .estore-placeholder i{font-size:3rem;color:var(--red, #e8001e);margin-bottom:1.2rem}
-  .estore-placeholder h1{font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;color:var(--dark, #0f1623);margin-bottom:.6rem}
-  .estore-placeholder p{color:var(--text, #4a5568);margin-bottom:1.6rem}
+/* ============================================================
+   EDUTRELLIS STORE — DESIGN TOKENS (matched to edutrellis.in)
+   ============================================================ */
+:root{
+  --red:#e8001e;
+  --red-dark:#c0001a;
+  --red-soft:#fff1f3;
+  --dark:#1c2333;
+  --dark-2:#2c3e50;
+  --purple:#7c3aed;
+  --green:#25d366;
+  --green-dark:#1da851;
+  --text:#555f6d;
+  --head:#111418;
+  --line:#e7eaf0;
+  --bg:#ffffff;
+  --bg-alt:#f8f9fc;
+  --radius:16px;
+  --shadow-sm:0 4px 24px rgba(0,0,0,.07);
+  --shadow-md:0 12px 40px rgba(0,0,0,.14);
+  --strip-h:38px;
+  --head-h:74px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:var(--bg);line-height:1.65;overflow-x:hidden}
+body.locked{overflow:hidden}
+h1,h2,h3,h4,.logo-txt,.price,.pill{font-family:'Sora',system-ui,sans-serif;color:var(--head)}
+a{color:inherit}
+img{max-width:100%;display:block}
+button{font-family:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 1.25rem}
+section{padding:4.5rem 0}
+.sec-alt{background:var(--bg-alt)}
+
+h2.sec-title{font-size:clamp(1.6rem,3.4vw,2.35rem);font-weight:800;text-align:center;letter-spacing:-.02em}
+h2.sec-title span{color:var(--red)}
+.accent{width:70px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--red),var(--red-dark));margin:.9rem auto 1rem}
+p.sub{text-align:center;max-width:640px;margin:0 auto;font-size:.98rem}
+
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}
+.d4{transition-delay:.24s}.d5{transition-delay:.3s}.d6{transition-delay:.36s}
+
+/* ---------------- LOADER ---------------- */
+#loader{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem;transition:opacity .6s ease,visibility .6s ease}
+#loader.done{opacity:0;visibility:hidden}
+.loader-logo{font-family:'Sora',sans-serif;font-size:clamp(1.7rem,5vw,2.4rem);font-weight:900;letter-spacing:-.03em}
+.loader-logo span{color:var(--red)}
+.loader-tag{font-size:.72rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--text);margin-top:-.7rem}
+.loader-progress{width:min(260px,62vw);height:5px;border-radius:99px;background:#eef0f5;overflow:hidden}
+.loader-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--red),var(--red-dark));transition:width .18s linear}
+.loader-pct{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--red)}
+
+/* ---------------- TOP STRIP ---------------- */
+.top-strip{background:var(--dark);color:#fff;font-size:.78rem;height:var(--strip-h);display:flex;align-items:center;overflow:hidden}
+.strip-inner{max-width:1240px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;gap:.9rem;width:100%;overflow-x:auto;scrollbar-width:none}
+.strip-inner::-webkit-scrollbar{display:none}
+.strip-link{display:inline-flex;align-items:center;gap:.4rem;color:#fff;text-decoration:none;white-space:nowrap;opacity:.88;transition:opacity .2s,color .2s}
+.strip-link:hover{opacity:1;color:#ff8a99}
+.strip-sep{width:1px;height:14px;background:rgba(255,255,255,.22);flex:none}
+.strip-owner{margin-left:auto;white-space:nowrap;font-weight:700;color:#ffd7dc}
+.strip-owner i{color:var(--red)}
+
+/* ---------------- HEADER ---------------- */
+header{position:sticky;top:0;z-index:900;background:#fff;border-bottom:1px solid var(--line);transition:box-shadow .3s}
+header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.hd{max-width:1240px;margin:0 auto;padding:0 1.25rem;height:var(--head-h);display:flex;align-items:center;gap:1.1rem}
+.logo-wrap{display:flex;flex-direction:column;justify-content:center;text-decoration:none;flex:none;line-height:1.15}
+.logo-txt{font-size:1.32rem;font-weight:900;letter-spacing:-.035em}
+.logo-txt span{color:var(--red)}
+.logo-sub{font-size:.62rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:var(--text)}
+
+.searchbar{flex:1;position:relative;max-width:480px}
+.searchbar input{width:100%;height:44px;border:1.5px solid var(--line);border-radius:50px;padding:0 2.8rem 0 2.6rem;font-family:inherit;font-size:.9rem;color:var(--head);background:var(--bg-alt);transition:border-color .25s,background .25s}
+.searchbar input:focus{outline:none;border-color:var(--red);background:#fff}
+.searchbar .si{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:#9aa3b0;font-size:.9rem}
+.searchbar .sclear{position:absolute;right:.55rem;top:50%;transform:translateY(-50%);border:none;background:var(--red);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.78rem}
+
+.hd-actions{margin-left:auto;display:flex;align-items:center;gap:.55rem;flex:none}
+.icon-btn{position:relative;width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--head);font-size:1rem;cursor:pointer;display:grid;place-items:center;transition:all .25s}
+.icon-btn:hover{border-color:var(--red);color:var(--red);transform:translateY(-2px)}
+.cart-count{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--red);color:#fff;font-size:.68rem;font-weight:800;display:grid;place-items:center;font-family:'Sora',sans-serif;box-shadow:0 3px 10px rgba(232,0,30,.4)}
+.btn-login{height:44px;padding:0 1.15rem;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-size:.85rem;font-weight:700;display:inline-flex;align-items:center;gap:.45rem;box-shadow:0 6px 20px rgba(232,0,30,.3);transition:transform .25s}
+.btn-login:hover{transform:translateY(-2px)}
+.hamburger{display:none;width:44px;height:44px;border:1.5px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.hamburger span{width:19px;height:2px;background:var(--head);border-radius:2px;transition:.3s}
+.hamburger.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.on span:nth-child(2){opacity:0}
+.hamburger.on span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+.navrow{border-top:1px solid var(--line);background:#fff}
+.navrow ul{max-width:1240px;margin:0 auto;padding:0 1.25rem;list-style:none;display:flex;align-items:center;gap:1.6rem;height:48px;overflow-x:auto;scrollbar-width:none}
+.navrow ul::-webkit-scrollbar{display:none}
+.navrow a{text-decoration:none;font-size:.85rem;font-weight:600;color:var(--text);white-space:nowrap;position:relative;transition:color .25s}
+.navrow a:hover{color:var(--red)}
+.navrow a::after{content:'';position:absolute;left:0;bottom:-15px;width:0;height:3px;border-radius:3px;background:var(--red);transition:width .3s}
+.navrow a:hover::after{width:100%}
+.navrow .hot{color:var(--red);font-weight:700}
+
+.mobile-menu{position:fixed;top:calc(var(--strip-h) + var(--head-h));left:0;right:0;bottom:0;background:#fff;z-index:880;transform:translateX(-100%);transition:transform .35s ease;overflow-y:auto;padding:1.2rem 1.25rem 3rem}
+.mobile-menu.open{transform:none}
+.mobile-menu ul{list-style:none;display:flex;flex-direction:column}
+.mobile-menu a{display:flex;align-items:center;justify-content:space-between;padding:1rem .2rem;border-bottom:1px solid var(--line);text-decoration:none;font-weight:600;color:var(--head);font-size:1rem}
+.mobile-menu a i{color:var(--red);font-size:.8rem}
+
+/* ---------------- HERO ---------------- */
+.hero{position:relative;background:var(--dark);color:#fff;overflow:hidden}
+.hero-slides{position:relative;min-height:min(560px,78vh)}
+.hslide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .8s ease;display:flex;align-items:center}
+.hslide.on{opacity:1;visibility:visible}
+.hslide-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.hslide-mesh{position:absolute;inset:0;background:
+   radial-gradient(700px 380px at 82% 22%,rgba(232,0,30,.42),transparent 65%),
+   radial-gradient(560px 340px at 12% 80%,rgba(124,58,237,.34),transparent 65%),
+   linear-gradient(115deg,rgba(18,22,32,.94) 8%,rgba(18,22,32,.72) 52%,rgba(18,22,32,.55) 100%)}
+.hslide-in{position:relative;max-width:1240px;margin:0 auto;padding:3.5rem 1.25rem;width:100%}
+.hbadge{display:inline-flex;align-items:center;gap:.45rem;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(6px);padding:.4rem 1rem;border-radius:50px;font-size:.78rem;font-weight:700;margin-bottom:1.1rem}
+.hbadge i{color:#ff5f72}
+.hslide h1{font-size:clamp(1.9rem,5.2vw,3.5rem);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.035em;max-width:16ch}
+.hslide h1 em{font-style:normal;color:#ff5f72}
+.hslide p{margin-top:1rem;font-size:clamp(.95rem,1.6vw,1.08rem);color:rgba(255,255,255,.82);max-width:52ch}
+.hero-btns{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.7rem}
+.cta-btn{display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;cursor:pointer;border:none;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;padding:.85rem 1.6rem;border-radius:50px;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700;box-shadow:0 10px 28px rgba(232,0,30,.36);transition:transform .28s,box-shadow .28s}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(232,0,30,.46)}
+.cta-btn.ghost{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.32);box-shadow:none}
+.cta-btn.ghost:hover{background:rgba(255,255,255,.2)}
+.cta-btn.dark{background:linear-gradient(135deg,var(--dark),var(--dark-2));box-shadow:0 10px 28px rgba(28,35,51,.35)}
+.hero-trust{display:flex;gap:1.8rem;flex-wrap:wrap;margin-top:2.2rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.16)}
+.htrust h3{font-family:'Sora',sans-serif;color:#fff;font-size:1.35rem;font-weight:800}
+.htrust p{margin:0;font-size:.78rem;color:rgba(255,255,255,.65)}
+.sarr{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);background:rgba(0,0,0,.3);color:#fff;font-size:1.4rem;line-height:1;cursor:pointer;transition:background .25s}
+.sarr:hover{background:var(--red);border-color:var(--red)}
+.sarr.prev{left:1rem}.sarr.next{right:1rem}
+.sdots{position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:.5rem}
+.sdots button{width:9px;height:9px;border-radius:50%;border:none;background:rgba(255,255,255,.4);cursor:pointer;transition:all .3s;padding:0}
+.sdots button.on{width:28px;border-radius:99px;background:var(--red)}
+
+/* ---------------- TRUST BAR ---------------- */
+.trust-bar{border-bottom:1px solid var(--line);background:#fff}
+.tb-grid{max-width:1240px;margin:0 auto;padding:1.4rem 1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.2rem}
+.tb-item{display:flex;gap:.8rem;align-items:center}
+.tb-item i{width:42px;height:42px;flex:none;border-radius:12px;background:var(--red-soft);color:var(--red);display:grid;place-items:center;font-size:1rem}
+.tb-item b{display:block;font-family:'Sora',sans-serif;font-size:.88rem;color:var(--head)}
+.tb-item span{font-size:.78rem}
+
+/* ---------------- MARQUEE ---------------- */
+.marquee-wrap{background:var(--head);color:#fff;padding:.75rem 0;overflow:hidden;white-space:nowrap}
+.marquee-track{display:inline-flex;gap:2.4rem;animation:slide 32s linear infinite;will-change:transform}
+.marquee-item{display:inline-flex;align-items:center;gap:.5rem;font-size:.83rem;font-weight:600}
+.marquee-item i{color:var(--red)}
+.marquee-item .sep{color:rgba(255,255,255,.3);margin-left:2.4rem}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------------- CATEGORIES ---------------- */
+.cat-rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:2.4rem}
+.cat-card{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:1.4rem 1rem;text-align:center;cursor:pointer;transition:all .3s}
+.cat-card:hover,.cat-card.on{border-color:var(--red);transform:translateY(-5px);box-shadow:var(--shadow-sm)}
+.cat-ico{width:52px;height:52px;margin:0 auto .75rem;border-radius:15px;display:grid;place-items:center;font-size:1.25rem;background:var(--red-soft);color:var(--red)}
+.cat-card.on .cat-ico{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff}
+.cat-card h4{font-size:.92rem;font-weight:700}
+.cat-card p{font-size:.76rem;margin-top:.15rem}
+
+/* ---------------- PRODUCTS ---------------- */
+.filter-row{display:flex;justify-content:center;gap:.55rem;flex-wrap:wrap;margin:2rem 0 2.2rem}
+.ftab{padding:.5rem 1.35rem;border-radius:50px;border:2px solid var(--red);background:transparent;color:var(--red);font-family:'Sora',sans-serif;font-size:.83rem;font-weight:700;cursor:pointer;transition:all .25s}
+.ftab.on,.ftab:hover{background:var(--red);color:#fff}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:1.5rem}
+.prod-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}
+.prod-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
+.p-media{position:relative;aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden}
+.p-media i{font-size:3.2rem;color:rgba(255,255,255,.94);transition:transform .4s}
+.prod-card:hover .p-media i{transform:scale(1.12) rotate(-6deg)}
+.p-media::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 60%)}
+.p-flag{position:absolute;top:.75rem;left:.75rem;z-index:2;background:#fff;color:var(--red);font-family:'Sora',sans-serif;font-size:.67rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.24rem .7rem;border-radius:50px}
+.p-off{position:absolute;top:.75rem;right:.75rem;z-index:2;background:var(--dark);color:#fff;font-family:'Sora',sans-serif;font-size:.67rem;font-weight:800;padding:.24rem .7rem;border-radius:50px}
+.p-stock{position:absolute;bottom:.7rem;left:.75rem;z-index:2;font-size:.68rem;font-weight:700;color:#fff;background:rgba(0,0,0,.42);padding:.18rem .65rem;border-radius:50px;backdrop-filter:blur(4px)}
+.p-body{padding:1.15rem 1.25rem 1.35rem;display:flex;flex-direction:column;gap:.42rem;flex:1}
+.p-brand{font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
+.p-body h3{font-size:1rem;font-weight:700;line-height:1.35}
+.p-body>p{font-size:.84rem;line-height:1.55;margin:0}
+.p-rate{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:#8a919c}
+.p-rate .stars{color:#f5a623}
+.p-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.2rem}
+.p-tags span{background:#f0f4ff;color:#3b5bdb;font-size:.7rem;font-weight:700;padding:.18rem .6rem;border-radius:50px}
+.p-foot{margin-top:auto;padding-top:.9rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.price{font-size:1.2rem;font-weight:800;color:var(--head)}
+.price del{display:block;font-size:.76rem;font-weight:500;color:#9aa3b0;font-family:'DM Sans',sans-serif}
+.add-btn{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.8rem;font-weight:700;padding:.62rem 1.05rem;border-radius:50px;display:inline-flex;align-items:center;gap:.4rem;box-shadow:0 6px 18px rgba(232,0,30,.3);transition:transform .25s}
+.add-btn:hover{transform:translateY(-2px)}
+.add-btn.added{background:linear-gradient(135deg,var(--green),var(--green-dark));box-shadow:0 6px 18px rgba(37,211,102,.32)}
+.empty-note{grid-column:1/-1;text-align:center;padding:3rem 1rem;color:#9aa3b0}
+.empty-note i{font-size:2.2rem;color:var(--line);display:block;margin-bottom:.7rem}
+
+/* ---------------- DEAL STRIP ---------------- */
+.deal-strip{background:linear-gradient(135deg,var(--dark),#0f1420);color:#fff}
+.deal-in{display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.deal-in h3{color:#fff;font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:800;letter-spacing:-.02em}
+.deal-in p{color:rgba(255,255,255,.7);font-size:.94rem;margin-top:.4rem;max-width:46ch}
+.deal-timer{display:flex;gap:.6rem}
+.dt-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:13px;padding:.7rem 1rem;text-align:center;min-width:66px}
+.dt-box b{display:block;font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;line-height:1.1}
+.dt-box span{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+
+/* ---------------- SERVICES ---------------- */
+.svc-foot{text-align:center;margin-top:2rem}
+
+/* two promo cards — marketing + website creation */
+.promo-duo{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-top:2.8rem}
+.promo-card{position:relative;display:flex;align-items:flex-end;min-height:430px;border-radius:22px;overflow:hidden;text-decoration:none;box-shadow:0 10px 34px rgba(0,0,0,.13);transition:transform .4s,box-shadow .4s;isolation:isolate}
+.promo-card:hover{transform:translateY(-7px);box-shadow:0 22px 54px rgba(0,0,0,.22)}
+.promo-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .8s cubic-bezier(.2,.6,.2,1)}
+.promo-card:hover .promo-img{transform:scale(1.08)}
+.promo-veil{position:absolute;inset:0}
+.promo-card.red .promo-veil{background:
+  radial-gradient(520px 300px at 80% 14%,rgba(255,70,95,.5),transparent 62%),
+  linear-gradient(160deg,rgba(232,0,30,.72) 0%,rgba(150,0,22,.84) 48%,rgba(10,13,20,.95) 100%)}
+.promo-card.dark .promo-veil{background:
+  radial-gradient(520px 300px at 80% 14%,rgba(124,58,237,.5),transparent 62%),
+  linear-gradient(160deg,rgba(36,45,64,.72) 0%,rgba(44,62,80,.84) 46%,rgba(10,13,20,.95) 100%)}
+.promo-card::after{content:'';position:absolute;inset:0;border-radius:22px;border:1px solid rgba(255,255,255,.16);pointer-events:none;z-index:2}
+.promo-in{position:relative;z-index:2;padding:2rem 1.9rem 1.8rem;color:#fff;width:100%}
+.promo-eyebrow{display:inline-flex;align-items:center;gap:.45rem;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);padding:.34rem .9rem;border-radius:50px;font-size:.71rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:1rem}
+.promo-in h3{color:#fff;font-size:clamp(1.35rem,2.5vw,1.75rem);font-weight:800;letter-spacing:-.025em;line-height:1.16}
+.promo-in p{font-size:.92rem;color:rgba(255,255,255,.85);margin-top:.55rem;max-width:38ch}
+.promo-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.1rem}
+.promo-tags span{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);border-radius:50px;font-size:.72rem;font-weight:700;padding:.22rem .75rem}
+.promo-foot{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,.2)}
+.promo-go{display:inline-flex;align-items:center;gap:.5rem;font-family:'Sora',sans-serif;font-size:.87rem;font-weight:700;color:#fff}
+.promo-arrow{width:44px;height:44px;flex:none;border-radius:50%;background:#fff;color:var(--head);display:grid;place-items:center;font-size:.9rem;transition:transform .35s,background .35s,color .35s}
+.promo-card:hover .promo-arrow{transform:translateX(5px) rotate(-45deg)}
+.promo-card.red:hover .promo-arrow{background:#fff;color:var(--red)}
+.promo-card.dark:hover .promo-arrow{background:#fff;color:var(--purple)}
+
+/* ---------------- ABOUT ---------------- */
+.about-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:3rem;align-items:center;margin-top:2.6rem}
+
+/* left column: photo + founder card */
+.about-photo{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 14px 40px rgba(0,0,0,.16)}
+.about-photo .ap-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .8s cubic-bezier(.2,.6,.2,1)}
+.about-photo:hover .ap-img{transform:scale(1.05)}
+.about-photo .ap-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,13,20,.05) 30%,rgba(10,13,20,.78) 100%)}
+.ap-badge{position:absolute;left:1.1rem;bottom:1.1rem;right:1.1rem;z-index:2;display:flex;align-items:center;gap:.8rem;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-radius:15px;padding:.85rem 1rem}
+.ap-badge i{width:40px;height:40px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:grid;place-items:center;font-size:.95rem}
+.ap-badge b{display:block;font-family:'Sora',sans-serif;font-size:.92rem;color:var(--head);line-height:1.25}
+.ap-badge span{font-size:.78rem;color:var(--text)}
+
+.founder-card{display:flex;gap:1rem;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.2rem;margin-top:1.2rem;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.founder-ava{width:62px;height:62px;flex:none;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:grid;place-items:center;font-family:'Sora',sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:-.02em;background-size:cover;background-position:center top}
+.founder-meta{flex:1;min-width:150px}
+.founder-meta b{display:block;font-family:'Sora',sans-serif;font-size:1rem;color:var(--head)}
+.founder-meta span{font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.founder-links{display:flex;gap:.5rem;flex-wrap:wrap;width:100%}
+.founder-links a{display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;font-size:.8rem;font-weight:700;padding:.45rem .95rem;border-radius:50px;transition:transform .25s}
+.founder-links a:hover{transform:translateY(-2px)}
+.fl-mail{background:var(--red-soft);color:var(--red);border:1px solid #ffd2d8}
+.fl-in{background:#0077b5;color:#fff;box-shadow:0 5px 16px rgba(0,119,181,.3)}
+
+.about-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-top:1.2rem}
+.about-stat{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:.8rem .6rem;text-align:center}
+.about-stat b{display:block;font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;color:var(--head);line-height:1.2}
+.about-stat span{font-size:.7rem;color:var(--text)}
+
+.about-text h3{font-size:1.35rem;font-weight:800;margin-bottom:.6rem}
+.about-text p{font-size:.94rem;margin-bottom:.75rem}
+.about-list{list-style:none;margin:1rem 0}
+.about-list li{display:flex;gap:.6rem;align-items:flex-start;padding:.32rem 0;font-size:.92rem}
+.about-list i{color:var(--red);margin-top:.28rem;font-size:.85rem}
+.about-btns{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.3rem}
+
+/* ---------------- CONTACT ---------------- */
+.contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:2.5rem;margin-top:2.6rem}
+.ci-item{display:flex;gap:.9rem;align-items:flex-start;padding:1rem 0;border-bottom:1px solid var(--line)}
+.ci-icon{flex:none;width:44px;height:44px;border-radius:13px;background:var(--red-soft);color:var(--red);display:grid;place-items:center}
+.ci-item h4{font-size:.92rem;font-weight:700;margin-bottom:.1rem}
+.ci-item a,.ci-item p{font-size:.88rem;color:var(--text);text-decoration:none;margin:0}
+.ci-item a:hover{color:var(--red)}
+.wa-cta{display:flex;align-items:center;gap:.9rem;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;text-decoration:none;padding:1rem 1.2rem;border-radius:14px;margin-top:1.3rem;box-shadow:0 10px 26px rgba(37,211,102,.32);transition:transform .25s}
+.wa-cta:hover{transform:translateY(-3px)}
+.wa-cta i{font-size:1.6rem}
+.wa-cta span{display:block;font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem}
+.wa-cta small{font-size:.78rem;opacity:.9}
+.hours{background:var(--bg-alt);border-radius:14px;padding:1.1rem 1.25rem;margin-top:1.3rem}
+.hours h4{font-size:.9rem;font-weight:700;margin-bottom:.4rem}
+.hours p{font-size:.86rem;margin:0}
+
+.form-box{background:#fff;border:1px solid var(--line);border-radius:20px;padding:1.9rem;box-shadow:var(--shadow-sm)}
+.form-box h3{font-size:1.2rem;font-weight:800;margin-bottom:1.1rem}
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:.82rem;font-weight:700;color:var(--head);margin-bottom:.35rem}
+.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:.75rem .95rem;font-family:inherit;font-size:.9rem;color:var(--head);background:var(--bg-alt);transition:border-color .25s,background .25s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--red);background:#fff}
+.fg textarea{resize:vertical;min-height:110px}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.err{display:none;color:var(--red);font-size:.78rem;margin-top:.3rem;font-weight:600}
+.submit-btn{width:100%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;padding:.95rem;border-radius:12px;box-shadow:0 10px 26px rgba(232,0,30,.32);transition:transform .25s}
+.submit-btn:hover{transform:translateY(-2px)}
+.form-msg{display:none;margin-bottom:1rem;padding:.85rem 1rem;border-radius:12px;font-size:.9rem;font-weight:600}
+.form-msg.ok{display:block;background:#e8f8ee;color:#177245}
+
+/* ---------------- CART DRAWER ---------------- */
+.scrim{position:fixed;inset:0;background:rgba(10,14,22,.55);backdrop-filter:blur(3px);z-index:950;opacity:0;visibility:hidden;transition:.35s}
+.scrim.on{opacity:1;visibility:visible}
+.cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,100%);background:#fff;z-index:960;transform:translateX(105%);transition:transform .4s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.cart-drawer.open{transform:none}
+.cd-head{padding:1.3rem 1.4rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.cd-head h3{font-size:1.1rem;font-weight:800}
+.cd-head p{font-size:.78rem;margin:0}
+.x-btn{width:38px;height:38px;border-radius:11px;border:1.5px solid var(--line);background:#fff;cursor:pointer;color:var(--head);transition:all .25s}
+.x-btn:hover{border-color:var(--red);color:var(--red)}
+.cd-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem}
+.ci-row{display:flex;gap:.9rem;padding:.95rem 0;border-bottom:1px solid var(--line)}
+.ci-thumb{flex:none;width:60px;height:60px;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:1.15rem}
+.ci-mid{flex:1;min-width:0}
+.ci-mid h4{font-size:.88rem;font-weight:700;line-height:1.35}
+.ci-mid .u{font-size:.78rem;color:var(--text)}
+.qty{display:inline-flex;align-items:center;gap:.15rem;border:1.5px solid var(--line);border-radius:50px;margin-top:.45rem;overflow:hidden}
+.qty button{width:28px;height:28px;border:none;background:#fff;cursor:pointer;color:var(--head);font-size:.78rem;transition:background .2s}
+.qty button:hover{background:var(--red-soft);color:var(--red)}
+.qty b{font-family:'Sora',sans-serif;font-size:.82rem;min-width:22px;text-align:center}
+.ci-right{text-align:right;flex:none}
+.ci-right b{font-family:'Sora',sans-serif;font-size:.92rem;color:var(--head)}
+.rm-btn{border:none;background:none;color:#b6bcc6;cursor:pointer;font-size:.8rem;margin-top:.5rem;transition:color .2s}
+.rm-btn:hover{color:var(--red)}
+.cart-empty{text-align:center;padding:3.5rem 1rem;color:#9aa3b0}
+.cart-empty i{font-size:2.6rem;color:var(--line);display:block;margin-bottom:.9rem}
+.cd-foot{border-top:1px solid var(--line);padding:1.2rem 1.4rem 1.5rem;background:var(--bg-alt)}
+.wallet-toggle{display:flex;align-items:center;gap:.7rem;background:#fff;border:1.5px dashed var(--red);border-radius:13px;padding:.8rem .95rem;margin-bottom:1rem}
+.wallet-toggle i{color:var(--red);font-size:1.1rem}
+.wallet-toggle .wt-txt{flex:1}
+.wallet-toggle b{display:block;font-family:'Sora',sans-serif;font-size:.85rem;color:var(--head)}
+.wallet-toggle small{font-size:.75rem;color:var(--text)}
+.switch{position:relative;width:44px;height:25px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#d3d8e0;border-radius:99px;cursor:pointer;transition:.3s}
+.slider::before{content:'';position:absolute;width:19px;height:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+.switch input:checked + .slider{background:var(--red)}
+.switch input:checked + .slider::before{transform:translateX(19px)}
+.sum-row{display:flex;justify-content:space-between;font-size:.88rem;padding:.28rem 0}
+.sum-row.disc{color:var(--green-dark);font-weight:700}
+.sum-row.total{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.7rem;font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;color:var(--head)}
+.checkout-btn{width:100%;margin-top:1rem;border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;padding:.95rem;border-radius:13px;box-shadow:0 10px 26px rgba(232,0,30,.32);transition:transform .25s}
+.checkout-btn:hover{transform:translateY(-2px)}
+.checkout-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.pay-note{text-align:center;font-size:.74rem;margin-top:.7rem;color:#9aa3b0}
+
+/* ---------------- MODALS ---------------- */
+.modal{position:fixed;inset:0;z-index:970;display:grid;place-items:center;padding:1.25rem;opacity:0;visibility:hidden;transition:.3s}
+.modal.open{opacity:1;visibility:visible}
+.modal-card{background:#fff;border-radius:22px;width:min(430px,100%);max-height:92vh;overflow-y:auto;padding:2rem;box-shadow:0 30px 70px rgba(0,0,0,.3);transform:translateY(18px);transition:transform .35s;position:relative}
+.modal.open .modal-card{transform:none}
+.modal-top{text-align:center;margin-bottom:1.4rem}
+.modal-top .logo-txt{font-size:1.4rem}
+.modal-top p{font-size:.85rem;margin-top:.25rem}
+.auth-tabs{display:flex;background:var(--bg-alt);border-radius:50px;padding:.28rem;margin-bottom:1.4rem}
+.auth-tabs button{flex:1;border:none;background:none;cursor:pointer;padding:.6rem;border-radius:50px;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--text);transition:all .28s}
+.auth-tabs button.on{background:#fff;color:var(--red);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.auth-pane{display:none}
+.auth-pane.on{display:block}
+.auth-alt{text-align:center;font-size:.82rem;margin-top:1.1rem}
+.auth-alt button{border:none;background:none;color:var(--red);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem}
+.modal-x{position:absolute;top:1rem;right:1rem;z-index:3}
+
+/* offer popup */
+.offer-card{width:min(420px,100%);border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 30px 70px rgba(0,0,0,.34);transform:translateY(20px) scale(.97);transition:transform .4s;position:relative}
+.modal.open .offer-card{transform:none}
+.offer-top{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;padding:2.2rem 1.8rem 1.9rem;text-align:center;position:relative;overflow:hidden}
+.offer-top::before{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,.11);top:-110px;right:-80px}
+.offer-top::after{content:'';position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08);bottom:-90px;left:-50px}
+.offer-ico{width:62px;height:62px;margin:0 auto 1rem;border-radius:19px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:1.5rem;position:relative;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.offer-eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;opacity:.85;position:relative}
+.offer-amt{font-family:'Sora',sans-serif;font-size:3.2rem;font-weight:900;color:#fff;line-height:1.05;margin-top:.35rem;position:relative}
+.offer-amt small{font-size:1.4rem;font-weight:700}
+.offer-top h3{color:#fff;font-size:1.05rem;font-weight:700;margin-top:.5rem;position:relative}
+.offer-body{padding:1.6rem 1.8rem 1.9rem}
+.offer-body ul{list-style:none;margin-bottom:1.3rem}
+.offer-body li{display:flex;gap:.6rem;align-items:flex-start;padding:.3rem 0;font-size:.88rem}
+.offer-body li i{color:var(--red);margin-top:.3rem;font-size:.82rem}
+.offer-skip{display:block;width:100%;margin-top:.7rem;border:none;background:none;color:#9aa3b0;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit}
+.offer-skip:hover{color:var(--head)}
+
+/* ---------------- FOOTER ---------------- */
+footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
+.foot-grid{max-width:1240px;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;gap:2.2rem}
+.foot-logo{font-family:'Sora',sans-serif;font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.03em}
+.foot-logo span{color:var(--red)}
+.foot-brand p{font-size:.87rem;margin-top:.7rem;line-height:1.7}
+.owner-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:50px;padding:.45rem 1rem;margin-top:1rem;font-size:.78rem;color:#fff}
+.owner-badge i{color:var(--red)}
+.socials{display:flex;gap:.6rem;margin-top:1.2rem}
+.socials a{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.08);color:#fff;display:grid;place-items:center;text-decoration:none;transition:all .28s}
+.socials a:hover{background:var(--red);transform:translateY(-3px)}
+.foot-col h4{color:#fff;font-size:.95rem;font-weight:700;margin-bottom:1rem}
+.foot-col ul{list-style:none}
+.foot-col li a{display:flex;align-items:center;gap:.5rem;padding:.32rem 0;text-decoration:none;font-size:.86rem;transition:color .25s,transform .25s}
+.foot-col li a:hover{color:var(--red);transform:translateX(4px)}
+.foot-col li i{font-size:.6rem;color:var(--red)}
+.foot-ci{display:flex;gap:.6rem;align-items:flex-start;padding:.32rem 0;font-size:.86rem}
+.foot-ci i{color:var(--red);margin-top:.35rem;font-size:.8rem;flex:none}
+.foot-ci a{text-decoration:none}
+.foot-ci a:hover{color:var(--red)}
+.foot-bottom{max-width:1240px;margin:2.6rem auto 0;padding:1.3rem 1.25rem;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;font-size:.82rem}
+.foot-links{display:flex;gap:1.3rem;flex-wrap:wrap}
+.foot-links a{text-decoration:none;transition:color .25s}
+.foot-links a:hover{color:var(--red)}
+
+/* ---------------- FLOATING ---------------- */
+.wa-float{position:fixed;right:1.15rem;bottom:1.15rem;z-index:800}
+.wa-float a{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;display:grid;place-items:center;font-size:1.6rem;text-decoration:none;box-shadow:0 10px 26px rgba(37,211,102,.42);transition:transform .28s}
+.wa-float a:hover{transform:scale(1.1)}
+#toTop{position:fixed;right:1.15rem;bottom:5rem;z-index:800;width:44px;height:44px;border-radius:50%;border:none;background:var(--dark);color:#fff;cursor:pointer;opacity:0;visibility:hidden;transition:.3s}
+#toTop.on{opacity:1;visibility:visible}
+#toTop:hover{background:var(--red)}
+
+.toast-stack{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);z-index:990;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none}
+.toast{background:var(--head);color:#fff;padding:.75rem 1.2rem;border-radius:50px;font-size:.85rem;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.28);display:flex;align-items:center;gap:.55rem;animation:pop .35s ease}
+.toast i{color:#5ce08a}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width:1024px){
+  .about-grid,.contact-grid,.promo-duo{grid-template-columns:1fr;gap:1.5rem}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:2rem}
+}
+@media (max-width:900px){
+  .searchbar{display:none}
+  .navrow{display:none}
+  .hamburger{display:flex}
+  .btn-login .lbl{display:none}
+  .btn-login{padding:0;width:44px;justify-content:center}
+}
+@media (max-width:620px){
+  section{padding:3.2rem 0}
+  .strip-owner{display:none}
+  .hero-slides{min-height:auto}
+  .hslide{position:relative;display:none}
+  .hslide.on{display:flex}
+  .sarr{display:none}
+  .fg-row{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr}
+  .foot-bottom{justify-content:center;text-align:center}
+  .hero-trust{gap:1.2rem}
+  .about-stats{grid-template-columns:1fr 1fr}
+  .founder-links{width:auto}
+  .form-box{padding:1.4rem}
+  .modal-card{padding:1.5rem}
+  .offer-body{padding:1.3rem 1.4rem 1.5rem}
+  .offer-top{padding:1.8rem 1.4rem 1.5rem}
+  .deal-in{justify-content:center;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  html{scroll-behavior:auto}
+}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px;border-radius:4px}
 </style>
 </head>
-<body>
 
-<div class="estore-placeholder">
-  <i class="fas fa-store"></i>
-  <h1>EduTrellis E-Store</h1>
-  <p>We're setting up the store. Check back soon.</p>
-  <a href="{% url 'home' %}" class="cta-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+<body>
+{% csrf_token %}
+<script id="storeBoot" type="application/json">{{ store_boot_json|safe }}</script>
+
+<!-- ==================== LOADER ==================== -->
+<div id="loader">
+  <div class="loader-logo">Edu<span>Trellis</span> Store</div>
+  <div class="loader-tag">An EduTrellis Company</div>
+  <div class="loader-progress"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="loader-pct" id="loaderPct">0%</div>
 </div>
 
+<!-- ==================== TOP STRIP ==================== -->
+<div class="top-strip">
+  <div class="strip-inner">
+    <a href="mailto:support@edutrellis.in" class="strip-link"><i class="fas fa-envelope"></i><span>support@edutrellis.in</span></a>
+    <span class="strip-sep"></span>
+    <a href="https://wa.me/919695953183" class="strip-link" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i><span>+91&nbsp;96959&nbsp;53183</span></a>
+    <span class="strip-sep"></span>
+    <a href="https://www.instagram.com/edutrellis" class="strip-link" target="_blank" rel="noopener"><i class="fab fa-instagram"></i><span>@edutrellis</span></a>
+    <span class="strip-sep"></span>
+    <a href="https://www.linkedin.com/company/edutrellis" class="strip-link" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i><span>EduTrellis</span></a>
+    <span class="strip-owner"><i class="fas fa-circle-check"></i> Owned &amp; operated by EduTrellis Pvt. Ltd.</span>
+  </div>
+</div>
+
+<!-- ==================== HEADER ==================== -->
+<header id="hdr">
+  <div class="hd">
+    <a href="#top" class="logo-wrap">
+      <span class="logo-txt">Edu<span>Trellis</span> Store</span>
+      <span class="logo-sub">An EduTrellis Company</span>
+    </a>
+
+    <div class="searchbar">
+      <i class="fas fa-magnifying-glass si"></i>
+      <input type="search" id="search" placeholder="Search earbuds, smartwatches, keyboards…" aria-label="Search the store">
+      <button class="sclear" id="searchGo" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <div class="hd-actions">
+      <button class="icon-btn" id="openCart" aria-label="Open cart">
+        <i class="fas fa-cart-shopping"></i>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="btn-login" id="openAuth"><i class="fas fa-user"></i><span class="lbl">Login</span></button>
+      <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+
+  <nav class="navrow">
+    <ul>
+      <li><a href="#top">Home</a></li>
+      <li><a href="#shop">Shop All</a></li>
+      <li><a href="#categories">Categories</a></li>
+      <li><a href="#deals" class="hot">Deals</a></li>
+      <li><a href="#services">Our Services</a></li>
+      <li><a href="#about">About Us</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+      <li><a href="https://edutrellis.in" target="_blank" rel="noopener">Main Website <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem"></i></a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ==================== MOBILE MENU ==================== -->
+<div class="mobile-menu" id="mmenu">
+  <ul>
+    <li><a href="#top">Home <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="#shop">Shop All <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="#categories">Categories <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="#deals">Deals <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="#services">Our Services <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="#about">About Us <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="#contact">Contact Us <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="https://edutrellis.in" target="_blank" rel="noopener">Main Website <i class="fas fa-arrow-up-right-from-square"></i></a></li>
+  </ul>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<div class="hero" id="top">
+  <div class="hero-slides" id="slides">
+
+    <div class="hslide on">
+      <div class="hslide-bg" style="background-image:url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1600&amp;q=80')"></div>
+      <div class="hslide-mesh"></div>
+      <div class="hslide-in">
+        <div class="hbadge"><i class="fas fa-circle-check"></i> The official gadget store of EduTrellis Pvt. Ltd.</div>
+        <h1>Gadgets That Actually <em>Last</em> the Year</h1>
+        <p>Earbuds, smartwatches, keyboards and chargers — every unit boxed, warrantied and tested before it ships from our Lucknow warehouse.</p>
+        <div class="hero-btns">
+          <a href="#shop" class="cta-btn">Shop all gadgets <i class="fas fa-arrow-right"></i></a>
+          <a href="#categories" class="cta-btn ghost">Browse categories <i class="fas fa-grip"></i></a>
+        </div>
+        <div class="hero-trust">
+          <div class="htrust"><h3>1200+</h3><p>Orders delivered</p></div>
+          <div class="htrust"><h3>7-day</h3><p>Easy returns</p></div>
+          <div class="htrust"><h3>1-year</h3><p>Brand warranty</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hslide">
+      <div class="hslide-bg" style="background-image:url('https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=1600&amp;q=80')"></div>
+      <div class="hslide-mesh"></div>
+      <div class="hslide-in">
+        <div class="hbadge"><i class="fas fa-headphones"></i> Audio collection</div>
+        <h1>Sound Worth <em>Turning Up</em></h1>
+        <p>ANC earbuds, over-ear headphones and party speakers with real battery numbers — not the ones printed on the box.</p>
+        <div class="hero-btns">
+          <a href="#shop" class="cta-btn" data-jump="audio">Shop audio <i class="fas fa-arrow-right"></i></a>
+          <a href="#deals" class="cta-btn ghost">See today's deals <i class="fas fa-tag"></i></a>
+        </div>
+        <div class="hero-trust">
+          <div class="htrust"><h3>40h</h3><p>Playback on top picks</p></div>
+          <div class="htrust"><h3>ANC</h3><p>On select models</p></div>
+          <div class="htrust"><h3>Free</h3><p>Delivery over ₹999</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hslide">
+      <div class="hslide-bg" style="background-image:url('https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=1600&amp;q=80')"></div>
+      <div class="hslide-mesh"></div>
+      <div class="hslide-in">
+        <div class="hbadge"><i class="fas fa-bolt"></i> Charging &amp; power</div>
+        <h1>Never Hunt for a <em>Charger</em> Again</h1>
+        <p>Fast chargers, GaN adapters, braided cables and power banks that hold their rated capacity after a hundred cycles.</p>
+        <div class="hero-btns">
+          <a href="#shop" class="cta-btn" data-jump="power">Shop power <i class="fas fa-arrow-right"></i></a>
+          <a href="#contact" class="cta-btn ghost">Ask us anything <i class="fas fa-comment"></i></a>
+        </div>
+        <div class="hero-trust">
+          <div class="htrust"><h3>65W</h3><p>GaN fast charging</p></div>
+          <div class="htrust"><h3>COD</h3><p>Available pan-India</p></div>
+          <div class="htrust"><h3>24/7</h3><p>Order support</p></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="sarr prev" id="prevSlide" aria-label="Previous slide">&#8249;</button>
+    <button class="sarr next" id="nextSlide" aria-label="Next slide">&#8250;</button>
+    <div class="sdots" id="dots"></div>
+  </div>
+</div>
+
+<!-- ==================== TRUST BAR ==================== -->
+<div class="trust-bar">
+  <div class="tb-grid">
+    <div class="tb-item"><i class="fas fa-truck-fast"></i><div><b>Free delivery over ₹999</b><span>Dispatched within 24 hours</span></div></div>
+    <div class="tb-item"><i class="fas fa-rotate-left"></i><div><b>7-day easy returns</b><span>No questions on sealed items</span></div></div>
+    <div class="tb-item"><i class="fas fa-shield-halved"></i><div><b>1-year warranty</b><span>Brand-backed on every unit</span></div></div>
+    <div class="tb-item"><i class="fas fa-lock"></i><div><b>Secure checkout</b><span>UPI, cards, COD available</span></div></div>
+  </div>
+</div>
+
+<!-- ==================== MARQUEE ==================== -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track" id="marquee"></div>
+</div>
+
+<!-- ==================== CATEGORIES ==================== -->
+<section id="categories">
+  <div class="wrap">
+    <h2 class="sec-title reveal">Shop by <span>Category</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Six shelves, everything in stock and ready to ship today</p>
+    <div class="cat-rail">
+      <div class="cat-card reveal d1" data-jump="audio"><div class="cat-ico"><i class="fas fa-headphones"></i></div><h4>Audio</h4><p>Earbuds, headphones, speakers</p></div>
+      <div class="cat-card reveal d2" data-jump="wearables"><div class="cat-ico"><i class="fas fa-stopwatch"></i></div><h4>Wearables</h4><p>Smartwatches &amp; bands</p></div>
+      <div class="cat-card reveal d3" data-jump="power"><div class="cat-ico"><i class="fas fa-bolt"></i></div><h4>Power</h4><p>Chargers, cables, banks</p></div>
+      <div class="cat-card reveal d4" data-jump="computing"><div class="cat-ico"><i class="fas fa-keyboard"></i></div><h4>Computing</h4><p>Keyboards, mice, hubs</p></div>
+      <div class="cat-card reveal d5" data-jump="smart"><div class="cat-ico"><i class="fas fa-house-signal"></i></div><h4>Smart Home</h4><p>Bulbs, plugs, cameras</p></div>
+      <div class="cat-card reveal d6" data-jump="mobile"><div class="cat-ico"><i class="fas fa-mobile-screen"></i></div><h4>Mobile</h4><p>Gimbals, mounts, tripods</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SHOP ==================== -->
+<section id="shop" class="sec-alt">
+  <div class="wrap">
+    <h2 class="sec-title reveal">Featured <span>Gadgets</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Hand-picked stock, honest specs and prices we don't inflate before a sale</p>
+
+    <div class="filter-row reveal d2" id="filters">
+      <button class="ftab on" data-cat="all">All</button>
+      <button class="ftab" data-cat="audio">Audio</button>
+      <button class="ftab" data-cat="wearables">Wearables</button>
+      <button class="ftab" data-cat="power">Power</button>
+      <button class="ftab" data-cat="computing">Computing</button>
+      <button class="ftab" data-cat="smart">Smart Home</button>
+      <button class="ftab" data-cat="mobile">Mobile</button>
+    </div>
+
+    <div class="prod-grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- ==================== DEAL STRIP ==================== -->
+<section id="deals" class="deal-strip">
+  <div class="wrap deal-in">
+    <div class="reveal d1">
+      <h3>Weekend gadget drop — up to 45% off</h3>
+      <p>Discounts across audio, wearables and charging run until Sunday midnight. Stock is limited to what's on the shelf.</p>
+      <div class="hero-btns"><a href="#shop" class="cta-btn">Shop the drop <i class="fas fa-arrow-right"></i></a></div>
+    </div>
+    <div class="deal-timer reveal d2" id="timer">
+      <div class="dt-box"><b id="tH">00</b><span>Hours</span></div>
+      <div class="dt-box"><b id="tM">00</b><span>Mins</span></div>
+      <div class="dt-box"><b id="tS">00</b><span>Secs</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SERVICES ==================== -->
+<section id="services">
+  <div class="wrap">
+    <h2 class="sec-title reveal">More From <span>EduTrellis</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Our parent company builds and runs websites for businesses across India — the same team that ships your gadgets</p>
+
+    <div class="promo-duo">
+      <a href="https://www.edutrellis.in/" target="_blank" rel="noopener" class="promo-card red reveal d1">
+        <div class="promo-img" style="background-image:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&amp;q=85')"></div>
+        <div class="promo-veil"></div>
+        <div class="promo-in">
+          <span class="promo-eyebrow"><i class="fas fa-bullhorn"></i> Marketing</span>
+          <h3>Digital marketing, SEO &amp; paid ads</h3>
+          <p>Search ranking, Meta and Google campaigns, social media and Google Business — planned, run and reported monthly by our team.</p>
+          <div class="promo-tags"><span>SEO</span><span>Meta Ads</span><span>Google Ads</span><span>Social media</span><span>Google Business</span></div>
+          <div class="promo-foot">
+            <span class="promo-go">Explore marketing services</span>
+            <span class="promo-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+      </a>
+
+      <a href="https://www.edutrellis.in/websitecreation/" target="_blank" rel="noopener" class="promo-card dark reveal d2">
+        <div class="promo-img" style="background-image:url('https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=1400&amp;q=85')"></div>
+        <div class="promo-veil"></div>
+        <div class="promo-in">
+          <span class="promo-eyebrow"><i class="fas fa-code"></i> Website creation</span>
+          <h3>Websites built around your business</h3>
+          <p>Static business sites, dynamic portals and full e-commerce stores — designed, built, tested and launched end to end.</p>
+          <div class="promo-tags"><span>Business sites</span><span>E-commerce</span><span>Custom builds</span><span>Django</span><span>WordPress</span></div>
+          <div class="promo-foot">
+            <span class="promo-go">See website packages</span>
+            <span class="promo-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="svc-foot reveal">
+      <a href="https://edutrellis.in" target="_blank" rel="noopener" class="cta-btn dark">See all services on edutrellis.in <i class="fas fa-arrow-up-right-from-square"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ABOUT ==================== -->
+<section id="about" class="sec-alt">
+  <div class="wrap">
+    <h2 class="sec-title reveal">About <span>Us</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">This store is run by EduTrellis Private Limited — the same team behind edutrellis.in</p>
+
+    <div class="about-grid">
+      <div class="reveal d1">
+        <!-- swap for {% static 'img/aboutus.png' %} -->
+        <div class="about-photo">
+          <div class="ap-img" style="background-image:url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&amp;q=85')"></div>
+          <div class="ap-veil"></div>
+          <div class="ap-badge">
+            <i class="fas fa-circle-check"></i>
+            <div>
+              <b>Working since 2020</b>
+              <span>Websites &amp; technical services &middot; store launched 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- founder: swap the avatar for {% static 'img/founder.png' %} -->
+        <div class="founder-card">
+          <div class="founder-ava">VT</div>
+          <div class="founder-meta">
+            <b>Vijay Tiwari</b>
+            <span>Founder &amp; CEO</span>
+          </div>
+          <div class="founder-links">
+            <a href="mailto:ceo@edutrellis.in" class="fl-mail"><i class="fas fa-envelope"></i> ceo@edutrellis.in</a>
+            <a href="https://www.linkedin.com/in/vijaytiwariii/" target="_blank" rel="noopener" class="fl-in"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
+          </div>
+        </div>
+
+        <div class="about-stats">
+          <div class="about-stat"><b>2020</b><span>Founded</span></div>
+          <div class="about-stat"><b>1200+</b><span>Clients</span></div>
+          <div class="about-stat"><b>500+</b><span>Projects</span></div>
+          <div class="about-stat"><b>98%</b><span>Satisfaction</span></div>
+        </div>
+      </div>
+
+      <div class="about-text reveal d2">
+        <h3>A gadget store run by a tech company</h3>
+        <p>EduTrellis Private Limited has been working since 2020 — building and selling websites, and running the technical services around them: hosting, SEO, digital marketing and Google Business, for clients across India from our base in Lucknow.</p>
+        <p>Along the way we bought a lot of gear for our own team and for clients, and got tired of spec sheets that didn't match reality. So this year we launched the store. Everything listed here is stock we keep, unbox and test before it ships, sold at a fixed price with the warranty intact.</p>
+
+        <h3 style="margin-top:1.2rem">What you get with every order</h3>
+        <ul class="about-list">
+          <li><i class="fas fa-circle-check"></i> Sealed, genuine units with brand warranty intact</li>
+          <li><i class="fas fa-circle-check"></i> Specs listed honestly — real battery and charging numbers</li>
+          <li><i class="fas fa-circle-check"></i> Dispatch within 24 hours, tracking sent on WhatsApp</li>
+          <li><i class="fas fa-circle-check"></i> 7-day returns and a human who answers your messages</li>
+          <li><i class="fas fa-circle-check"></i> GST invoice on request for business purchases</li>
+        </ul>
+
+        <div class="about-btns">
+          <a href="#contact" class="cta-btn">Contact us <i class="fas fa-arrow-right"></i></a>
+          <a href="https://edutrellis.in" target="_blank" rel="noopener" class="cta-btn dark">Visit edutrellis.in <i class="fas fa-arrow-up-right-from-square"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CONTACT ==================== -->
+<section id="contact">
+  <div class="wrap">
+    <h2 class="sec-title reveal">Contact <span>Us</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">Order questions, bulk enquiries or help picking a product — we reply the same day</p>
+
+    <div class="contact-grid">
+      <div class="reveal d1">
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Order support</h4><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-boxes-stacked"></i></div><div><h4>Bulk &amp; corporate orders</h4><a href="mailto:ceo@edutrellis.in">ceo@edutrellis.in</a></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-location-dot"></i></div><div><h4>Warehouse &amp; office</h4><p>P-109, Prembagh, Shahpur, Chinhat,<br>Lucknow, Uttar Pradesh 226028</p></div></div>
+
+        <a href="https://wa.me/919695953183" target="_blank" rel="noopener" class="wa-cta">
+          <i class="fab fa-whatsapp"></i>
+          <div><span>Chat on WhatsApp</span><small>+91 96959 53183 — fastest way to reach us</small></div>
+        </a>
+
+        <div class="hours">
+          <h4><i class="fas fa-clock" style="color:var(--red);margin-right:.4rem"></i>Business hours</h4>
+          <p>Monday – Saturday: 9:00 AM – 8:00 PM</p>
+          <p>Sunday: 10:00 AM – 6:00 PM</p>
+        </div>
+      </div>
+
+      <div class="form-box reveal d2">
+        <h3>Send us a message</h3>
+        <div class="form-msg" id="formMsg"></div>
+        <form id="contactForm" novalidate>
+          <div class="fg-row">
+            <div class="fg">
+              <label for="cname">Full name</label>
+              <input type="text" id="cname" name="name" placeholder="Your full name" autocomplete="name">
+              <small class="err" data-for="name"></small>
+            </div>
+            <div class="fg">
+              <label for="cphone">Phone number</label>
+              <input type="tel" id="cphone" name="phone" placeholder="+91 XXXXX XXXXX" autocomplete="tel">
+              <small class="err" data-for="phone"></small>
+            </div>
+          </div>
+          <div class="fg">
+            <label for="cemail">Email address</label>
+            <input type="email" id="cemail" name="email" placeholder="you@email.com" autocomplete="email">
+            <small class="err" data-for="email"></small>
+          </div>
+          <div class="fg">
+            <label for="ctopic">What is this about?</label>
+            <select id="ctopic" name="topic">
+              <option>An order I placed</option>
+              <option>Product availability</option>
+              <option>Warranty or replacement</option>
+              <option>Return or refund</option>
+              <option>Bulk / corporate order</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label for="cmsg">Message</label>
+            <textarea id="cmsg" name="message" placeholder="Include your order number if you have one…"></textarea>
+            <small class="err" data-for="message"></small>
+          </div>
+          <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Send message</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div class="foot-logo">Edu<span>Trellis</span> Store</div>
+      <p>The official gadget store of EduTrellis Private Limited — audio, wearables, charging, computing and smart home gear, stocked and shipped from Lucknow.</p>
+      <div class="owner-badge"><i class="fas fa-circle-check"></i> Owned &amp; operated by EduTrellis Pvt. Ltd.</div>
+      <div class="socials">
+        <a href="https://www.facebook.com/people/Edutrellis/61590850943948/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://wa.me/919695953183" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+
+    <div class="foot-col">
+      <h4>Store</h4>
+      <ul>
+        <li><a href="#shop"><i class="fas fa-chevron-right"></i>Shop all</a></li>
+        <li><a href="#categories"><i class="fas fa-chevron-right"></i>Categories</a></li>
+        <li><a href="#deals"><i class="fas fa-chevron-right"></i>Deals</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Our services</a></li>
+        <li><a href="#about"><i class="fas fa-chevron-right"></i>About us</a></li>
+        <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact us</a></li>
+      </ul>
+    </div>
+
+    <div class="foot-col">
+      <h4>Popular</h4>
+      <ul>
+        <li><a href="#shop"><i class="fas fa-chevron-right"></i>Wireless earbuds</a></li>
+        <li><a href="#shop"><i class="fas fa-chevron-right"></i>Smartwatches</a></li>
+        <li><a href="#shop"><i class="fas fa-chevron-right"></i>Power banks</a></li>
+        <li><a href="#shop"><i class="fas fa-chevron-right"></i>Mechanical keyboards</a></li>
+        <li><a href="#shop"><i class="fas fa-chevron-right"></i>Fast chargers</a></li>
+        <li><a href="#shop"><i class="fas fa-chevron-right"></i>Smart bulbs &amp; plugs</a></li>
+      </ul>
+    </div>
+
+    <div class="foot-col">
+      <h4>Reach us</h4>
+      <div class="foot-ci"><i class="fas fa-envelope"></i><a href="mailto:support@edutrellis.in">support@edutrellis.in</a></div>
+      <div class="foot-ci"><i class="fas fa-boxes-stacked"></i><a href="mailto:ceo@edutrellis.in">ceo@edutrellis.in</a></div>
+      <div class="foot-ci"><i class="fab fa-whatsapp"></i><a href="https://wa.me/919695953183" target="_blank" rel="noopener">+91 96959 53183</a></div>
+      <div class="foot-ci"><i class="fas fa-location-dot"></i><span>P-109, Prembagh, Shahpur, Chinhat, Lucknow, UP 226028</span></div>
+      <div class="foot-ci"><i class="fas fa-globe"></i><a href="https://edutrellis.in" target="_blank" rel="noopener">edutrellis.in</a></div>
+    </div>
+  </div>
+
+  <div class="foot-bottom">
+    <p>&copy; 2026 EduTrellis Private Limited. All rights reserved.</p>
+    <div class="foot-links">
+      <a href="#">Privacy policy</a>
+      <a href="#">Terms &amp; conditions</a>
+      <a href="#">Refund policy</a>
+      <a href="#">Shipping &amp; delivery</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ==================== CART DRAWER ==================== -->
+<div class="scrim" id="scrim"></div>
+
+<aside class="cart-drawer" id="cart" aria-label="Shopping cart">
+  <div class="cd-head">
+    <div>
+      <h3>Your cart</h3>
+      <p id="cartLine">0 items</p>
+    </div>
+    <button class="x-btn" id="closeCart" aria-label="Close cart"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="cd-body" id="cartBody"></div>
+  <div class="cd-foot">
+    <div class="wallet-toggle" id="walletRow">
+      <i class="fas fa-wallet"></i>
+      <div class="wt-txt">
+        <b>Use wallet credit</b>
+        <small id="walletHint">Welcome credit on your first order</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="useWallet" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="sum-row"><span>Subtotal</span><span id="sumSub">₹0</span></div>
+    <div class="sum-row"><span>Delivery</span><span id="sumShip">—</span></div>
+    <div class="sum-row disc" id="discRow" style="display:none"><span>Wallet credit</span><span id="sumDisc">−₹0</span></div>
+    <div class="sum-row total"><span>Total</span><span id="sumTotal">₹0</span></div>
+    <button class="checkout-btn" id="checkout" disabled>Proceed to checkout</button>
+    <p class="pay-note"><i class="fas fa-lock"></i> Secure payment via Razorpay, UPI, cards &amp; COD</p>
+  </div>
+</aside>
+
+<!-- ==================== AUTH MODAL ==================== -->
+<div class="modal" id="authModal" role="dialog" aria-modal="true" aria-label="Login or create account">
+  <div class="modal-card">
+    <button class="x-btn modal-x" id="closeAuth" aria-label="Close"><i class="fas fa-xmark"></i></button>
+
+    <div class="modal-top">
+      <div class="logo-txt">Edu<span>Trellis</span> Store</div>
+      <p>Log in to track orders and save your addresses</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="on" data-pane="login">Login</button>
+      <button data-pane="signup">Sign up</button>
+    </div>
+
+    <div class="auth-pane on" id="pane-login">
+      <div class="fg">
+        <label for="liId">Email or phone</label>
+        <input type="text" id="liId" placeholder="you@email.com or 98XXXXXXXX">
+      </div>
+      <div class="fg">
+        <label for="liPw">Password</label>
+        <input type="password" id="liPw" placeholder="Your password">
+      </div>
+      <button class="submit-btn" id="doLogin">Log in</button>
+      <p class="auth-alt">New here? <button data-goto="signup">Create an account</button></p>
+    </div>
+
+    <div class="auth-pane" id="pane-signup">
+      <div class="fg">
+        <label for="suName">Full name</label>
+        <input type="text" id="suName" placeholder="Your full name">
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label for="suPhone">Phone</label>
+          <input type="tel" id="suPhone" placeholder="98XXXXXXXX">
+        </div>
+        <div class="fg">
+          <label for="suEmail">Email</label>
+          <input type="email" id="suEmail" placeholder="you@email.com">
+        </div>
+      </div>
+      <div class="fg">
+        <label for="suPw">Create password</label>
+        <input type="password" id="suPw" placeholder="At least 8 characters">
+      </div>
+      <button class="submit-btn" id="doSignup">Create account</button>
+      <p class="auth-alt">Already have an account? <button data-goto="login">Log in</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== OFFER POPUP ==================== -->
+<div class="modal" id="offerModal" role="dialog" aria-modal="true" aria-label="Welcome offer">
+  <div class="offer-card">
+    <button class="x-btn modal-x" id="closeOffer" aria-label="Close offer"><i class="fas fa-xmark"></i></button>
+    <div class="offer-top">
+      <div class="offer-ico"><i class="fas fa-wallet"></i></div>
+      <div class="offer-eyebrow">Welcome offer</div>
+      <div class="offer-amt"><small>₹</small>100</div>
+      <h3>wallet credit on your first order</h3>
+    </div>
+    <div class="offer-body">
+      <ul>
+        <li><i class="fas fa-circle-check"></i> Works on any order value — no minimum spend</li>
+        <li><i class="fas fa-circle-check"></i> Applies automatically at checkout, no coupon code</li>
+        <li><i class="fas fa-circle-check"></i> Valid on every category in the store</li>
+      </ul>
+      <button class="submit-btn" id="offerClaim">Claim it — create my account</button>
+      <button class="offer-skip" id="offerSkip">Maybe later, let me browse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FLOATING ==================== -->
+<div class="wa-float">
+  <a href="https://wa.me/919695953183" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+</div>
+<button id="toTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+/* ============================================================
+   EDUTRELLIS STORE — FRONTEND LOGIC
+   Template only. Swap PRODUCTS for your Django context and wire
+   checkout / auth / contact to your views.
+   ============================================================ */
+(function(){
+'use strict';
+
+/* ---------- 1. PRODUCT CATALOGUE ---------- */
+const PRODUCTS = [
+  /* AUDIO */
+  {id:'aud-anc',   cat:'audio', brand:'SoundCore', name:'ANC Wireless Earbuds Pro', desc:'Active noise cancellation, 40h total playback with the case and low-latency game mode.', price:2799, mrp:4499, icon:'fa-headphones-simple', grad:'linear-gradient(135deg,#e8001e,#c0001a)', flag:'Bestseller', stock:'In stock', tags:['ANC','40h battery','IPX5'], rating:4.8, reviews:412},
+  {id:'aud-over',  cat:'audio', brand:'Vertex', name:'Over-Ear Studio Headphones', desc:'40mm drivers, memory-foam cups and a detachable cable for wired studio use.', price:3499, mrp:5999, icon:'fa-headphones', grad:'linear-gradient(135deg,#1c2333,#2c3e50)', flag:'', stock:'In stock', tags:['40mm drivers','60h battery','Foldable'], rating:4.7, reviews:186},
+  {id:'aud-spk',   cat:'audio', brand:'BoomBox', name:'Portable Party Speaker 20W', desc:'20W output, IPX7 waterproofing and 24 hours of playback on a single charge.', price:2199, mrp:3499, icon:'fa-volume-high', grad:'linear-gradient(135deg,#f59e0b,#b45309)', flag:'Hot', stock:'Only 6 left', tags:['20W','IPX7','24h'], rating:4.6, reviews:243},
+  {id:'aud-neck',  cat:'audio', brand:'SoundCore', name:'Bluetooth Neckband', desc:'Magnetic earbuds, quick-charge for 10 hours of playback from a 10-minute top-up.', price:999, mrp:1799, icon:'fa-music', grad:'linear-gradient(135deg,#8b5cf6,#6d28d9)', flag:'Under ₹1000', stock:'In stock', tags:['Quick charge','Magnetic','30h'], rating:4.4, reviews:308},
+
+  /* WEARABLES */
+  {id:'wear-amo',  cat:'wearables', brand:'Pulse', name:'AMOLED Smartwatch Series 5', desc:'1.85-inch AMOLED display, Bluetooth calling, SpO2 and 100+ sport modes.', price:2999, mrp:5999, icon:'fa-stopwatch', grad:'linear-gradient(135deg,#0ea5e9,#0369a1)', flag:'Top rated', stock:'In stock', tags:['AMOLED','BT calling','SpO2'], rating:4.7, reviews:521},
+  {id:'wear-band', cat:'wearables', brand:'Pulse', name:'Fitness Band Lite', desc:'Heart-rate and sleep tracking with a 14-day battery and a strap you can actually wash.', price:1299, mrp:2299, icon:'fa-heart-pulse', grad:'linear-gradient(135deg,#10b981,#047857)', flag:'', stock:'In stock', tags:['14-day battery','HR tracking','5ATM'], rating:4.5, reviews:274},
+  {id:'wear-rug',  cat:'wearables', brand:'Vertex', name:'Rugged Outdoor Smartwatch', desc:'Metal bezel, built-in GPS and a 10-day battery for anyone outdoors more than indoors.', price:4499, mrp:7999, icon:'fa-compass', grad:'linear-gradient(135deg,#64748b,#334155)', flag:'New', stock:'Only 4 left', tags:['GPS','10-day battery','Metal body'], rating:4.8, reviews:97},
+
+  /* POWER */
+  {id:'pow-gan',   cat:'power', brand:'VoltEdge', name:'65W GaN Fast Charger', desc:'Three ports, GaN cooling and enough headroom to charge a laptop and phone together.', price:1799, mrp:2999, icon:'fa-bolt', grad:'linear-gradient(135deg,#ef4444,#991b1b)', flag:'Bestseller', stock:'In stock', tags:['65W','3 ports','GaN'], rating:4.9, reviews:389},
+  {id:'pow-bank',  cat:'power', brand:'VoltEdge', name:'20000mAh Power Bank', desc:'22.5W fast output, digital charge display and pass-through charging while it refills.', price:1999, mrp:3299, icon:'fa-battery-full', grad:'linear-gradient(135deg,#3b82f6,#1d4ed8)', flag:'', stock:'In stock', tags:['20000mAh','22.5W','Display'], rating:4.7, reviews:452},
+  {id:'pow-cable', cat:'power', brand:'VoltEdge', name:'Braided 100W USB-C Cable', desc:'Nylon-braided 1.5m cable rated for 100W charging and 480Mbps data transfer.', price:499, mrp:899, icon:'fa-plug', grad:'linear-gradient(135deg,#14b8a6,#0f766e)', flag:'Value pick', stock:'In stock', tags:['100W','1.5m','Braided'], rating:4.6, reviews:611},
+  {id:'pow-mag',   cat:'power', brand:'VoltEdge', name:'Magnetic Wireless Power Bank', desc:'Snaps to the back of your phone, 10000mAh with 15W magnetic wireless charging.', price:2499, mrp:3999, icon:'fa-magnet', grad:'linear-gradient(135deg,#ec4899,#9d174d)', flag:'New', stock:'Only 9 left', tags:['10000mAh','15W wireless','Magnetic'], rating:4.5, reviews:118},
+
+  /* COMPUTING */
+  {id:'com-mech',  cat:'computing', brand:'KeyForge', name:'65% Mechanical Keyboard', desc:'Hot-swappable switches, RGB per key and tri-mode connection over USB-C, BT and 2.4G.', price:3299, mrp:5499, icon:'fa-keyboard', grad:'linear-gradient(135deg,#7c3aed,#4c1d95)', flag:'Enthusiast', stock:'In stock', tags:['Hot-swap','Tri-mode','RGB'], rating:4.9, reviews:203},
+  {id:'com-mouse', cat:'computing', brand:'KeyForge', name:'Wireless Ergonomic Mouse', desc:'Silent clicks, adjustable 800–4000 DPI and a shape that stops the wrist ache.', price:1099, mrp:1899, icon:'fa-computer-mouse', grad:'linear-gradient(135deg,#6366f1,#3730a3)', flag:'', stock:'In stock', tags:['Silent','4000 DPI','Ergonomic'], rating:4.6, reviews:287},
+  {id:'com-hub',   cat:'computing', brand:'Vertex', name:'7-in-1 USB-C Hub', desc:'HDMI 4K, three USB ports, SD and microSD readers and 100W pass-through power.', price:2299, mrp:3799, icon:'fa-network-wired', grad:'linear-gradient(135deg,#0891b2,#155e75)', flag:'', stock:'In stock', tags:['4K HDMI','100W PD','Card reader'], rating:4.7, reviews:164},
+  {id:'com-stand', cat:'computing', brand:'Vertex', name:'Aluminium Laptop Stand', desc:'Adjustable height, folds flat for the bag and lifts the screen to eye level.', price:1499, mrp:2499, icon:'fa-laptop', grad:'linear-gradient(135deg,#94a3b8,#475569)', flag:'', stock:'In stock', tags:['Adjustable','Foldable','Aluminium'], rating:4.5, reviews:141},
+
+  /* SMART HOME */
+  {id:'sm-bulb',   cat:'smart', brand:'Lumo', name:'Smart RGB LED Bulb (Pack of 2)', desc:'16 million colours, app scheduling and voice control through Alexa and Google Home.', price:1199, mrp:1999, icon:'fa-lightbulb', grad:'linear-gradient(135deg,#f59e0b,#d97706)', flag:'Pack of 2', stock:'In stock', tags:['16M colours','Alexa','Scheduling'], rating:4.6, reviews:329},
+  {id:'sm-plug',   cat:'smart', brand:'Lumo', name:'Wi-Fi Smart Plug 16A', desc:'16A rated for heavy appliances, with energy monitoring and timer routines in the app.', price:899, mrp:1499, icon:'fa-plug-circle-bolt', grad:'linear-gradient(135deg,#22c55e,#15803d)', flag:'', stock:'In stock', tags:['16A','Energy meter','Timers'], rating:4.7, reviews:256},
+  {id:'sm-cam',    cat:'smart', brand:'Lumo', name:'360° Security Camera 3MP', desc:'3MP night vision, motion alerts, two-way audio and local storage on microSD.', price:2299, mrp:3799, icon:'fa-video', grad:'linear-gradient(135deg,#1e293b,#0f172a)', flag:'Hot', stock:'Only 7 left', tags:['3MP','Night vision','Two-way audio'], rating:4.5, reviews:198},
+
+  /* MOBILE */
+  {id:'mob-gim',   cat:'mobile', brand:'Steady', name:'3-Axis Phone Gimbal', desc:'Three-axis stabilisation, gesture control and 12 hours of runtime for handheld shoots.', price:4999, mrp:7999, icon:'fa-mobile-screen', grad:'linear-gradient(135deg,#e8001e,#7c1020)', flag:'Creator pick', stock:'Only 5 left', tags:['3-axis','Gesture control','12h'], rating:4.8, reviews:86},
+  {id:'mob-trip',  cat:'mobile', brand:'Steady', name:'Tripod with Ring Light', desc:'Extends to 1.6m, dimmable ring light in three tones and a Bluetooth shutter remote.', price:1599, mrp:2699, icon:'fa-camera', grad:'linear-gradient(135deg,#a855f7,#6b21a8)', flag:'', stock:'In stock', tags:['1.6m','Ring light','BT remote'], rating:4.6, reviews:172},
+  {id:'mob-mount', cat:'mobile', brand:'Steady', name:'Magnetic Car Mount', desc:'Strong N52 magnets, 360° rotation and a vent clip that doesn\u2019t rattle on bad roads.', price:699, mrp:1199, icon:'fa-car', grad:'linear-gradient(135deg,#0d9488,#115e59)', flag:'Value pick', stock:'In stock', tags:['N52 magnets','360°','Vent clip'], rating:4.4, reviews:225}
+];
+
+/* ---------- 2. STORE CONFIG + STATE ---------- */
+const WELCOME_CREDIT = 100;   // first-order wallet credit — no minimum order value
+const FREE_SHIP_OVER = 999;
+const SHIP_FEE       = 79;
+
+const BOOT = JSON.parse(document.getElementById('storeBoot').textContent || '{}');
+
+const state = {
+  cart: {},
+  filter: 'all',
+  query: '',
+  useWallet: true,
+  firstOrder: true,          // set false server-side once the customer has ordered
+  wallet: WELCOME_CREDIT,
+  user: BOOT.user || null,
+  offerShown: false
+};
+(BOOT.cart && BOOT.cart.items || []).forEach(i => { state.cart[i.product_id] = i.quantity; });
+
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const inr = n => '₹' + n.toLocaleString('en-IN');
+
+/* ---------- 2b. BACKEND API HELPERS ---------- */
+function csrfToken(){
+  /* Read the live cookie, not the hidden input rendered at page load —
+     login()/signup() rotate the CSRF token server-side, and a stale
+     value from the initial page render would fail every POST after that. */
+  const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : '';
+}
+function postJSON(url, data){
+  return fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+    body: JSON.stringify(data || {})
+  }).then(r => r.json().then(body => ({ ok: r.ok, body })));
+}
+function applyCartPayload(cart){
+  state.cart = {};
+  (cart && cart.items || []).forEach(i => { state.cart[i.product_id] = i.quantity; });
+}
+
+/* ---------- 3. LOADER ---------- */
+(function loader(){
+  const fill = $('#loaderFill'), pct = $('#loaderPct'), box = $('#loader');
+  let n = 0;
+  const t = setInterval(() => {
+    n += Math.random() * 13 + 4;
+    if (n >= 100){ n = 100; clearInterval(t); setTimeout(() => box.classList.add('done'), 320); }
+    fill.style.width = n + '%';
+    pct.textContent = Math.floor(n) + '%';
+  }, 110);
+})();
+
+/* ---------- 4. MARQUEE ---------- */
+(function marquee(){
+  const items = [
+    ['fa-truck-fast','Free delivery over ₹999'],
+    ['fa-shield-halved','1-year brand warranty'],
+    ['fa-rotate-left','7-day easy returns'],
+    ['fa-box','Dispatch within 24 hours'],
+    ['fa-headset','Support 7 days a week'],
+    ['fa-money-bill-wave','Cash on delivery available'],
+    ['fa-star','98% satisfaction rate'],
+    ['fa-certificate','An EduTrellis Pvt. Ltd. store']
+  ];
+  const html = items.map(([i,t]) =>
+    '<div class="marquee-item"><i class="fas ' + i + '"></i>' + t + '<span class="sep">✦</span></div>').join('');
+  $('#marquee').innerHTML = html + html;
+})();
+
+/* ---------- 5. HERO SLIDER ---------- */
+(function slider(){
+  const slides = $$('.hslide'), dots = $('#dots');
+  let i = 0, timer;
+  slides.forEach((_, k) => {
+    const b = document.createElement('button');
+    b.className = k === 0 ? 'on' : '';
+    b.setAttribute('aria-label', 'Slide ' + (k + 1));
+    b.addEventListener('click', () => go(k));
+    dots.appendChild(b);
+  });
+  function go(k){
+    i = (k + slides.length) % slides.length;
+    slides.forEach((s, n) => s.classList.toggle('on', n === i));
+    Array.from(dots.children).forEach((d, n) => d.classList.toggle('on', n === i));
+    restart();
+  }
+  function restart(){ clearInterval(timer); timer = setInterval(() => go(i + 1), 6500); }
+  $('#prevSlide').addEventListener('click', () => go(i - 1));
+  $('#nextSlide').addEventListener('click', () => go(i + 1));
+  restart();
+})();
+
+/* ---------- 6. DEAL COUNTDOWN ---------- */
+(function countdown(){
+  const end = new Date(); end.setHours(23, 59, 59, 999);   // resets daily
+  const pad = n => String(n).padStart(2, '0');
+  setInterval(() => {
+    let d = Math.max(0, end - new Date());
+    $('#tH').textContent = pad(Math.floor(d / 3.6e6));
+    $('#tM').textContent = pad(Math.floor(d % 3.6e6 / 6e4));
+    $('#tS').textContent = pad(Math.floor(d % 6e4 / 1000));
+  }, 1000);
+})();
+
+/* ---------- 7. PRODUCT GRID ---------- */
+const grid = $('#grid');
+
+function stars(r){
+  let s = '';
+  for (let i = 0; i < Math.floor(r); i++) s += '<i class="fas fa-star"></i>';
+  if (r % 1 >= .5) s += '<i class="fas fa-star-half-stroke"></i>';
+  return s;
+}
+
+function renderGrid(){
+  const q = state.query.trim().toLowerCase();
+  const list = PRODUCTS.filter(p => {
+    const catOk = state.filter === 'all' || p.cat === state.filter;
+    const text = (p.brand + ' ' + p.name + ' ' + p.desc + ' ' + p.tags.join(' ')).toLowerCase();
+    return catOk && (!q || text.includes(q));
+  });
+
+  if (!list.length){
+    grid.innerHTML = '<div class="empty-note"><i class="fas fa-magnifying-glass"></i>' +
+      'Nothing matched that search. Try another word, or <a href="#contact" style="color:var(--red);font-weight:700">ask us if we can source it</a>.</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(p => {
+    const off = Math.round((1 - p.price / p.mrp) * 100);
+    const inCart = !!state.cart[p.id];
+    return '' +
+    '<article class="prod-card">' +
+      '<div class="p-media" style="background:' + p.grad + '">' +
+        (p.flag ? '<span class="p-flag">' + p.flag + '</span>' : '') +
+        '<span class="p-off">' + off + '% off</span>' +
+        '<span class="p-stock">' + p.stock + '</span>' +
+        '<i class="fas ' + p.icon + '"></i>' +
+      '</div>' +
+      '<div class="p-body">' +
+        '<span class="p-brand">' + p.brand + '</span>' +
+        '<h3>' + p.name + '</h3>' +
+        '<div class="p-rate"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews</div>' +
+        '<p>' + p.desc + '</p>' +
+        '<div class="p-tags">' + p.tags.map(t => '<span>' + t + '</span>').join('') + '</div>' +
+        '<div class="p-foot">' +
+          '<div class="price">' + inr(p.price) + '<del>' + inr(p.mrp) + '</del></div>' +
+          '<button class="add-btn ' + (inCart ? 'added' : '') + '" data-add="' + p.id + '">' +
+            '<i class="fas ' + (inCart ? 'fa-check' : 'fa-cart-plus') + '"></i> ' + (inCart ? 'Added' : 'Add') +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }).join('');
+
+  observeReveals();
+}
+
+/* ---------- 8. CART ---------- */
+function cartLines(){
+  return Object.keys(state.cart).map(id => ({ p: PRODUCTS.find(x => x.id === id), q: state.cart[id] }));
+}
+function subtotal(){ return cartLines().reduce((s, l) => s + l.p.price * l.q, 0); }
+function walletApplies(){ return state.firstOrder && state.useWallet && subtotal() > 0; }
+
+function addToCart(id){
+  const p = PRODUCTS.find(x => x.id === id);
+  state.cart[id] = (state.cart[id] || 0) + 1;         // optimistic UI update
+  toast(p.name + ' added to cart');
+  renderCart(); renderGrid();
+
+  postJSON('/store/api/cart/add/', { product_id: id, name: p.name, price: p.price, qty: 1 })
+    .then(({ ok, body }) => { if (ok) { applyCartPayload(body); renderCart(); renderGrid(); } })
+    .catch(() => {});
+}
+function setQty(id, q){
+  if (q <= 0) delete state.cart[id]; else state.cart[id] = q;  // optimistic UI update
+  renderCart(); renderGrid();
+
+  postJSON('/store/api/cart/update/', { product_id: id, qty: q })
+    .then(({ ok, body }) => { if (ok) { applyCartPayload(body); renderCart(); renderGrid(); } })
+    .catch(() => {});
+}
+
+function renderCart(){
+  const lines = cartLines();
+  const count = lines.reduce((s, l) => s + l.q, 0);
+  $('#cartCount').textContent = count;
+  $('#cartLine').textContent = count === 1 ? '1 item' : count + ' items';
+
+  if (!lines.length){
+    $('#cartBody').innerHTML = '<div class="cart-empty"><i class="fas fa-cart-shopping"></i>' +
+      '<p>Your cart is empty.</p><p style="font-size:.85rem;margin-top:.3rem">Add a gadget to get started.</p></div>';
+  } else {
+    $('#cartBody').innerHTML = lines.map(l => '' +
+      '<div class="ci-row">' +
+        '<div class="ci-thumb" style="background:' + l.p.grad + '"><i class="fas ' + l.p.icon + '"></i></div>' +
+        '<div class="ci-mid">' +
+          '<h4>' + l.p.name + '</h4>' +
+          '<div class="u">' + inr(l.p.price) + ' · ' + l.p.brand + '</div>' +
+          '<div class="qty">' +
+            '<button data-q="' + l.p.id + '" data-d="-1" aria-label="Decrease quantity"><i class="fas fa-minus"></i></button>' +
+            '<b>' + l.q + '</b>' +
+            '<button data-q="' + l.p.id + '" data-d="1" aria-label="Increase quantity"><i class="fas fa-plus"></i></button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ci-right">' +
+          '<b>' + inr(l.p.price * l.q) + '</b>' +
+          '<button class="rm-btn" data-rm="' + l.p.id + '"><i class="fas fa-trash"></i></button>' +
+        '</div>' +
+      '</div>').join('');
+  }
+
+  const sub  = subtotal();
+  const ship = sub === 0 ? 0 : (sub >= FREE_SHIP_OVER ? 0 : SHIP_FEE);
+  const disc = walletApplies() ? Math.min(state.wallet, sub) : 0;
+  const total = Math.max(0, sub + ship - disc);
+
+  $('#sumSub').textContent   = inr(sub);
+  $('#sumShip').textContent  = sub === 0 ? '—' : (ship === 0 ? 'Free' : inr(ship));
+  $('#sumDisc').textContent  = '−' + inr(disc);
+  $('#discRow').style.display = disc ? 'flex' : 'none';
+  $('#sumTotal').textContent = inr(total);
+  $('#checkout').disabled    = !lines.length;
+
+  const hint = $('#walletHint');
+  if (!state.firstOrder)      hint.textContent = 'Already used on your first order';
+  else if (sub === 0)         hint.textContent = 'Welcome credit on your first order';
+  else if (state.useWallet)   hint.textContent = inr(disc) + ' applied to this order';
+  else                        hint.textContent = 'Saved for later — switch on to use it';
+}
+
+/* ---------- 9. DRAWER + MODALS ---------- */
+function openDrawer(){ $('#cart').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked'); }
+function closeDrawer(){ $('#cart').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+function openAuth(pane){
+  closeOffer();
+  $('#authModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+  if (pane) switchPane(pane);
+}
+function closeAuth(){ $('#authModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+function switchPane(name){
+  $$('.auth-tabs button').forEach(b => b.classList.toggle('on', b.dataset.pane === name));
+  $$('.auth-pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + name));
+}
+function openOffer(){
+  if (state.offerShown || state.user) return;
+  state.offerShown = true;
+  $('#offerModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+}
+function closeOffer(){ $('#offerModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
+/* offer popup triggers: 8 seconds in, or on exit intent — once per visit */
+setTimeout(openOffer, 8000);
+document.addEventListener('mouseout', e => { if (!e.relatedTarget && e.clientY <= 0) openOffer(); });
+
+/* ---------- 10. TOAST ---------- */
+function toast(msg, icon){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = '<i class="fas ' + (icon || 'fa-circle-check') + '"></i>' + msg;
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .35s'; el.style.opacity = '0'; }, 2200);
+  setTimeout(() => el.remove(), 2650);
+}
+
+/* ---------- 11. REVEAL ON SCROLL ---------- */
+let io;
+function observeReveals(){
+  if (!io){
+    io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+  }
+  $$('.reveal:not(.in)').forEach(el => io.observe(el));
+}
+
+/* ---------- 12. EVENTS ---------- */
+document.addEventListener('click', e => {
+  const add = e.target.closest('[data-add]');
+  if (add){ addToCart(add.dataset.add); return; }
+
+  const q = e.target.closest('[data-q]');
+  if (q){ setQty(q.dataset.q, (state.cart[q.dataset.q] || 0) + Number(q.dataset.d)); return; }
+
+  const rm = e.target.closest('[data-rm]');
+  if (rm){ setQty(rm.dataset.rm, 0); toast('Removed from cart', 'fa-trash'); return; }
+
+  const jump = e.target.closest('[data-jump]');
+  if (jump){
+    state.filter = jump.dataset.jump;
+    $$('.ftab').forEach(t => t.classList.toggle('on', t.dataset.cat === state.filter));
+    $$('.cat-card').forEach(c => c.classList.toggle('on', c.dataset.jump === state.filter));
+    renderGrid();
+    $('#shop').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  const goto = e.target.closest('[data-goto]');
+  if (goto){ switchPane(goto.dataset.goto); return; }
+
+  const tab = e.target.closest('.auth-tabs button');
+  if (tab){ switchPane(tab.dataset.pane); return; }
+});
+
+$('#filters').addEventListener('click', e => {
+  const t = e.target.closest('.ftab');
+  if (!t) return;
+  state.filter = t.dataset.cat;
+  $$('.ftab').forEach(x => x.classList.toggle('on', x === t));
+  $$('.cat-card').forEach(c => c.classList.toggle('on', c.dataset.jump === state.filter));
+  renderGrid();
+});
+
+$('#search').addEventListener('input', e => { state.query = e.target.value; renderGrid(); });
+$('#searchGo').addEventListener('click', () => $('#shop').scrollIntoView({ behavior: 'smooth' }));
+
+$('#openCart').addEventListener('click', openDrawer);
+$('#closeCart').addEventListener('click', closeDrawer);
+function setLoggedInUI(name){
+  $('#openAuth').innerHTML = '<i class="fas fa-user-check"></i><span class="lbl">' + (name || 'Account').split(' ')[0] + '</span>';
+}
+function setLoggedOutUI(){
+  $('#openAuth').innerHTML = '<i class="fas fa-user"></i><span class="lbl">Login</span>';
+}
+if (state.user) setLoggedInUI(state.user.name);
+
+$('#openAuth').addEventListener('click', () => {
+  if (state.user){
+    postJSON('/store/api/logout/', {}).then(() => {
+      state.user = null;
+      setLoggedOutUI();
+      toast('Logged out');
+    });
+    return;
+  }
+  openAuth('login');
+});
+$('#closeAuth').addEventListener('click', closeAuth);
+$('#closeOffer').addEventListener('click', closeOffer);
+$('#offerSkip').addEventListener('click', closeOffer);
+$('#offerClaim').addEventListener('click', () => openAuth('signup'));
+$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeOffer(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeDrawer(); closeAuth(); closeOffer(); } });
+
+$('#useWallet').addEventListener('change', e => { state.useWallet = e.target.checked; renderCart(); });
+
+$('#checkout').addEventListener('click', () => {
+  if (!state.user){ closeDrawer(); openAuth('signup'); toast('Log in to complete your order', 'fa-user'); return; }
+  // TODO: POST the cart to your Django checkout view / Razorpay order endpoint.
+  toast('Checkout is not wired up in this template', 'fa-circle-info');
+});
+
+/* auth — wired to Django backend (User + StoreProfile), session-based */
+$('#doSignup').addEventListener('click', () => {
+  const name  = $('#suName').value.trim();
+  const phone = $('#suPhone').value.trim();
+  const email = $('#suEmail').value.trim();
+  const pw    = $('#suPw').value;
+
+  if (!name)  { toast('Enter your full name to continue', 'fa-circle-exclamation'); return; }
+  if (!phone) { toast('Enter your phone number', 'fa-circle-exclamation'); return; }
+  if (!email) { toast('Enter your email address', 'fa-circle-exclamation'); return; }
+  if (pw.length < 6) { toast('Password must be at least 6 characters', 'fa-circle-exclamation'); return; }
+
+  const btn = $('#doSignup'); btn.disabled = true;
+  postJSON('/store/api/signup/', { name, phone, email, password: pw })
+    .then(({ ok, body }) => {
+      btn.disabled = false;
+      if (!ok){
+        const msg = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not create your account');
+        toast(msg, 'fa-circle-exclamation');
+        return;
+      }
+      state.user = { name: body.name };
+      applyCartPayload(body.cart);
+      setLoggedInUI(body.name);
+      closeAuth();
+      toast('Account created — welcome!', 'fa-wallet');
+      renderCart(); renderGrid();
+    })
+    .catch(() => { btn.disabled = false; toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
+});
+
+$('#doLogin').addEventListener('click', () => {
+  const identifier = $('#liId').value.trim();
+  const pw = $('#liPw').value;
+  if (!identifier) { toast('Enter your email or phone number', 'fa-circle-exclamation'); return; }
+  if (!pw) { toast('Enter your password', 'fa-circle-exclamation'); return; }
+
+  const btn = $('#doLogin'); btn.disabled = true;
+  postJSON('/store/api/login/', { identifier, password: pw })
+    .then(({ ok, body }) => {
+      btn.disabled = false;
+      if (!ok){
+        const msg = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not log in');
+        toast(msg, 'fa-circle-exclamation');
+        return;
+      }
+      state.user = { name: body.name };
+      applyCartPayload(body.cart);
+      setLoggedInUI(body.name);
+      closeAuth();
+      toast('Logged in — welcome back!');
+      renderCart(); renderGrid();
+    })
+    .catch(() => { btn.disabled = false; toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
+});
+
+/* contact form */
+$('#contactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target;
+  let ok = true;
+  const rules = {
+    name:    v => v.trim().length >= 2 || 'Enter your full name',
+    phone:   v => /^[+\d][\d\s-]{8,}$/.test(v) || 'Enter a valid phone number',
+    email:   v => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v) || 'Enter a valid email address',
+    message: v => v.trim().length >= 10 || 'Tell us a little more (10+ characters)'
+  };
+  Object.keys(rules).forEach(k => {
+    const input = f.elements[k];
+    const slot = f.querySelector('.err[data-for="' + k + '"]');
+    const res = rules[k](input.value);
+    if (res === true){ slot.style.display = 'none'; input.style.borderColor = ''; }
+    else { slot.textContent = res; slot.style.display = 'block'; input.style.borderColor = 'var(--red)'; ok = false; }
+  });
+  if (!ok) return;
+
+  const submitBtn = f.querySelector('.submit-btn');
+  submitBtn.disabled = true;
+  postJSON('/store/api/contact/', {
+    name: f.elements.name.value,
+    phone: f.elements.phone.value,
+    email: f.elements.email.value,
+    topic: f.elements.topic.value,
+    message: f.elements.message.value
+  }).then(({ ok: sent, body }) => {
+    submitBtn.disabled = false;
+    const msg = $('#formMsg');
+    if (!sent){
+      const err = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not send your message — please try again.');
+      msg.className = 'form-msg';
+      msg.style.display = 'block';
+      msg.style.background = '#fdeaea';
+      msg.style.color = 'var(--red)';
+      msg.textContent = err;
+      msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    msg.className = 'form-msg ok';
+    msg.style.background = ''; msg.style.color = '';
+    msg.textContent = body.message || 'Thanks — your message is with our team. We usually reply within a few working hours.';
+    f.reset();
+    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }).catch(() => {
+    submitBtn.disabled = false;
+    toast('Something went wrong — please try again', 'fa-circle-exclamation');
+  });
+});
+
+/* header, mobile menu, scroll-to-top */
+const hdr = $('#hdr'), mm = $('#mmenu'), ham = $('#ham'), toTop = $('#toTop');
+window.addEventListener('scroll', () => {
+  hdr.classList.toggle('stuck', window.scrollY > 12);
+  toTop.classList.toggle('on', window.scrollY > 500);
+}, { passive: true });
+
+ham.addEventListener('click', () => {
+  const open = mm.classList.toggle('open');
+  ham.classList.toggle('on', open);
+  ham.setAttribute('aria-expanded', open);
+  document.body.classList.toggle('locked', open);
+});
+mm.addEventListener('click', e => {
+  if (e.target.closest('a')){ mm.classList.remove('open'); ham.classList.remove('on'); document.body.classList.remove('locked'); }
+});
+toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+/* ---------- 13. BOOT ---------- */
+renderGrid();
+renderCart();
+observeReveals();
+
+})();
+</script>
 </body>
 </html>
