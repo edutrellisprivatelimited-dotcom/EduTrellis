@@ -647,7 +647,7 @@
     <ul class="nav-links">
       <li><a href="#home" class="active">Home</a></li>
       <li><a href="https://www.edutrellis.in">EduTrellis Homepage</a></li>
-      <li><a href="https://store.edutrellis.in">E-Store</a></li>
+      <li><a href="{% url 'estore' %}">E-Store</a></li>
       <li><a href="#services">Services</a></li>
       <li><a href="#about">About Us</a></li>
       <li><a href="#results">Results</a></li>
@@ -666,7 +666,7 @@
 <div class="mobile-menu" id="mobileMenu">
   <a href="#home" onclick="closeMenu()">Home</a>
   <a href="https://www.edutrellis.in">EduTrellis Homepage</a>
-  <a href="https://store.edutrellis.in" onclick="closeMenu()">E-Store</a>
+  <a href="{% url 'estore' %}" onclick="closeMenu()">E-Store</a>
   <a href="#services" onclick="closeMenu()">Services</a>
   <a href="#about" onclick="closeMenu()">About Us</a>
   <a href="#results" onclick="closeMenu()">Results</a>

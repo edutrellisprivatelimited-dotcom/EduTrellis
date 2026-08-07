@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Store | EduTrellis</title>
+<meta name="description" content="Shop the EduTrellis E-Store — coming soon.">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<style>
+  body{display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;background:var(--bg2, #f7f8fc)}
+  .estore-placeholder i{font-size:3rem;color:var(--red, #e8001e);margin-bottom:1.2rem}
+  .estore-placeholder h1{font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;color:var(--dark, #0f1623);margin-bottom:.6rem}
+  .estore-placeholder p{color:var(--text, #4a5568);margin-bottom:1.6rem}
+</style>
+</head>
+<body>
+
+<div class="estore-placeholder">
+  <i class="fas fa-store"></i>
+  <h1>EduTrellis E-Store</h1>
+  <p>We're setting up the store. Check back soon.</p>
+  <a href="{% url 'home' %}" class="cta-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+</div>
+
+</body>
+</html>

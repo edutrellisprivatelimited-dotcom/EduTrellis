@@ -18,6 +18,10 @@ def home2(request):
     return render(request, "home2.html", {})
 
 
+def estore(request):
+    return render(request, "estore.html", {})
+
+
 def contact_lead(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
