@@ -128,6 +128,26 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .cart-count{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--red);color:#fff;font-size:.68rem;font-weight:800;display:grid;place-items:center;font-family:'Sora',sans-serif;box-shadow:0 3px 10px rgba(232,0,30,.4)}
 .btn-login{height:44px;padding:0 1.15rem;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-size:.85rem;font-weight:700;display:inline-flex;align-items:center;gap:.45rem;box-shadow:0 6px 20px rgba(232,0,30,.3);transition:transform .25s}
 .btn-login:hover{transform:translateY(-2px)}
+
+/* ---------------- ACCOUNT DROPDOWN ---------------- */
+.account-wrap{position:relative}
+.btn-avatar{width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.25);font-size:.68rem;font-weight:800}
+.btn-avatar img{width:100%;height:100%;object-fit:cover}
+.account-menu{position:absolute;top:calc(100% + 10px);right:0;width:min(264px,88vw);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-md);padding:.6rem;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .25s,transform .25s,visibility .25s;z-index:500}
+.account-menu.open{opacity:1;visibility:visible;transform:none}
+.am-head{display:flex;gap:.75rem;align-items:center;padding:.5rem .5rem .9rem;border-bottom:1px solid var(--line);margin-bottom:.4rem}
+.am-avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;overflow:hidden}
+.am-avatar img{width:100%;height:100%;object-fit:cover}
+.am-avatar.big{width:76px;height:76px;font-size:1.5rem}
+.am-meta{min-width:0}
+.am-meta b{display:block;font-size:.9rem;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.am-meta span{display:block;font-size:.75rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account-menu button{width:100%;display:flex;align-items:center;gap:.65rem;border:none;background:none;text-align:left;padding:.65rem .5rem;border-radius:10px;font-family:inherit;font-size:.86rem;font-weight:600;color:var(--head);cursor:pointer;transition:background .2s}
+.account-menu button:hover{background:var(--bg-alt)}
+.account-menu button i{width:16px;color:var(--red)}
+.account-menu button.am-logout{color:var(--red);border-top:1px solid var(--line);margin-top:.3rem;padding-top:.75rem}
+.avatar-edit-wrap{position:relative;width:76px;margin:0 auto 1.2rem}
+.avatar-upload-btn{position:absolute;bottom:-2px;right:-2px;width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.7rem;border:2px solid #fff}
 .hamburger{display:none;width:44px;height:44px;border:1.5px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .hamburger span{width:19px;height:2px;background:var(--head);border-radius:2px;transition:.3s}
 .hamburger.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
@@ -547,7 +567,24 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         <i class="fas fa-cart-shopping"></i>
         <span class="cart-count" id="cartCount">0</span>
       </button>
-      <button class="btn-login" id="openAuth"><i class="fas fa-user"></i><span class="lbl">Login</span></button>
+      <div class="account-wrap" id="accountWrap">
+        <button class="btn-login" id="openAuth"><i class="fas fa-user"></i><span class="lbl">Login</span></button>
+        <div class="account-menu" id="accountMenu">
+          <div class="am-head">
+            <div class="am-avatar" id="amAvatar"></div>
+            <div class="am-meta">
+              <b id="amName"></b>
+              <span id="amEmail"></span>
+            </div>
+          </div>
+          <button type="button" id="amAdmin" data-action="admin" style="display:none"><i class="fas fa-user-shield"></i> Admin panel</button>
+          <button type="button" data-action="cart"><i class="fas fa-cart-shopping"></i> My cart</button>
+          <button type="button" data-action="orders"><i class="fas fa-box"></i> My orders</button>
+          <button type="button" data-action="edit"><i class="fas fa-user-pen"></i> Edit profile</button>
+          <button type="button" data-action="password"><i class="fas fa-key"></i> Change password</button>
+          <button type="button" data-action="logout" class="am-logout"><i class="fas fa-right-from-bracket"></i> Logout</button>
+        </div>
+      </div>
       <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -1042,6 +1079,59 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </div>
 
+<!-- ==================== EDIT PROFILE MODAL ==================== -->
+<div class="modal" id="profileModal" role="dialog" aria-modal="true" aria-label="Edit profile">
+  <div class="modal-card">
+    <button class="x-btn modal-x" id="closeProfile" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div class="modal-top">
+      <div class="logo-txt">Edit <span>Profile</span></div>
+      <p>Update your name, phone and photo</p>
+    </div>
+    <form id="profileForm">
+      <div class="avatar-edit-wrap">
+        <div class="am-avatar big" id="pfAvatarPreview"></div>
+        <label class="avatar-upload-btn" for="pfAvatarInput" aria-label="Change photo"><i class="fas fa-camera"></i></label>
+        <input type="file" id="pfAvatarInput" accept="image/*" hidden>
+      </div>
+      <div class="fg">
+        <label for="pfName">Full name</label>
+        <input type="text" id="pfName" placeholder="Your full name">
+      </div>
+      <div class="fg">
+        <label for="pfPhone">Phone</label>
+        <input type="tel" id="pfPhone" placeholder="98XXXXXXXX">
+      </div>
+      <button type="submit" class="submit-btn" id="pfSubmit">Save changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== CHANGE PASSWORD MODAL ==================== -->
+<div class="modal" id="passwordModal" role="dialog" aria-modal="true" aria-label="Change password">
+  <div class="modal-card">
+    <button class="x-btn modal-x" id="closePassword" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div class="modal-top">
+      <div class="logo-txt">Change <span>Password</span></div>
+      <p>Use a password you don't use anywhere else</p>
+    </div>
+    <form id="passwordForm">
+      <div class="fg">
+        <label for="pwCurrent">Current password</label>
+        <input type="password" id="pwCurrent" placeholder="Your current password">
+      </div>
+      <div class="fg">
+        <label for="pwNew">New password</label>
+        <input type="password" id="pwNew" placeholder="At least 6 characters">
+      </div>
+      <div class="fg">
+        <label for="pwConfirm">Confirm new password</label>
+        <input type="password" id="pwConfirm" placeholder="Re-enter new password">
+      </div>
+      <button type="submit" class="submit-btn" id="pwSubmit">Update password</button>
+    </form>
+  </div>
+</div>
+
 <!-- ==================== OFFER POPUP ==================== -->
 <div class="modal" id="offerModal" role="dialog" aria-modal="true" aria-label="Welcome offer">
   <div class="offer-card">
@@ -1153,6 +1243,14 @@ function postJSON(url, data){
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
     body: JSON.stringify(data || {})
+  }).then(r => r.json().then(body => ({ ok: r.ok, body })));
+}
+function postForm(url, formData){
+  return fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'X-CSRFToken': csrfToken() },
+    body: formData
   }).then(r => r.json().then(body => ({ ok: r.ok, body })));
 }
 function applyCartPayload(cart){
@@ -1372,6 +1470,45 @@ function openOffer(){
 }
 function closeOffer(){ $('#offerModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
 
+function openProfile(){
+  if (!state.user) return;
+  $('#pfName').value = state.user.name || '';
+  $('#pfPhone').value = state.user.phone || '';
+  $('#pfAvatarPreview').innerHTML = avatarHtml(state.user);
+  $('#profileModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+}
+function closeProfile(){ $('#profileModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+function openPassword(){
+  $('#passwordForm').reset();
+  $('#passwordModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+}
+function closePassword(){ $('#passwordModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
+/* ---------- 9b. ACCOUNT DROPDOWN ---------- */
+function initials(name){
+  return (name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+function avatarHtml(user){
+  return user && user.avatar_url ? '<img src="' + user.avatar_url + '" alt="">' : initials(user && user.name);
+}
+function closeAccountMenu(){ $('#accountMenu').classList.remove('open'); }
+function renderAccountUI(){
+  const btn = $('#openAuth');
+  if (!state.user){
+    btn.innerHTML = '<i class="fas fa-user"></i><span class="lbl">Login</span>';
+    closeAccountMenu();
+    return;
+  }
+  btn.innerHTML = '<span class="btn-avatar">' + avatarHtml(state.user) + '</span>' +
+    '<span class="lbl">' + (state.user.name || 'Account').split(' ')[0] + '</span>' +
+    '<i class="fas fa-chevron-down" style="font-size:.62rem"></i>';
+  $('#amAvatar').innerHTML = avatarHtml(state.user);
+  $('#amName').textContent = state.user.name || 'Account';
+  $('#amEmail').textContent = state.user.email || '';
+  $('#amAdmin').style.display = state.user.is_staff ? 'flex' : 'none';
+}
+renderAccountUI();
+
 /* offer popup triggers: 8 seconds in, or on exit intent — once per visit */
 setTimeout(openOffer, 8000);
 document.addEventListener('mouseout', e => { if (!e.relatedTarget && e.clientY <= 0) openOffer(); });
@@ -1439,31 +1576,114 @@ $('#searchGo').addEventListener('click', () => $('#shop').scrollIntoView({ behav
 
 $('#openCart').addEventListener('click', openDrawer);
 $('#closeCart').addEventListener('click', closeDrawer);
-function setLoggedInUI(name){
-  $('#openAuth').innerHTML = '<i class="fas fa-user-check"></i><span class="lbl">' + (name || 'Account').split(' ')[0] + '</span>';
-}
-function setLoggedOutUI(){
-  $('#openAuth').innerHTML = '<i class="fas fa-user"></i><span class="lbl">Login</span>';
-}
-if (state.user) setLoggedInUI(state.user.name);
 
 $('#openAuth').addEventListener('click', () => {
-  if (state.user){
-    postJSON('/store/api/logout/', {}).then(() => {
-      state.user = null;
-      setLoggedOutUI();
-      toast('Logged out');
-    });
-    return;
-  }
+  if (state.user){ $('#accountMenu').classList.toggle('open'); return; }
   openAuth('login');
 });
+document.addEventListener('click', e => {
+  if (!e.target.closest('#accountWrap')) closeAccountMenu();
+});
+$('#accountMenu').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  closeAccountMenu();
+  switch (btn.dataset.action){
+    case 'admin':
+      window.location.href = '/admin/';
+      break;
+    case 'cart':
+      openDrawer();
+      break;
+    case 'orders':
+      toast('No orders yet — start shopping!', 'fa-box');
+      break;
+    case 'edit':
+      openProfile();
+      break;
+    case 'password':
+      openPassword();
+      break;
+    case 'logout':
+      postJSON('/store/api/logout/', {}).then(() => {
+        state.user = null;
+        renderAccountUI();
+        toast('Logged out');
+      });
+      break;
+  }
+});
+
 $('#closeAuth').addEventListener('click', closeAuth);
+$('#closeProfile').addEventListener('click', closeProfile);
+$('#closePassword').addEventListener('click', closePassword);
 $('#closeOffer').addEventListener('click', closeOffer);
 $('#offerSkip').addEventListener('click', closeOffer);
 $('#offerClaim').addEventListener('click', () => openAuth('signup'));
-$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeOffer(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeDrawer(); closeAuth(); closeOffer(); } });
+$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeOffer(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeOffer(); closeAccountMenu(); } });
+
+$('#pfAvatarInput').addEventListener('change', () => {
+  const file = $('#pfAvatarInput').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { $('#pfAvatarPreview').innerHTML = '<img src="' + reader.result + '" alt="">'; };
+  reader.readAsDataURL(file);
+});
+
+$('#profileForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#pfName').value.trim();
+  const phone = $('#pfPhone').value.trim();
+  if (!name)  { toast('Enter your full name', 'fa-circle-exclamation'); return; }
+  if (!phone) { toast('Enter your phone number', 'fa-circle-exclamation'); return; }
+
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('phone', phone);
+  const file = $('#pfAvatarInput').files[0];
+  if (file) fd.append('avatar', file);
+
+  const btn = $('#pfSubmit'); btn.disabled = true;
+  postForm('/store/api/profile/update/', fd)
+    .then(({ ok, body }) => {
+      btn.disabled = false;
+      if (!ok){
+        const msg = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not save your profile');
+        toast(msg, 'fa-circle-exclamation');
+        return;
+      }
+      state.user = body.user;
+      renderAccountUI();
+      closeProfile();
+      toast('Profile updated', 'fa-circle-check');
+    })
+    .catch(() => { btn.disabled = false; toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
+});
+
+$('#passwordForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const current = $('#pwCurrent').value;
+  const next = $('#pwNew').value;
+  const confirm = $('#pwConfirm').value;
+  if (!current) { toast('Enter your current password', 'fa-circle-exclamation'); return; }
+  if (next.length < 6) { toast('New password must be at least 6 characters', 'fa-circle-exclamation'); return; }
+  if (next !== confirm) { toast('New passwords do not match', 'fa-circle-exclamation'); return; }
+
+  const btn = $('#pwSubmit'); btn.disabled = true;
+  postJSON('/store/api/profile/password/', { current_password: current, new_password: next })
+    .then(({ ok, body }) => {
+      btn.disabled = false;
+      if (!ok){
+        const msg = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not update your password');
+        toast(msg, 'fa-circle-exclamation');
+        return;
+      }
+      closePassword();
+      toast('Password updated', 'fa-circle-check');
+    })
+    .catch(() => { btn.disabled = false; toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
+});
 
 $('#useWallet').addEventListener('change', e => { state.useWallet = e.target.checked; renderCart(); });
 
@@ -1494,9 +1714,9 @@ $('#doSignup').addEventListener('click', () => {
         toast(msg, 'fa-circle-exclamation');
         return;
       }
-      state.user = { name: body.name };
+      state.user = body.user;
       applyCartPayload(body.cart);
-      setLoggedInUI(body.name);
+      renderAccountUI();
       closeAuth();
       toast('Account created — welcome!', 'fa-wallet');
       renderCart(); renderGrid();
@@ -1519,9 +1739,9 @@ $('#doLogin').addEventListener('click', () => {
         toast(msg, 'fa-circle-exclamation');
         return;
       }
-      state.user = { name: body.name };
+      state.user = body.user;
       applyCartPayload(body.cart);
-      setLoggedInUI(body.name);
+      renderAccountUI();
       closeAuth();
       toast('Logged in — welcome back!');
       renderCart(); renderGrid();

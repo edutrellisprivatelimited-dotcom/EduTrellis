@@ -2,13 +2,16 @@ import json
 import logging
 from decimal import Decimal, InvalidOperation
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
-from myapp.forms import ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm
+from myapp.forms import (
+    ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
+    StoreProfileEditForm, StorePasswordChangeForm,
+)
 from myapp.models import ContactLead, StoreProfile, Cart, CartItem
 
 logger = logging.getLogger(__name__)
@@ -26,8 +29,19 @@ def estore(request):
     cart = _get_or_create_cart(request)
     boot = {'user': None, 'cart': _cart_payload(cart)}
     if request.user.is_authenticated:
-        boot['user'] = {'name': request.user.first_name or request.user.username}
+        boot['user'] = _user_payload(request.user)
     return render(request, "estore.html", {"store_boot_json": json.dumps(boot)})
+
+
+def _user_payload(user):
+    profile = getattr(user, 'store_profile', None)
+    return {
+        'name': user.first_name or user.username,
+        'email': user.email,
+        'phone': profile.phone if profile else '',
+        'is_staff': user.is_staff,
+        'avatar_url': profile.avatar.url if (profile and profile.avatar) else None,
+    }
 
 
 # ── E-Store: cart helpers ────────────────────────────────────────────────
@@ -146,7 +160,7 @@ def store_signup(request):
         _merge_session_cart_into_user(auth_user, pre_login_session_key)
 
     cart = _get_or_create_cart(request)
-    return JsonResponse({'status': 'ok', 'name': first_name or name, 'cart': _cart_payload(cart)})
+    return JsonResponse({'status': 'ok', 'user': _user_payload(auth_user or user), 'cart': _cart_payload(cart)})
 
 
 def store_login(request):
@@ -183,12 +197,61 @@ def store_login(request):
     _merge_session_cart_into_user(auth_user, pre_login_session_key)
 
     cart = _get_or_create_cart(request)
-    name = auth_user.first_name or auth_user.username
-    return JsonResponse({'status': 'ok', 'name': name, 'cart': _cart_payload(cart)})
+    return JsonResponse({'status': 'ok', 'user': _user_payload(auth_user), 'cart': _cart_payload(cart)})
 
 
 def store_logout(request):
     logout(request)
+    return JsonResponse({'status': 'ok'})
+
+
+def store_profile_update(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+
+    form = StoreProfileEditForm(request.POST, request.FILES)
+    if not form.is_valid():
+        return JsonResponse(
+            {'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}},
+            status=400,
+        )
+
+    name = form.cleaned_data['name']
+    first_name, _, last_name = name.partition(' ')
+    request.user.first_name = first_name
+    request.user.last_name = last_name
+    request.user.save(update_fields=['first_name', 'last_name'])
+
+    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+    profile.phone = form.cleaned_data['phone']
+    if form.cleaned_data.get('avatar'):
+        profile.avatar = form.cleaned_data['avatar']
+    profile.save()
+
+    return JsonResponse({'status': 'ok', 'user': _user_payload(request.user)})
+
+
+def store_password_change(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+
+    form = StorePasswordChangeForm(_parse_json_body(request))
+    if not form.is_valid():
+        return JsonResponse(
+            {'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}},
+            status=400,
+        )
+
+    if not request.user.check_password(form.cleaned_data['current_password']):
+        return JsonResponse({'status': 'error', 'detail': 'Current password is incorrect.'}, status=400)
+
+    request.user.set_password(form.cleaned_data['new_password'])
+    request.user.save(update_fields=['password'])
+    update_session_auth_hash(request, request.user)  # keep the session logged in
     return JsonResponse({'status': 'ok'})
 
 

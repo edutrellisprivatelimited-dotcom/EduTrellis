@@ -71,6 +71,30 @@ class StoreLoginForm(forms.Form):
     password   = forms.CharField(required=True, error_messages={'required': 'Enter your password.'})
 
 
+class StoreProfileEditForm(forms.Form):
+    name   = forms.CharField(max_length=120, required=True, error_messages={'required': 'Enter your full name.'})
+    phone  = forms.CharField(max_length=20, required=True, error_messages={'required': 'Enter your phone number.'})
+    avatar = forms.ImageField(required=False)
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        if len(name) < 2:
+            raise forms.ValidationError('Enter your full name.')
+        return name
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone'].strip()
+        digits = ''.join(ch for ch in phone if ch.isdigit())
+        if len(digits) < 10:
+            raise forms.ValidationError('Enter a valid phone number.')
+        return phone
+
+
+class StorePasswordChangeForm(forms.Form):
+    current_password = forms.CharField(required=True, error_messages={'required': 'Enter your current password.'})
+    new_password      = forms.CharField(min_length=6, required=True, error_messages={'required': 'Enter a new password.', 'min_length': 'New password must be at least 6 characters.'})
+
+
 class StoreContactForm(forms.Form):
     name    = forms.CharField(max_length=120, required=True, error_messages={'required': 'Enter your full name.'})
     phone   = forms.CharField(max_length=20, required=True, error_messages={'required': 'Enter your phone number.'})
