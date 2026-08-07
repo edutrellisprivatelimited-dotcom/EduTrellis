@@ -4,7 +4,8 @@ from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
@@ -436,3 +437,69 @@ def contact_lead(request):
         )
 
     return JsonResponse({'status': 'ok', 'message': 'Message sent successfully.'})
+
+
+# ── Custom store admin dashboard (staff-only, replaces linking to /admin/) ──
+
+def _dashboard_guard(request):
+    """Anonymous or non-staff visitors are bounced back to the storefront,
+    where they can log in through the existing auth modal."""
+    return request.user.is_authenticated and request.user.is_staff
+
+
+def dashboard_home(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    context = {
+        'active': 'home',
+        'total_users': User.objects.count(),
+        'total_leads': ContactLead.objects.count(),
+        'total_carts': Cart.objects.count(),
+        'cart_items': CartItem.objects.count(),
+        'recent_users': User.objects.select_related('store_profile').order_by('-date_joined')[:5],
+        'recent_leads': ContactLead.objects.order_by('-created_at')[:5],
+    }
+    return render(request, 'dashboard/home.html', context)
+
+
+def dashboard_signups(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    q = request.GET.get('q', '').strip()
+    users = User.objects.select_related('store_profile').order_by('-date_joined')
+    if q:
+        users = users.filter(
+            Q(username__icontains=q) | Q(email__icontains=q) |
+            Q(first_name__icontains=q) | Q(last_name__icontains=q) |
+            Q(store_profile__phone__icontains=q)
+        )
+    return render(request, 'dashboard/signups.html', {'active': 'signups', 'users': users, 'q': q})
+
+
+def dashboard_contacts(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    q = request.GET.get('q', '').strip()
+    leads = ContactLead.objects.order_by('-created_at')
+    if q:
+        leads = leads.filter(
+            Q(name__icontains=q) | Q(email__icontains=q) | Q(phone__icontains=q) |
+            Q(service__icontains=q) | Q(message__icontains=q)
+        )
+    return render(request, 'dashboard/contacts.html', {'active': 'contacts', 'leads': leads, 'q': q})
+
+
+def dashboard_contact_delete(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        get_object_or_404(ContactLead, pk=pk).delete()
+    return redirect('dashboard_contacts')
+
+
+def dashboard_logout(request):
+    logout(request)
+    return redirect('estore')

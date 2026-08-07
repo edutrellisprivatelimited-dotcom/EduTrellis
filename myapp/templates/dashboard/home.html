@@ -1,0 +1,54 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Overview{% endblock %}
+{% block page_title %}Overview{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-ico"><i class="fas fa-users"></i></div><div><div class="stat-num">{{ total_users }}</div><div class="stat-lbl">Signups</div></div></div>
+  <div class="stat-card"><div class="stat-ico"><i class="fas fa-envelope-open-text"></i></div><div><div class="stat-num">{{ total_leads }}</div><div class="stat-lbl">Contact Leads</div></div></div>
+  <div class="stat-card"><div class="stat-ico"><i class="fas fa-cart-shopping"></i></div><div><div class="stat-num">{{ total_carts }}</div><div class="stat-lbl">Active Carts</div></div></div>
+  <div class="stat-card"><div class="stat-ico"><i class="fas fa-boxes-stacked"></i></div><div><div class="stat-num">{{ cart_items }}</div><div class="stat-lbl">Items in Carts</div></div></div>
+</div>
+
+<div class="panel">
+  <div class="panel-head"><h3>Recent signups</h3><a href="{% url 'dashboard_signups' %}" class="panel-link">View all &rarr;</a></div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead>
+    <tbody>
+      {% for u in recent_users %}
+      <tr>
+        <td>{{ u.first_name|default:u.username }} {{ u.last_name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.store_profile.phone|default:"—" }}</td>
+        <td>{{ u.date_joined|date:"d M Y, h:i A" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="empty-row">No signups yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head"><h3>Recent contact leads</h3><a href="{% url 'dashboard_contacts' %}" class="panel-link">View all &rarr;</a></div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Name</th><th>Contact</th><th>Topic</th><th>Received</th></tr></thead>
+    <tbody>
+      {% for lead in recent_leads %}
+      <tr>
+        <td>{{ lead.name }}</td>
+        <td>{{ lead.phone }}<span class="sub-line">{{ lead.email }}</span></td>
+        <td>{{ lead.service|default:"—" }}</td>
+        <td>{{ lead.created_at|date:"d M Y, h:i A" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="empty-row">No contact messages yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

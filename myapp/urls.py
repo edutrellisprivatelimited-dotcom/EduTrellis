@@ -15,5 +15,12 @@ urlpatterns = [
     path('store/api/cart/update/', views.store_cart_update, name='store_cart_update'),
     path('store/api/cart/remove/', views.store_cart_remove, name='store_cart_remove'),
     path('store/api/contact/', views.store_contact, name='store_contact'),
+
+    path('store/dashboard/', views.dashboard_home, name='dashboard_home'),
+    path('store/dashboard/signups/', views.dashboard_signups, name='dashboard_signups'),
+    path('store/dashboard/contacts/', views.dashboard_contacts, name='dashboard_contacts'),
+    path('store/dashboard/contacts/<int:pk>/delete/', views.dashboard_contact_delete, name='dashboard_contact_delete'),
+    path('store/dashboard/logout/', views.dashboard_logout, name='dashboard_logout'),
+
     path('contact/', views.contact_lead, name='contact_lead'),
 ]

@@ -1,0 +1,37 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Signups{% endblock %}
+{% block page_title %}Signups{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="panel-head">
+    <h3>{{ users|length }} customer{{ users|length|pluralize }}</h3>
+    <form class="panel-search" method="get">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="search" name="q" value="{{ q }}" placeholder="Search name, email, phone…">
+    </form>
+  </div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.first_name|default:u.username }} {{ u.last_name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.store_profile.phone|default:"—" }}</td>
+        <td>
+          {% if u.is_superuser %}<span class="badge staff">Superuser</span>
+          {% elif u.is_staff %}<span class="badge staff">Staff</span>
+          {% else %}<span class="badge user">Customer</span>{% endif %}
+        </td>
+        <td>{{ u.date_joined|date:"d M Y, h:i A" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="empty-row">No signups match your search</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

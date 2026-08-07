@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.pyc
+
+# Django user-uploaded media (avatars, etc.) — not source, shouldn't be versioned
+media/
+
+# Environment
+.env

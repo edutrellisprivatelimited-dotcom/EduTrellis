@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Overview{% endblock %} | EduTrellis Store Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+<style>
+:root{
+  --red:#e8001e; --red-dark:#c0001a; --red-soft:#fff1f3;
+  --dark:#1c2333; --dark-2:#0f1623;
+  --text:#555f6d; --head:#111418; --line:#e7eaf0;
+  --bg:#ffffff; --bg-alt:#f8f9fc;
+  --radius:16px; --shadow-sm:0 4px 24px rgba(0,0,0,.07); --shadow-md:0 12px 40px rgba(0,0,0,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:var(--bg-alt)}
+h1,h2,h3,.dash-logo{font-family:'Sora',system-ui,sans-serif;color:var(--head)}
+a{color:inherit;text-decoration:none}
+
+.dash{display:flex;min-height:100vh}
+.dash-sidebar{width:250px;flex:none;background:var(--dark);color:rgba(255,255,255,.75);display:flex;flex-direction:column;padding:1.6rem 1.1rem;position:sticky;top:0;height:100vh}
+.dash-logo{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-.02em}
+.dash-logo span{color:var(--red)}
+.dash-logo-sub{font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:.15rem}
+.dash-nav{margin-top:2.2rem;display:flex;flex-direction:column;gap:.3rem;flex:1}
+.dash-nav a{display:flex;align-items:center;gap:.7rem;padding:.75rem .9rem;border-radius:12px;font-size:.87rem;font-weight:600;color:rgba(255,255,255,.7);transition:all .2s}
+.dash-nav a i{width:18px;text-align:center}
+.dash-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.dash-nav a.active{background:var(--red);color:#fff;box-shadow:0 8px 22px rgba(232,0,30,.35)}
+.dash-sidebar-foot{display:flex;flex-direction:column;gap:.3rem;border-top:1px solid rgba(255,255,255,.1);padding-top:1rem}
+.dash-sidebar-foot a{display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;border-radius:12px;font-size:.85rem;font-weight:600;color:rgba(255,255,255,.65);transition:background .2s}
+.dash-sidebar-foot a:hover{background:rgba(255,255,255,.06);color:#fff}
+.dash-sidebar-foot a.danger{color:#ff8a99}
+
+.dash-main{flex:1;min-width:0}
+.dash-topbar{background:#fff;border-bottom:1px solid var(--line);padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:sticky;top:0;z-index:20}
+.dash-title{font-size:1.25rem;font-weight:800;color:var(--head)}
+.dash-admin{display:flex;align-items:center;gap:.65rem;font-size:.85rem;font-weight:600;color:var(--head)}
+.dash-admin .dav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;overflow:hidden;flex-shrink:0}
+.dash-admin .dav img{width:100%;height:100%;object-fit:cover}
+
+.dash-body{padding:2rem}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem;margin-bottom:2rem}
+.stat-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1.4rem 1.5rem;display:flex;align-items:center;gap:1rem;box-shadow:var(--shadow-sm)}
+.stat-ico{width:48px;height:48px;border-radius:14px;background:var(--red-soft);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.stat-num{font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:var(--head);line-height:1}
+.stat-lbl{font-size:.8rem;color:var(--text);margin-top:.2rem}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:1.6rem}
+.panel-head{padding:1.1rem 1.4rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.panel-head h3{font-size:1rem;font-weight:800;color:var(--head)}
+.panel-link{font-size:.82rem;font-weight:700;color:var(--red)}
+.panel-search{position:relative}
+.panel-search input{height:38px;border:1.5px solid var(--line);border-radius:50px;padding:0 1rem 0 2.4rem;font-family:inherit;font-size:.85rem;background:var(--bg-alt);width:220px}
+.panel-search input:focus{outline:none;border-color:var(--red)}
+.panel-search i{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:#9aa3b0;font-size:.85rem}
+
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text);padding:.85rem 1.4rem;background:var(--bg-alt);border-bottom:1px solid var(--line);white-space:nowrap}
+tbody td{padding:.95rem 1.4rem;font-size:.86rem;color:var(--head);border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--bg-alt)}
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;padding:.22rem .6rem;border-radius:50px;white-space:nowrap}
+.badge.staff{background:var(--red-soft);color:var(--red)}
+.badge.user{background:#eef2ff;color:#3b5bdb}
+.msg-cell{max-width:320px;white-space:normal;line-height:1.5}
+.sub-line{color:var(--text);display:block;font-size:.8rem}
+.empty-row{text-align:center;padding:3rem 1rem;color:#9aa3b0}
+.del-btn{border:none;background:none;color:#b6bcc6;cursor:pointer;font-size:.85rem;transition:color .2s}
+.del-btn:hover{color:var(--red)}
+
+@media (max-width:900px){
+  .dash-sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:.3s;z-index:100}
+  .dash-body{padding:1.2rem}
+  .dash-topbar{padding:1rem 1.2rem}
+  .panel-search input{width:150px}
+}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="dash">
+  <aside class="dash-sidebar">
+    <div>
+      <div class="dash-logo">Edu<span>Trellis</span></div>
+      <div class="dash-logo-sub">Store Admin</div>
+    </div>
+    <nav class="dash-nav">
+      <a href="{% url 'dashboard_home' %}" class="{% if active == 'home' %}active{% endif %}"><i class="fas fa-gauge"></i> Overview</a>
+      <a href="{% url 'dashboard_signups' %}" class="{% if active == 'signups' %}active{% endif %}"><i class="fas fa-users"></i> Signups</a>
+      <a href="{% url 'dashboard_contacts' %}" class="{% if active == 'contacts' %}active{% endif %}"><i class="fas fa-envelope-open-text"></i> Contact Leads</a>
+    </nav>
+    <div class="dash-sidebar-foot">
+      <a href="{% url 'estore' %}"><i class="fas fa-arrow-left"></i> Back to store</a>
+      <a href="{% url 'dashboard_logout' %}" class="danger"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </aside>
+
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div class="dash-title">{% block page_title %}Overview{% endblock %}</div>
+      <div class="dash-admin">
+        <div class="dav">
+          {% if request.user.store_profile.avatar %}<img src="{{ request.user.store_profile.avatar.url }}" alt="">
+          {% else %}{{ request.user.first_name|default:request.user.username|first|upper }}{% endif %}
+        </div>
+        <span>{{ request.user.first_name|default:request.user.username }}</span>
+      </div>
+    </div>
+    <div class="dash-body">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
