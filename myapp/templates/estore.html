@@ -648,11 +648,11 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <span class="logo-sub">An EduTrellis Company</span>
     </a>
 
-    <div class="searchbar">
+    <form class="searchbar" id="searchFormDesktop" autocomplete="off" onsubmit="return false;">
       <i class="fas fa-magnifying-glass si"></i>
       <input type="search" id="search" placeholder="Search earbuds, smartwatches, keyboards…" aria-label="Search the store" autocomplete="off" name="store-search-desktop">
-      <button class="sclear" id="searchGo" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
-    </div>
+      <button type="button" class="sclear" id="searchGo" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
+    </form>
 
     <div class="hd-actions">
       <button class="icon-btn" id="openCart" aria-label="Open cart">
@@ -698,10 +698,10 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 
 <!-- ==================== MOBILE MENU ==================== -->
 <div class="mobile-menu" id="mmenu">
-  <div class="mobile-search">
+  <form class="mobile-search" id="searchFormMobile" autocomplete="off" onsubmit="return false;">
     <i class="fas fa-magnifying-glass si"></i>
     <input type="search" id="searchMobile" placeholder="Search earbuds, smartwatches, keyboards…" aria-label="Search the store" autocomplete="off" name="store-search-mobile">
-  </div>
+  </form>
   <ul>
     <li><a href="#top">Home <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#shop">Shop All <i class="fas fa-chevron-right"></i></a></li>
@@ -1144,7 +1144,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <div class="auth-pane on" id="pane-login">
       <div class="fg">
         <label for="liId">Email or phone</label>
-        <input type="text" id="liId" placeholder="you@email.com or 98XXXXXXXX">
+        <input type="text" id="liId" name="account-identifier" placeholder="you@email.com or 98XXXXXXXX" autocomplete="off">
       </div>
       <div class="fg">
         <label for="liPw">Password</label>
