@@ -1,0 +1,52 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="panel-head">
+    <h3>{{ products|length }} product{{ products|length|pluralize }}</h3>
+    <div class="row-actions">
+      <form class="panel-search" method="get">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="search" name="q" value="{{ q }}" placeholder="Search name, brand, tag…">
+      </form>
+      <a href="{% url 'dashboard_product_add' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add product</a>
+    </div>
+  </div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>MRP</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td>
+          {% if p.image %}<img class="thumb" src="{{ p.image.url }}" alt="{{ p.name }}">
+          {% else %}<div class="thumb-empty"><i class="fas {{ p.icon }}"></i></div>{% endif %}
+        </td>
+        <td>{{ p.name }}<span class="sub-line">{{ p.brand }}</span></td>
+        <td>{{ p.category.name }}</td>
+        <td>₹{{ p.price|floatformat:0 }}</td>
+        <td>₹{{ p.mrp|floatformat:0 }}</td>
+        <td>{{ p.stock_status }}</td>
+        <td>
+          {% if p.is_active %}<span class="badge staff">Active</span>{% else %}<span class="badge user">Hidden</span>{% endif %}
+        </td>
+        <td>
+          <div class="row-actions">
+            <a class="edit-btn" href="{% url 'dashboard_product_edit' p.pk %}" title="Edit"><i class="fas fa-pen"></i></a>
+            <form method="post" action="{% url 'dashboard_product_delete' p.pk %}" onsubmit="return confirm('Delete this product?')">
+              {% csrf_token %}
+              <button type="submit" class="del-btn" title="Delete"><i class="fas fa-trash"></i></button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty-row">No products match your search</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

@@ -12,14 +12,23 @@ from django.conf import settings
 from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
     StoreProfileEditForm, StorePasswordChangeForm, CategoryForm, OrderStatusForm,
+    ProductForm, AboutUsContentForm, PolicyPageForm, PaymentSettingsForm,
 )
-from myapp.models import ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem
+from myapp.models import (
+    ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
+    Product, AboutUsContent, PolicyPage, PaymentSettings, Payment,
+)
 
 logger = logging.getLogger(__name__)
 
-# Mirrors the frontend's FREE_SHIP_OVER / SHIP_FEE constants in estore.html
-# so checkout totals match what the cart drawer showed the customer.
-FREE_SHIP_OVER = Decimal('999')
+try:
+    import razorpay
+except ImportError:  # pragma: no cover - optional dependency until configured
+    razorpay = None
+
+# The frontend reads these from store_boot_json (BOOT.shipping) instead of
+# hardcoding its own copy, so this is the single source of truth.
+FREE_SHIP_OVER = Decimal('299')
 SHIP_FEE = Decimal('79')
 
 
@@ -33,14 +42,49 @@ def home2(request):
 
 def estore(request):
     cart = _get_or_create_cart(request)
-    boot = {'user': None, 'cart': _cart_payload(cart)}
+    payment_settings = PaymentSettings.get_solo()
+    boot = {
+        'user': None,
+        'cart': _cart_payload(cart),
+        'shipping': {'free_over': float(FREE_SHIP_OVER), 'fee': float(SHIP_FEE)},
+        'payments': {
+            'cod_enabled': payment_settings.cod_enabled,
+            'razorpay_enabled': payment_settings.razorpay_ready,
+            'razorpay_key_id': payment_settings.razorpay_key_id if payment_settings.razorpay_ready else '',
+        },
+    }
     if request.user.is_authenticated:
         boot['user'] = _user_payload(request.user)
     categories = Category.objects.filter(is_active=True)
+    products = Product.objects.filter(is_active=True).select_related('category')
     return render(request, "estore.html", {
         "store_boot_json": json.dumps(boot),
+        "products_json": json.dumps([_product_payload(p) for p in products]),
         "categories": categories,
+        "about": AboutUsContent.get_solo(),
     })
+
+
+def _product_payload(p):
+    return {
+        'id': p.slug,
+        'cat': p.category.slug,
+        'brand': p.brand,
+        'name': p.name,
+        'desc': p.short_description,
+        'description': p.description or p.short_description,
+        'specs': p.spec_list,
+        'price': float(p.price),
+        'mrp': float(p.mrp),
+        'icon': p.icon,
+        'grad': p.gradient,
+        'image': p.image.url if p.image else None,
+        'flag': p.flag,
+        'stock': p.stock_status,
+        'tags': p.tag_list,
+        'rating': float(p.rating),
+        'reviews': p.reviews_count,
+    }
 
 
 def _user_payload(user):
@@ -361,6 +405,13 @@ def store_cart_remove(request):
     return JsonResponse(_cart_payload(cart))
 
 
+def _razorpay_client():
+    settings_obj = PaymentSettings.get_solo()
+    if razorpay is None or not settings_obj.razorpay_ready:
+        return None, settings_obj
+    return razorpay.Client(auth=(settings_obj.razorpay_key_id, settings_obj.razorpay_key_secret)), settings_obj
+
+
 def store_checkout(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
@@ -372,13 +423,24 @@ def store_checkout(request):
     if not items:
         return JsonResponse({'status': 'error', 'detail': 'Your cart is empty.'}, status=400)
 
-    use_wallet = bool(_parse_json_body(request).get('use_wallet'))
+    payload = _parse_json_body(request)
+    use_wallet = bool(payload.get('use_wallet'))
+    payment_method = payload.get('payment_method') or Payment.METHOD_COD
+    if payment_method not in (Payment.METHOD_COD, Payment.METHOD_RAZORPAY):
+        payment_method = Payment.METHOD_COD
+
     profile, _ = StoreProfile.objects.get_or_create(user=request.user)
 
     subtotal = sum((i.subtotal for i in items), Decimal('0'))
     wallet_discount = min(profile.wallet_balance, subtotal) if use_wallet else Decimal('0')
     shipping_fee = Decimal('0') if subtotal == 0 or subtotal >= FREE_SHIP_OVER else SHIP_FEE
     total = max(Decimal('0'), subtotal + shipping_fee - wallet_discount)
+
+    razorpay_client, payment_settings = (None, None)
+    if payment_method == Payment.METHOD_RAZORPAY:
+        razorpay_client, payment_settings = _razorpay_client()
+        if razorpay_client is None:
+            payment_method = Payment.METHOD_COD  # gateway not configured — fall back silently
 
     order = Order.objects.create(
         user=request.user, subtotal=subtotal, wallet_discount=wallet_discount,
@@ -396,12 +458,86 @@ def store_checkout(request):
 
     cart.items.all().delete()
 
+    razorpay_payload = None
+    if payment_method == Payment.METHOD_RAZORPAY and total > 0:
+        try:
+            rp_order = razorpay_client.order.create({
+                'amount': int(total * 100),
+                'currency': 'INR',
+                'receipt': f'order_{order.pk}',
+                'payment_capture': 1,
+            })
+            payment = Payment.objects.create(
+                order=order, method=Payment.METHOD_RAZORPAY, status=Payment.STATUS_PENDING,
+                amount=total, razorpay_order_id=rp_order['id'],
+            )
+            razorpay_payload = {
+                'key_id': payment_settings.razorpay_key_id,
+                'razorpay_order_id': rp_order['id'],
+                'amount': int(total * 100),
+                'currency': 'INR',
+                'payment_pk': payment.pk,
+                'name': 'EduTrellis Store',
+                'description': f'Order #{order.pk}',
+                'prefill': {
+                    'name': request.user.get_full_name() or request.user.username,
+                    'email': request.user.email,
+                    'contact': profile.phone,
+                },
+            }
+        except Exception as e:
+            logger.exception("Razorpay order creation failed for Order #%s: %s", order.pk, e)
+            Payment.objects.create(order=order, method=Payment.METHOD_COD, status=Payment.STATUS_COD_PENDING, amount=total)
+            payment_method = Payment.METHOD_COD
+    else:
+        pay_status = Payment.STATUS_PAID if total <= 0 else Payment.STATUS_COD_PENDING
+        Payment.objects.create(order=order, method=Payment.METHOD_COD, status=pay_status, amount=total)
+        payment_method = Payment.METHOD_COD
+
     return JsonResponse({
         'status': 'ok',
         'order': _order_payload(order),
         'cart': _cart_payload(cart),
         'user': _user_payload(request.user),
+        'payment_method': payment_method,
+        'razorpay': razorpay_payload,
     })
+
+
+def store_razorpay_verify(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+
+    payload = _parse_json_body(request)
+    payment = Payment.objects.filter(
+        pk=payload.get('payment_pk'), order__user=request.user, method=Payment.METHOD_RAZORPAY,
+    ).first()
+    if not payment:
+        return JsonResponse({'status': 'error', 'detail': 'Payment record not found.'}, status=404)
+
+    client, _ = _razorpay_client()
+    if not client:
+        return JsonResponse({'status': 'error', 'detail': 'Payment gateway is not configured.'}, status=400)
+
+    try:
+        client.utility.verify_payment_signature({
+            'razorpay_order_id': payload.get('razorpay_order_id', ''),
+            'razorpay_payment_id': payload.get('razorpay_payment_id', ''),
+            'razorpay_signature': payload.get('razorpay_signature', ''),
+        })
+    except Exception as e:
+        logger.warning("Razorpay signature verification failed for Payment #%s: %s", payment.pk, e)
+        payment.status = Payment.STATUS_FAILED
+        payment.save(update_fields=['status'])
+        return JsonResponse({'status': 'error', 'detail': 'Payment verification failed.'}, status=400)
+
+    payment.status = Payment.STATUS_PAID
+    payment.razorpay_payment_id = payload.get('razorpay_payment_id', '')
+    payment.razorpay_signature = payload.get('razorpay_signature', '')
+    payment.save(update_fields=['status', 'razorpay_payment_id', 'razorpay_signature'])
+    return JsonResponse({'status': 'ok'})
 
 
 def store_orders_list(request):
@@ -439,6 +575,11 @@ def store_contact(request):
         message=form.cleaned_data['message'],
     )
     return JsonResponse({'status': 'ok', 'message': "Thanks — your message is with our team."})
+
+
+def policy_page(request, key):
+    policy = get_object_or_404(PolicyPage, key=key)
+    return render(request, 'policy_page.html', {'policy': policy})
 
 
 def contact_lead(request):
@@ -548,6 +689,8 @@ def dashboard_home(request):
         'total_carts': Cart.objects.count(),
         'cart_items': CartItem.objects.count(),
         'total_orders': Order.objects.count(),
+        'total_products': Product.objects.count(),
+        'total_payments': Payment.objects.count(),
         'recent_users': User.objects.select_related('store_profile').order_by('-date_joined')[:5],
         'recent_leads': ContactLead.objects.order_by('-created_at')[:5],
     }
@@ -663,6 +806,122 @@ def dashboard_order_status_update(request, pk):
             form.save()
             order.maybe_credit_wallet()
     return redirect('dashboard_orders')
+
+
+def dashboard_products(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    q = request.GET.get('q', '').strip()
+    products = Product.objects.select_related('category').all()
+    if q:
+        products = products.filter(
+            Q(name__icontains=q) | Q(brand__icontains=q) | Q(slug__icontains=q) | Q(tags__icontains=q)
+        )
+    return render(request, 'dashboard/products.html', {'active': 'products', 'products': products, 'q': q})
+
+
+def dashboard_product_add(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    form = ProductForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('dashboard_products')
+    return render(request, 'dashboard/product_form.html', {'active': 'products', 'form': form, 'product': None})
+
+
+def dashboard_product_edit(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    product = get_object_or_404(Product, pk=pk)
+    form = ProductForm(request.POST or None, request.FILES or None, instance=product)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('dashboard_products')
+    return render(request, 'dashboard/product_form.html', {'active': 'products', 'form': form, 'product': product})
+
+
+def dashboard_product_delete(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        get_object_or_404(Product, pk=pk).delete()
+    return redirect('dashboard_products')
+
+
+def dashboard_about(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    about = AboutUsContent.get_solo()
+    form = AboutUsContentForm(request.POST or None, request.FILES or None, instance=about)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = AboutUsContentForm(instance=about)
+    return render(request, 'dashboard/about_form.html', {'active': 'about', 'form': form, 'about': about, 'saved': saved})
+
+
+def dashboard_policies(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    policies = PolicyPage.objects.all()
+    return render(request, 'dashboard/policies.html', {'active': 'policies', 'policies': policies})
+
+
+def dashboard_policy_edit(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    policy = get_object_or_404(PolicyPage, pk=pk)
+    form = PolicyPageForm(request.POST or None, instance=policy)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('dashboard_policies')
+    return render(request, 'dashboard/policy_form.html', {'active': 'policies', 'form': form, 'policy': policy})
+
+
+def dashboard_payment_settings(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    settings_obj = PaymentSettings.get_solo()
+    form = PaymentSettingsForm(request.POST or None, instance=settings_obj)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = PaymentSettingsForm(instance=settings_obj)
+    return render(request, 'dashboard/payment_settings.html', {
+        'active': 'payment_settings', 'form': form, 'settings_obj': settings_obj,
+        'razorpay_installed': razorpay is not None, 'saved': saved,
+    })
+
+
+def dashboard_payments(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    q = request.GET.get('q', '').strip()
+    status = request.GET.get('status', '').strip()
+    payments = Payment.objects.select_related('order', 'order__user').order_by('-created_at')
+    if q:
+        payments = payments.filter(
+            Q(order__id__icontains=q) | Q(order__user__username__icontains=q) |
+            Q(order__user__email__icontains=q) | Q(razorpay_order_id__icontains=q) |
+            Q(razorpay_payment_id__icontains=q)
+        )
+    if status:
+        payments = payments.filter(status=status)
+    return render(request, 'dashboard/payments.html', {
+        'active': 'payments', 'payments': payments, 'q': q, 'status': status,
+        'status_choices': Payment.STATUS_CHOICES,
+    })
 
 
 def dashboard_logout(request):

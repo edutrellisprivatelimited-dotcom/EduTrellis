@@ -75,6 +75,11 @@ tbody tr:hover{background:var(--bg-alt)}
 .badge.st-shipped{background:#e6f4ff;color:#0369a1}
 .badge.st-delivered{background:#e8fbf0;color:#1da851}
 .badge.st-cancelled{background:var(--red-soft);color:var(--red)}
+.badge.pay-pending{background:#fff7e6;color:#b45309}
+.badge.pay-paid{background:#e8fbf0;color:#1da851}
+.badge.pay-failed{background:var(--red-soft);color:var(--red)}
+.badge.pay-refunded{background:#eef2ff;color:#3b5bdb}
+.badge.pay-cod_pending{background:#e6f4ff;color:#0369a1}
 .status-form{display:flex;align-items:center;gap:.5rem}
 .status-form select{border:1.5px solid var(--line);border-radius:8px;padding:.4rem .6rem;font-family:inherit;font-size:.8rem;background:var(--bg-alt);color:var(--head)}
 .status-form select:focus{outline:none;border-color:var(--red)}
@@ -105,8 +110,15 @@ tbody tr:hover{background:var(--bg-alt)}
 .form-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:1.6rem;max-width:560px}
 .form-group{margin-bottom:1.2rem}
 .form-group label{display:block;font-size:.8rem;font-weight:700;color:var(--head);margin-bottom:.4rem}
-.form-group input[type=text],.form-group input[type=number],.form-group textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:.65rem .9rem;font-family:inherit;font-size:.88rem;background:var(--bg-alt)}
-.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--red)}
+.form-group input[type=text],.form-group input[type=number],.form-group input[type=email],.form-group input[type=url],.form-group input[type=password],.form-group textarea,.form-group select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:.65rem .9rem;font-family:inherit;font-size:.88rem;background:var(--bg-alt)}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--red)}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:620px){.form-grid-2{grid-template-columns:1fr}}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0;border-bottom:1px solid var(--line)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-row b{display:block;font-size:.88rem;color:var(--head)}
+.toggle-row span{font-size:.78rem;color:var(--text)}
+.save-msg{background:#e8f8ee;color:#177245;border-radius:12px;padding:.85rem 1rem;font-size:.88rem;font-weight:600;margin-bottom:1.2rem}
 .form-group .help{font-size:.74rem;color:#9aa3b0;margin-top:.3rem}
 .form-group .errorlist{list-style:none;color:var(--red);font-size:.78rem;margin-top:.35rem;padding:0}
 .form-check{display:flex;align-items:center;gap:.55rem}
@@ -137,7 +149,12 @@ tbody tr:hover{background:var(--bg-alt)}
       <a href="{% url 'dashboard_signups' %}" class="{% if active == 'signups' %}active{% endif %}"><i class="fas fa-users"></i> Signups</a>
       <a href="{% url 'dashboard_contacts' %}" class="{% if active == 'contacts' %}active{% endif %}"><i class="fas fa-envelope-open-text"></i> Contact Leads</a>
       <a href="{% url 'dashboard_categories' %}" class="{% if active == 'categories' %}active{% endif %}"><i class="fas fa-tags"></i> Categories</a>
+      <a href="{% url 'dashboard_products' %}" class="{% if active == 'products' %}active{% endif %}"><i class="fas fa-box-open"></i> Products</a>
       <a href="{% url 'dashboard_orders' %}" class="{% if active == 'orders' %}active{% endif %}"><i class="fas fa-box"></i> Orders</a>
+      <a href="{% url 'dashboard_payments' %}" class="{% if active == 'payments' %}active{% endif %}"><i class="fas fa-money-check-dollar"></i> Payments</a>
+      <a href="{% url 'dashboard_payment_settings' %}" class="{% if active == 'payment_settings' %}active{% endif %}"><i class="fas fa-credit-card"></i> Payment Settings</a>
+      <a href="{% url 'dashboard_about' %}" class="{% if active == 'about' %}active{% endif %}"><i class="fas fa-circle-info"></i> About Us</a>
+      <a href="{% url 'dashboard_policies' %}" class="{% if active == 'policies' %}active{% endif %}"><i class="fas fa-file-shield"></i> Policies</a>
     </nav>
     <div class="dash-sidebar-foot">
       <a href="{% url 'estore' %}"><i class="fas fa-arrow-left"></i> Back to store</a>

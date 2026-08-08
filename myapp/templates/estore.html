@@ -164,6 +164,11 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .navrow a:hover::after{width:100%}
 .navrow .hot{color:var(--red);font-weight:700}
 
+.mobile-search{position:relative;margin-bottom:1.1rem;display:none}
+.mobile-search input{width:100%;height:44px;border:1.5px solid var(--line);border-radius:50px;padding:0 1rem 0 2.6rem;font-family:inherit;font-size:.9rem;color:var(--head);background:var(--bg-alt)}
+.mobile-search input:focus{outline:none;border-color:var(--red);background:#fff}
+.mobile-search i{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:#9aa3b0;font-size:.9rem}
+@media (max-width:900px){.mobile-search{display:block}}
 .mobile-menu{position:fixed;top:calc(var(--strip-h) + var(--head-h));left:0;right:0;bottom:0;background:#fff;z-index:880;transform:translateX(-100%);transition:transform .35s ease;overflow-y:auto;padding:1.2rem 1.25rem 3rem}
 .mobile-menu.open{transform:none}
 .mobile-menu ul{list-style:none;display:flex;flex-direction:column}
@@ -397,6 +402,10 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .wallet-toggle .wt-txt{flex:1}
 .wallet-toggle b{display:block;font-family:'Sora',sans-serif;font-size:.85rem;color:var(--head)}
 .wallet-toggle small{font-size:.75rem;color:var(--text)}
+.pay-methods{display:flex;gap:.6rem;margin-bottom:.9rem}
+.pay-methods label{flex:1;display:flex;align-items:center;gap:.5rem;border:1.5px solid var(--line);border-radius:12px;padding:.65rem .8rem;font-size:.82rem;font-weight:700;color:var(--head);cursor:pointer;transition:border-color .2s,background .2s}
+.pay-methods input{accent-color:var(--red)}
+.pay-methods label.on{border-color:var(--red);background:var(--red-soft)}
 .switch{position:relative;width:44px;height:25px;flex:none}
 .switch input{opacity:0;width:0;height:0}
 .slider{position:absolute;inset:0;background:#d3d8e0;border-radius:99px;cursor:pointer;transition:.3s}
@@ -427,6 +436,28 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .auth-alt{text-align:center;font-size:.82rem;margin-top:1.1rem}
 .auth-alt button{border:none;background:none;color:var(--red);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem}
 .modal-x{position:absolute;top:1rem;right:1rem;z-index:3}
+
+/* product detail modal */
+.detail-card{width:min(640px,100%);text-align:left}
+.detail-media{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;display:grid;place-items:center;margin-bottom:1.2rem}
+.detail-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.detail-media i{font-size:3.5rem;color:rgba(255,255,255,.94);position:relative;z-index:1}
+.detail-media .p-flag{top:.9rem;left:.9rem}
+.detail-media .p-off{top:.9rem;right:.9rem}
+.detail-brand{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
+.detail-card h3{font-size:1.3rem;font-weight:800;margin:.2rem 0 .5rem}
+.detail-rate{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:#8a919c;margin-bottom:.7rem}
+.detail-rate .stars{color:#f5a623}
+.detail-price-row{display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem;flex-wrap:wrap}
+.detail-price-row .price{font-size:1.5rem}
+.detail-stock{font-size:.8rem;font-weight:700;color:var(--green-dark)}
+.detail-desc{font-size:.92rem;line-height:1.65;margin-bottom:1rem}
+.detail-specs{width:100%;border-collapse:collapse;margin-bottom:1.2rem}
+.detail-specs td{padding:.5rem .2rem;font-size:.85rem;border-bottom:1px solid var(--line)}
+.detail-specs td:first-child{color:var(--text);font-weight:600;width:40%}
+.detail-specs td:last-child{color:var(--head)}
+.detail-foot{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+.detail-foot .add-btn{flex:1;justify-content:center;padding:.85rem 1rem;min-width:160px}
 
 /* offer popup */
 .offer-card{width:min(420px,100%);border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 30px 70px rgba(0,0,0,.34);transform:translateY(20px) scale(.97);transition:transform .4s;position:relative}
@@ -551,6 +582,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 <body>
 {% csrf_token %}
 <script id="storeBoot" type="application/json">{{ store_boot_json|safe }}</script>
+<script id="productsBoot" type="application/json">{{ products_json|safe }}</script>
 
 <!-- ==================== LOADER ==================== -->
 <div id="loader">
@@ -632,6 +664,10 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 
 <!-- ==================== MOBILE MENU ==================== -->
 <div class="mobile-menu" id="mmenu">
+  <div class="mobile-search">
+    <i class="fas fa-magnifying-glass si"></i>
+    <input type="search" id="searchMobile" placeholder="Search earbuds, smartwatches, keyboards…" aria-label="Search the store">
+  </div>
   <ul>
     <li><a href="#top">Home <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#shop">Shop All <i class="fas fa-chevron-right"></i></a></li>
@@ -661,8 +697,8 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         </div>
         <div class="hero-trust">
           <div class="htrust"><h3>1200+</h3><p>Orders delivered</p></div>
-          <div class="htrust"><h3>7-day</h3><p>Easy returns</p></div>
-          <div class="htrust"><h3>1-year</h3><p>Brand warranty</p></div>
+          <div class="htrust"><h3>24/7</h3><p>Order support</p></div>
+          <div class="htrust"><h3>GST</h3><p>Invoice available</p></div>
         </div>
       </div>
     </div>
@@ -681,7 +717,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         <div class="hero-trust">
           <div class="htrust"><h3>40h</h3><p>Playback on top picks</p></div>
           <div class="htrust"><h3>ANC</h3><p>On select models</p></div>
-          <div class="htrust"><h3>Free</h3><p>Delivery over ₹999</p></div>
+          <div class="htrust"><h3>Free</h3><p>Delivery over ₹299</p></div>
         </div>
       </div>
     </div>
@@ -714,10 +750,10 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 <!-- ==================== TRUST BAR ==================== -->
 <div class="trust-bar">
   <div class="tb-grid">
-    <div class="tb-item"><i class="fas fa-truck-fast"></i><div><b>Free delivery over ₹999</b><span>Dispatched within 24 hours</span></div></div>
-    <div class="tb-item"><i class="fas fa-rotate-left"></i><div><b>7-day easy returns</b><span>No questions on sealed items</span></div></div>
-    <div class="tb-item"><i class="fas fa-shield-halved"></i><div><b>1-year warranty</b><span>Brand-backed on every unit</span></div></div>
-    <div class="tb-item"><i class="fas fa-lock"></i><div><b>Secure checkout</b><span>UPI, cards, COD available</span></div></div>
+    <div class="tb-item"><i class="fas fa-truck-fast"></i><div><b>Free delivery over ₹299</b><span>Dispatched within 24 hours</span></div></div>
+    <div class="tb-item"><i class="fas fa-file-invoice"></i><div><b>GST invoice on request</b><span>For business &amp; bulk purchases</span></div></div>
+    <div class="tb-item"><i class="fas fa-headset"></i><div><b>Dedicated order support</b><span>A human replies, not a bot</span></div></div>
+    <div class="tb-item"><i class="fas fa-lock"></i><div><b>Secure checkout</b><span>Razorpay, UPI, cards, COD</span></div></div>
   </div>
 </div>
 
@@ -836,52 +872,52 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 
     <div class="about-grid">
       <div class="reveal d1">
-        <!-- swap for {% static 'img/aboutus.png' %} -->
         <div class="about-photo">
+          {% if about.photo %}
+          <div class="ap-img" style="background-image:url('{{ about.photo.url }}')"></div>
+          {% else %}
           <div class="ap-img" style="background-image:url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&amp;q=85')"></div>
+          {% endif %}
           <div class="ap-veil"></div>
           <div class="ap-badge">
             <i class="fas fa-circle-check"></i>
             <div>
-              <b>Working since 2020</b>
-              <span>Websites &amp; technical services &middot; store launched 2026</span>
+              <b>{{ about.badge_title }}</b>
+              <span>{{ about.badge_subtitle }}</span>
             </div>
           </div>
         </div>
 
-        <!-- founder: swap the avatar for {% static 'img/founder.png' %} -->
         <div class="founder-card">
-          <div class="founder-ava">VT</div>
+          <div class="founder-ava"{% if about.founder_photo %} style="background-image:url('{{ about.founder_photo.url }}')"{% endif %}>{% if not about.founder_photo %}{{ about.founder_name|slice:":2"|upper }}{% endif %}</div>
           <div class="founder-meta">
-            <b>Vijay Tiwari</b>
-            <span>Founder &amp; CEO</span>
+            <b>{{ about.founder_name }}</b>
+            <span>{{ about.founder_title }}</span>
           </div>
           <div class="founder-links">
-            <a href="mailto:ceo@edutrellis.in" class="fl-mail"><i class="fas fa-envelope"></i> ceo@edutrellis.in</a>
-            <a href="https://www.linkedin.com/in/vijaytiwariii/" target="_blank" rel="noopener" class="fl-in"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
+            <a href="mailto:{{ about.founder_email }}" class="fl-mail"><i class="fas fa-envelope"></i> {{ about.founder_email }}</a>
+            {% if about.founder_linkedin %}<a href="{{ about.founder_linkedin }}" target="_blank" rel="noopener" class="fl-in"><i class="fab fa-linkedin-in"></i> LinkedIn</a>{% endif %}
           </div>
         </div>
 
         <div class="about-stats">
-          <div class="about-stat"><b>2020</b><span>Founded</span></div>
-          <div class="about-stat"><b>1200+</b><span>Clients</span></div>
-          <div class="about-stat"><b>500+</b><span>Projects</span></div>
-          <div class="about-stat"><b>98%</b><span>Satisfaction</span></div>
+          <div class="about-stat"><b>{{ about.stat1_value }}</b><span>{{ about.stat1_label }}</span></div>
+          <div class="about-stat"><b>{{ about.stat2_value }}</b><span>{{ about.stat2_label }}</span></div>
+          <div class="about-stat"><b>{{ about.stat3_value }}</b><span>{{ about.stat3_label }}</span></div>
+          <div class="about-stat"><b>{{ about.stat4_value }}</b><span>{{ about.stat4_label }}</span></div>
         </div>
       </div>
 
       <div class="about-text reveal d2">
-        <h3>A gadget store run by a tech company</h3>
-        <p>EduTrellis Private Limited has been working since 2020 — building and selling websites, and running the technical services around them: hosting, SEO, digital marketing and Google Business, for clients across India from our base in Lucknow.</p>
-        <p>Along the way we bought a lot of gear for our own team and for clients, and got tired of spec sheets that didn't match reality. So this year we launched the store. Everything listed here is stock we keep, unbox and test before it ships, sold at a fixed price with the warranty intact.</p>
+        <h3>{{ about.heading }}</h3>
+        <p>{{ about.paragraph1 }}</p>
+        <p>{{ about.paragraph2 }}</p>
 
-        <h3 style="margin-top:1.2rem">What you get with every order</h3>
+        <h3 style="margin-top:1.2rem">{{ about.list_heading }}</h3>
         <ul class="about-list">
-          <li><i class="fas fa-circle-check"></i> Sealed, genuine units with brand warranty intact</li>
-          <li><i class="fas fa-circle-check"></i> Specs listed honestly — real battery and charging numbers</li>
-          <li><i class="fas fa-circle-check"></i> Dispatch within 24 hours, tracking sent on WhatsApp</li>
-          <li><i class="fas fa-circle-check"></i> 7-day returns and a human who answers your messages</li>
-          <li><i class="fas fa-circle-check"></i> GST invoice on request for business purchases</li>
+          {% for point in about.bullet_list %}
+          <li><i class="fas fa-circle-check"></i> {{ point }}</li>
+          {% endfor %}
         </ul>
 
         <div class="about-btns">
@@ -1014,10 +1050,10 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   <div class="foot-bottom">
     <p>&copy; 2026 EduTrellis Private Limited. All rights reserved.</p>
     <div class="foot-links">
-      <a href="#">Privacy policy</a>
-      <a href="#">Terms &amp; conditions</a>
-      <a href="#">Refund policy</a>
-      <a href="#">Shipping &amp; delivery</a>
+      <a href="{% url 'policy_page' 'privacy' %}">Privacy policy</a>
+      <a href="{% url 'policy_page' 'terms' %}">Terms &amp; conditions</a>
+      <a href="{% url 'policy_page' 'refund' %}">Refund policy</a>
+      <a href="{% url 'policy_page' 'shipping' %}">Shipping &amp; delivery</a>
     </div>
   </div>
 </footer>
@@ -1050,6 +1086,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <div class="sum-row"><span>Delivery</span><span id="sumShip">—</span></div>
     <div class="sum-row disc" id="discRow" style="display:none"><span>Wallet credit</span><span id="sumDisc">−₹0</span></div>
     <div class="sum-row total"><span>Total</span><span id="sumTotal">₹0</span></div>
+    <div class="pay-methods" id="payMethods"></div>
     <button class="checkout-btn" id="checkout" disabled>Proceed to checkout</button>
     <p class="pay-note"><i class="fas fa-lock"></i> Secure payment via Razorpay, UPI, cards &amp; COD</p>
   </div>
@@ -1186,6 +1223,14 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </div>
 
+<!-- ==================== PRODUCT DETAIL MODAL ==================== -->
+<div class="modal" id="detailModal" role="dialog" aria-modal="true" aria-label="Product details">
+  <div class="modal-card detail-card">
+    <button class="x-btn modal-x" id="closeDetail" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
 <!-- ==================== OFFER POPUP ==================== -->
 <div class="modal" id="offerModal" role="dialog" aria-modal="true" aria-label="Welcome offer">
   <div class="offer-card">
@@ -1215,6 +1260,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 <button id="toTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
 <div class="toast-stack" id="toasts"></div>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 /* ============================================================
    EDUTRELLIS STORE — FRONTEND LOGIC
@@ -1225,53 +1271,20 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 'use strict';
 
 /* ---------- 1. PRODUCT CATALOGUE ---------- */
-const PRODUCTS = [
-  /* AUDIO */
-  {id:'aud-anc',   cat:'audio', brand:'SoundCore', name:'ANC Wireless Earbuds Pro', desc:'Active noise cancellation, 40h total playback with the case and low-latency game mode.', price:2799, mrp:4499, icon:'fa-headphones-simple', grad:'linear-gradient(135deg,#e8001e,#c0001a)', flag:'Bestseller', stock:'In stock', tags:['ANC','40h battery','IPX5'], rating:4.8, reviews:412},
-  {id:'aud-over',  cat:'audio', brand:'Vertex', name:'Over-Ear Studio Headphones', desc:'40mm drivers, memory-foam cups and a detachable cable for wired studio use.', price:3499, mrp:5999, icon:'fa-headphones', grad:'linear-gradient(135deg,#1c2333,#2c3e50)', flag:'', stock:'In stock', tags:['40mm drivers','60h battery','Foldable'], rating:4.7, reviews:186},
-  {id:'aud-spk',   cat:'audio', brand:'BoomBox', name:'Portable Party Speaker 20W', desc:'20W output, IPX7 waterproofing and 24 hours of playback on a single charge.', price:2199, mrp:3499, icon:'fa-volume-high', grad:'linear-gradient(135deg,#f59e0b,#b45309)', flag:'Hot', stock:'Only 6 left', tags:['20W','IPX7','24h'], rating:4.6, reviews:243},
-  {id:'aud-neck',  cat:'audio', brand:'SoundCore', name:'Bluetooth Neckband', desc:'Magnetic earbuds, quick-charge for 10 hours of playback from a 10-minute top-up.', price:999, mrp:1799, icon:'fa-music', grad:'linear-gradient(135deg,#8b5cf6,#6d28d9)', flag:'Under ₹1000', stock:'In stock', tags:['Quick charge','Magnetic','30h'], rating:4.4, reviews:308},
-  {id:'aud-metal', cat:'audio', brand:'BoomBox', name:'Metal Bluetooth Speaker', desc:'Solid metal shell, 360° sound and 18 hours of playback — plus ₹100 wallet credit on your first order once it’s delivered.', price:1799, mrp:2999, icon:'fa-volume-high', grad:'linear-gradient(135deg,#334155,#0f172a)', flag:'Welcome offer', stock:'In stock', tags:['Metal body','360° sound','18h battery'], rating:4.7, reviews:64},
-
-  /* WEARABLES */
-  {id:'wear-amo',  cat:'wearables', brand:'Pulse', name:'AMOLED Smartwatch Series 5', desc:'1.85-inch AMOLED display, Bluetooth calling, SpO2 and 100+ sport modes.', price:2999, mrp:5999, icon:'fa-stopwatch', grad:'linear-gradient(135deg,#0ea5e9,#0369a1)', flag:'Top rated', stock:'In stock', tags:['AMOLED','BT calling','SpO2'], rating:4.7, reviews:521},
-  {id:'wear-band', cat:'wearables', brand:'Pulse', name:'Fitness Band Lite', desc:'Heart-rate and sleep tracking with a 14-day battery and a strap you can actually wash.', price:1299, mrp:2299, icon:'fa-heart-pulse', grad:'linear-gradient(135deg,#10b981,#047857)', flag:'', stock:'In stock', tags:['14-day battery','HR tracking','5ATM'], rating:4.5, reviews:274},
-  {id:'wear-rug',  cat:'wearables', brand:'Vertex', name:'Rugged Outdoor Smartwatch', desc:'Metal bezel, built-in GPS and a 10-day battery for anyone outdoors more than indoors.', price:4499, mrp:7999, icon:'fa-compass', grad:'linear-gradient(135deg,#64748b,#334155)', flag:'New', stock:'Only 4 left', tags:['GPS','10-day battery','Metal body'], rating:4.8, reviews:97},
-
-  /* POWER */
-  {id:'pow-gan',   cat:'power', brand:'VoltEdge', name:'65W GaN Fast Charger', desc:'Three ports, GaN cooling and enough headroom to charge a laptop and phone together.', price:1799, mrp:2999, icon:'fa-bolt', grad:'linear-gradient(135deg,#ef4444,#991b1b)', flag:'Bestseller', stock:'In stock', tags:['65W','3 ports','GaN'], rating:4.9, reviews:389},
-  {id:'pow-bank',  cat:'power', brand:'VoltEdge', name:'20000mAh Power Bank', desc:'22.5W fast output, digital charge display and pass-through charging while it refills.', price:1999, mrp:3299, icon:'fa-battery-full', grad:'linear-gradient(135deg,#3b82f6,#1d4ed8)', flag:'', stock:'In stock', tags:['20000mAh','22.5W','Display'], rating:4.7, reviews:452},
-  {id:'pow-cable', cat:'power', brand:'VoltEdge', name:'Braided 100W USB-C Cable', desc:'Nylon-braided 1.5m cable rated for 100W charging and 480Mbps data transfer.', price:499, mrp:899, icon:'fa-plug', grad:'linear-gradient(135deg,#14b8a6,#0f766e)', flag:'Value pick', stock:'In stock', tags:['100W','1.5m','Braided'], rating:4.6, reviews:611},
-  {id:'pow-mag',   cat:'power', brand:'VoltEdge', name:'Magnetic Wireless Power Bank', desc:'Snaps to the back of your phone, 10000mAh with 15W magnetic wireless charging.', price:2499, mrp:3999, icon:'fa-magnet', grad:'linear-gradient(135deg,#ec4899,#9d174d)', flag:'New', stock:'Only 9 left', tags:['10000mAh','15W wireless','Magnetic'], rating:4.5, reviews:118},
-
-  /* COMPUTING */
-  {id:'com-mech',  cat:'computing', brand:'KeyForge', name:'65% Mechanical Keyboard', desc:'Hot-swappable switches, RGB per key and tri-mode connection over USB-C, BT and 2.4G.', price:3299, mrp:5499, icon:'fa-keyboard', grad:'linear-gradient(135deg,#7c3aed,#4c1d95)', flag:'Enthusiast', stock:'In stock', tags:['Hot-swap','Tri-mode','RGB'], rating:4.9, reviews:203},
-  {id:'com-mouse', cat:'computing', brand:'KeyForge', name:'Wireless Ergonomic Mouse', desc:'Silent clicks, adjustable 800–4000 DPI and a shape that stops the wrist ache.', price:1099, mrp:1899, icon:'fa-computer-mouse', grad:'linear-gradient(135deg,#6366f1,#3730a3)', flag:'', stock:'In stock', tags:['Silent','4000 DPI','Ergonomic'], rating:4.6, reviews:287},
-  {id:'com-hub',   cat:'computing', brand:'Vertex', name:'7-in-1 USB-C Hub', desc:'HDMI 4K, three USB ports, SD and microSD readers and 100W pass-through power.', price:2299, mrp:3799, icon:'fa-network-wired', grad:'linear-gradient(135deg,#0891b2,#155e75)', flag:'', stock:'In stock', tags:['4K HDMI','100W PD','Card reader'], rating:4.7, reviews:164},
-  {id:'com-stand', cat:'computing', brand:'Vertex', name:'Aluminium Laptop Stand', desc:'Adjustable height, folds flat for the bag and lifts the screen to eye level.', price:1499, mrp:2499, icon:'fa-laptop', grad:'linear-gradient(135deg,#94a3b8,#475569)', flag:'', stock:'In stock', tags:['Adjustable','Foldable','Aluminium'], rating:4.5, reviews:141},
-
-  /* SMART HOME */
-  {id:'sm-bulb',   cat:'smart', brand:'Lumo', name:'Smart RGB LED Bulb (Pack of 2)', desc:'16 million colours, app scheduling and voice control through Alexa and Google Home.', price:1199, mrp:1999, icon:'fa-lightbulb', grad:'linear-gradient(135deg,#f59e0b,#d97706)', flag:'Pack of 2', stock:'In stock', tags:['16M colours','Alexa','Scheduling'], rating:4.6, reviews:329},
-  {id:'sm-plug',   cat:'smart', brand:'Lumo', name:'Wi-Fi Smart Plug 16A', desc:'16A rated for heavy appliances, with energy monitoring and timer routines in the app.', price:899, mrp:1499, icon:'fa-plug-circle-bolt', grad:'linear-gradient(135deg,#22c55e,#15803d)', flag:'', stock:'In stock', tags:['16A','Energy meter','Timers'], rating:4.7, reviews:256},
-  {id:'sm-cam',    cat:'smart', brand:'Lumo', name:'360° Security Camera 3MP', desc:'3MP night vision, motion alerts, two-way audio and local storage on microSD.', price:2299, mrp:3799, icon:'fa-video', grad:'linear-gradient(135deg,#1e293b,#0f172a)', flag:'Hot', stock:'Only 7 left', tags:['3MP','Night vision','Two-way audio'], rating:4.5, reviews:198},
-
-  /* MOBILE */
-  {id:'mob-gim',   cat:'mobile', brand:'Steady', name:'3-Axis Phone Gimbal', desc:'Three-axis stabilisation, gesture control and 12 hours of runtime for handheld shoots.', price:4999, mrp:7999, icon:'fa-mobile-screen', grad:'linear-gradient(135deg,#e8001e,#7c1020)', flag:'Creator pick', stock:'Only 5 left', tags:['3-axis','Gesture control','12h'], rating:4.8, reviews:86},
-  {id:'mob-trip',  cat:'mobile', brand:'Steady', name:'Tripod with Ring Light', desc:'Extends to 1.6m, dimmable ring light in three tones and a Bluetooth shutter remote.', price:1599, mrp:2699, icon:'fa-camera', grad:'linear-gradient(135deg,#a855f7,#6b21a8)', flag:'', stock:'In stock', tags:['1.6m','Ring light','BT remote'], rating:4.6, reviews:172},
-  {id:'mob-mount', cat:'mobile', brand:'Steady', name:'Magnetic Car Mount', desc:'Strong N52 magnets, 360° rotation and a vent clip that doesn\u2019t rattle on bad roads.', price:699, mrp:1199, icon:'fa-car', grad:'linear-gradient(135deg,#0d9488,#115e59)', flag:'Value pick', stock:'In stock', tags:['N52 magnets','360°','Vent clip'], rating:4.4, reviews:225}
-];
+/* Loaded from the Product model via the dashboard, not hardcoded. */
+const PRODUCTS = JSON.parse(document.getElementById('productsBoot').textContent || '[]');
 
 /* ---------- 2. STORE CONFIG + STATE ---------- */
-const FREE_SHIP_OVER = 999;
-const SHIP_FEE       = 79;
-
 const BOOT = JSON.parse(document.getElementById('storeBoot').textContent || '{}');
+const FREE_SHIP_OVER = (BOOT.shipping && BOOT.shipping.free_over) || 299;
+const SHIP_FEE       = (BOOT.shipping && BOOT.shipping.fee) || 79;
 
 const state = {
   cart: {},
   filter: 'all',
   query: '',
   useWallet: true,
+  paymentMethod: (BOOT.payments && BOOT.payments.razorpay_enabled) ? 'razorpay' : 'cod',
   // Wallet balance is earned server-side — ₹100 is credited once a Metal
   // Bluetooth Speaker order is marked Delivered — so it starts at whatever
   // the account actually has, not a free credit.
@@ -1332,11 +1345,11 @@ function applyCartPayload(cart){
 /* ---------- 4. MARQUEE ---------- */
 (function marquee(){
   const items = [
-    ['fa-truck-fast','Free delivery over ₹999'],
-    ['fa-shield-halved','1-year brand warranty'],
-    ['fa-rotate-left','7-day easy returns'],
+    ['fa-truck-fast','Free delivery over ₹299'],
+    ['fa-file-invoice','GST invoice on request'],
+    ['fa-headset','Dedicated order support'],
     ['fa-box','Dispatch within 24 hours'],
-    ['fa-headset','Support 7 days a week'],
+    ['fa-lock','Secure Razorpay checkout'],
     ['fa-money-bill-wave','Cash on delivery available'],
     ['fa-star','98% satisfaction rate'],
     ['fa-certificate','An EduTrellis Pvt. Ltd. store']
@@ -1410,15 +1423,15 @@ function renderGrid(){
     const inCart = !!state.cart[p.id];
     return '' +
     '<article class="prod-card">' +
-      '<div class="p-media" style="background:' + p.grad + '">' +
+      '<div class="p-media" data-detail="' + p.id + '" style="background:' + p.grad + ';cursor:pointer">' +
         (p.flag ? '<span class="p-flag">' + p.flag + '</span>' : '') +
         '<span class="p-off">' + off + '% off</span>' +
         '<span class="p-stock">' + p.stock + '</span>' +
-        '<i class="fas ' + p.icon + '"></i>' +
+        (p.image ? '<img src="' + p.image + '" alt="' + p.name + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">' : '<i class="fas ' + p.icon + '"></i>') +
       '</div>' +
       '<div class="p-body">' +
         '<span class="p-brand">' + p.brand + '</span>' +
-        '<h3>' + p.name + '</h3>' +
+        '<h3 data-detail="' + p.id + '" style="cursor:pointer">' + p.name + '</h3>' +
         '<div class="p-rate"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews</div>' +
         '<p>' + p.desc + '</p>' +
         '<div class="p-tags">' + p.tags.map(t => '<span>' + t + '</span>').join('') + '</div>' +
@@ -1435,6 +1448,46 @@ function renderGrid(){
   observeReveals();
 }
 
+/* ---------- 7b. PRODUCT DETAIL ---------- */
+function specsTableHtml(specs){
+  if (!specs || !specs.length) return '';
+  return '<table class="detail-specs">' + specs.map(row =>
+    '<tr><td>' + row[0] + '</td><td>' + (row[1] || '—') + '</td></tr>').join('') + '</table>';
+}
+function detailAddBtnHtml(p){
+  const inCart = !!state.cart[p.id];
+  return '<button class="add-btn ' + (inCart ? 'added' : '') + '" data-add="' + p.id + '">' +
+    '<i class="fas ' + (inCart ? 'fa-check' : 'fa-cart-plus') + '"></i> ' + (inCart ? 'Added — add another' : 'Add to cart') +
+    '</button>';
+}
+function openProductDetail(id){
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const off = Math.round((1 - p.price / p.mrp) * 100);
+  $('#detailBody').innerHTML = '' +
+    '<div class="detail-media" style="background:' + p.grad + '">' +
+      (p.flag ? '<span class="p-flag">' + p.flag + '</span>' : '') +
+      '<span class="p-off">' + off + '% off</span>' +
+      (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : '<i class="fas ' + p.icon + '"></i>') +
+    '</div>' +
+    '<span class="detail-brand">' + p.brand + '</span>' +
+    '<h3>' + p.name + '</h3>' +
+    '<div class="detail-rate"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews</div>' +
+    '<div class="detail-price-row"><div class="price">' + inr(p.price) + '<del>' + inr(p.mrp) + '</del></div><span class="detail-stock"><i class="fas fa-circle-check"></i> ' + p.stock + '</span></div>' +
+    '<div class="p-tags">' + p.tags.map(t => '<span>' + t + '</span>').join('') + '</div>' +
+    '<p class="detail-desc">' + (p.description || p.desc) + '</p>' +
+    specsTableHtml(p.specs) +
+    '<div class="detail-foot" id="detailFoot" data-pid="' + p.id + '">' + detailAddBtnHtml(p) + '</div>';
+  $('#detailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+}
+function closeProductDetail(){ $('#detailModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+function refreshDetailButton(id){
+  const foot = $('#detailFoot');
+  if (!foot || foot.dataset.pid !== id) return;
+  const p = PRODUCTS.find(x => x.id === id);
+  if (p) foot.innerHTML = detailAddBtnHtml(p);
+}
+
 /* ---------- 8. CART ---------- */
 function cartLines(){
   return Object.keys(state.cart).map(id => ({ p: PRODUCTS.find(x => x.id === id), q: state.cart[id] }));
@@ -1446,10 +1499,10 @@ function addToCart(id){
   const p = PRODUCTS.find(x => x.id === id);
   state.cart[id] = (state.cart[id] || 0) + 1;         // optimistic UI update
   toast(p.name + ' added to cart');
-  renderCart(); renderGrid();
+  renderCart(); renderGrid(); refreshDetailButton(id);
 
   postJSON('/store/api/cart/add/', { product_id: id, name: p.name, price: p.price, qty: 1 })
-    .then(({ ok, body }) => { if (ok) { applyCartPayload(body); renderCart(); renderGrid(); } })
+    .then(({ ok, body }) => { if (ok) { applyCartPayload(body); renderCart(); renderGrid(); refreshDetailButton(id); } })
     .catch(() => {});
 }
 function setQty(id, q){
@@ -1508,6 +1561,23 @@ function renderCart(){
   else if (state.useWallet)   hint.textContent = inr(disc) + ' applied to this order';
   else                        hint.textContent = 'Saved for later — switch on to use it';
 }
+
+/* ---------- 8b. PAYMENT METHOD ---------- */
+function renderPayMethods(){
+  const opts = [];
+  if (BOOT.payments && BOOT.payments.razorpay_enabled) opts.push(['razorpay', 'Pay online', 'fa-bolt']);
+  if (!BOOT.payments || BOOT.payments.cod_enabled || !opts.length) opts.push(['cod', 'Cash on delivery', 'fa-money-bill-wave']);
+  if (!opts.find(o => o[0] === state.paymentMethod)) state.paymentMethod = opts[0][0];
+  $('#payMethods').innerHTML = opts.map(([val, label, icon]) =>
+    '<label class="' + (state.paymentMethod === val ? 'on' : '') + '">' +
+      '<input type="radio" name="payMethod" value="' + val + '"' + (state.paymentMethod === val ? ' checked' : '') + '>' +
+      '<i class="fas ' + icon + '"></i>' + label +
+    '</label>'
+  ).join('');
+}
+$('#payMethods').addEventListener('change', e => {
+  if (e.target.name === 'payMethod'){ state.paymentMethod = e.target.value; renderPayMethods(); }
+});
 
 /* ---------- 9. DRAWER + MODALS ---------- */
 function openDrawer(){ $('#cart').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked'); }
@@ -1646,6 +1716,9 @@ document.addEventListener('click', e => {
   const add = e.target.closest('[data-add]');
   if (add){ addToCart(add.dataset.add); return; }
 
+  const detail = e.target.closest('[data-detail]');
+  if (detail){ openProductDetail(detail.dataset.detail); return; }
+
   const q = e.target.closest('[data-q]');
   if (q){ setQty(q.dataset.q, (state.cart[q.dataset.q] || 0) + Number(q.dataset.d)); return; }
 
@@ -1678,8 +1751,17 @@ $('#filters').addEventListener('click', e => {
   renderGrid();
 });
 
-$('#search').addEventListener('input', e => { state.query = e.target.value; renderGrid(); });
-$('#searchGo').addEventListener('click', () => $('#shop').scrollIntoView({ behavior: 'smooth' }));
+function goToShop(){
+  $('#shop').scrollIntoView({ behavior: 'smooth' });
+  $('#mmenu').classList.remove('open');
+  $('#ham').classList.remove('on');
+  document.body.classList.remove('locked');
+}
+$('#search').addEventListener('input', e => { state.query = e.target.value; $('#searchMobile').value = e.target.value; renderGrid(); });
+$('#searchMobile').addEventListener('input', e => { state.query = e.target.value; $('#search').value = e.target.value; renderGrid(); });
+$('#search').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); goToShop(); } });
+$('#searchMobile').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); goToShop(); } });
+$('#searchGo').addEventListener('click', goToShop);
 
 $('#openCart').addEventListener('click', openDrawer);
 $('#closeCart').addEventListener('click', closeDrawer);
@@ -1734,8 +1816,9 @@ $('#closeOrders').addEventListener('click', closeOrders);
 $('#closeOffer').addEventListener('click', closeOffer);
 $('#offerSkip').addEventListener('click', closeOffer);
 $('#offerClaim').addEventListener('click', () => openAuth('signup'));
-$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu(); } });
+$('#closeDetail').addEventListener('click', closeProductDetail);
+$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeProductDetail(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu(); closeProductDetail(); } });
 
 $('#pfAvatarInput').addEventListener('change', () => {
   const file = $('#pfAvatarInput').files[0];
@@ -1802,10 +1885,41 @@ $('#passwordForm').addEventListener('submit', e => {
 
 $('#useWallet').addEventListener('change', e => { state.useWallet = e.target.checked; renderCart(); });
 
+function openRazorpayCheckout(rp){
+  if (typeof Razorpay === 'undefined'){
+    toast('Payment gateway failed to load — order saved, pay from My Orders', 'fa-circle-exclamation');
+    return;
+  }
+  const rzp = new Razorpay({
+    key: rp.key_id,
+    amount: rp.amount,
+    currency: rp.currency,
+    name: rp.name,
+    description: rp.description,
+    order_id: rp.razorpay_order_id,
+    prefill: rp.prefill,
+    theme: { color: '#e8001e' },
+    handler: function(response){
+      postJSON('/store/api/checkout/razorpay/verify/', {
+        payment_pk: rp.payment_pk,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature
+      }).then(({ ok }) => {
+        toast(ok ? 'Payment received — thank you!' : 'Payment verification failed — our team will follow up', ok ? 'fa-circle-check' : 'fa-circle-exclamation');
+      }).catch(() => toast('Payment verification failed — our team will follow up', 'fa-circle-exclamation'));
+    },
+    modal: {
+      ondismiss: function(){ toast('Payment window closed — your order is saved, pay anytime from My Orders', 'fa-circle-info'); }
+    }
+  });
+  rzp.open();
+}
+
 $('#checkout').addEventListener('click', () => {
   if (!state.user){ closeDrawer(); openAuth('signup'); toast('Log in to complete your order', 'fa-user'); return; }
   const btn = $('#checkout'); btn.disabled = true;
-  postJSON('/store/api/checkout/', { use_wallet: state.useWallet })
+  postJSON('/store/api/checkout/', { use_wallet: state.useWallet, payment_method: state.paymentMethod })
     .then(({ ok, body }) => {
       btn.disabled = false;
       if (!ok){
@@ -1818,7 +1932,12 @@ $('#checkout').addEventListener('click', () => {
       renderAccountUI();
       renderCart(); renderGrid();
       closeDrawer();
-      toast('Order #' + body.order.id + ' placed — thank you!', 'fa-circle-check');
+      if (body.payment_method === 'razorpay' && body.razorpay){
+        toast('Order #' + body.order.id + ' placed — complete payment to confirm', 'fa-circle-check');
+        openRazorpayCheckout(body.razorpay);
+      } else {
+        toast('Order #' + body.order.id + ' placed — thank you!', 'fa-circle-check');
+      }
     })
     .catch(() => { btn.disabled = false; toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
 });
@@ -1954,6 +2073,7 @@ toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smoot
 /* ---------- 13. BOOT ---------- */
 renderGrid();
 renderCart();
+renderPayMethods();
 observeReveals();
 
 })();

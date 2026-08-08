@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ policy.title }} — EduTrellis Store</title>
+<meta name="robots" content="index, follow">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--red:#e8001e;--red-dark:#c0001a;--dark:#1c2333;--text:#555f6d;--head:#111418;--line:#e7eaf0;--bg-alt:#f8f9fc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:var(--bg-alt);line-height:1.75}
+a{color:var(--red);text-decoration:none}
+a:hover{text-decoration:underline}
+header{background:#fff;border-bottom:1px solid var(--line);padding:1.1rem 1.25rem}
+.hd-wrap{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.logo-txt{font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:900;letter-spacing:-.03em;color:var(--head)}
+.logo-txt span{color:var(--red)}
+.back-link{font-size:.85rem;font-weight:700;color:var(--head)}
+.back-link i{margin-right:.4rem;color:var(--red)}
+main{max-width:760px;margin:0 auto;padding:2.6rem 1.25rem 4rem}
+h1{font-family:'Sora',sans-serif;font-size:clamp(1.5rem,4vw,2.1rem);font-weight:800;color:var(--head);letter-spacing:-.02em;margin-bottom:.5rem}
+.updated{font-size:.8rem;color:#9aa3b0;margin-bottom:2rem}
+.policy-body p{margin-bottom:1.2rem;font-size:.96rem;color:var(--text)}
+footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd-wrap">
+    <a href="{% url 'estore' %}" class="logo-txt">Edu<span>Trellis</span> Store</a>
+    <a href="{% url 'estore' %}" class="back-link"><i class="fas fa-arrow-left"></i>Back to store</a>
+  </div>
+</header>
+<main>
+  <h1>{{ policy.title }}</h1>
+  <p class="updated">Last updated {{ policy.updated_at|date:"d M Y" }}</p>
+  <div class="policy-body">
+    {% for para in policy.paragraphs %}<p>{{ para }}</p>{% endfor %}
+  </div>
+</main>
+<footer>&copy; 2026 EduTrellis Private Limited. All rights reserved.</footer>
+</body>
+</html>

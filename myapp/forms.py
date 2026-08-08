@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-from myapp.models import Category, Order
+from myapp.models import Category, Order, Product, AboutUsContent, PolicyPage, PaymentSettings
 
 
 class ContactLeadForm(forms.Form):
@@ -157,3 +157,86 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['status']
+
+
+class ProductForm(forms.ModelForm):
+    slug = forms.CharField(
+        max_length=40, required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'auto-generated if left blank'}),
+    )
+
+    class Meta:
+        model = Product
+        # 'name' must precede 'slug' — clean_slug() reads self.cleaned_data['name'],
+        # and Django's _clean_fields() populates cleaned_data in this field order.
+        fields = [
+            'category', 'brand', 'name', 'slug', 'short_description', 'description', 'specs',
+            'price', 'mrp', 'image', 'icon', 'gradient', 'flag', 'stock_status', 'tags',
+            'rating', 'reviews_count', 'order', 'is_active',
+        ]
+        widgets = {
+            'short_description': forms.TextInput(),
+            'description': forms.Textarea(attrs={'rows': 4}),
+            'specs': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Battery: 40 hours\nConnectivity: Bluetooth 5.3'}),
+        }
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        if len(name) < 2:
+            raise forms.ValidationError('Product name must be at least 2 characters long.')
+        return name
+
+    def clean_slug(self):
+        slug = slugify(self.cleaned_data.get('slug') or self.cleaned_data.get('name', ''))
+        if not slug:
+            raise forms.ValidationError('Could not derive a slug — enter one manually.')
+        qs = Product.objects.filter(slug=slug)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('A product with this slug already exists.')
+        return slug
+
+    def clean(self):
+        cleaned = super().clean()
+        price, mrp = cleaned.get('price'), cleaned.get('mrp')
+        if price is not None and mrp is not None and price > mrp:
+            raise forms.ValidationError('Price cannot be higher than MRP.')
+        return cleaned
+
+
+class AboutUsContentForm(forms.ModelForm):
+    class Meta:
+        model = AboutUsContent
+        fields = [
+            'photo', 'badge_title', 'badge_subtitle',
+            'founder_name', 'founder_title', 'founder_email', 'founder_linkedin', 'founder_photo',
+            'stat1_value', 'stat1_label', 'stat2_value', 'stat2_label',
+            'stat3_value', 'stat3_label', 'stat4_value', 'stat4_label',
+            'heading', 'paragraph1', 'paragraph2', 'list_heading', 'bullet_points',
+        ]
+        widgets = {
+            'paragraph1': forms.Textarea(attrs={'rows': 4}),
+            'paragraph2': forms.Textarea(attrs={'rows': 4}),
+            'bullet_points': forms.Textarea(attrs={'rows': 5, 'placeholder': 'One point per line'}),
+        }
+
+
+class PolicyPageForm(forms.ModelForm):
+    class Meta:
+        model = PolicyPage
+        fields = ['title', 'content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 16}),
+        }
+
+
+class PaymentSettingsForm(forms.ModelForm):
+    razorpay_key_secret = forms.CharField(
+        required=False, widget=forms.PasswordInput(render_value=True, attrs={'autocomplete': 'new-password'}),
+        help_text='Found in Razorpay Dashboard → Settings → API Keys. Kept secret — never exposed to the storefront.',
+    )
+
+    class Meta:
+        model = PaymentSettings
+        fields = ['razorpay_key_id', 'razorpay_key_secret', 'is_razorpay_enabled', 'is_test_mode', 'cod_enabled']

@@ -2,7 +2,10 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from .models import ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem
+from .models import (
+    ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
+    Product, AboutUsContent, PolicyPage, PaymentSettings, Payment,
+)
 
 
 @admin.register(Category)
@@ -11,6 +14,49 @@ class CategoryAdmin(admin.ModelAdmin):
     list_editable = ('order', 'is_active')
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'brand', 'category', 'price', 'mrp', 'stock_status', 'is_active', 'order')
+    list_editable = ('price', 'mrp', 'is_active', 'order')
+    list_filter = ('category', 'is_active', 'brand')
+    search_fields = ('name', 'brand', 'slug', 'tags')
+    prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(AboutUsContent)
+class AboutUsContentAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'founder_name', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not AboutUsContent.objects.exists()
+
+
+@admin.register(PolicyPage)
+class PolicyPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'key', 'updated_at')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(PaymentSettings)
+class PaymentSettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_razorpay_enabled', 'is_test_mode', 'cod_enabled', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not PaymentSettings.objects.exists()
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order', 'method', 'status', 'amount', 'created_at')
+    list_filter = ('method', 'status')
+    search_fields = ('order__id', 'order__user__username', 'razorpay_order_id', 'razorpay_payment_id')
 
 
 @admin.register(ContactLead)
