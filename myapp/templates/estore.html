@@ -244,6 +244,12 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .p-media i{font-size:3.2rem;color:rgba(255,255,255,.94);transition:transform .4s}
 .prod-card:hover .p-media i{transform:scale(1.12) rotate(-6deg)}
 .p-media::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 60%)}
+.p-slides{position:absolute;inset:0}
+.p-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
+.p-slide.on{opacity:1}
+.p-dots{position:absolute;bottom:.65rem;left:50%;transform:translateX(-50%);display:flex;gap:.32rem;z-index:2}
+.p-dot{width:6px;height:6px;border-radius:50px;background:rgba(255,255,255,.55);transition:width .25s,background .25s}
+.p-dot.on{width:16px;background:#fff}
 .p-flag{position:absolute;top:.75rem;left:.75rem;z-index:2;background:#fff;color:var(--red);font-family:'Sora',sans-serif;font-size:.67rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.24rem .7rem;border-radius:50px}
 .p-off{position:absolute;top:.75rem;right:.75rem;z-index:2;background:var(--dark);color:#fff;font-family:'Sora',sans-serif;font-size:.67rem;font-weight:800;padding:.24rem .7rem;border-radius:50px}
 .p-stock{position:absolute;bottom:.7rem;left:.75rem;z-index:2;font-size:.68rem;font-weight:700;color:#fff;background:rgba(0,0,0,.42);padding:.18rem .65rem;border-radius:50px;backdrop-filter:blur(4px)}
@@ -265,14 +271,6 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .empty-note i{font-size:2.2rem;color:var(--line);display:block;margin-bottom:.7rem}
 
 /* ---------------- DEAL STRIP ---------------- */
-.deal-strip{background:linear-gradient(135deg,var(--dark),#0f1420);color:#fff}
-.deal-in{display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
-.deal-in h3{color:#fff;font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:800;letter-spacing:-.02em}
-.deal-in p{color:rgba(255,255,255,.7);font-size:.94rem;margin-top:.4rem;max-width:46ch}
-.deal-timer{display:flex;gap:.6rem}
-.dt-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:13px;padding:.7rem 1rem;text-align:center;min-width:66px}
-.dt-box b{display:block;font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;line-height:1.1}
-.dt-box span{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.6)}
 
 /* ---------------- SERVICES ---------------- */
 .svc-foot{text-align:center;margin-top:2rem}
@@ -437,9 +435,14 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .auth-alt button{border:none;background:none;color:var(--red);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem}
 .modal-x{position:absolute;top:1rem;right:1rem;z-index:3}
 
-/* product detail modal */
-.detail-card{width:min(980px,96vw);text-align:left}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem}
+/* product detail page */
+.product-page{display:none;padding:2rem 0 3.5rem}
+body.pdp .product-page{display:block}
+body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #about,body.pdp #contact{display:none}
+.back-link{display:inline-flex;align-items:center;gap:.5rem;border:none;background:none;color:var(--text);font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:1.4rem;padding:.4rem 0}
+.back-link:hover{color:var(--red)}
+.detail-card{text-align:left}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem;max-width:1080px}
 @media (max-width:760px){.detail-grid{grid-template-columns:1fr;gap:1.3rem}}
 
 .detail-media-wrap{position:relative;border-radius:16px;overflow:hidden;background:var(--dark)}
@@ -464,6 +467,8 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .detail-card h3{font-size:1.35rem;font-weight:800;margin:.2rem 0 .5rem;line-height:1.28}
 .detail-rate{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:#8a919c;margin-bottom:.7rem}
 .detail-rate .stars{color:#f5a623}
+.similar-pill{margin-left:auto;border:1.5px solid var(--line);background:#fff;color:var(--head);cursor:pointer;font-family:'Sora',sans-serif;font-size:.72rem;font-weight:700;padding:.4rem .85rem;border-radius:50px;display:inline-flex;align-items:center;gap:.35rem;transition:border-color .2s,color .2s}
+.similar-pill:hover{border-color:var(--red);color:var(--red)}
 .detail-price-row{display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem;flex-wrap:wrap}
 .detail-price-row .price{font-size:1.55rem}
 .detail-stock{font-size:.8rem;font-weight:700;color:var(--green-dark)}
@@ -484,6 +489,8 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .detail-qty-row{display:flex;gap:.8rem;align-items:center;margin-top:auto;padding-top:.6rem;flex-wrap:wrap}
 .detail-qty-row .qty{border-color:var(--line);flex:none}
 .detail-qty-row .add-btn{flex:1;justify-content:center;padding:.9rem 1rem;min-width:160px}
+.buy-now-btn{flex:1;justify-content:center;min-width:160px;border:1.5px solid var(--dark);cursor:pointer;background:#fff;color:var(--dark);font-family:'Sora',sans-serif;font-size:.8rem;font-weight:700;padding:.9rem 1rem;border-radius:50px;display:inline-flex;align-items:center;gap:.4rem;transition:transform .25s,background .2s,color .2s}
+.buy-now-btn:hover{transform:translateY(-2px);background:var(--dark);color:#fff}
 
 /* lightbox */
 .lightbox{position:fixed;inset:0;z-index:980;background:rgba(6,8,14,.94);display:grid;place-items:center;opacity:0;visibility:hidden;transition:.3s;padding:1.5rem}
@@ -602,7 +609,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   .modal-card{padding:1.5rem}
   .offer-body{padding:1.3rem 1.4rem 1.5rem}
   .offer-top{padding:1.8rem 1.4rem 1.5rem}
-  .deal-in{justify-content:center;text-align:center}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
@@ -687,7 +693,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <li><a href="#top">Home</a></li>
       <li><a href="#shop">Shop All</a></li>
       <li><a href="#categories">Categories</a></li>
-      <li><a href="#offer" class="hot">Offer</a></li>
       <li><a href="#services">Our Services</a></li>
       <li><a href="#about">About Us</a></li>
       <li><a href="#contact">Contact Us</a></li>
@@ -706,7 +711,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <li><a href="#top">Home <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#shop">Shop All <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#categories">Categories <i class="fas fa-chevron-right"></i></a></li>
-    <li><a href="#offer">Offer <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#services">Our Services <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#about">About Us <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#contact">Contact Us <i class="fas fa-chevron-right"></i></a></li>
@@ -746,7 +750,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         <p>ANC earbuds, over-ear headphones and party speakers with real battery numbers — not the ones printed on the box.</p>
         <div class="hero-btns">
           <a href="#shop" class="cta-btn" data-jump="audio">Shop audio <i class="fas fa-arrow-right"></i></a>
-          <a href="#offer" class="cta-btn ghost">See today's offer <i class="fas fa-tag"></i></a>
         </div>
         <div class="hero-trust">
           <div class="htrust"><h3>40h</h3><p>Playback on top picks</p></div>
@@ -833,22 +836,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     </div>
 
     <div class="prod-grid" id="grid"></div>
-  </div>
-</section>
-
-<!-- ==================== OFFER STRIP ==================== -->
-<section id="offer" class="deal-strip">
-  <div class="wrap deal-in">
-    <div class="reveal d1">
-      <h3>Get ₹100 wallet balance on your first order</h3>
-      <p>Order the Metal Bluetooth Speaker and once it's delivered, we'll credit ₹100 straight to your EduTrellis wallet — use it on your very next purchase, no minimum spend.</p>
-      <div class="hero-btns"><a href="#shop" class="cta-btn" data-jump="audio">Shop the Metal Speaker <i class="fas fa-arrow-right"></i></a></div>
-    </div>
-    <div class="deal-timer reveal d2" id="timer">
-      <div class="dt-box"><b id="tH">00</b><span>Hours</span></div>
-      <div class="dt-box"><b id="tM">00</b><span>Mins</span></div>
-      <div class="dt-box"><b id="tS">00</b><span>Secs</span></div>
-    </div>
   </div>
 </section>
 
@@ -1032,6 +1019,14 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </section>
 
+<!-- ==================== PRODUCT DETAIL PAGE ==================== -->
+<section class="product-page" id="detailModal" aria-label="Product details">
+  <div class="wrap detail-card">
+    <button type="button" class="back-link" id="closeDetail"><i class="fas fa-arrow-left"></i> Back to shop</button>
+    <div id="detailBody"></div>
+  </div>
+</section>
+
 <!-- ==================== FOOTER ==================== -->
 <footer>
   <div class="foot-grid">
@@ -1052,7 +1047,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <ul>
         <li><a href="#shop"><i class="fas fa-chevron-right"></i>Shop all</a></li>
         <li><a href="#categories"><i class="fas fa-chevron-right"></i>Categories</a></li>
-        <li><a href="#offer"><i class="fas fa-chevron-right"></i>Offer</a></li>
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Our services</a></li>
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact us</a></li>
@@ -1257,13 +1251,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </div>
 
-<!-- ==================== PRODUCT DETAIL MODAL ==================== -->
-<div class="modal" id="detailModal" role="dialog" aria-modal="true" aria-label="Product details">
-  <div class="modal-card detail-card">
-    <button class="x-btn modal-x" id="closeDetail" aria-label="Close"><i class="fas fa-xmark"></i></button>
-    <div id="detailBody"></div>
-  </div>
-</div>
 
 <!-- ==================== IMAGE LIGHTBOX ==================== -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Zoomed product image">
@@ -1422,18 +1409,6 @@ function applyCartPayload(cart){
   restart();
 })();
 
-/* ---------- 6. DEAL COUNTDOWN ---------- */
-(function countdown(){
-  const end = new Date(); end.setHours(23, 59, 59, 999);   // resets daily
-  const pad = n => String(n).padStart(2, '0');
-  setInterval(() => {
-    let d = Math.max(0, end - new Date());
-    $('#tH').textContent = pad(Math.floor(d / 3.6e6));
-    $('#tM').textContent = pad(Math.floor(d % 3.6e6 / 6e4));
-    $('#tS').textContent = pad(Math.floor(d % 6e4 / 1000));
-  }, 1000);
-})();
-
 /* ---------- 7. PRODUCT GRID ---------- */
 const grid = $('#grid');
 
@@ -1461,13 +1436,19 @@ function renderGrid(){
   grid.innerHTML = list.map(p => {
     const off = Math.round((1 - p.price / p.mrp) * 100);
     const inCart = !!state.cart[p.id];
+    const cardImgs = (p.gallery || []).filter(s => s.type === 'image').map(s => s.url);
+    const slides = cardImgs.length ? cardImgs : (p.image ? [p.image] : []);
+    const mediaInner = slides.length
+      ? '<div class="p-slides">' + slides.map((u, i) => '<img class="p-slide' + (i === 0 ? ' on' : '') + '" src="' + u + '" alt="' + p.name + '">').join('') + '</div>' +
+        (slides.length > 1 ? '<div class="p-dots">' + slides.map((u, i) => '<span class="p-dot' + (i === 0 ? ' on' : '') + '"></span>').join('') + '</div>' : '')
+      : '<i class="fas ' + p.icon + '"></i>';
     return '' +
     '<article class="prod-card">' +
-      '<div class="p-media" data-detail="' + p.id + '" style="background:' + p.grad + ';cursor:pointer">' +
+      '<div class="p-media" data-detail="' + p.id + '" data-slides="' + slides.length + '" style="background:' + p.grad + ';cursor:pointer">' +
         (p.flag ? '<span class="p-flag">' + p.flag + '</span>' : '') +
         '<span class="p-off">' + off + '% off</span>' +
         '<span class="p-stock">' + p.stock + '</span>' +
-        (p.image ? '<img src="' + p.image + '" alt="' + p.name + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">' : '<i class="fas ' + p.icon + '"></i>') +
+        mediaInner +
       '</div>' +
       '<div class="p-body">' +
         '<span class="p-brand">' + p.brand + '</span>' +
@@ -1486,6 +1467,23 @@ function renderGrid(){
   }).join('');
 
   observeReveals();
+  startCardSliders();
+}
+
+let cardSliderTimers = [];
+function startCardSliders(){
+  cardSliderTimers.forEach(clearInterval);
+  cardSliderTimers = [];
+  $$('.p-media[data-slides]').forEach(media => {
+    const n = Number(media.dataset.slides);
+    if (n <= 1) return;
+    let idx = 0;
+    cardSliderTimers.push(setInterval(() => {
+      idx = (idx + 1) % n;
+      media.querySelectorAll('.p-slide').forEach((s, i) => s.classList.toggle('on', i === idx));
+      media.querySelectorAll('.p-dot').forEach((d, i) => d.classList.toggle('on', i === idx));
+    }, 2200));
+  });
 }
 
 /* ---------- 7b. PRODUCT DETAIL ---------- */
@@ -1504,8 +1502,12 @@ function specsTableHtml(specs){
 function detailAddBtnHtml(p){
   const inCart = !!state.cart[p.id];
   return '<button type="button" class="add-btn ' + (inCart ? 'added' : '') + '" data-detail-add="' + p.id + '">' +
-    '<i class="fas ' + (inCart ? 'fa-check' : 'fa-cart-plus') + '"></i> ' + (inCart ? 'Added — add more' : 'Add to cart') +
+    '<i class="fas ' + (inCart ? 'fa-check' : 'fa-cart-plus') + '"></i> ' + (inCart ? 'Added — add more' : 'Add to Bag') +
     '</button>';
+}
+function detailBuyNowBtnHtml(p){
+  return '<button type="button" class="buy-now-btn" data-detail-buy="' + p.id + '">' +
+    '<i class="fas fa-bolt"></i> Buy Now</button>';
 }
 function detailSlideInnerHtml(slide){
   return slide.type === 'video'
@@ -1597,7 +1599,9 @@ function openProductDetail(id, pushUrl){
       '<div class="detail-info">' +
         '<span class="detail-brand">' + p.brand + '</span>' +
         '<h3>' + p.name + '</h3>' +
-        '<div class="detail-rate"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews</div>' +
+        '<div class="detail-rate"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews' +
+          '<button type="button" class="similar-pill" data-similar="' + p.cat + '"><i class="fas fa-shapes"></i> Similar</button>' +
+        '</div>' +
         '<div class="detail-price-row"><div class="price">' + inr(p.price) + '<del>' + inr(p.mrp) + '</del></div><span class="detail-stock"><i class="fas fa-circle-check"></i> ' + p.stock + '</span></div>' +
         colorSwatchesHtml(p) +
         '<div class="p-tags">' + p.tags.map(t => '<span>' + t + '</span>').join('') + '</div>' +
@@ -1605,18 +1609,20 @@ function openProductDetail(id, pushUrl){
         specsTableHtml(p.specs) +
         '<div class="detail-qty-row" id="detailFoot" data-pid="' + p.id + '">' +
           '<div class="qty"><button type="button" data-qd="-1" aria-label="Decrease quantity"><i class="fas fa-minus"></i></button><b id="detailQtyVal">1</b><button type="button" data-qd="1" aria-label="Increase quantity"><i class="fas fa-plus"></i></button></div>' +
+          detailBuyNowBtnHtml(p) +
           detailAddBtnHtml(p) +
         '</div>' +
       '</div>' +
     '</div>';
 
-  $('#detailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+  document.body.classList.add('pdp');
+  window.scrollTo({ top: 0, behavior: 'auto' });
   if (pushUrl !== false){
     history.pushState({ detail: id }, '', '/store/product/' + id + '/');
   }
 }
 function closeProductDetail(popUrl){
-  $('#detailModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked');
+  document.body.classList.remove('pdp');
   closeLightbox();
   if (popUrl !== false && location.pathname.indexOf('/store/product/') === 0){
     history.pushState({}, '', '/store/');
@@ -1884,6 +1890,20 @@ document.addEventListener('click', e => {
   const detailAdd = e.target.closest('[data-detail-add]');
   if (detailAdd){ addToCartFromDetail(detailAdd.dataset.detailAdd); return; }
 
+  const detailBuy = e.target.closest('[data-detail-buy]');
+  if (detailBuy){ addToCartFromDetail(detailBuy.dataset.detailBuy); openDrawer(); return; }
+
+  const similar = e.target.closest('[data-similar]');
+  if (similar){
+    state.filter = similar.dataset.similar;
+    $$('.ftab').forEach(t => t.classList.toggle('on', t.dataset.cat === state.filter));
+    $$('.cat-card').forEach(c => c.classList.toggle('on', c.dataset.jump === state.filter));
+    renderGrid();
+    closeProductDetail();
+    setTimeout(() => $('#shop').scrollIntoView({ behavior: 'smooth' }), 60);
+    return;
+  }
+
   const qd = e.target.closest('[data-qd]');
   if (qd){
     detailQtyVal = Math.max(1, detailQtyVal + Number(qd.dataset.qd));
@@ -2004,11 +2024,11 @@ $('#offerClaim').addEventListener('click', () => openAuth('signup'));
 $('#closeDetail').addEventListener('click', () => closeProductDetail());
 $('#closeLightbox').addEventListener('click', closeLightbox);
 $('#lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
-$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeProductDetail(); });
+$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){
     if ($('#lightbox').classList.contains('open')){ closeLightbox(); return; }
-    closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu(); closeProductDetail();
+    closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu();
   }
 });
 window.addEventListener('popstate', e => {
