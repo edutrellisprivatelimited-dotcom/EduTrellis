@@ -67,7 +67,7 @@
   </div>
 
   <div class="form-group">
-    <label for="{{ form.image.id_for_label }}">Product image</label>
+    <label for="{{ form.image.id_for_label }}">Cover image</label>
     {% if product and product.image %}
       <div class="current-thumb">
         <img src="{{ product.image.url }}" alt="{{ product.name }}">
@@ -75,9 +75,68 @@
       </div>
     {% endif %}
     {{ form.image }}
-    <div class="help">Optional. Leave blank to use the icon + gradient tile below instead.</div>
+    <div class="help">Optional. Leave blank to use the icon + gradient tile below instead. Add more angles under "Product images" below (up to 5 total, including this cover).</div>
     {{ form.image.errors }}
   </div>
+
+  <div class="form-group">
+    <label for="{{ form.video.id_for_label }}">Product video (optional)</label>
+    {% if product and product.video %}
+      <div class="help" style="margin-bottom:.5rem"><i class="fas fa-circle-play"></i> Current video: <a href="{{ product.video.url }}" target="_blank">{{ product.video.name }}</a> — upload a new file to replace it.</div>
+    {% endif %}
+    {{ form.video }}
+    <div class="help">MP4 recommended. Shown as a slide in the detail page gallery.</div>
+    {{ form.video.errors }}
+  </div>
+
+  {% if product %}
+  <div class="form-group">
+    <label>Product images <span class="help" style="display:inline">(up to 5, in addition to the cover image above)</span></label>
+    {{ image_formset.management_form }}
+    {% if image_formset.non_form_errors %}<div class="help" style="color:var(--red)">{{ image_formset.non_form_errors }}</div>{% endif %}
+    <div class="gallery-rows">
+      {% for f in image_formset.forms %}
+      <div class="gallery-row">
+        {% if f.instance.pk and f.instance.image %}<img class="current-thumb-sm" src="{{ f.instance.image.url }}" alt="">{% endif %}
+        {{ f.id }}
+        <div class="gallery-row-fields">
+          {{ f.image }}
+          {{ f.image.errors }}
+        </div>
+        <div class="gallery-row-order">{{ f.order }}</div>
+        {% if f.instance.pk %}
+        <label class="gallery-row-del">{{ f.DELETE }} Remove</label>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Colour options <span class="help" style="display:inline">(optional — shown as swatches on the detail page)</span></label>
+    {{ color_formset.management_form }}
+    {% if color_formset.non_form_errors %}<div class="help" style="color:var(--red)">{{ color_formset.non_form_errors }}</div>{% endif %}
+    <div class="gallery-rows">
+      {% for f in color_formset.forms %}
+      <div class="gallery-row color-row">
+        {{ f.id }}
+        <div class="gallery-row-fields">
+          {{ f.name }}
+          {{ f.hex_code }}
+          {{ f.image }}
+        </div>
+        {% if f.instance.pk %}
+        <label class="gallery-row-del">{{ f.DELETE }} Remove</label>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="form-group">
+    <div class="help"><i class="fas fa-circle-info"></i> Save the product first — you'll be able to add up to 5 extra images and colour options on the next screen.</div>
+  </div>
+  {% endif %}
 
   <div class="form-grid-2">
     <div class="form-group">

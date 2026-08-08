@@ -72,7 +72,8 @@ class Product(models.Model):
     specs             = models.TextField(blank=True, help_text="One spec per line, formatted as 'Label: Value' — shown on the product detail view.")
     price             = models.DecimalField(max_digits=10, decimal_places=2)
     mrp               = models.DecimalField(max_digits=10, decimal_places=2)
-    image             = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Optional. Falls back to the icon + gradient tile below when left blank.")
+    image             = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Cover image. Falls back to the icon + gradient tile below when left blank. Add more angles under 'Product images' below (up to 5 total).")
+    video             = models.FileField(upload_to='products/videos/', blank=True, null=True, help_text="Optional MP4 product video, shown as a slide in the detail page gallery.")
     icon              = models.CharField(max_length=60, default='fa-box', help_text="Font Awesome icon class shown when no image is set, e.g. 'fa-headphones'.")
     gradient          = models.CharField(max_length=200, default='linear-gradient(135deg,#e8001e,#c0001a)', help_text="CSS background used behind the icon when no image is set.")
     flag              = models.CharField(max_length=40, blank=True, help_text="Small badge on the card, e.g. 'Bestseller'.")
@@ -112,6 +113,39 @@ class Product(models.Model):
         if not self.mrp:
             return 0
         return round((1 - float(self.price) / float(self.mrp)) * 100)
+
+class ProductImage(models.Model):
+    """One extra gallery photo for a Product's detail-page slider. Capped at
+    5 per product by the admin form (ProductImageFormSet)."""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image   = models.ImageField(upload_to='products/gallery/')
+    order   = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Product Image'
+        verbose_name_plural = 'Product Images'
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
+
+
+class ProductColor(models.Model):
+    """A selectable colour variant shown as a swatch on the product detail
+    page. Purely presentational — it doesn't split stock or pricing."""
+    product   = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
+    name      = models.CharField(max_length=60, help_text="e.g. 'Midnight Black'.")
+    hex_code  = models.CharField(max_length=7, default='#1c2333', help_text="e.g. #1c2333 — used for the swatch colour.")
+    image     = models.ImageField(upload_to='products/colors/', blank=True, null=True, help_text="Optional — the gallery switches to this image when the shopper picks this colour.")
+    order     = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Product Color'
+        verbose_name_plural = 'Product Colors'
+
+    def __str__(self):
+        return f"{self.name} ({self.product.name})"
 
 
 class AboutUsContent(models.Model):

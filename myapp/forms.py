@@ -2,7 +2,10 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-from myapp.models import Category, Order, Product, AboutUsContent, PolicyPage, PaymentSettings
+from myapp.models import (
+    Category, Order, Product, ProductImage, ProductColor,
+    AboutUsContent, PolicyPage, PaymentSettings,
+)
 
 
 class ContactLeadForm(forms.Form):
@@ -171,7 +174,7 @@ class ProductForm(forms.ModelForm):
         # and Django's _clean_fields() populates cleaned_data in this field order.
         fields = [
             'category', 'brand', 'name', 'slug', 'short_description', 'description', 'specs',
-            'price', 'mrp', 'image', 'icon', 'gradient', 'flag', 'stock_status', 'tags',
+            'price', 'mrp', 'image', 'video', 'icon', 'gradient', 'flag', 'stock_status', 'tags',
             'rating', 'reviews_count', 'order', 'is_active',
         ]
         widgets = {
@@ -203,6 +206,24 @@ class ProductForm(forms.ModelForm):
         if price is not None and mrp is not None and price > mrp:
             raise forms.ValidationError('Price cannot be higher than MRP.')
         return cleaned
+
+
+ProductImageFormSet = forms.inlineformset_factory(
+    Product, ProductImage,
+    fields=['image', 'order'],
+    extra=5, max_num=5, validate_max=True, can_delete=True,
+)
+
+ProductColorFormSet = forms.inlineformset_factory(
+    Product, ProductColor,
+    fields=['name', 'hex_code', 'image', 'order'],
+    extra=3, max_num=10, validate_max=True, can_delete=True,
+    widgets={
+        'name': forms.TextInput(attrs={'placeholder': 'Colour name, e.g. Midnight Black'}),
+        'hex_code': forms.TextInput(attrs={'type': 'color'}),
+        'order': forms.NumberInput(attrs={'placeholder': 'Order'}),
+    },
+)
 
 
 class AboutUsContentForm(forms.ModelForm):

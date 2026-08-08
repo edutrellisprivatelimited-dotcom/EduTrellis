@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
-    Product, AboutUsContent, PolicyPage, PaymentSettings, Payment,
+    Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
 )
 
 
@@ -16,6 +16,17 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    max_num = 5
+
+
+class ProductColorInline(admin.TabularInline):
+    model = ProductColor
+    extra = 1
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'brand', 'category', 'price', 'mrp', 'stock_status', 'is_active', 'order')
@@ -23,6 +34,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ('category', 'is_active', 'brand')
     search_fields = ('name', 'brand', 'slug', 'tags')
     prepopulated_fields = {'slug': ('name',)}
+    inlines = [ProductImageInline, ProductColorInline]
 
 
 @admin.register(AboutUsContent)

@@ -21,6 +21,7 @@ urlpatterns = [
     path('store/api/contact/', views.store_contact, name='store_contact'),
 
     path('store/policy/<str:key>/', views.policy_page, name='policy_page'),
+    path('store/product/<slug:slug>/', views.product_detail, name='product_detail'),
 
     path('store/dashboard/', views.dashboard_home, name='dashboard_home'),
     path('store/dashboard/signups/', views.dashboard_signups, name='dashboard_signups'),

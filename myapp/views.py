@@ -12,11 +12,12 @@ from django.conf import settings
 from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
     StoreProfileEditForm, StorePasswordChangeForm, CategoryForm, OrderStatusForm,
-    ProductForm, AboutUsContentForm, PolicyPageForm, PaymentSettingsForm,
+    ProductForm, ProductImageFormSet, ProductColorFormSet,
+    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
-    Product, AboutUsContent, PolicyPage, PaymentSettings, Payment,
+    Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
 )
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,23 @@ def home2(request):
 
 
 def estore(request):
+    return render(request, "estore.html", _estore_context(request))
+
+
+def product_detail(request, slug):
+    """Renders the same storefront template as estore(), pre-loaded to open
+    the product detail view for `slug` on load. This gives every product a
+    real, shareable, bookmarkable URL without duplicating the header, cart
+    drawer, auth modals and footer into a second template."""
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    context = _estore_context(request)
+    context['initial_product_slug'] = product.slug
+    context['meta_title'] = f"{product.name} — EduTrellis Store"
+    context['meta_description'] = product.short_description
+    return render(request, "estore.html", context)
+
+
+def _estore_context(request):
     cart = _get_or_create_cart(request)
     payment_settings = PaymentSettings.get_solo()
     boot = {
@@ -56,16 +74,27 @@ def estore(request):
     if request.user.is_authenticated:
         boot['user'] = _user_payload(request.user)
     categories = Category.objects.filter(is_active=True)
-    products = Product.objects.filter(is_active=True).select_related('category')
-    return render(request, "estore.html", {
+    products = Product.objects.filter(is_active=True).select_related('category').prefetch_related('images', 'colors')
+    return {
         "store_boot_json": json.dumps(boot),
         "products_json": json.dumps([_product_payload(p) for p in products]),
         "categories": categories,
         "about": AboutUsContent.get_solo(),
-    })
+        "initial_product_slug": None,
+        "meta_title": None,
+        "meta_description": None,
+    }
 
 
 def _product_payload(p):
+    gallery = []
+    if p.image:
+        gallery.append({'type': 'image', 'url': p.image.url})
+    for img in p.images.all():
+        gallery.append({'type': 'image', 'url': img.image.url})
+    if p.video:
+        gallery.append({'type': 'video', 'url': p.video.url})
+
     return {
         'id': p.slug,
         'cat': p.category.slug,
@@ -79,6 +108,11 @@ def _product_payload(p):
         'icon': p.icon,
         'grad': p.gradient,
         'image': p.image.url if p.image else None,
+        'gallery': gallery,
+        'colors': [
+            {'name': c.name, 'hex': c.hex_code, 'image': c.image.url if c.image else None}
+            for c in p.colors.all()
+        ],
         'flag': p.flag,
         'stock': p.stock_status,
         'tags': p.tag_list,
@@ -827,9 +861,14 @@ def dashboard_product_add(request):
 
     form = ProductForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
-        form.save()
-        return redirect('dashboard_products')
-    return render(request, 'dashboard/product_form.html', {'active': 'products', 'form': form, 'product': None})
+        product = form.save()
+        # Images/video/colors are added on the edit page, once the product
+        # (and therefore the FK the image/color formsets need) exists.
+        return redirect('dashboard_product_edit', pk=product.pk)
+    return render(request, 'dashboard/product_form.html', {
+        'active': 'products', 'form': form, 'product': None,
+        'image_formset': None, 'color_formset': None,
+    })
 
 
 def dashboard_product_edit(request, pk):
@@ -838,10 +877,17 @@ def dashboard_product_edit(request, pk):
 
     product = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
-    if request.method == 'POST' and form.is_valid():
+    image_formset = ProductImageFormSet(request.POST or None, request.FILES or None, instance=product, prefix='images')
+    color_formset = ProductColorFormSet(request.POST or None, request.FILES or None, instance=product, prefix='colors')
+    if request.method == 'POST' and form.is_valid() and image_formset.is_valid() and color_formset.is_valid():
         form.save()
+        image_formset.save()
+        color_formset.save()
         return redirect('dashboard_products')
-    return render(request, 'dashboard/product_form.html', {'active': 'products', 'form': form, 'product': product})
+    return render(request, 'dashboard/product_form.html', {
+        'active': 'products', 'form': form, 'product': product,
+        'image_formset': image_formset, 'color_formset': color_formset,
+    })
 
 
 def dashboard_product_delete(request, pk):

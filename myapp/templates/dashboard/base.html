@@ -39,10 +39,14 @@ a{color:inherit;text-decoration:none}
 
 .dash-main{flex:1;min-width:0}
 .dash-topbar{background:#fff;border-bottom:1px solid var(--line);padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:sticky;top:0;z-index:20}
-.dash-title{font-size:1.25rem;font-weight:800;color:var(--head)}
-.dash-admin{display:flex;align-items:center;gap:.65rem;font-size:.85rem;font-weight:600;color:var(--head)}
+.dash-title{font-size:1.25rem;font-weight:800;color:var(--head);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dash-topbar-left{display:flex;align-items:center;gap:.8rem;min-width:0;flex:1}
+.dash-menu-btn{display:none;width:40px;height:40px;flex:none;border-radius:10px;border:1.5px solid var(--line);background:#fff;align-items:center;justify-content:center;color:var(--head);cursor:pointer;font-size:1rem}
+.dash-admin{display:flex;align-items:center;gap:.65rem;font-size:.85rem;font-weight:600;color:var(--head);flex:none}
 .dash-admin .dav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;overflow:hidden;flex-shrink:0}
 .dash-admin .dav img{width:100%;height:100%;object-fit:cover}
+.dash-scrim{display:none;position:fixed;inset:0;background:rgba(10,14,22,.5);z-index:99}
+.dash-scrim.on{display:block}
 
 .dash-body{padding:2rem}
 
@@ -127,11 +131,30 @@ tbody tr:hover{background:var(--bg-alt)}
 .current-thumb{display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem}
 .current-thumb img{width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid var(--line)}
 
+.gallery-rows{display:flex;flex-direction:column;gap:.6rem;margin-top:.4rem}
+.gallery-row{display:flex;align-items:center;gap:.7rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:12px;padding:.6rem .8rem;flex-wrap:wrap}
+.gallery-row-fields{flex:1;min-width:180px;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.gallery-row-fields input[type=file]{flex:1;min-width:150px;font-size:.8rem}
+.gallery-row-fields input[type=text],.gallery-row-fields input[type=number]{width:140px;padding:.5rem .7rem;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-family:inherit;font-size:.85rem}
+.gallery-row-order{width:60px;flex:none}
+.gallery-row-order input{width:100%;padding:.5rem .5rem;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-family:inherit;font-size:.85rem}
+.gallery-row-del{display:flex;align-items:center;gap:.35rem;font-size:.78rem;color:var(--red);white-space:nowrap;flex:none}
+.current-thumb-sm{width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid var(--line);flex:none}
+.color-row input[type=color]{width:44px;height:38px;padding:.2rem;border:1.5px solid var(--line);border-radius:8px;background:var(--bg-alt)}
+
 @media (max-width:900px){
   .dash-sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:.3s;z-index:100}
+  .dash-sidebar.open{transform:translateX(0)}
+  .dash-menu-btn{display:flex}
   .dash-body{padding:1.2rem}
-  .dash-topbar{padding:1rem 1.2rem}
+  .dash-topbar{padding:.85rem 1rem;gap:.6rem}
+  .dash-title{font-size:1.05rem}
+  .dash-admin span{display:none}
   .panel-search input{width:150px}
+}
+@media (max-width:420px){
+  .dash-topbar{padding:.75rem .85rem}
+  .dash-admin .dav{width:32px;height:32px}
 }
 </style>
 {% block extra_head %}{% endblock %}
@@ -139,7 +162,8 @@ tbody tr:hover{background:var(--bg-alt)}
 <body>
 
 <div class="dash">
-  <aside class="dash-sidebar">
+  <div class="dash-scrim" id="dashScrim"></div>
+  <aside class="dash-sidebar" id="dashSidebar">
     <div>
       <div class="dash-logo">Edu<span>Trellis</span></div>
       <div class="dash-logo-sub">Store Admin</div>
@@ -164,7 +188,10 @@ tbody tr:hover{background:var(--bg-alt)}
 
   <div class="dash-main">
     <div class="dash-topbar">
-      <div class="dash-title">{% block page_title %}Overview{% endblock %}</div>
+      <div class="dash-topbar-left">
+        <button type="button" class="dash-menu-btn" id="dashMenuBtn" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div class="dash-title">{% block page_title %}Overview{% endblock %}</div>
+      </div>
       <div class="dash-admin">
         <div class="dav">
           {% if request.user.store_profile.avatar %}<img src="{{ request.user.store_profile.avatar.url }}" alt="">
@@ -179,5 +206,19 @@ tbody tr:hover{background:var(--bg-alt)}
   </div>
 </div>
 
+<script>
+(function(){
+  var btn = document.getElementById('dashMenuBtn');
+  var sidebar = document.getElementById('dashSidebar');
+  var scrim = document.getElementById('dashScrim');
+  function toggle(open){
+    sidebar.classList.toggle('open', open);
+    scrim.classList.toggle('on', open);
+  }
+  if (btn) btn.addEventListener('click', function(){ toggle(!sidebar.classList.contains('open')); });
+  if (scrim) scrim.addEventListener('click', function(){ toggle(false); });
+  sidebar.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ toggle(false); }); });
+})();
+</script>
 </body>
 </html>
