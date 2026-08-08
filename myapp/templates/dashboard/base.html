@@ -70,6 +70,20 @@ tbody tr:hover{background:var(--bg-alt)}
 .badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;padding:.22rem .6rem;border-radius:50px;white-space:nowrap}
 .badge.staff{background:var(--red-soft);color:var(--red)}
 .badge.user{background:#eef2ff;color:#3b5bdb}
+.badge.st-placed{background:#eef2ff;color:#3b5bdb}
+.badge.st-processing{background:#fff7e6;color:#b45309}
+.badge.st-shipped{background:#e6f4ff;color:#0369a1}
+.badge.st-delivered{background:#e8fbf0;color:#1da851}
+.badge.st-cancelled{background:var(--red-soft);color:var(--red)}
+.status-form{display:flex;align-items:center;gap:.5rem}
+.status-form select{border:1.5px solid var(--line);border-radius:8px;padding:.4rem .6rem;font-family:inherit;font-size:.8rem;background:var(--bg-alt);color:var(--head)}
+.status-form select:focus{outline:none;border-color:var(--red)}
+.status-form button{border:none;background:var(--red-soft);color:var(--red);border-radius:8px;padding:.4rem .65rem;font-size:.78rem;font-weight:700;cursor:pointer}
+.status-form button:hover{background:var(--red);color:#fff}
+.wallet-tag{font-size:.7rem;font-weight:700;color:#1da851}
+.filter-tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+.filter-tabs a{padding:.4rem 1rem;border-radius:50px;font-size:.78rem;font-weight:700;color:var(--text);border:1.5px solid var(--line)}
+.filter-tabs a.on{background:var(--red);color:#fff;border-color:var(--red)}
 .msg-cell{max-width:320px;white-space:normal;line-height:1.5}
 .sub-line{color:var(--text);display:block;font-size:.8rem}
 .empty-row{text-align:center;padding:3rem 1rem;color:#9aa3b0}
@@ -123,6 +137,7 @@ tbody tr:hover{background:var(--bg-alt)}
       <a href="{% url 'dashboard_signups' %}" class="{% if active == 'signups' %}active{% endif %}"><i class="fas fa-users"></i> Signups</a>
       <a href="{% url 'dashboard_contacts' %}" class="{% if active == 'contacts' %}active{% endif %}"><i class="fas fa-envelope-open-text"></i> Contact Leads</a>
       <a href="{% url 'dashboard_categories' %}" class="{% if active == 'categories' %}active{% endif %}"><i class="fas fa-tags"></i> Categories</a>
+      <a href="{% url 'dashboard_orders' %}" class="{% if active == 'orders' %}active{% endif %}"><i class="fas fa-box"></i> Orders</a>
     </nav>
     <div class="dash-sidebar-foot">
       <a href="{% url 'estore' %}"><i class="fas fa-arrow-left"></i> Back to store</a>

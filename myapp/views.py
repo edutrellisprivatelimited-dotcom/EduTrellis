@@ -11,11 +11,16 @@ from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
 from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
-    StoreProfileEditForm, StorePasswordChangeForm, CategoryForm,
+    StoreProfileEditForm, StorePasswordChangeForm, CategoryForm, OrderStatusForm,
 )
-from myapp.models import ContactLead, StoreProfile, Cart, CartItem, Category
+from myapp.models import ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem
 
 logger = logging.getLogger(__name__)
+
+# Mirrors the frontend's FREE_SHIP_OVER / SHIP_FEE constants in estore.html
+# so checkout totals match what the cart drawer showed the customer.
+FREE_SHIP_OVER = Decimal('999')
+SHIP_FEE = Decimal('79')
 
 
 def home(request):
@@ -46,6 +51,7 @@ def _user_payload(user):
         'phone': profile.phone if profile else '',
         'is_staff': user.is_staff,
         'avatar_url': profile.avatar.url if (profile and profile.avatar) else None,
+        'wallet_balance': float(profile.wallet_balance) if profile else 0.0,
     }
 
 
@@ -128,6 +134,29 @@ def _parse_json_body(request):
         return json.loads(request.body or '{}')
     except json.JSONDecodeError:
         return {}
+
+
+def _order_payload(order):
+    return {
+        'id': order.pk,
+        'status': order.status,
+        'status_display': order.get_status_display(),
+        'subtotal': float(order.subtotal),
+        'wallet_discount': float(order.wallet_discount),
+        'shipping_fee': float(order.shipping_fee),
+        'total': float(order.total),
+        'created_at': order.created_at.strftime('%d %b %Y, %I:%M %p'),
+        'items': [
+            {
+                'product_id': i.product_id,
+                'name': i.product_name,
+                'price': float(i.price),
+                'quantity': i.quantity,
+                'subtotal': float(i.subtotal),
+            }
+            for i in order.items.all()
+        ],
+    }
 
 
 # ── E-Store: auth ────────────────────────────────────────────────────────
@@ -332,6 +361,63 @@ def store_cart_remove(request):
     return JsonResponse(_cart_payload(cart))
 
 
+def store_checkout(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in to check out.'}, status=401)
+
+    cart = _get_or_create_cart(request)
+    items = list(cart.items.all())
+    if not items:
+        return JsonResponse({'status': 'error', 'detail': 'Your cart is empty.'}, status=400)
+
+    use_wallet = bool(_parse_json_body(request).get('use_wallet'))
+    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+
+    subtotal = sum((i.subtotal for i in items), Decimal('0'))
+    wallet_discount = min(profile.wallet_balance, subtotal) if use_wallet else Decimal('0')
+    shipping_fee = Decimal('0') if subtotal == 0 or subtotal >= FREE_SHIP_OVER else SHIP_FEE
+    total = max(Decimal('0'), subtotal + shipping_fee - wallet_discount)
+
+    order = Order.objects.create(
+        user=request.user, subtotal=subtotal, wallet_discount=wallet_discount,
+        shipping_fee=shipping_fee, total=total,
+    )
+    OrderItem.objects.bulk_create([
+        OrderItem(order=order, product_id=i.product_id, product_name=i.product_name,
+                  price=i.price, quantity=i.quantity)
+        for i in items
+    ])
+
+    if wallet_discount > 0:
+        profile.wallet_balance -= wallet_discount
+        profile.save(update_fields=['wallet_balance'])
+
+    cart.items.all().delete()
+
+    return JsonResponse({
+        'status': 'ok',
+        'order': _order_payload(order),
+        'cart': _cart_payload(cart),
+        'user': _user_payload(request.user),
+    })
+
+
+def store_orders_list(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+    orders = Order.objects.filter(user=request.user).prefetch_related('items').order_by('-created_at')
+    return JsonResponse({'status': 'ok', 'orders': [_order_payload(o) for o in orders]})
+
+
+def store_wallet_get(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+    return JsonResponse({'status': 'ok', 'wallet_balance': float(profile.wallet_balance)})
+
+
 # ── E-Store: contact ─────────────────────────────────────────────────────
 
 def store_contact(request):
@@ -461,6 +547,7 @@ def dashboard_home(request):
         'total_leads': ContactLead.objects.count(),
         'total_carts': Cart.objects.count(),
         'cart_items': CartItem.objects.count(),
+        'total_orders': Order.objects.count(),
         'recent_users': User.objects.select_related('store_profile').order_by('-date_joined')[:5],
         'recent_leads': ContactLead.objects.order_by('-created_at')[:5],
     }
@@ -544,6 +631,38 @@ def dashboard_category_delete(request, pk):
     if request.method == 'POST':
         get_object_or_404(Category, pk=pk).delete()
     return redirect('dashboard_categories')
+
+
+def dashboard_orders(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    q = request.GET.get('q', '').strip()
+    status = request.GET.get('status', '').strip()
+    orders = Order.objects.select_related('user').prefetch_related('items').order_by('-created_at')
+    if q:
+        orders = orders.filter(
+            Q(user__username__icontains=q) | Q(user__email__icontains=q) |
+            Q(user__first_name__icontains=q) | Q(user__last_name__icontains=q)
+        )
+    if status:
+        orders = orders.filter(status=status)
+    return render(request, 'dashboard/orders.html', {
+        'active': 'orders', 'orders': orders, 'q': q, 'status': status,
+        'status_choices': Order.STATUS_CHOICES,
+    })
+
+
+def dashboard_order_status_update(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == 'POST':
+        form = OrderStatusForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            order.maybe_credit_wallet()
+    return redirect('dashboard_orders')
 
 
 def dashboard_logout(request):

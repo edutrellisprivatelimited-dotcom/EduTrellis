@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from .models import ContactLead, StoreProfile, Cart, CartItem, Category
+from .models import ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem
 
 
 @admin.register(Category)
@@ -37,6 +37,25 @@ class CartAdmin(admin.ModelAdmin):
     def item_count(self, obj):
         return obj.items.count()
     item_count.short_description = 'Items'
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    readonly_fields = ('product_id', 'product_name', 'price', 'quantity')
+    can_delete = False
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'status', 'total', 'wallet_credit_applied', 'created_at')
+    list_filter = ('status', 'wallet_credit_applied')
+    search_fields = ('user__username', 'user__email')
+    inlines = [OrderItemInline]
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        obj.maybe_credit_wallet()
 
 
 class StoreProfileInline(admin.StackedInline):

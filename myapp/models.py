@@ -26,9 +26,10 @@ class ContactLead(models.Model):
 
 class StoreProfile(models.Model):
     """Extra store-specific fields for a Django auth User (E-Store signups)."""
-    user   = models.OneToOneField(User, on_delete=models.CASCADE, related_name='store_profile')
-    phone  = models.CharField(max_length=20, blank=True)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    user           = models.OneToOneField(User, on_delete=models.CASCADE, related_name='store_profile')
+    phone          = models.CharField(max_length=20, blank=True)
+    avatar         = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
         verbose_name = 'Store Customer Profile'
@@ -89,6 +90,82 @@ class CartItem(models.Model):
         unique_together = ('cart', 'product_id')
         verbose_name = 'Cart Item'
         verbose_name_plural = 'Cart Items'
+
+    def __str__(self):
+        return f"{self.product_name} x{self.quantity}"
+
+    @property
+    def subtotal(self):
+        return self.price * self.quantity
+
+
+# Product id (matches PRODUCTS in estore.html) whose first delivered order
+# triggers the ₹100 wallet-credit welcome offer.
+WALLET_OFFER_PRODUCT_ID = 'aud-metal'
+WALLET_OFFER_CREDIT = 100
+
+
+class Order(models.Model):
+    """A placed order, created from the cart at checkout. Product data is
+    snapshotted onto OrderItem the same way CartItem snapshots it, since the
+    catalogue lives in the template, not the database."""
+    STATUS_PLACED     = 'placed'
+    STATUS_PROCESSING = 'processing'
+    STATUS_SHIPPED    = 'shipped'
+    STATUS_DELIVERED  = 'delivered'
+    STATUS_CANCELLED  = 'cancelled'
+    STATUS_CHOICES = [
+        (STATUS_PLACED, 'Placed'),
+        (STATUS_PROCESSING, 'Processing'),
+        (STATUS_SHIPPED, 'Shipped'),
+        (STATUS_DELIVERED, 'Delivered'),
+        (STATUS_CANCELLED, 'Cancelled'),
+    ]
+
+    user                   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    status                 = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PLACED)
+    subtotal               = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    wallet_discount        = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    shipping_fee           = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total                  = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    wallet_credit_applied  = models.BooleanField(default=False)
+    created_at             = models.DateTimeField(auto_now_add=True)
+    updated_at             = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Store Order'
+        verbose_name_plural = 'Store Orders'
+
+    def __str__(self):
+        return f"Order #{self.pk} — {self.user.username} ({self.get_status_display()})"
+
+    def maybe_credit_wallet(self):
+        """Credits the ₹100 welcome offer once this order is Delivered, if
+        it's the customer's first order and contains the Metal Bluetooth
+        Speaker. Idempotent via wallet_credit_applied."""
+        if self.wallet_credit_applied or self.status != self.STATUS_DELIVERED:
+            return
+        is_first_order = not Order.objects.filter(user=self.user).exclude(pk=self.pk).exists()
+        has_offer_product = self.items.filter(product_id=WALLET_OFFER_PRODUCT_ID).exists()
+        if is_first_order and has_offer_product:
+            profile, _ = StoreProfile.objects.get_or_create(user=self.user)
+            profile.wallet_balance += WALLET_OFFER_CREDIT
+            profile.save(update_fields=['wallet_balance'])
+        self.wallet_credit_applied = True
+        self.save(update_fields=['wallet_credit_applied'])
+
+
+class OrderItem(models.Model):
+    order        = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product_id   = models.CharField(max_length=40)
+    product_name = models.CharField(max_length=200)
+    price        = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity     = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        verbose_name = 'Order Item'
+        verbose_name_plural = 'Order Items'
 
     def __str__(self):
         return f"{self.product_name} x{self.quantity}"

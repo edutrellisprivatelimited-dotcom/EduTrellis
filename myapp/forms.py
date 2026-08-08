@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-from myapp.models import Category
+from myapp.models import Category, Order
 
 
 class ContactLeadForm(forms.Form):
@@ -151,3 +151,9 @@ class CategoryForm(forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError('A category with this slug already exists.')
         return slug
+
+
+class OrderStatusForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['status']

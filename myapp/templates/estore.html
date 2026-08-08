@@ -136,7 +136,7 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .account-menu{position:absolute;top:calc(100% + 10px);right:0;width:min(264px,88vw);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-md);padding:.6rem;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .25s,transform .25s,visibility .25s;z-index:500}
 .account-menu.open{opacity:1;visibility:visible;transform:none}
 .am-head{display:flex;gap:.75rem;align-items:center;padding:.5rem .5rem .9rem;border-bottom:1px solid var(--line);margin-bottom:.4rem}
-.am-avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;overflow:hidden}
+.am-avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--dark),var(--dark-2));color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;overflow:hidden}
 .am-avatar img{width:100%;height:100%;object-fit:cover}
 .am-avatar.big{width:76px;height:76px;font-size:1.5rem}
 .am-meta{min-width:0}
@@ -144,10 +144,11 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .am-meta span{display:block;font-size:.75rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .account-menu button{width:100%;display:flex;align-items:center;gap:.65rem;border:none;background:none;text-align:left;padding:.65rem .5rem;border-radius:10px;font-family:inherit;font-size:.86rem;font-weight:600;color:var(--head);cursor:pointer;transition:background .2s}
 .account-menu button:hover{background:var(--bg-alt)}
-.account-menu button i{width:16px;color:var(--red)}
+.account-menu button i{width:16px;color:var(--text)}
 .account-menu button.am-logout{color:var(--red);border-top:1px solid var(--line);margin-top:.3rem;padding-top:.75rem}
+.account-menu button.am-logout i{color:var(--red)}
 .avatar-edit-wrap{position:relative;width:76px;margin:0 auto 1.2rem}
-.avatar-upload-btn{position:absolute;bottom:-2px;right:-2px;width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.7rem;border:2px solid #fff}
+.avatar-upload-btn{position:absolute;bottom:-2px;right:-2px;width:28px;height:28px;border-radius:50%;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.7rem;border:2px solid #fff}
 .hamburger{display:none;width:44px;height:44px;border:1.5px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .hamburger span{width:19px;height:2px;background:var(--head);border-radius:2px;transition:.3s}
 .hamburger.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
@@ -446,6 +447,30 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .offer-skip{display:block;width:100%;margin-top:.7rem;border:none;background:none;color:#9aa3b0;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit}
 .offer-skip:hover{color:var(--head)}
 
+/* my wallet popup */
+.wallet-amt{text-align:center;font-family:'Sora',sans-serif;font-size:2.6rem;font-weight:900;color:var(--head);margin:.6rem 0 .3rem}
+.wallet-note{text-align:center;font-size:.85rem;color:var(--text);line-height:1.5;max-width:36ch;margin:0 auto}
+.wallet-note.earned{color:var(--green-dark)}
+
+/* my orders popup */
+.orders-card{max-width:480px}
+.orders-list{max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:.8rem;margin-top:1.2rem}
+.order-card{border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem}
+.oc-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.5rem}
+.oc-head b{font-size:.88rem;color:var(--head)}
+.oc-head span{font-size:.72rem;color:var(--text)}
+.oc-items{font-size:.82rem;color:var(--text);line-height:1.5}
+.oc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+.oc-foot b{font-family:'Sora',sans-serif;font-size:.92rem;color:var(--head)}
+.ord-badge{font-size:.68rem;font-weight:800;padding:.2rem .6rem;border-radius:50px;white-space:nowrap}
+.ord-badge.placed{background:#eef2ff;color:#3b5bdb}
+.ord-badge.processing{background:#fff7e6;color:#b45309}
+.ord-badge.shipped{background:#e6f4ff;color:#0369a1}
+.ord-badge.delivered{background:#e8fbf0;color:var(--green-dark)}
+.ord-badge.cancelled{background:var(--red-soft);color:var(--red)}
+.orders-empty{text-align:center;padding:2rem 1rem;color:#9aa3b0}
+.orders-empty i{font-size:2rem;display:block;margin-bottom:.6rem;color:var(--line)}
+
 /* ---------------- FOOTER ---------------- */
 footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 .foot-grid{max-width:1240px;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;gap:2.2rem}
@@ -580,6 +605,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
           </div>
           <button type="button" id="amAdmin" data-action="admin" style="display:none"><i class="fas fa-user-shield"></i> Admin panel</button>
           <button type="button" data-action="cart"><i class="fas fa-cart-shopping"></i> My cart</button>
+          <button type="button" data-action="wallet"><i class="fas fa-wallet"></i> My wallet</button>
           <button type="button" data-action="orders"><i class="fas fa-box"></i> My orders</button>
           <button type="button" data-action="edit"><i class="fas fa-user-pen"></i> Edit profile</button>
           <button type="button" data-action="password"><i class="fas fa-key"></i> Change password</button>
@@ -595,7 +621,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <li><a href="#top">Home</a></li>
       <li><a href="#shop">Shop All</a></li>
       <li><a href="#categories">Categories</a></li>
-      <li><a href="#deals" class="hot">Deals</a></li>
+      <li><a href="#offer" class="hot">Offer</a></li>
       <li><a href="#services">Our Services</a></li>
       <li><a href="#about">About Us</a></li>
       <li><a href="#contact">Contact Us</a></li>
@@ -610,7 +636,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <li><a href="#top">Home <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#shop">Shop All <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#categories">Categories <i class="fas fa-chevron-right"></i></a></li>
-    <li><a href="#deals">Deals <i class="fas fa-chevron-right"></i></a></li>
+    <li><a href="#offer">Offer <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#services">Our Services <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#about">About Us <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#contact">Contact Us <i class="fas fa-chevron-right"></i></a></li>
@@ -650,7 +676,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         <p>ANC earbuds, over-ear headphones and party speakers with real battery numbers — not the ones printed on the box.</p>
         <div class="hero-btns">
           <a href="#shop" class="cta-btn" data-jump="audio">Shop audio <i class="fas fa-arrow-right"></i></a>
-          <a href="#deals" class="cta-btn ghost">See today's deals <i class="fas fa-tag"></i></a>
+          <a href="#offer" class="cta-btn ghost">See today's offer <i class="fas fa-tag"></i></a>
         </div>
         <div class="hero-trust">
           <div class="htrust"><h3>40h</h3><p>Playback on top picks</p></div>
@@ -740,13 +766,13 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </section>
 
-<!-- ==================== DEAL STRIP ==================== -->
-<section id="deals" class="deal-strip">
+<!-- ==================== OFFER STRIP ==================== -->
+<section id="offer" class="deal-strip">
   <div class="wrap deal-in">
     <div class="reveal d1">
-      <h3>Weekend gadget drop — up to 45% off</h3>
-      <p>Discounts across audio, wearables and charging run until Sunday midnight. Stock is limited to what's on the shelf.</p>
-      <div class="hero-btns"><a href="#shop" class="cta-btn">Shop the drop <i class="fas fa-arrow-right"></i></a></div>
+      <h3>Get ₹100 wallet balance on your first order</h3>
+      <p>Order the Metal Bluetooth Speaker and once it's delivered, we'll credit ₹100 straight to your EduTrellis wallet — use it on your very next purchase, no minimum spend.</p>
+      <div class="hero-btns"><a href="#shop" class="cta-btn" data-jump="audio">Shop the Metal Speaker <i class="fas fa-arrow-right"></i></a></div>
     </div>
     <div class="deal-timer reveal d2" id="timer">
       <div class="dt-box"><b id="tH">00</b><span>Hours</span></div>
@@ -956,7 +982,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <ul>
         <li><a href="#shop"><i class="fas fa-chevron-right"></i>Shop all</a></li>
         <li><a href="#categories"><i class="fas fa-chevron-right"></i>Categories</a></li>
-        <li><a href="#deals"><i class="fas fa-chevron-right"></i>Deals</a></li>
+        <li><a href="#offer"><i class="fas fa-chevron-right"></i>Offer</a></li>
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Our services</a></li>
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact us</a></li>
@@ -1135,6 +1161,31 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </div>
 
+<!-- ==================== MY WALLET MODAL ==================== -->
+<div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-label="My wallet">
+  <div class="modal-card">
+    <button class="x-btn modal-x" id="closeWallet" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div class="modal-top">
+      <div class="logo-txt">My <span>Wallet</span></div>
+      <p>Your EduTrellis Store credit balance</p>
+    </div>
+    <div class="wallet-amt" id="walletAmt">₹0</div>
+    <p class="wallet-note" id="walletNote">Earn ₹100 when your first Metal Bluetooth Speaker order is delivered.</p>
+  </div>
+</div>
+
+<!-- ==================== MY ORDERS MODAL ==================== -->
+<div class="modal" id="ordersModal" role="dialog" aria-modal="true" aria-label="My orders">
+  <div class="modal-card orders-card">
+    <button class="x-btn modal-x" id="closeOrders" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div class="modal-top">
+      <div class="logo-txt">My <span>Orders</span></div>
+      <p>Track the status of everything you've ordered</p>
+    </div>
+    <div class="orders-list" id="ordersList"></div>
+  </div>
+</div>
+
 <!-- ==================== OFFER POPUP ==================== -->
 <div class="modal" id="offerModal" role="dialog" aria-modal="true" aria-label="Welcome offer">
   <div class="offer-card">
@@ -1143,13 +1194,13 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <div class="offer-ico"><i class="fas fa-wallet"></i></div>
       <div class="offer-eyebrow">Welcome offer</div>
       <div class="offer-amt"><small>₹</small>100</div>
-      <h3>wallet credit on your first order</h3>
+      <h3>wallet credit on the Metal Bluetooth Speaker</h3>
     </div>
     <div class="offer-body">
       <ul>
-        <li><i class="fas fa-circle-check"></i> Works on any order value — no minimum spend</li>
-        <li><i class="fas fa-circle-check"></i> Applies automatically at checkout, no coupon code</li>
-        <li><i class="fas fa-circle-check"></i> Valid on every category in the store</li>
+        <li><i class="fas fa-circle-check"></i> Order the Metal Bluetooth Speaker to qualify</li>
+        <li><i class="fas fa-circle-check"></i> ₹100 is credited once that order is delivered</li>
+        <li><i class="fas fa-circle-check"></i> Use it on your very next purchase, no coupon code</li>
       </ul>
       <button class="submit-btn" id="offerClaim">Claim it — create my account</button>
       <button class="offer-skip" id="offerSkip">Maybe later, let me browse</button>
@@ -1180,6 +1231,7 @@ const PRODUCTS = [
   {id:'aud-over',  cat:'audio', brand:'Vertex', name:'Over-Ear Studio Headphones', desc:'40mm drivers, memory-foam cups and a detachable cable for wired studio use.', price:3499, mrp:5999, icon:'fa-headphones', grad:'linear-gradient(135deg,#1c2333,#2c3e50)', flag:'', stock:'In stock', tags:['40mm drivers','60h battery','Foldable'], rating:4.7, reviews:186},
   {id:'aud-spk',   cat:'audio', brand:'BoomBox', name:'Portable Party Speaker 20W', desc:'20W output, IPX7 waterproofing and 24 hours of playback on a single charge.', price:2199, mrp:3499, icon:'fa-volume-high', grad:'linear-gradient(135deg,#f59e0b,#b45309)', flag:'Hot', stock:'Only 6 left', tags:['20W','IPX7','24h'], rating:4.6, reviews:243},
   {id:'aud-neck',  cat:'audio', brand:'SoundCore', name:'Bluetooth Neckband', desc:'Magnetic earbuds, quick-charge for 10 hours of playback from a 10-minute top-up.', price:999, mrp:1799, icon:'fa-music', grad:'linear-gradient(135deg,#8b5cf6,#6d28d9)', flag:'Under ₹1000', stock:'In stock', tags:['Quick charge','Magnetic','30h'], rating:4.4, reviews:308},
+  {id:'aud-metal', cat:'audio', brand:'BoomBox', name:'Metal Bluetooth Speaker', desc:'Solid metal shell, 360° sound and 18 hours of playback — plus ₹100 wallet credit on your first order once it’s delivered.', price:1799, mrp:2999, icon:'fa-volume-high', grad:'linear-gradient(135deg,#334155,#0f172a)', flag:'Welcome offer', stock:'In stock', tags:['Metal body','360° sound','18h battery'], rating:4.7, reviews:64},
 
   /* WEARABLES */
   {id:'wear-amo',  cat:'wearables', brand:'Pulse', name:'AMOLED Smartwatch Series 5', desc:'1.85-inch AMOLED display, Bluetooth calling, SpO2 and 100+ sport modes.', price:2999, mrp:5999, icon:'fa-stopwatch', grad:'linear-gradient(135deg,#0ea5e9,#0369a1)', flag:'Top rated', stock:'In stock', tags:['AMOLED','BT calling','SpO2'], rating:4.7, reviews:521},
@@ -1210,7 +1262,6 @@ const PRODUCTS = [
 ];
 
 /* ---------- 2. STORE CONFIG + STATE ---------- */
-const WELCOME_CREDIT = 100;   // first-order wallet credit — no minimum order value
 const FREE_SHIP_OVER = 999;
 const SHIP_FEE       = 79;
 
@@ -1221,8 +1272,10 @@ const state = {
   filter: 'all',
   query: '',
   useWallet: true,
-  firstOrder: true,          // set false server-side once the customer has ordered
-  wallet: WELCOME_CREDIT,
+  // Wallet balance is earned server-side — ₹100 is credited once a Metal
+  // Bluetooth Speaker order is marked Delivered — so it starts at whatever
+  // the account actually has, not a free credit.
+  wallet: (BOOT.user && BOOT.user.wallet_balance) || 0,
   user: BOOT.user || null,
   offerShown: false
 };
@@ -1255,6 +1308,9 @@ function postForm(url, formData){
     headers: { 'X-CSRFToken': csrfToken() },
     body: formData
   }).then(r => r.json().then(body => ({ ok: r.ok, body })));
+}
+function getJSON(url){
+  return fetch(url, { credentials: 'same-origin' }).then(r => r.json().then(body => ({ ok: r.ok, body })));
 }
 function applyCartPayload(cart){
   state.cart = {};
@@ -1384,7 +1440,7 @@ function cartLines(){
   return Object.keys(state.cart).map(id => ({ p: PRODUCTS.find(x => x.id === id), q: state.cart[id] }));
 }
 function subtotal(){ return cartLines().reduce((s, l) => s + l.p.price * l.q, 0); }
-function walletApplies(){ return state.firstOrder && state.useWallet && subtotal() > 0; }
+function walletApplies(){ return state.wallet > 0 && state.useWallet && subtotal() > 0; }
 
 function addToCart(id){
   const p = PRODUCTS.find(x => x.id === id);
@@ -1447,8 +1503,8 @@ function renderCart(){
   $('#checkout').disabled    = !lines.length;
 
   const hint = $('#walletHint');
-  if (!state.firstOrder)      hint.textContent = 'Already used on your first order';
-  else if (sub === 0)         hint.textContent = 'Welcome credit on your first order';
+  if (state.wallet <= 0)      hint.textContent = 'Earn ₹100 when your first Metal Bluetooth Speaker order is delivered';
+  else if (sub === 0)         hint.textContent = inr(state.wallet) + ' available for your next order';
   else if (state.useWallet)   hint.textContent = inr(disc) + ' applied to this order';
   else                        hint.textContent = 'Saved for later — switch on to use it';
 }
@@ -1486,6 +1542,54 @@ function openPassword(){
   $('#passwordModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
 }
 function closePassword(){ $('#passwordModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
+function openWallet(){
+  if (!state.user) return;
+  $('#walletAmt').textContent = inr(state.wallet);
+  const note = $('#walletNote');
+  if (state.wallet > 0){
+    note.textContent = inr(state.wallet) + ' ready to use on your next order — toggle it on in the cart.';
+    note.classList.add('earned');
+  } else {
+    note.textContent = 'Earn ₹100 when your first Metal Bluetooth Speaker order is delivered.';
+    note.classList.remove('earned');
+  }
+  $('#walletModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+  getJSON('/store/api/wallet/').then(({ ok, body }) => {
+    if (!ok) return;
+    state.wallet = body.wallet_balance || 0;
+    $('#walletAmt').textContent = inr(state.wallet);
+    if (state.wallet > 0){
+      note.textContent = inr(state.wallet) + ' ready to use on your next order — toggle it on in the cart.';
+      note.classList.add('earned');
+    } else {
+      note.textContent = 'Earn ₹100 when your first Metal Bluetooth Speaker order is delivered.';
+      note.classList.remove('earned');
+    }
+    renderCart();
+  });
+}
+function closeWallet(){ $('#walletModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
+function orderBadge(status, label){ return '<span class="ord-badge ' + status + '">' + label + '</span>'; }
+function openOrders(){
+  if (!state.user) return;
+  $('#ordersList').innerHTML = '<div class="orders-empty"><i class="fas fa-spinner fa-spin"></i>Loading your orders…</div>';
+  $('#ordersModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+  getJSON('/store/api/orders/').then(({ ok, body }) => {
+    if (!ok || !body.orders || !body.orders.length){
+      $('#ordersList').innerHTML = '<div class="orders-empty"><i class="fas fa-box-open"></i>No orders yet — start shopping!</div>';
+      return;
+    }
+    $('#ordersList').innerHTML = body.orders.map(o => '' +
+      '<div class="order-card">' +
+        '<div class="oc-head"><b>Order #' + o.id + '</b>' + orderBadge(o.status, o.status_display) + '</div>' +
+        '<div class="oc-items">' + o.items.map(i => i.name + ' × ' + i.quantity).join(', ') + '</div>' +
+        '<div class="oc-foot"><span>' + o.created_at + '</span><b>' + inr(o.total) + '</b></div>' +
+      '</div>').join('');
+  });
+}
+function closeOrders(){ $('#ordersModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
 
 /* ---------- 9b. ACCOUNT DROPDOWN ---------- */
 function initials(name){
@@ -1598,8 +1702,11 @@ $('#accountMenu').addEventListener('click', e => {
     case 'cart':
       openDrawer();
       break;
+    case 'wallet':
+      openWallet();
+      break;
     case 'orders':
-      toast('No orders yet — start shopping!', 'fa-box');
+      openOrders();
       break;
     case 'edit':
       openProfile();
@@ -1610,7 +1717,9 @@ $('#accountMenu').addEventListener('click', e => {
     case 'logout':
       postJSON('/store/api/logout/', {}).then(() => {
         state.user = null;
+        state.wallet = 0;
         renderAccountUI();
+        renderCart();
         toast('Logged out');
       });
       break;
@@ -1620,11 +1729,13 @@ $('#accountMenu').addEventListener('click', e => {
 $('#closeAuth').addEventListener('click', closeAuth);
 $('#closeProfile').addEventListener('click', closeProfile);
 $('#closePassword').addEventListener('click', closePassword);
+$('#closeWallet').addEventListener('click', closeWallet);
+$('#closeOrders').addEventListener('click', closeOrders);
 $('#closeOffer').addEventListener('click', closeOffer);
 $('#offerSkip').addEventListener('click', closeOffer);
 $('#offerClaim').addEventListener('click', () => openAuth('signup'));
-$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeOffer(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeOffer(); closeAccountMenu(); } });
+$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu(); } });
 
 $('#pfAvatarInput').addEventListener('change', () => {
   const file = $('#pfAvatarInput').files[0];
@@ -1657,6 +1768,7 @@ $('#profileForm').addEventListener('submit', e => {
         return;
       }
       state.user = body.user;
+      state.wallet = body.user.wallet_balance || 0;
       renderAccountUI();
       closeProfile();
       toast('Profile updated', 'fa-circle-check');
@@ -1692,8 +1804,23 @@ $('#useWallet').addEventListener('change', e => { state.useWallet = e.target.che
 
 $('#checkout').addEventListener('click', () => {
   if (!state.user){ closeDrawer(); openAuth('signup'); toast('Log in to complete your order', 'fa-user'); return; }
-  // TODO: POST the cart to your Django checkout view / Razorpay order endpoint.
-  toast('Checkout is not wired up in this template', 'fa-circle-info');
+  const btn = $('#checkout'); btn.disabled = true;
+  postJSON('/store/api/checkout/', { use_wallet: state.useWallet })
+    .then(({ ok, body }) => {
+      btn.disabled = false;
+      if (!ok){
+        toast(body.detail || 'Could not place your order', 'fa-circle-exclamation');
+        return;
+      }
+      applyCartPayload(body.cart);
+      state.user = body.user;
+      state.wallet = body.user.wallet_balance || 0;
+      renderAccountUI();
+      renderCart(); renderGrid();
+      closeDrawer();
+      toast('Order #' + body.order.id + ' placed — thank you!', 'fa-circle-check');
+    })
+    .catch(() => { btn.disabled = false; toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
 });
 
 /* auth — wired to Django backend (User + StoreProfile), session-based */
@@ -1718,10 +1845,11 @@ $('#doSignup').addEventListener('click', () => {
         return;
       }
       state.user = body.user;
+      state.wallet = body.user.wallet_balance || 0;
       applyCartPayload(body.cart);
       renderAccountUI();
       closeAuth();
-      toast('Account created — welcome!', 'fa-wallet');
+      toast('Account created — welcome to EduTrellis Store!', 'fa-circle-check');
       renderCart(); renderGrid();
     })
     .catch(() => { btn.disabled = false; toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
@@ -1743,6 +1871,7 @@ $('#doLogin').addEventListener('click', () => {
         return;
       }
       state.user = body.user;
+      state.wallet = body.user.wallet_balance || 0;
       applyCartPayload(body.cart);
       renderAccountUI();
       closeAuth();

@@ -13,13 +13,14 @@
   </div>
   <div class="table-scroll">
   <table>
-    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th></tr></thead>
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Wallet</th><th>Role</th><th>Joined</th></tr></thead>
     <tbody>
       {% for u in users %}
       <tr>
         <td>{{ u.first_name|default:u.username }} {{ u.last_name }}</td>
         <td>{{ u.email }}</td>
         <td>{{ u.store_profile.phone|default:"—" }}</td>
+        <td>₹{{ u.store_profile.wallet_balance|default:0|floatformat:0 }}</td>
         <td>
           {% if u.is_superuser %}<span class="badge staff">Superuser</span>
           {% elif u.is_staff %}<span class="badge staff">Staff</span>
@@ -28,7 +29,7 @@
         <td>{{ u.date_joined|date:"d M Y, h:i A" }}</td>
       </tr>
       {% empty %}
-      <tr><td colspan="5" class="empty-row">No signups match your search</td></tr>
+      <tr><td colspan="6" class="empty-row">No signups match your search</td></tr>
       {% endfor %}
     </tbody>
   </table>
