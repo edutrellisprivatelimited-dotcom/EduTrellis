@@ -221,7 +221,8 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .cat-rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:2.4rem}
 .cat-card{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:1.4rem 1rem;text-align:center;cursor:pointer;transition:all .3s}
 .cat-card:hover,.cat-card.on{border-color:var(--red);transform:translateY(-5px);box-shadow:var(--shadow-sm)}
-.cat-ico{width:52px;height:52px;margin:0 auto .75rem;border-radius:15px;display:grid;place-items:center;font-size:1.25rem;background:var(--red-soft);color:var(--red)}
+.cat-ico{width:52px;height:52px;margin:0 auto .75rem;border-radius:15px;display:grid;place-items:center;font-size:1.25rem;background:var(--red-soft);color:var(--red);overflow:hidden}
+.cat-ico img{width:100%;height:100%;object-fit:cover;border-radius:15px}
 .cat-card.on .cat-ico{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff}
 .cat-card h4{font-size:.92rem;font-weight:700}
 .cat-card p{font-size:.76rem;margin-top:.15rem}
@@ -704,14 +705,19 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   <div class="wrap">
     <h2 class="sec-title reveal">Shop by <span>Category</span></h2>
     <div class="accent reveal d1"></div>
-    <p class="sub reveal d2">Six shelves, everything in stock and ready to ship today</p>
+    <p class="sub reveal d2">{{ categories|length }} shelves, everything in stock and ready to ship today</p>
     <div class="cat-rail">
-      <div class="cat-card reveal d1" data-jump="audio"><div class="cat-ico"><i class="fas fa-headphones"></i></div><h4>Audio</h4><p>Earbuds, headphones, speakers</p></div>
-      <div class="cat-card reveal d2" data-jump="wearables"><div class="cat-ico"><i class="fas fa-stopwatch"></i></div><h4>Wearables</h4><p>Smartwatches &amp; bands</p></div>
-      <div class="cat-card reveal d3" data-jump="power"><div class="cat-ico"><i class="fas fa-bolt"></i></div><h4>Power</h4><p>Chargers, cables, banks</p></div>
-      <div class="cat-card reveal d4" data-jump="computing"><div class="cat-ico"><i class="fas fa-keyboard"></i></div><h4>Computing</h4><p>Keyboards, mice, hubs</p></div>
-      <div class="cat-card reveal d5" data-jump="smart"><div class="cat-ico"><i class="fas fa-house-signal"></i></div><h4>Smart Home</h4><p>Bulbs, plugs, cameras</p></div>
-      <div class="cat-card reveal d6" data-jump="mobile"><div class="cat-ico"><i class="fas fa-mobile-screen"></i></div><h4>Mobile</h4><p>Gimbals, mounts, tripods</p></div>
+      {% for cat in categories %}
+      <div class="cat-card reveal d{{ forloop.counter }}" data-jump="{{ cat.slug }}">
+        <div class="cat-ico">
+          {% if cat.image %}<img src="{{ cat.image.url }}" alt="{{ cat.name }}">{% else %}<i class="fas fa-tag"></i>{% endif %}
+        </div>
+        <h4>{{ cat.name }}</h4>
+        <p>{{ cat.description }}</p>
+      </div>
+      {% empty %}
+      <p class="sub">No categories yet — add some from the store dashboard.</p>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -725,12 +731,9 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 
     <div class="filter-row reveal d2" id="filters">
       <button class="ftab on" data-cat="all">All</button>
-      <button class="ftab" data-cat="audio">Audio</button>
-      <button class="ftab" data-cat="wearables">Wearables</button>
-      <button class="ftab" data-cat="power">Power</button>
-      <button class="ftab" data-cat="computing">Computing</button>
-      <button class="ftab" data-cat="smart">Smart Home</button>
-      <button class="ftab" data-cat="mobile">Mobile</button>
+      {% for cat in categories %}
+      <button class="ftab" data-cat="{{ cat.slug }}">{{ cat.name }}</button>
+      {% endfor %}
     </div>
 
     <div class="prod-grid" id="grid"></div>

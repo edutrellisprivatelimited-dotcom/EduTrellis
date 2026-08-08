@@ -11,9 +11,9 @@ from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
 from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
-    StoreProfileEditForm, StorePasswordChangeForm,
+    StoreProfileEditForm, StorePasswordChangeForm, CategoryForm,
 )
-from myapp.models import ContactLead, StoreProfile, Cart, CartItem
+from myapp.models import ContactLead, StoreProfile, Cart, CartItem, Category
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,11 @@ def estore(request):
     boot = {'user': None, 'cart': _cart_payload(cart)}
     if request.user.is_authenticated:
         boot['user'] = _user_payload(request.user)
-    return render(request, "estore.html", {"store_boot_json": json.dumps(boot)})
+    categories = Category.objects.filter(is_active=True)
+    return render(request, "estore.html", {
+        "store_boot_json": json.dumps(boot),
+        "categories": categories,
+    })
 
 
 def _user_payload(user):
@@ -498,6 +502,48 @@ def dashboard_contact_delete(request, pk):
     if request.method == 'POST':
         get_object_or_404(ContactLead, pk=pk).delete()
     return redirect('dashboard_contacts')
+
+
+def dashboard_categories(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    q = request.GET.get('q', '').strip()
+    categories = Category.objects.all()
+    if q:
+        categories = categories.filter(Q(name__icontains=q) | Q(slug__icontains=q))
+    return render(request, 'dashboard/categories.html', {'active': 'categories', 'categories': categories, 'q': q})
+
+
+def dashboard_category_add(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    form = CategoryForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('dashboard_categories')
+    return render(request, 'dashboard/category_form.html', {'active': 'categories', 'form': form, 'category': None})
+
+
+def dashboard_category_edit(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    category = get_object_or_404(Category, pk=pk)
+    form = CategoryForm(request.POST or None, request.FILES or None, instance=category)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('dashboard_categories')
+    return render(request, 'dashboard/category_form.html', {'active': 'categories', 'form': form, 'category': category})
+
+
+def dashboard_category_delete(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        get_object_or_404(Category, pk=pk).delete()
+    return redirect('dashboard_categories')
 
 
 def dashboard_logout(request):

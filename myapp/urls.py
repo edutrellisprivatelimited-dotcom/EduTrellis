@@ -20,6 +20,10 @@ urlpatterns = [
     path('store/dashboard/signups/', views.dashboard_signups, name='dashboard_signups'),
     path('store/dashboard/contacts/', views.dashboard_contacts, name='dashboard_contacts'),
     path('store/dashboard/contacts/<int:pk>/delete/', views.dashboard_contact_delete, name='dashboard_contact_delete'),
+    path('store/dashboard/categories/', views.dashboard_categories, name='dashboard_categories'),
+    path('store/dashboard/categories/add/', views.dashboard_category_add, name='dashboard_category_add'),
+    path('store/dashboard/categories/<int:pk>/edit/', views.dashboard_category_edit, name='dashboard_category_edit'),
+    path('store/dashboard/categories/<int:pk>/delete/', views.dashboard_category_delete, name='dashboard_category_delete'),
     path('store/dashboard/logout/', views.dashboard_logout, name='dashboard_logout'),
 
     path('contact/', views.contact_lead, name='contact_lead'),

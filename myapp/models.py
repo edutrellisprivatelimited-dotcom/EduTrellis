@@ -38,6 +38,27 @@ class StoreProfile(models.Model):
         return f"{self.user.get_full_name() or self.user.username} ({self.phone})"
 
 
+class Category(models.Model):
+    """A storefront category shown on the homepage's 'Shop by Category' rail
+    and used as a filter tab on the shop grid. Replaces the old hardcoded
+    icon-based categories with an admin-managed list backed by an image."""
+    name        = models.CharField(max_length=80)
+    slug        = models.SlugField(max_length=80, unique=True, help_text="Used to match product filter tags, e.g. 'audio'.")
+    description = models.CharField(max_length=200, blank=True)
+    image       = models.ImageField(upload_to='categories/', blank=True, null=True)
+    order       = models.PositiveIntegerField(default=0)
+    is_active   = models.BooleanField(default=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = 'Store Category'
+        verbose_name_plural = 'Store Categories'
+
+    def __str__(self):
+        return self.name
+
+
 class Cart(models.Model):
     """A shopping cart tied to a logged-in store user or an anonymous session."""
     user        = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='carts')

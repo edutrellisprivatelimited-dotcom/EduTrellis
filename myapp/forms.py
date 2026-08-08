@@ -1,5 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.text import slugify
+
+from myapp.models import Category
 
 
 class ContactLeadForm(forms.Form):
@@ -120,3 +123,31 @@ class StoreContactForm(forms.Form):
         if len(message) < 10:
             raise forms.ValidationError('Tell us a little more (10+ characters).')
         return message
+
+
+class CategoryForm(forms.ModelForm):
+    slug = forms.CharField(
+        max_length=80, required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'auto-generated if left blank'}),
+    )
+
+    class Meta:
+        model = Category
+        fields = ['name', 'slug', 'description', 'image', 'order', 'is_active']
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        if len(name) < 2:
+            raise forms.ValidationError('Category name must be at least 2 characters long.')
+        return name
+
+    def clean_slug(self):
+        slug = slugify(self.cleaned_data.get('slug') or self.cleaned_data.get('name', ''))
+        if not slug:
+            raise forms.ValidationError('Could not derive a slug — enter one manually.')
+        qs = Category.objects.filter(slug=slug)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('A category with this slug already exists.')
+        return slug
