@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,16 +20,20 @@
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="EduTrellis">
 <meta property="og:title" content="Website Development Company in Lucknow | EduTrellis">
 <meta property="og:description" content="Professional Website Development, SEO, Meta Ads, Website Management and Digital Marketing Services across India.">
 <meta property="og:url" content="https://edutrellis.in/">
-<meta property="og:image" content="https://edutrellis.in/static/favicon.ico">
+<meta property="og:image" content="https://edutrellis.in{% static 'img/og-cover.jpg' %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_IN">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Website Development Company in Lucknow | EduTrellis">
 <meta name="twitter:description" content="Professional Website Development, SEO, Meta Ads and Website Management Services.">
-<meta name="twitter:image" content="https://edutrellis.in/static/favicon.ico">
+<meta name="twitter:image" content="https://edutrellis.in{% static 'img/og-cover.jpg' %}">
 
 <!-- Favicon -->
 <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
@@ -41,7 +45,9 @@
  "@type":"LocalBusiness",
  "name":"EduTrellis",
  "url":"https://edutrellis.in",
+ "telephone":"+91-96959-53183",
  "email":"support@edutrellis.in",
+ "image":"https://edutrellis.in{% static 'img/og-cover.jpg' %}",
  "address":{
    "@type":"PostalAddress",
    "streetAddress":"P-109, Prembagh, Shahpur, Chinhat",
@@ -51,7 +57,12 @@
    "addressCountry":"IN"
  },
  "areaServed":"India",
- "description":"Website Development, SEO Services, Meta Ads, Website Management, WordPress and Django Development."
+ "description":"Website Development, SEO Services, Meta Ads, Website Management, WordPress and Django Development.",
+ "sameAs":[
+   "https://www.instagram.com/edutrellis",
+   "https://www.linkedin.com/company/edutrellis",
+   "https://www.facebook.com/profile.php?id=61590850943948"
+ ]
 }
 </script>
 
@@ -329,7 +340,7 @@
     <span class="strip-sep"></span>
 
     <!-- Facebook -->
-    <a href="https://www.facebook.com/people/Edutrellis/61590850943948/"
+    <a href="https://www.facebook.com/profile.php?id=61590850943948"
        class="strip-link"
        aria-label="Facebook"
        target="_blank"
@@ -681,54 +692,30 @@
       </div>
 
       <div class="estore-slider" id="estoreSlider">
+        {% for p in trending_products %}
         <div class="estore-card">
-          <div class="estore-card-img"><img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=500&h=500&fit=crop" alt="Wireless Earbuds" loading="lazy" width="220" height="220"></div>
+          <div class="estore-card-img">
+            {% if p.image %}
+              <img src="{{ p.image.url }}" alt="{{ p.name }}" loading="lazy" width="220" height="220">
+            {% else %}
+              <div class="estore-noimg" style="background:{{ p.gradient }}"><i class="fas {{ p.icon }}"></i></div>
+            {% endif %}
+          </div>
           <div class="estore-card-body">
-            <h4>Wireless Earbuds</h4>
-            <div class="estore-card-price">₹1,499</div>
-            <a href="{% url 'estore' %}" class="estore-view-btn">View Product <i class="fas fa-arrow-right"></i></a>
+            <h4>{{ p.name }}</h4>
+            <div class="estore-card-price">₹{{ p.price|floatformat:0|intcomma }}</div>
+            <a href="{% url 'product_detail' slug=p.slug %}" class="estore-view-btn">View Product <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
+        {% empty %}
         <div class="estore-card">
-          <div class="estore-card-img"><img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop" alt="Smart Watch" loading="lazy" width="220" height="220"></div>
+          <div class="estore-card-img"><div class="estore-noimg" style="background:var(--grad)"><i class="fas fa-store"></i></div></div>
           <div class="estore-card-body">
-            <h4>Smart Watch</h4>
-            <div class="estore-card-price">₹2,299</div>
-            <a href="{% url 'estore' %}" class="estore-view-btn">View Product <i class="fas fa-arrow-right"></i></a>
+            <h4>New products coming soon</h4>
+            <a href="{% url 'estore' %}" class="estore-view-btn">Visit the Store <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
-        <div class="estore-card">
-          <div class="estore-card-img"><img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500&h=500&fit=crop" alt="Bluetooth Headphones" loading="lazy" width="220" height="220"></div>
-          <div class="estore-card-body">
-            <h4>Bluetooth Headphones</h4>
-            <div class="estore-card-price">₹1,899</div>
-            <a href="{% url 'estore' %}" class="estore-view-btn">View Product <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-        <div class="estore-card">
-          <div class="estore-card-img"><img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&h=500&fit=crop" alt="Fitness Band" loading="lazy" width="220" height="220"></div>
-          <div class="estore-card-body">
-            <h4>Fitness Band</h4>
-            <div class="estore-card-price">₹999</div>
-            <a href="{% url 'estore' %}" class="estore-view-btn">View Product <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-        <div class="estore-card">
-          <div class="estore-card-img"><img src="https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?w=500&h=500&fit=crop" alt="Camera Lens" loading="lazy" width="220" height="220"></div>
-          <div class="estore-card-body">
-            <h4>Camera Lens Kit</h4>
-            <div class="estore-card-price">₹3,499</div>
-            <a href="{% url 'estore' %}" class="estore-view-btn">View Product <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-        <div class="estore-card">
-          <div class="estore-card-img"><img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop" alt="Studio Headphones" loading="lazy" width="220" height="220"></div>
-          <div class="estore-card-body">
-            <h4>Studio Headphones</h4>
-            <div class="estore-card-price">₹2,799</div>
-            <a href="{% url 'estore' %}" class="estore-view-btn">View Product <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
+        {% endfor %}
       </div>
 
       <div class="estore-explore">
@@ -1211,7 +1198,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
       <div class="foot-logo">Edu<span>Trellis</span></div>
       <p>India's complete digital growth partner for educational businesses, coaches and creators. 1200+ happy clients and growing.</p>
       <div class="socials">
-        <a href="https://www.facebook.com/people/Edutrellis/61590850943948/" title="Facebook" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61590850943948" title="Facebook" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
         <a href="https://www.instagram.com/edutrellis" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
         <a href="https://www.linkedin.com/company/edutrellis" title="LinkedIn" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
         <a href="https://wa.me/919695953183" title="WhatsApp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
@@ -1251,7 +1238,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
       <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="https://wa.me/919695953183" target="_blank" rel="noopener noreferrer">+91 96959 53183 (WhatsApp)</a></div>
       <div class="foot-contact-item"><i class="fas fa-map-marker-alt"></i><span>P-109, Prembagh, Shahpur, Chinhat, Lucknow, UP 226028</span></div>
       <div class="foot-contact-item"><i class="fab fa-instagram"></i><a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer">@edutrellis</a></div>
-      <div class="foot-contact-item"><i class="fab fa-facebook-f"></i><a href="https://www.facebook.com/people/Edutrellis/61590850943948/" target="_blank" rel="noopener noreferrer">EduTrellis on Facebook</a></div>
+      <div class="foot-contact-item"><i class="fab fa-facebook-f"></i><a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer">EduTrellis on Facebook</a></div>
       <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer">EduTrellis on LinkedIn</a></div>
       <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/in/vijaytiwariii/" target="_blank" rel="noopener noreferrer">Vijay Tiwari (Founder) on LinkedIn</a></div>
     </div>

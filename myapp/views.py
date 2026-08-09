@@ -37,7 +37,11 @@ SHIP_FEE = Decimal('79')
 
 
 def home(request):
-    return render(request, "home.html", {"contact_form": ContactLeadForm()})
+    trending_products = Product.objects.filter(is_active=True).select_related('category')[:8]
+    return render(request, "home.html", {
+        "contact_form": ContactLeadForm(),
+        "trending_products": trending_products,
+    })
 
 
 def home2(request):
@@ -58,6 +62,7 @@ def product_detail(request, slug):
     context['initial_product_slug'] = product.slug
     context['meta_title'] = f"{product.name} — EduTrellis Store"
     context['meta_description'] = product.short_description
+    context['meta_image'] = product.image.url if product.image else ''
     return render(request, "estore.html", context)
 
 
@@ -86,6 +91,7 @@ def _estore_context(request):
         "initial_product_slug": None,
         "meta_title": None,
         "meta_description": None,
+        "meta_image": None,
     }
 
 

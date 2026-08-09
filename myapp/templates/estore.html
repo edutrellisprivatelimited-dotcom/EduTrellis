@@ -9,13 +9,23 @@
 <meta name="description" content="{% if meta_description %}{{ meta_description }}{% else %}Official gadget store of EduTrellis Private Limited, Lucknow. Shop earbuds, headphones, smartwatches, keyboards, power banks, chargers and smart home devices with warranty and fast delivery across India.{% endif %}">
 <meta name="keywords" content="buy earbuds online India, smartwatch store, mechanical keyboard India, power bank online, tech gadgets store Lucknow, EduTrellis store">
 <meta name="author" content="EduTrellis Private Limited">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://store.edutrellis.in/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://edutrellis.in{{ request.path }}">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="EduTrellis Store — Tech Gadgets, Delivered Fast">
-<meta property="og:description" content="An EduTrellis company store. Audio, wearables, accessories and smart home gadgets with warranty and easy returns.">
-<meta property="og:url" content="https://store.edutrellis.in/">
+<meta property="og:site_name" content="EduTrellis">
+<meta property="og:title" content="{% if meta_title %}{{ meta_title }}{% else %}EduTrellis Store — Tech Gadgets, Delivered Fast{% endif %}">
+<meta property="og:description" content="{% if meta_description %}{{ meta_description }}{% else %}An EduTrellis company store. Audio, wearables, accessories and smart home gadgets with warranty and easy returns.{% endif %}">
+<meta property="og:url" content="https://edutrellis.in{{ request.path }}">
+<meta property="og:image" content="{% if meta_image %}https://edutrellis.in{{ meta_image }}{% else %}https://edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_IN">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{% if meta_title %}{{ meta_title }}{% else %}EduTrellis Store — Tech Gadgets, Delivered Fast{% endif %}">
+<meta name="twitter:description" content="{% if meta_description %}{{ meta_description }}{% else %}An EduTrellis company store. Audio, wearables, accessories and smart home gadgets with warranty and easy returns.{% endif %}">
+<meta name="twitter:image" content="{% if meta_image %}https://edutrellis.in{{ meta_image }}{% else %}https://edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
 
 <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
@@ -28,8 +38,10 @@
  "@context":"https://schema.org",
  "@type":"OnlineStore",
  "name":"EduTrellis Store",
- "url":"https://store.edutrellis.in",
+ "url":"https://edutrellis.in/store/",
+ "telephone":"+91-96959-53183",
  "email":"support@edutrellis.in",
+ "image":"https://edutrellis.in{% static 'img/og-cover.jpg' %}",
  "parentOrganization":{"@type":"Organization","name":"EduTrellis Private Limited","url":"https://edutrellis.in"},
  "address":{
    "@type":"PostalAddress",
@@ -39,7 +51,12 @@
    "postalCode":"226028",
    "addressCountry":"IN"
  },
- "areaServed":"India"
+ "areaServed":"India",
+ "sameAs":[
+   "https://www.instagram.com/edutrellis",
+   "https://www.linkedin.com/company/edutrellis",
+   "https://www.facebook.com/profile.php?id=61590850943948"
+ ]
 }
 </script>
 
@@ -1040,7 +1057,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <p>The official gadget store of EduTrellis Private Limited — audio, wearables, charging, computing and smart home gear, stocked and shipped from Lucknow.</p>
       <div class="owner-badge"><i class="fas fa-circle-check"></i> Owned &amp; operated by EduTrellis Pvt. Ltd.</div>
       <div class="socials">
-        <a href="https://www.facebook.com/people/Edutrellis/61590850943948/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         <a href="https://wa.me/919695953183" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
