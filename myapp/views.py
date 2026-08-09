@@ -619,6 +619,10 @@ def policy_page(request, key):
     return render(request, 'policy_page.html', {'policy': policy})
 
 
+def custom_404(request, exception=None):
+    return render(request, '404.html', status=404)
+
+
 def contact_lead(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
