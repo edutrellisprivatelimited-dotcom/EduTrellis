@@ -120,6 +120,7 @@
       {% for f in color_formset.forms %}
       <div class="gallery-row color-row">
         {{ f.id }}
+        {{ f.order.as_hidden }}
         <div class="gallery-row-fields">
           {{ f.name }}
           {{ f.hex_code }}
