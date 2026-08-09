@@ -7,4 +7,5 @@ Django>=4.0
 whitenoise>=6.0
 Pillow>=10.0
 razorpay>=1.4
+dropbox>=12.0
 

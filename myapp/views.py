@@ -2,6 +2,7 @@ import json
 import logging
 from decimal import Decimal, InvalidOperation
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -13,12 +14,14 @@ from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
     StoreProfileEditForm, StorePasswordChangeForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
-    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm,
+    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
+    DropboxSettings,
 )
+from myapp import dropbox_backup
 
 logger = logging.getLogger(__name__)
 
@@ -968,6 +971,73 @@ def dashboard_payments(request):
         'active': 'payments', 'payments': payments, 'q': q, 'status': status,
         'status_choices': Payment.STATUS_CHOICES,
     })
+
+
+def dashboard_backup(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    settings_obj = DropboxSettings.get_solo()
+    backups = []
+    list_error = None
+    if settings_obj.is_configured:
+        try:
+            backups = dropbox_backup.list_backups(settings_obj)
+        except dropbox_backup.BackupError as exc:
+            list_error = str(exc)
+
+    return render(request, 'dashboard/backup.html', {
+        'active': 'backup', 'settings_obj': settings_obj, 'backups': backups,
+        'list_error': list_error, 'dropbox_installed': dropbox_backup.dropbox is not None,
+        'backup_folder': dropbox_backup.BACKUP_FOLDER,
+    })
+
+
+def dashboard_backup_settings(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    settings_obj = DropboxSettings.get_solo()
+    form = DropboxSettingsForm(request.POST or None, instance=settings_obj)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = DropboxSettingsForm(instance=settings_obj)
+    return render(request, 'dashboard/backup_settings.html', {
+        'active': 'backup', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+        'dropbox_installed': dropbox_backup.dropbox is not None,
+    })
+
+
+def dashboard_backup_run(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        settings_obj = DropboxSettings.get_solo()
+        try:
+            filename = dropbox_backup.create_backup(settings_obj)
+            messages.success(request, f'Backup saved to Dropbox as "{filename}".')
+        except dropbox_backup.BackupError as exc:
+            messages.error(request, str(exc))
+    return redirect('dashboard_backup')
+
+
+def dashboard_backup_restore(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        settings_obj = DropboxSettings.get_solo()
+        filename = request.POST.get('filename', '').strip()
+        if not filename:
+            messages.error(request, 'Choose a backup to restore first.')
+        else:
+            try:
+                dropbox_backup.restore_backup(settings_obj, filename)
+                messages.success(request, f'Database restored from "{filename}". Restart the app if you notice anything odd.')
+            except dropbox_backup.BackupError as exc:
+                messages.error(request, str(exc))
+    return redirect('dashboard_backup')
 
 
 def dashboard_logout(request):

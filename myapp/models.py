@@ -421,3 +421,28 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment for Order #{self.order_id} — {self.get_method_display()} ({self.get_status_display()})"
+
+
+class DropboxSettings(models.Model):
+    """Singleton Dropbox App credentials used to back up/restore db.sqlite3,
+    managed from the store dashboard."""
+    app_key       = models.CharField(max_length=200, blank=True)
+    app_secret    = models.CharField(max_length=200, blank=True)
+    refresh_token = models.CharField(max_length=400, blank=True)
+    updated_at    = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Dropbox Backup Settings'
+        verbose_name_plural = 'Dropbox Backup Settings'
+
+    def __str__(self):
+        return 'Dropbox backup settings'
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def is_configured(self):
+        return bool(self.app_key and self.app_secret and self.refresh_token)
