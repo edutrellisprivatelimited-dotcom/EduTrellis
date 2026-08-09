@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from myapp.models import Product
 
-DOMAIN = 'edutrellis.in'
+DOMAIN = 'www.edutrellis.in'
 
 
 class StaticViewSitemap(Sitemap):

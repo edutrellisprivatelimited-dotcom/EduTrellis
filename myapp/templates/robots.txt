@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://edutrellis.in/sitemap.xml
+Sitemap: https://www.edutrellis.in/sitemap.xml
