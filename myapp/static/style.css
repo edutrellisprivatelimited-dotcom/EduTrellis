@@ -710,19 +710,6 @@ h2 span{color:var(--red)}
 
 /* ===== SERVICES ===== */
 #services{background:var(--bg);position:relative}
-.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.6rem;margin-top:2.5rem}
-.svc-item{background:var(--bg);border:2px solid var(--border);border-radius:22px;padding:2.4rem 2rem;transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;cursor:default}
-.svc-item::before{content:'';position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .4s;border-radius:20px}
-.svc-item:hover::before{opacity:1}
-.svc-item:hover{border-color:var(--red);transform:translateY(-7px);box-shadow:0 24px 56px rgba(232,0,30,.24)}
-.svc-item:hover *{color:#fff!important}
-.svc-item:hover .svc-num{background:rgba(255,255,255,.2)!important;color:#fff!important}
-.svc-item:hover .svc-price{background:rgba(255,255,255,.2)!important;color:#fff!important}
-.svc-inner{position:relative;z-index:1}
-.svc-num{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:rgba(232,0,30,.09);border-radius:14px;font-family:var(--font-head);font-size:1.05rem;font-weight:900;color:var(--red);margin-bottom:1rem;transition:all .35s}
-.svc-item h3{font-family:var(--font-head);font-size:1.04rem;font-weight:800;color:var(--dark);margin-bottom:.5rem;transition:color .35s}
-.svc-item p{font-size:.86rem;color:var(--text);line-height:1.7;transition:color .35s}
-.svc-price{display:inline-block;margin-top:.85rem;background:rgba(232,0,30,.09);color:var(--red);font-weight:700;font-size:.82rem;padding:.3rem .9rem;border-radius:50px;transition:all .35s;border:1px solid rgba(232,0,30,.15)}
 
 /* ===== E-STORE ===== */
 .estore-banner{background:var(--grad);color:#fff;border-radius:26px;padding:3rem;display:flex;align-items:center;gap:2.4rem;box-shadow:0 24px 56px rgba(232,0,30,.28);position:relative;overflow:hidden}
@@ -1029,7 +1016,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   .numbers-sec{padding:80px 1.8rem}
   #testimonials{padding:88px 1.8rem}
   .why-grid{grid-template-columns:1fr 1fr}
-  .svc-grid{grid-template-columns:1fr 1fr}
+  #services .services-grid{grid-template-columns:1fr 1fr}
   .prod-grid{grid-template-columns:1fr 1fr}
   .proj-grid{grid-template-columns:1fr 1fr}
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -1093,7 +1080,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   .numbers-grid{grid-template-columns:1fr 1fr;gap:.8rem}
   .num-card{padding:1.5rem .75rem}
   .num-card h3{font-size:2rem;letter-spacing:-1px}
-  .svc-grid{grid-template-columns:1fr}
+  #services .services-grid{grid-template-columns:1fr}
   .prod-grid{grid-template-columns:1fr}
   .proj-grid{grid-template-columns:1fr}
   .testi-grid{grid-template-columns:1fr}
