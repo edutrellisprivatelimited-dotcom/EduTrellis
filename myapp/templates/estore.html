@@ -649,7 +649,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 <!-- ==================== HEADER ==================== -->
 <header id="hdr">
   <div class="hd">
-    <a href="#top" class="logo-wrap">
+    <a href="{% url 'estore' %}" id="logoHome" class="logo-wrap">
       <span class="logo-txt">Edu<span>Trellis</span> Store</span>
       <span class="logo-sub">An EduTrellis Company</span>
     </a>
@@ -1962,6 +1962,15 @@ function goToShop(){
   $('#ham').classList.remove('on');
   document.body.classList.remove('locked');
 }
+$('#logoHome').addEventListener('click', e => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;   // let cmd/ctrl-click open in a new tab
+  e.preventDefault();
+  $('#mmenu').classList.remove('open');
+  $('#ham').classList.remove('on');
+  document.body.classList.remove('locked');
+  if (document.body.classList.contains('pdp')) closeProductDetail();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 $('#search').addEventListener('input', e => { state.query = e.target.value; $('#searchMobile').value = e.target.value; renderGrid(); });
 $('#searchMobile').addEventListener('input', e => { state.query = e.target.value; $('#search').value = e.target.value; renderGrid(); });
 $('#search').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); goToShop(); } });
