@@ -4,6 +4,7 @@ from myapp import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('websitecreation/', views.home2, name='home2'),
+    path('websitecreation/contact/', views.websitecreation_contact, name='websitecreation_contact'),
     path('store/', views.estore, name='estore'),
     path('store/api/signup/', views.store_signup, name='store_signup'),
     path('store/api/login/', views.store_login, name='store_login'),

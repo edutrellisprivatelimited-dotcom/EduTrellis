@@ -614,8 +614,9 @@ def store_contact(request):
         name=form.cleaned_data['name'],
         phone=form.cleaned_data['phone'],
         email=form.cleaned_data['email'],
-        service=f"Store — {form.cleaned_data.get('topic') or 'General enquiry'}",
+        service=form.cleaned_data.get('topic') or 'General enquiry',
         message=form.cleaned_data['message'],
+        source=ContactLead.SOURCE_STORE,
     )
     return JsonResponse({'status': 'ok', 'message': "Thanks — your message is with our team."})
 
@@ -658,6 +659,7 @@ def contact_lead(request):
             email=email,
             service=service or '',
             message=message or '',
+            source=ContactLead.SOURCE_EDUTRELLIS,
         )
     except Exception as db_err:
         logger.exception("DB save failed for lead from %s: %s", email, db_err)
@@ -717,6 +719,28 @@ def contact_lead(request):
     return JsonResponse({'status': 'ok', 'message': 'Message sent successfully.'})
 
 
+def websitecreation_contact(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+
+    form = ContactLeadForm(_parse_json_body(request))
+    if not form.is_valid():
+        return JsonResponse(
+            {'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}},
+            status=400,
+        )
+
+    ContactLead.objects.create(
+        name=form.cleaned_data['name'],
+        phone=form.cleaned_data['phone'],
+        email=form.cleaned_data['email'],
+        service=form.cleaned_data.get('service', ''),
+        message=form.cleaned_data.get('message', ''),
+        source=ContactLead.SOURCE_WEBSITECREATION,
+    )
+    return JsonResponse({'status': 'ok', 'message': "Thanks — we'll get back to you within 24 hours."})
+
+
 # ── Custom store admin dashboard (staff-only, replaces linking to /admin/) ──
 
 def _dashboard_guard(request):
@@ -770,7 +794,15 @@ def dashboard_contacts(request):
             Q(name__icontains=q) | Q(email__icontains=q) | Q(phone__icontains=q) |
             Q(service__icontains=q) | Q(message__icontains=q)
         )
-    return render(request, 'dashboard/contacts.html', {'active': 'contacts', 'leads': leads, 'q': q})
+
+    all_leads = list(leads)
+    groups = [
+        {'source': value, 'label': label, 'leads': [l for l in all_leads if l.source == value]}
+        for value, label in ContactLead.SOURCE_CHOICES
+    ]
+    return render(request, 'dashboard/contacts.html', {
+        'active': 'contacts', 'leads': all_leads, 'groups': groups, 'q': q,
+    })
 
 
 def dashboard_contact_delete(request, pk):

@@ -8,11 +8,21 @@ class ContactLead(models.Model):
     Saving to the database happens *before* the email is attempted, so
     no inquiry is ever lost even if SMTP is unavailable.
     """
+    SOURCE_EDUTRELLIS = 'edutrellis'
+    SOURCE_STORE = 'store'
+    SOURCE_WEBSITECREATION = 'websitecreation'
+    SOURCE_CHOICES = [
+        (SOURCE_EDUTRELLIS, 'edutrellis.in'),
+        (SOURCE_STORE, 'edutrellis.in/store'),
+        (SOURCE_WEBSITECREATION, 'edutrellis.in/websitecreation'),
+    ]
+
     name       = models.CharField(max_length=120)
     phone      = models.CharField(max_length=20)
     email      = models.EmailField()
     service    = models.CharField(max_length=200, blank=True)
     message    = models.TextField(blank=True)
+    source     = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_EDUTRELLIS)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

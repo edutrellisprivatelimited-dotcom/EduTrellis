@@ -524,6 +524,7 @@
   .btn-submit { width: 100%; padding: .8rem; border-radius: 50px; background: var(--grad); color: #fff; font-weight: 700; font-size: .9rem; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(232,51,26,.3); transition: transform .2s, box-shadow .2s; }
   .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(232,51,26,.4); }
   #form-msg { display: none; margin-top: .7rem; padding: .7rem; border-radius: 10px; background: rgba(34,197,94,.12); color: #16a34a; font-size: .85rem; font-weight: 600; text-align: center; }
+  #form-msg.error { background: rgba(232,51,26,.12); color: var(--red); }
 
   /* FOOTER */
   footer { background: var(--dark); color: rgba(255,255,255,.6); padding: 56px 5% 28px; }
@@ -1136,6 +1137,7 @@
         </div>
       </div>
       <div class="contact-form reveal">
+        {% csrf_token %}
         <p class="contact-form-title">Get a Free Quote</p>
         <div class="form-row-2">
           <div class="form-row"><label>First Name</label><input type="text" placeholder="Rahul" id="fname"/></div>
@@ -1159,7 +1161,7 @@
         </div>
         <div class="form-row"><label>Tell us about your project</label><textarea placeholder="Describe your project or requirements&hellip;" id="msg"></textarea></div>
         <button class="btn-submit" onclick="submitForm()">Send Message &rarr;</button>
-        <div id="form-msg">&#9989; Thanks! We'll get back to you within 24 hours.</div>
+        <div id="form-msg"></div>
       </div>
     </div>
   </div>
@@ -1298,13 +1300,62 @@
   document.querySelectorAll('.stats-row').forEach(r => statObs.observe(r));
 
   /* ── CONTACT FORM ── */
+  function showFormMsg(text, isError) {
+    const box = document.getElementById('form-msg');
+    box.textContent = text;
+    box.classList.toggle('error', !!isError);
+    box.style.display = 'block';
+  }
+
   function submitForm() {
-    const fname = document.getElementById('fname').value;
-    const email = document.getElementById('email').value;
-    if (!fname || !email) { alert('Please fill in your name and email.'); return; }
-    document.getElementById('form-msg').style.display = 'block';
-    document.querySelector('.btn-submit').textContent  = 'Sent! ✓';
-    document.querySelector('.btn-submit').style.opacity = '.7';
+    const fname = document.getElementById('fname').value.trim();
+    const lname = document.getElementById('lname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const service = document.getElementById('service').value;
+    const msg = document.getElementById('msg').value.trim();
+
+    if (!fname || !email) { showFormMsg('Please fill in your name and email.', true); return; }
+    if (phone.replace(/\D/g, '').length < 10) { showFormMsg('Please enter a valid phone number.', true); return; }
+
+    const btn = document.querySelector('.btn-submit');
+    const defaultBtnText = 'Send Message →';
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    const csrftoken = document.querySelector('.contact-form [name=csrfmiddlewaretoken]').value;
+
+    fetch('{% url "websitecreation_contact" %}', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify({
+        name: [fname, lname].filter(Boolean).join(' '),
+        email: email,
+        phone: phone,
+        service: service,
+        message: msg
+      })
+    })
+    .then(res => res.json().then(body => ({ ok: res.ok, body })))
+    .then(({ ok, body }) => {
+      btn.disabled = false;
+      if (ok && body.status === 'ok') {
+        showFormMsg("✅ Thanks! We'll get back to you within 24 hours.", false);
+        btn.textContent = 'Sent! ✓';
+        document.querySelectorAll('.contact-form input, .contact-form textarea, .contact-form select').forEach(el => { if (el.type !== 'hidden') el.value = ''; });
+        setTimeout(() => { btn.textContent = defaultBtnText; }, 2000);
+        return;
+      }
+      btn.textContent = defaultBtnText;
+      const firstError = body.errors ? Object.values(body.errors)[0] : null;
+      showFormMsg(firstError || body.detail || 'Something went wrong. Please try again.', true);
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = defaultBtnText;
+      showFormMsg('Unable to send your message right now. Please try again in a moment.', true);
+    });
   }
 </script>
 </body>
