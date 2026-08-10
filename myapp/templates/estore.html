@@ -323,7 +323,7 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .promo-card.dark:hover .promo-arrow{background:#fff;color:var(--purple)}
 
 /* ---------------- ABOUT ---------------- */
-.about-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:3rem;align-items:start;margin-top:2.6rem}
+.about-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:3rem;align-items:stretch;margin-top:2.6rem}
 
 /* left column: photo + founder card */
 .about-photo{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 14px 40px rgba(0,0,0,.16)}
@@ -351,12 +351,13 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .about-stat b{display:block;font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;color:var(--head);line-height:1.2}
 .about-stat span{font-size:.7rem;color:var(--text)}
 
+.about-text{display:flex;flex-direction:column}
 .about-text h3{font-size:1.35rem;font-weight:800;margin-bottom:.6rem}
 .about-text p{font-size:.94rem;margin-bottom:.75rem}
 .about-list{list-style:none;margin:1rem 0}
 .about-list li{display:flex;gap:.6rem;align-items:flex-start;padding:.32rem 0;font-size:.92rem}
 .about-list i{color:var(--red);margin-top:.28rem;font-size:.85rem}
-.about-btns{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.3rem}
+.about-btns{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:auto;padding-top:1.3rem}
 
 /* ---------------- CONTACT ---------------- */
 .contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:2.5rem;margin-top:2.6rem}
