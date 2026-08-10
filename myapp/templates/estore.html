@@ -437,6 +437,27 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .sum-row.disc{color:var(--green-dark);font-weight:700}
 .sum-row.total{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.7rem;font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;color:var(--head)}
 .addr-summary{background:var(--bg-alt);border:1px solid var(--line);border-radius:14px;padding:.9rem 1.1rem;margin:1.2rem 0}
+
+/* ---------------- CHECKOUT PAGE ---------------- */
+.checkout-page{position:fixed;inset:0;z-index:980;background:#fff;overflow-y:auto;opacity:0;visibility:hidden;transform:translateY(24px);transition:opacity .3s,transform .3s,visibility .3s}
+.checkout-page.open{opacity:1;visibility:visible;transform:none}
+.cp-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.1rem 1.5rem;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+.cp-back{display:inline-flex;align-items:center;gap:.5rem;border:1.5px solid var(--line);background:none;cursor:pointer;padding:.55rem 1rem;border-radius:50px;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--head);transition:border-color .25s}
+.cp-back:hover{border-color:var(--red);color:var(--red)}
+.cp-secure{display:flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:700;color:var(--green-dark)}
+.cp-body{max-width:1100px;margin:0 auto;padding:2.5rem 1.5rem 4rem;display:grid;grid-template-columns:1.15fr .85fr;gap:3rem;align-items:start}
+.cp-form h2{font-size:1.5rem;font-weight:800}
+.cp-sub{font-size:.9rem;color:var(--text);margin-top:.3rem;margin-bottom:1.6rem}
+.cp-summary{background:var(--bg-alt);border:1px solid var(--line);border-radius:18px;padding:1.5rem;position:sticky;top:6.5rem}
+.cp-summary h3{font-size:1.1rem;font-weight:800;margin-bottom:1rem}
+.cp-items{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.2rem;max-height:260px;overflow-y:auto}
+.cp-item{display:flex;justify-content:space-between;gap:.8rem;font-size:.85rem;color:var(--text)}
+.cp-item b{color:var(--head);font-weight:600}
+.cp-summary .addr-summary{margin:0;background:#fff}
+@media(max-width:860px){
+  .cp-body{grid-template-columns:1fr;gap:1.6rem;padding:1.6rem 1.1rem 3rem}
+  .cp-summary{position:static;order:-1}
+}
 .checkout-btn{width:100%;margin-top:1rem;border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;padding:.95rem;border-radius:13px;box-shadow:0 10px 26px rgba(232,0,30,.32);transition:transform .25s}
 .checkout-btn:hover{transform:translateY(-2px)}
 .checkout-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -1199,23 +1220,30 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </div>
 
-<!-- ==================== DELIVERY ADDRESS MODAL ==================== -->
-<div class="modal" id="addressModal" role="dialog" aria-modal="true" aria-label="Delivery address">
-  <div class="modal-card">
-    <button class="x-btn modal-x" id="closeAddress" aria-label="Close"><i class="fas fa-xmark"></i></button>
-    <div class="modal-top">
-      <div class="logo-txt">Delivery <span>Address</span></div>
-      <p>Tell us where to send your order</p>
-    </div>
-    <form id="addressForm">
-      <div class="fg">
-        <label for="adName">Recipient's full name</label>
-        <input type="text" id="adName" placeholder="Who should we deliver to?" autocomplete="name">
+<!-- ==================== CHECKOUT PAGE ==================== -->
+<div class="checkout-page" id="checkoutPage" role="dialog" aria-modal="true" aria-label="Checkout">
+  <div class="cp-header">
+    <button class="cp-back" id="closeAddress" aria-label="Back to cart"><i class="fas fa-arrow-left"></i> Back</button>
+    <div class="logo-txt">Edu<span>Trellis</span> Store</div>
+    <span class="cp-secure"><i class="fas fa-lock"></i> Secure checkout</span>
+  </div>
+
+  <div class="cp-body">
+    <form id="addressForm" class="cp-form">
+      <h2>Delivery address</h2>
+      <p class="cp-sub">Tell us where to send your order</p>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label for="adName">Recipient's full name</label>
+          <input type="text" id="adName" placeholder="Who should we deliver to?" autocomplete="name">
+        </div>
+        <div class="fg">
+          <label for="adPhone">Delivery phone number</label>
+          <input type="tel" id="adPhone" placeholder="98XXXXXXXX" autocomplete="tel">
+        </div>
       </div>
-      <div class="fg">
-        <label for="adPhone">Delivery phone number</label>
-        <input type="tel" id="adPhone" placeholder="98XXXXXXXX" autocomplete="tel">
-      </div>
+
       <div class="fg">
         <label for="adLine1">Address line 1</label>
         <input type="text" id="adLine1" placeholder="House / flat no., street" autocomplete="address-line1">
@@ -1224,21 +1252,32 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         <label for="adLine2">Address line 2 (optional)</label>
         <input type="text" id="adLine2" placeholder="Landmark, area" autocomplete="address-line2">
       </div>
+
       <div class="fg-row">
         <div class="fg">
-          <label for="adCity">City</label>
-          <input type="text" id="adCity" placeholder="City" autocomplete="address-level2">
+          <label for="adState">State</label>
+          <select id="adState" autocomplete="address-level1">
+            <option value="">Select state</option>
+          </select>
         </div>
         <div class="fg">
-          <label for="adState">State</label>
-          <input type="text" id="adState" placeholder="State" autocomplete="address-level1">
+          <label for="adCity">City</label>
+          <input type="text" id="adCity" list="adCityList" placeholder="Select state first" autocomplete="address-level2">
+          <datalist id="adCityList"></datalist>
         </div>
       </div>
+
       <div class="fg">
         <label for="adPincode">PIN code</label>
         <input type="text" id="adPincode" inputmode="numeric" maxlength="6" placeholder="6-digit PIN code" autocomplete="postal-code">
       </div>
 
+      <button type="submit" class="submit-btn" id="adSubmit">Place order</button>
+    </form>
+
+    <div class="cp-summary">
+      <h3>Order summary</h3>
+      <div class="cp-items" id="cpItems"></div>
       <div class="addr-summary">
         <div class="sum-row"><span>Subtotal</span><span id="adSumSub">₹0</span></div>
         <div class="sum-row"><span>Delivery</span><span id="adSumShip">—</span></div>
@@ -1246,9 +1285,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         <div class="sum-row disc" id="adDiscRow" style="display:none"><span>Wallet credit</span><span id="adSumDisc">−₹0</span></div>
         <div class="sum-row total"><span>Total</span><span id="adSumTotal">₹0</span></div>
       </div>
-
-      <button type="submit" class="submit-btn" id="adSubmit">Place order</button>
-    </form>
+    </div>
   </div>
 </div>
 
@@ -1863,6 +1900,62 @@ function openProfile(){
 }
 function closeProfile(){ $('#profileModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
 
+/* India states + major cities — state is a strict dropdown, city is a free-text
+   field with suggestions from this list (via <datalist>) so an unlisted town
+   can still be typed rather than blocking checkout. */
+const INDIA_STATES = {
+  'Andhra Pradesh': ['Visakhapatnam','Vijayawada','Guntur','Nellore','Kurnool','Kakinada','Tirupati','Rajahmundry','Kadapa','Anantapur'],
+  'Arunachal Pradesh': ['Itanagar','Naharlagun','Pasighat','Tawang','Ziro'],
+  'Assam': ['Guwahati','Silchar','Dibrugarh','Jorhat','Tezpur','Nagaon','Tinsukia'],
+  'Bihar': ['Patna','Gaya','Bhagalpur','Muzaffarpur','Darbhanga','Purnia','Arrah','Begusarai'],
+  'Chhattisgarh': ['Raipur','Bhilai','Bilaspur','Korba','Durg','Rajnandgaon'],
+  'Goa': ['Panaji','Margao','Vasco da Gama','Mapusa'],
+  'Gujarat': ['Ahmedabad','Surat','Vadodara','Rajkot','Bhavnagar','Jamnagar','Gandhinagar','Junagadh','Anand'],
+  'Haryana': ['Faridabad','Gurugram','Panipat','Ambala','Hisar','Rohtak','Karnal','Sonipat','Yamunanagar'],
+  'Himachal Pradesh': ['Shimla','Solan','Dharamshala','Mandi','Kullu','Manali'],
+  'Jharkhand': ['Ranchi','Jamshedpur','Dhanbad','Bokaro','Hazaribagh','Deoghar'],
+  'Karnataka': ['Bengaluru','Mysuru','Hubballi','Mangaluru','Belagavi','Davangere','Ballari','Shimoga','Tumakuru'],
+  'Kerala': ['Thiruvananthapuram','Kochi','Kozhikode','Thrissur','Kollam','Kannur','Alappuzha','Palakkad','Malappuram'],
+  'Madhya Pradesh': ['Bhopal','Indore','Jabalpur','Gwalior','Ujjain','Sagar','Dewas','Satna'],
+  'Maharashtra': ['Mumbai','Pune','Nagpur','Nashik','Thane','Aurangabad','Solapur','Kolhapur','Amravati','Navi Mumbai'],
+  'Manipur': ['Imphal','Thoubal','Bishnupur'],
+  'Meghalaya': ['Shillong','Tura','Jowai'],
+  'Mizoram': ['Aizawl','Lunglei','Champhai'],
+  'Nagaland': ['Kohima','Dimapur','Mokokchung'],
+  'Odisha': ['Bhubaneswar','Cuttack','Rourkela','Berhampur','Sambalpur','Puri'],
+  'Punjab': ['Ludhiana','Amritsar','Jalandhar','Patiala','Bathinda','Mohali','Pathankot'],
+  'Rajasthan': ['Jaipur','Jodhpur','Udaipur','Kota','Bikaner','Ajmer','Alwar','Bhilwara'],
+  'Sikkim': ['Gangtok','Namchi','Gyalshing'],
+  'Tamil Nadu': ['Chennai','Coimbatore','Madurai','Tiruchirappalli','Salem','Tirunelveli','Erode','Vellore','Thoothukudi'],
+  'Telangana': ['Hyderabad','Warangal','Nizamabad','Karimnagar','Khammam','Secunderabad'],
+  'Tripura': ['Agartala','Udaipur','Dharmanagar'],
+  'Uttar Pradesh': ['Lucknow','Kanpur','Ghaziabad','Agra','Varanasi','Meerut','Prayagraj','Noida','Bareilly','Aligarh','Moradabad','Gorakhpur'],
+  'Uttarakhand': ['Dehradun','Haridwar','Roorkee','Haldwani','Rudrapur','Nainital'],
+  'West Bengal': ['Kolkata','Howrah','Durgapur','Asansol','Siliguri','Bardhaman','Malda'],
+  'Andaman and Nicobar Islands': ['Port Blair'],
+  'Chandigarh': ['Chandigarh'],
+  'Dadra and Nagar Haveli and Daman and Diu': ['Silvassa','Daman'],
+  'Delhi': ['New Delhi','Delhi'],
+  'Jammu and Kashmir': ['Srinagar','Jammu'],
+  'Ladakh': ['Leh','Kargil'],
+  'Lakshadweep': ['Kavaratti'],
+  'Puducherry': ['Puducherry','Karaikal'],
+};
+(function populateStates(){
+  const sel = $('#adState');
+  Object.keys(INDIA_STATES).sort().forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.appendChild(opt);
+  });
+})();
+$('#adState').addEventListener('change', () => {
+  const cities = INDIA_STATES[$('#adState').value] || [];
+  $('#adCityList').innerHTML = cities.map(c => '<option value="' + c + '">').join('');
+  $('#adCity').placeholder = cities.length ? 'Select or type your city' : 'Type your city';
+  $('#adCity').value = '';
+});
+
 function renderAddressSummary(){
   const { sub, ship, handling, disc, total } = cartTotals();
   $('#adSumSub').textContent   = inr(sub);
@@ -1872,15 +1965,18 @@ function renderAddressSummary(){
   $('#adSumDisc').textContent  = '−' + inr(disc);
   $('#adDiscRow').style.display = disc ? 'flex' : 'none';
   $('#adSumTotal').textContent = inr(total);
+  $('#cpItems').innerHTML = cartLines().map(l =>
+    '<div class="cp-item"><span>' + l.p.name + ' × ' + l.q + '</span><b>' + inr(l.p.price * l.q) + '</b></div>'
+  ).join('');
 }
 function openAddress(){
   if (!state.user) return;
   $('#adName').value  = state.user.name || '';
   $('#adPhone').value = state.user.phone || '';
   renderAddressSummary();
-  $('#addressModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+  $('#checkoutPage').classList.add('open'); document.body.classList.add('locked');
 }
-function closeAddress(){ $('#addressModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+function closeAddress(){ $('#checkoutPage').classList.remove('open'); document.body.classList.remove('locked'); }
 
 function openPassword(){
   $('#passwordForm').reset();
