@@ -12,7 +12,7 @@ from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
 from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
-    StoreProfileEditForm, StorePasswordChangeForm, CategoryForm, OrderStatusForm,
+    StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm,
 )
@@ -34,6 +34,7 @@ except ImportError:  # pragma: no cover - optional dependency until configured
 # hardcoding its own copy, so this is the single source of truth.
 FREE_SHIP_OVER = Decimal('299')
 SHIP_FEE = Decimal('79')
+HANDLING_FEE = Decimal('23')
 
 
 def home(request):
@@ -72,7 +73,7 @@ def _estore_context(request):
     boot = {
         'user': None,
         'cart': _cart_payload(cart),
-        'shipping': {'free_over': float(FREE_SHIP_OVER), 'fee': float(SHIP_FEE)},
+        'shipping': {'free_over': float(FREE_SHIP_OVER), 'fee': float(SHIP_FEE), 'handling_fee': float(HANDLING_FEE)},
         'payments': {
             'cod_enabled': payment_settings.cod_enabled,
             'razorpay_enabled': payment_settings.razorpay_ready,
@@ -231,8 +232,14 @@ def _order_payload(order):
         'subtotal': float(order.subtotal),
         'wallet_discount': float(order.wallet_discount),
         'shipping_fee': float(order.shipping_fee),
+        'handling_fee': float(order.handling_fee),
         'total': float(order.total),
         'created_at': order.created_at.strftime('%d %b %Y, %I:%M %p'),
+        'address': {
+            'recipient_name': order.recipient_name,
+            'recipient_phone': order.recipient_phone,
+            'full_address': order.full_address,
+        },
         'items': [
             {
                 'product_id': i.product_id,
@@ -472,12 +479,21 @@ def store_checkout(request):
     if payment_method not in (Payment.METHOD_COD, Payment.METHOD_RAZORPAY):
         payment_method = Payment.METHOD_COD
 
+    address_form = CheckoutAddressForm(payload)
+    if not address_form.is_valid():
+        return JsonResponse(
+            {'status': 'validation_error', 'errors': {k: v[0] for k, v in address_form.errors.items()}},
+            status=400,
+        )
+    address = address_form.cleaned_data
+
     profile, _ = StoreProfile.objects.get_or_create(user=request.user)
 
     subtotal = sum((i.subtotal for i in items), Decimal('0'))
     wallet_discount = min(profile.wallet_balance, subtotal) if use_wallet else Decimal('0')
     shipping_fee = Decimal('0') if subtotal == 0 or subtotal >= FREE_SHIP_OVER else SHIP_FEE
-    total = max(Decimal('0'), subtotal + shipping_fee - wallet_discount)
+    handling_fee = Decimal('0') if subtotal == 0 else HANDLING_FEE
+    total = max(Decimal('0'), subtotal + shipping_fee + handling_fee - wallet_discount)
 
     razorpay_client, payment_settings = (None, None)
     if payment_method == Payment.METHOD_RAZORPAY:
@@ -487,7 +503,10 @@ def store_checkout(request):
 
     order = Order.objects.create(
         user=request.user, subtotal=subtotal, wallet_discount=wallet_discount,
-        shipping_fee=shipping_fee, total=total,
+        shipping_fee=shipping_fee, handling_fee=handling_fee, total=total,
+        recipient_name=address['recipient_name'], recipient_phone=address['recipient_phone'],
+        address_line1=address['address_line1'], address_line2=address.get('address_line2', ''),
+        city=address['city'], state=address['state'], pincode=address['pincode'],
     )
     OrderItem.objects.bulk_create([
         OrderItem(order=order, product_id=i.product_id, product_name=i.product_name,

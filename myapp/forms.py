@@ -128,6 +128,35 @@ class StoreContactForm(forms.Form):
         return message
 
 
+class CheckoutAddressForm(forms.Form):
+    recipient_name  = forms.CharField(max_length=120, required=True, error_messages={'required': "Enter the recipient's name."})
+    recipient_phone = forms.CharField(max_length=20, required=True, error_messages={'required': 'Enter a delivery phone number.'})
+    address_line1   = forms.CharField(max_length=200, required=True, error_messages={'required': 'Enter your address.'})
+    address_line2   = forms.CharField(max_length=200, required=False)
+    city            = forms.CharField(max_length=100, required=True, error_messages={'required': 'Enter your city.'})
+    state           = forms.CharField(max_length=100, required=True, error_messages={'required': 'Enter your state.'})
+    pincode         = forms.CharField(max_length=10, required=True, error_messages={'required': 'Enter your PIN code.'})
+
+    def clean_recipient_name(self):
+        name = self.cleaned_data['recipient_name'].strip()
+        if len(name) < 2:
+            raise forms.ValidationError("Enter the recipient's name.")
+        return name
+
+    def clean_recipient_phone(self):
+        phone = self.cleaned_data['recipient_phone'].strip()
+        digits = ''.join(ch for ch in phone if ch.isdigit())
+        if len(digits) < 10:
+            raise forms.ValidationError('Enter a valid phone number.')
+        return phone
+
+    def clean_pincode(self):
+        pincode = self.cleaned_data['pincode'].strip()
+        if not pincode.isdigit() or len(pincode) != 6:
+            raise forms.ValidationError('Enter a valid 6-digit PIN code.')
+        return pincode
+
+
 class CategoryForm(forms.ModelForm):
     slug = forms.CharField(
         max_length=80, required=False,

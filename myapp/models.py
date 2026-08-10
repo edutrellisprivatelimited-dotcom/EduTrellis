@@ -342,8 +342,21 @@ class Order(models.Model):
     subtotal               = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     wallet_discount        = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     shipping_fee           = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    handling_fee           = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total                  = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     wallet_credit_applied  = models.BooleanField(default=False)
+
+    # Delivery address — snapshotted at checkout the same way OrderItem
+    # snapshots product data, so a later profile edit never changes where an
+    # already-placed order was meant to ship.
+    recipient_name  = models.CharField(max_length=120, blank=True)
+    recipient_phone = models.CharField(max_length=20, blank=True)
+    address_line1   = models.CharField(max_length=200, blank=True)
+    address_line2   = models.CharField(max_length=200, blank=True)
+    city            = models.CharField(max_length=100, blank=True)
+    state           = models.CharField(max_length=100, blank=True)
+    pincode         = models.CharField(max_length=10, blank=True)
+
     created_at             = models.DateTimeField(auto_now_add=True)
     updated_at             = models.DateTimeField(auto_now=True)
 
@@ -354,6 +367,11 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.pk} — {self.user.username} ({self.get_status_display()})"
+
+    @property
+    def full_address(self):
+        lines = [self.address_line1, self.address_line2, self.city, self.state, self.pincode]
+        return ', '.join(line for line in lines if line)
 
     def maybe_credit_wallet(self):
         """Credits the ₹100 welcome offer once this order is Delivered, if

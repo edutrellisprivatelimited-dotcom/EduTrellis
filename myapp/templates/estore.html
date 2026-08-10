@@ -436,6 +436,7 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .sum-row{display:flex;justify-content:space-between;font-size:.88rem;padding:.28rem 0}
 .sum-row.disc{color:var(--green-dark);font-weight:700}
 .sum-row.total{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.7rem;font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;color:var(--head)}
+.addr-summary{background:var(--bg-alt);border:1px solid var(--line);border-radius:14px;padding:.9rem 1.1rem;margin:1.2rem 0}
 .checkout-btn{width:100%;margin-top:1rem;border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;padding:.95rem;border-radius:13px;box-shadow:0 10px 26px rgba(232,0,30,.32);transition:transform .25s}
 .checkout-btn:hover{transform:translateY(-2px)}
 .checkout-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -554,6 +555,8 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .oc-head b{font-size:.88rem;color:var(--head)}
 .oc-head span{font-size:.72rem;color:var(--text)}
 .oc-items{font-size:.82rem;color:var(--text);line-height:1.5}
+.oc-addr{font-size:.78rem;color:var(--text);line-height:1.5;margin-top:.4rem}
+.oc-addr i{color:var(--red);margin-right:.3rem}
 .oc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)}
 .oc-foot b{font-family:'Sora',sans-serif;font-size:.92rem;color:var(--head)}
 .ord-badge{font-size:.68rem;font-weight:800;padding:.2rem .6rem;border-radius:50px;white-space:nowrap}
@@ -1134,6 +1137,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     </div>
     <div class="sum-row"><span>Subtotal</span><span id="sumSub">₹0</span></div>
     <div class="sum-row"><span>Delivery</span><span id="sumShip">—</span></div>
+    <div class="sum-row" id="handlingRow" style="display:none"><span>Handling fee</span><span id="sumHandling">₹0</span></div>
     <div class="sum-row disc" id="discRow" style="display:none"><span>Wallet credit</span><span id="sumDisc">−₹0</span></div>
     <div class="sum-row total"><span>Total</span><span id="sumTotal">₹0</span></div>
     <div class="pay-methods" id="payMethods"></div>
@@ -1192,6 +1196,59 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <button class="submit-btn" id="doSignup">Create account</button>
       <p class="auth-alt">Already have an account? <button data-goto="login">Log in</button></p>
     </div>
+  </div>
+</div>
+
+<!-- ==================== DELIVERY ADDRESS MODAL ==================== -->
+<div class="modal" id="addressModal" role="dialog" aria-modal="true" aria-label="Delivery address">
+  <div class="modal-card">
+    <button class="x-btn modal-x" id="closeAddress" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div class="modal-top">
+      <div class="logo-txt">Delivery <span>Address</span></div>
+      <p>Tell us where to send your order</p>
+    </div>
+    <form id="addressForm">
+      <div class="fg">
+        <label for="adName">Recipient's full name</label>
+        <input type="text" id="adName" placeholder="Who should we deliver to?" autocomplete="name">
+      </div>
+      <div class="fg">
+        <label for="adPhone">Delivery phone number</label>
+        <input type="tel" id="adPhone" placeholder="98XXXXXXXX" autocomplete="tel">
+      </div>
+      <div class="fg">
+        <label for="adLine1">Address line 1</label>
+        <input type="text" id="adLine1" placeholder="House / flat no., street" autocomplete="address-line1">
+      </div>
+      <div class="fg">
+        <label for="adLine2">Address line 2 (optional)</label>
+        <input type="text" id="adLine2" placeholder="Landmark, area" autocomplete="address-line2">
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label for="adCity">City</label>
+          <input type="text" id="adCity" placeholder="City" autocomplete="address-level2">
+        </div>
+        <div class="fg">
+          <label for="adState">State</label>
+          <input type="text" id="adState" placeholder="State" autocomplete="address-level1">
+        </div>
+      </div>
+      <div class="fg">
+        <label for="adPincode">PIN code</label>
+        <input type="text" id="adPincode" inputmode="numeric" maxlength="6" placeholder="6-digit PIN code" autocomplete="postal-code">
+      </div>
+
+      <div class="addr-summary">
+        <div class="sum-row"><span>Subtotal</span><span id="adSumSub">₹0</span></div>
+        <div class="sum-row"><span>Delivery</span><span id="adSumShip">—</span></div>
+        <div class="sum-row" id="adHandlingRow" style="display:none"><span>Handling fee</span><span id="adSumHandling">₹0</span></div>
+        <div class="sum-row disc" id="adDiscRow" style="display:none"><span>Wallet credit</span><span id="adSumDisc">−₹0</span></div>
+        <div class="sum-row total"><span>Total</span><span id="adSumTotal">₹0</span></div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="adSubmit">Place order</button>
+    </form>
   </div>
 </div>
 
@@ -1327,6 +1384,7 @@ const PRODUCTS = JSON.parse(document.getElementById('productsBoot').textContent 
 const BOOT = JSON.parse(document.getElementById('storeBoot').textContent || '{}');
 const FREE_SHIP_OVER = (BOOT.shipping && BOOT.shipping.free_over) || 299;
 const SHIP_FEE       = (BOOT.shipping && BOOT.shipping.fee) || 79;
+const HANDLING_FEE   = (BOOT.shipping && BOOT.shipping.handling_fee) || 23;
 
 const state = {
   cart: {},
@@ -1684,6 +1742,14 @@ function cartLines(){
 }
 function subtotal(){ return cartLines().reduce((s, l) => s + l.p.price * l.q, 0); }
 function walletApplies(){ return state.wallet > 0 && state.useWallet && subtotal() > 0; }
+function cartTotals(){
+  const sub = subtotal();
+  const ship = sub === 0 ? 0 : (sub >= FREE_SHIP_OVER ? 0 : SHIP_FEE);
+  const handling = sub === 0 ? 0 : HANDLING_FEE;
+  const disc = walletApplies() ? Math.min(state.wallet, sub) : 0;
+  const total = Math.max(0, sub + ship + handling - disc);
+  return { sub, ship, handling, disc, total };
+}
 
 function addToCart(id){
   const p = PRODUCTS.find(x => x.id === id);
@@ -1733,13 +1799,12 @@ function renderCart(){
       '</div>').join('');
   }
 
-  const sub  = subtotal();
-  const ship = sub === 0 ? 0 : (sub >= FREE_SHIP_OVER ? 0 : SHIP_FEE);
-  const disc = walletApplies() ? Math.min(state.wallet, sub) : 0;
-  const total = Math.max(0, sub + ship - disc);
+  const { sub, ship, handling, disc, total } = cartTotals();
 
   $('#sumSub').textContent   = inr(sub);
   $('#sumShip').textContent  = sub === 0 ? '—' : (ship === 0 ? 'Free' : inr(ship));
+  $('#sumHandling').textContent = inr(handling);
+  $('#handlingRow').style.display = handling ? 'flex' : 'none';
   $('#sumDisc').textContent  = '−' + inr(disc);
   $('#discRow').style.display = disc ? 'flex' : 'none';
   $('#sumTotal').textContent = inr(total);
@@ -1797,6 +1862,26 @@ function openProfile(){
   $('#profileModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
 }
 function closeProfile(){ $('#profileModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
+function renderAddressSummary(){
+  const { sub, ship, handling, disc, total } = cartTotals();
+  $('#adSumSub').textContent   = inr(sub);
+  $('#adSumShip').textContent  = sub === 0 ? '—' : (ship === 0 ? 'Free' : inr(ship));
+  $('#adSumHandling').textContent = inr(handling);
+  $('#adHandlingRow').style.display = handling ? 'flex' : 'none';
+  $('#adSumDisc').textContent  = '−' + inr(disc);
+  $('#adDiscRow').style.display = disc ? 'flex' : 'none';
+  $('#adSumTotal').textContent = inr(total);
+}
+function openAddress(){
+  if (!state.user) return;
+  $('#adName').value  = state.user.name || '';
+  $('#adPhone').value = state.user.phone || '';
+  renderAddressSummary();
+  $('#addressModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+}
+function closeAddress(){ $('#addressModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
 function openPassword(){
   $('#passwordForm').reset();
   $('#passwordModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
@@ -1845,6 +1930,7 @@ function openOrders(){
       '<div class="order-card">' +
         '<div class="oc-head"><b>Order #' + o.id + '</b>' + orderBadge(o.status, o.status_display) + '</div>' +
         '<div class="oc-items">' + o.items.map(i => i.name + ' × ' + i.quantity).join(', ') + '</div>' +
+        (o.address && o.address.full_address ? '<div class="oc-addr"><i class="fas fa-location-dot"></i> ' + o.address.full_address + '</div>' : '') +
         '<div class="oc-foot"><span>' + o.created_at + '</span><b>' + inr(o.total) + '</b></div>' +
       '</div>').join('');
   });
@@ -2063,6 +2149,7 @@ $('#accountMenu').addEventListener('click', e => {
 });
 
 $('#closeAuth').addEventListener('click', closeAuth);
+$('#closeAddress').addEventListener('click', closeAddress);
 $('#closeProfile').addEventListener('click', closeProfile);
 $('#closePassword').addEventListener('click', closePassword);
 $('#closeWallet').addEventListener('click', closeWallet);
@@ -2073,11 +2160,11 @@ $('#offerClaim').addEventListener('click', () => openAuth('signup'));
 $('#closeDetail').addEventListener('click', () => closeProductDetail());
 $('#closeLightbox').addEventListener('click', closeLightbox);
 $('#lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
-$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); });
+$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeAddress(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){
     if ($('#lightbox').classList.contains('open')){ closeLightbox(); return; }
-    closeDrawer(); closeAuth(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu();
+    closeDrawer(); closeAuth(); closeAddress(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu();
   }
 });
 window.addEventListener('popstate', e => {
@@ -2183,12 +2270,38 @@ function openRazorpayCheckout(rp){
 
 $('#checkout').addEventListener('click', () => {
   if (!state.user){ closeDrawer(); openAuth('signup'); toast('Log in to complete your order', 'fa-user'); return; }
-  const btn = $('#checkout'); setBtnBusy(btn, true, 'Placing order…');
-  postJSON('/store/api/checkout/', { use_wallet: state.useWallet, payment_method: state.paymentMethod })
+  closeDrawer();
+  openAddress();
+});
+
+$('#addressForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const recipient_name  = $('#adName').value.trim();
+  const recipient_phone = $('#adPhone').value.trim();
+  const address_line1   = $('#adLine1').value.trim();
+  const address_line2   = $('#adLine2').value.trim();
+  const city            = $('#adCity').value.trim();
+  const state_          = $('#adState').value.trim();
+  const pincode         = $('#adPincode').value.trim();
+
+  if (!recipient_name)                          { toast("Enter the recipient's name", 'fa-circle-exclamation'); return; }
+  if (recipient_phone.replace(/\D/g, '').length < 10) { toast('Enter a valid phone number', 'fa-circle-exclamation'); return; }
+  if (!address_line1)                           { toast('Enter your address', 'fa-circle-exclamation'); return; }
+  if (!city)                                    { toast('Enter your city', 'fa-circle-exclamation'); return; }
+  if (!state_)                                  { toast('Enter your state', 'fa-circle-exclamation'); return; }
+  if (!/^\d{6}$/.test(pincode))                 { toast('Enter a valid 6-digit PIN code', 'fa-circle-exclamation'); return; }
+
+  const btn = $('#adSubmit'); setBtnBusy(btn, true, 'Placing order…');
+  postJSON('/store/api/checkout/', {
+    use_wallet: state.useWallet, payment_method: state.paymentMethod,
+    recipient_name, recipient_phone, address_line1, address_line2,
+    city, state: state_, pincode
+  })
     .then(({ ok, body }) => {
       setBtnBusy(btn, false);
       if (!ok){
-        toast(body.detail || 'Could not place your order', 'fa-circle-exclamation');
+        const err = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not place your order');
+        toast(err, 'fa-circle-exclamation');
         return;
       }
       applyCartPayload(body.cart);
@@ -2196,7 +2309,8 @@ $('#checkout').addEventListener('click', () => {
       state.wallet = body.user.wallet_balance || 0;
       renderAccountUI();
       renderCart(); renderGrid();
-      closeDrawer();
+      closeAddress();
+      $('#addressForm').reset();
       if (body.payment_method === 'razorpay' && body.razorpay){
         toast('Order #' + body.order.id + ' placed — complete payment to confirm', 'fa-circle-check');
         openRazorpayCheckout(body.razorpay);
