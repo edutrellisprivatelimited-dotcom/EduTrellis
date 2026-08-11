@@ -389,6 +389,10 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--red);background:#fff}
 .fg textarea{resize:vertical;min-height:110px}
 .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pw-toggle-wrap{position:relative}
+.pw-toggle-wrap input{padding-right:2.7rem}
+.pw-toggle-btn{position:absolute;top:50%;right:.7rem;transform:translateY(-50%);border:none;background:none;color:#9aa3b0;cursor:pointer;font-size:.9rem;padding:.25rem;display:flex;align-items:center;transition:color .2s}
+.pw-toggle-btn:hover{color:var(--head)}
 .err{display:none;color:var(--red);font-size:.78rem;margin-top:.3rem;font-weight:600}
 .submit-btn{width:100%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;padding:.95rem;border-radius:12px;box-shadow:0 10px 26px rgba(232,0,30,.32);transition:transform .25s}
 .submit-btn:hover{transform:translateY(-2px)}
@@ -1609,6 +1613,28 @@ const state = {
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const inr = n => '₹' + n.toLocaleString('en-IN');
+
+/* Adds a show/hide eye button to every password field on the storefront
+   (login, signup, change password) without touching each field by hand. */
+$$('input[type="password"]').forEach(input => {
+  const wrap = document.createElement('div');
+  wrap.className = 'pw-toggle-wrap';
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'pw-toggle-btn';
+  btn.setAttribute('aria-label', 'Show password');
+  btn.innerHTML = '<i class="fas fa-eye"></i>';
+  btn.addEventListener('click', () => {
+    const showing = input.type === 'text';
+    input.type = showing ? 'password' : 'text';
+    btn.innerHTML = showing ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+  });
+  wrap.appendChild(btn);
+});
 
 /* ---------- 2b. BACKEND API HELPERS ---------- */
 function csrfToken(){

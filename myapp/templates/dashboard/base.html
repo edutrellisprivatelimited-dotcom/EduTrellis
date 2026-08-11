@@ -152,6 +152,11 @@ tbody tr:hover{background:var(--bg-alt)}
 .spec-row-del:hover{background:var(--red-soft)}
 .spec-add-row{margin-top:.6rem}
 
+.pw-toggle-wrap{position:relative}
+.pw-toggle-wrap input{width:100%;padding-right:2.6rem}
+.pw-toggle-btn{position:absolute;top:50%;right:.7rem;transform:translateY(-50%);border:none;background:none;color:#9aa3b0;cursor:pointer;font-size:.9rem;padding:.25rem;display:flex;align-items:center;transition:color .2s}
+.pw-toggle-btn:hover{color:var(--head)}
+
 @media (max-width:900px){
   .dash-sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:.3s;z-index:100}
   .dash-sidebar.open{transform:translateX(0)}
@@ -232,6 +237,31 @@ tbody tr:hover{background:var(--bg-alt)}
   if (btn) btn.addEventListener('click', function(){ toggle(!sidebar.classList.contains('open')); });
   if (scrim) scrim.addEventListener('click', function(){ toggle(false); });
   sidebar.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ toggle(false); }); });
+})();
+
+/* Adds a show/hide eye button to every password field on any dashboard
+   page (SMTP password, Razorpay secret, Dropbox tokens, etc.) without
+   needing to touch each form individually. */
+(function(){
+  document.querySelectorAll('input[type="password"]').forEach(function(input){
+    var wrap = document.createElement('div');
+    wrap.className = 'pw-toggle-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pw-toggle-btn';
+    btn.setAttribute('aria-label', 'Show password');
+    btn.innerHTML = '<i class="fas fa-eye"></i>';
+    btn.addEventListener('click', function(){
+      var showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      btn.innerHTML = showing ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+      btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    });
+    wrap.appendChild(btn);
+  });
 })();
 </script>
 </body>
