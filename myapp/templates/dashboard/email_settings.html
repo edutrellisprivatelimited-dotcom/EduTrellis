@@ -1,0 +1,90 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Email Settings{% endblock %}
+{% block page_title %}Email Settings{% endblock %}
+
+{% block extra_head %}
+<style>
+.flash{border-radius:12px;padding:.85rem 1rem;font-size:.88rem;font-weight:600;margin-bottom:1.2rem;display:flex;gap:.5rem;align-items:center}
+.flash.success{background:#e8f8ee;color:#177245}
+.flash.error{background:#fdeaea;color:var(--red)}
+</style>
+{% endblock %}
+
+{% block content %}
+<p class="backup-sub" style="color:var(--text);font-size:.88rem;margin:0 0 1.4rem">
+  Configure the SMTP account used to send order confirmations, contact-lead notifications and new-order alerts.
+  Leave this disabled to keep using the server's default email configuration.
+</p>
+
+{% for message in messages %}
+  <div class="flash {{ message.tags }}"><i class="fas {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i> {{ message }}</div>
+{% endfor %}
+
+{% if saved %}<div class="save-msg"><i class="fas fa-circle-check"></i> Saved.</div>{% endif %}
+
+<form class="form-card" style="max-width:640px" method="post">
+  {% csrf_token %}
+
+  <div class="toggle-row">
+    <div><b>Use these SMTP settings</b><span>When off, the server's built-in email configuration is used instead.</span></div>
+    {{ form.is_enabled }}
+  </div>
+
+  <div class="form-group" style="margin-top:1.2rem">
+    <label for="{{ form.smtp_host.id_for_label }}">SMTP host</label>
+    {{ form.smtp_host }}
+    <div class="help">e.g. smtp.gmail.com</div>
+    {{ form.smtp_host.errors }}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.smtp_port.id_for_label }}">SMTP port</label>
+    {{ form.smtp_port }}
+    <div class="help">587 for TLS, 465 for SSL.</div>
+    {{ form.smtp_port.errors }}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.smtp_username.id_for_label }}">SMTP username</label>
+    {{ form.smtp_username }}
+    <div class="help">Usually your full email address.</div>
+    {{ form.smtp_username.errors }}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.smtp_password.id_for_label }}">SMTP password</label>
+    {{ form.smtp_password }}
+    {{ form.smtp_password.errors }}
+  </div>
+
+  <div class="toggle-row">
+    <div><b>Use TLS</b><span>Standard for port 587.</span></div>
+    {{ form.use_tls }}
+  </div>
+  <div class="toggle-row">
+    <div><b>Use SSL</b><span>Use instead of TLS for port 465.</span></div>
+    {{ form.use_ssl }}
+  </div>
+
+  <div class="form-group" style="margin-top:1.2rem">
+    <label for="{{ form.from_email.id_for_label }}">From address</label>
+    {{ form.from_email }}
+    {{ form.from_email.errors }}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.notify_email.id_for_label }}">Notification email</label>
+    {{ form.notify_email }}
+    {{ form.notify_email.errors }}
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save settings</button>
+  </div>
+</form>
+
+<form method="post" action="{% url 'dashboard_email_settings_test' %}" style="margin-top:1rem;max-width:640px">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-ghost"><i class="fas fa-paper-plane"></i> Send test email</button>
+</form>
+{% endblock %}

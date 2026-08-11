@@ -275,6 +275,40 @@ class PaymentSettings(models.Model):
         return bool(self.is_razorpay_enabled and self.razorpay_key_id and self.razorpay_key_secret)
 
 
+class EmailSettings(models.Model):
+    """Singleton SMTP configuration, managed from the store dashboard. When
+    enabled, this overrides the EMAIL_HOST_* environment variables in
+    settings.py for every email the app sends (order confirmations, contact
+    leads) — so the store owner can change or fix email delivery without a
+    redeploy."""
+    is_enabled     = models.BooleanField(default=False, help_text="Use these settings instead of the server's default email configuration.")
+    smtp_host      = models.CharField(max_length=200, blank=True, default='smtp.gmail.com')
+    smtp_port      = models.PositiveIntegerField(default=587)
+    smtp_username  = models.CharField(max_length=200, blank=True)
+    smtp_password  = models.CharField(max_length=200, blank=True)
+    use_tls        = models.BooleanField(default=True)
+    use_ssl        = models.BooleanField(default=False)
+    from_email     = models.CharField(max_length=200, blank=True, help_text='e.g. "EduTrellis <support@edutrellis.in>". Defaults to the SMTP username if left blank.')
+    notify_email   = models.EmailField(blank=True, help_text='Where new-order and contact-lead notifications are sent. Defaults to the support email if left blank.')
+    updated_at     = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Email (SMTP) Settings'
+        verbose_name_plural = 'Email (SMTP) Settings'
+
+    def __str__(self):
+        return 'Email settings'
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def ready(self):
+        return bool(self.is_enabled and self.smtp_host and self.smtp_username and self.smtp_password)
+
+
 class Cart(models.Model):
     """A shopping cart tied to a logged-in store user or an anonymous session."""
     user        = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='carts')

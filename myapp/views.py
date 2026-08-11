@@ -14,14 +14,15 @@ from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
-    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm,
+    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings,
+    DropboxSettings, EmailSettings,
 )
 from myapp import dropbox_backup
+from myapp.emailing import send_store_email, get_notify_email
 
 logger = logging.getLogger(__name__)
 
@@ -283,12 +284,10 @@ def _send_order_confirmation_email(order, payment_method, paid):
     )
 
     try:
-        send_mail(
+        send_store_email(
             f"Order #{order.pk} confirmed — EduTrellis Store",
             customer_body,
-            settings.DEFAULT_FROM_EMAIL,
             [order.user.email],
-            fail_silently=False,
         )
     except Exception as e:
         logger.exception("Order confirmation email failed for Order #%s: %s", order.pk, e)
@@ -303,12 +302,10 @@ def _send_order_confirmation_email(order, payment_method, paid):
         f"Deliver to: {order.recipient_name}, {order.recipient_phone}\n{order.full_address}"
     )
     try:
-        send_mail(
+        send_store_email(
             f"New Order #{order.pk} — Rs.{order.total}",
             admin_body,
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.LEAD_RECIPIENT_EMAIL],
-            fail_silently=False,
+            [get_notify_email()],
         )
     except Exception as e:
         logger.exception("Order admin-notification email failed for Order #%s: %s", order.pk, e)
@@ -761,13 +758,7 @@ def contact_lead(request):
     )
 
     try:
-        send_mail(
-            subject,
-            body,
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.LEAD_RECIPIENT_EMAIL],
-            fail_silently=False,
-        )
+        send_store_email(subject, body, [get_notify_email()])
     except BadHeaderError:
         logger.error("BadHeaderError: possible header injection from %s", email)
         return JsonResponse(
@@ -1075,6 +1066,39 @@ def dashboard_payment_settings(request):
         'active': 'payment_settings', 'form': form, 'settings_obj': settings_obj,
         'razorpay_installed': razorpay is not None, 'saved': saved,
     })
+
+
+def dashboard_email_settings(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    settings_obj = EmailSettings.get_solo()
+    form = EmailSettingsForm(request.POST or None, instance=settings_obj)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = EmailSettingsForm(instance=settings_obj)
+    return render(request, 'dashboard/email_settings.html', {
+        'active': 'email_settings', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+    })
+
+
+def dashboard_email_settings_test(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        try:
+            send_store_email(
+                'EduTrellis Store — test email',
+                'This is a test email from your store\'s Email Settings page. If you received this, SMTP is configured correctly.',
+                [get_notify_email()],
+            )
+            messages.success(request, f'Test email sent to {get_notify_email()}.')
+        except Exception as exc:
+            logger.exception("Test email failed: %s", exc)
+            messages.error(request, f'Could not send test email: {exc}')
+    return redirect('dashboard_email_settings')
 
 
 def dashboard_payments(request):

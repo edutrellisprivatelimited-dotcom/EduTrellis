@@ -4,7 +4,7 @@ from django.utils.text import slugify
 
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor,
-    AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings,
+    AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings,
 )
 
 
@@ -305,3 +305,17 @@ class DropboxSettingsForm(forms.ModelForm):
     class Meta:
         model = DropboxSettings
         fields = ['app_key', 'app_secret', 'refresh_token']
+
+
+class EmailSettingsForm(forms.ModelForm):
+    smtp_password = forms.CharField(
+        required=False, widget=forms.PasswordInput(render_value=True, attrs={'autocomplete': 'new-password'}),
+        help_text='For Gmail, use a 16-character App Password, not your normal login password. Kept secret — never exposed to the storefront.',
+    )
+
+    class Meta:
+        model = EmailSettings
+        fields = [
+            'is_enabled', 'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password',
+            'use_tls', 'use_ssl', 'from_email', 'notify_email',
+        ]
