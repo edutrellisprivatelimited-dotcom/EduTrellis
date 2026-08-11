@@ -4,7 +4,7 @@ from django.utils.text import slugify
 
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor,
-    AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings,
+    AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings, FeeSettings,
 )
 
 
@@ -336,6 +336,25 @@ class PWASettingsForm(forms.ModelForm):
             'theme_color': forms.TextInput(attrs={'type': 'color'}),
             'background_color': forms.TextInput(attrs={'type': 'color'}),
         }
+
+
+class FeeSettingsForm(forms.ModelForm):
+    delivery_fee       = forms.DecimalField(required=False, min_value=0, widget=forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0 = free delivery'}))
+    free_delivery_over = forms.DecimalField(required=False, min_value=0, widget=forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'optional'}))
+    handling_fee       = forms.DecimalField(required=False, min_value=0, widget=forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0 = no handling fee'}))
+
+    class Meta:
+        model = FeeSettings
+        fields = ['delivery_fee', 'free_delivery_over', 'handling_fee']
+
+    def clean_delivery_fee(self):
+        return self.cleaned_data.get('delivery_fee') or 0
+
+    def clean_free_delivery_over(self):
+        return self.cleaned_data.get('free_delivery_over') or 0
+
+    def clean_handling_fee(self):
+        return self.cleaned_data.get('handling_fee') or 0
 
 
 class EmailSettingsForm(forms.ModelForm):

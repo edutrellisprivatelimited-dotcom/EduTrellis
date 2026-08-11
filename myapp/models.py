@@ -556,6 +556,27 @@ class PWASettings(models.Model):
         return bool(self.is_enabled and self.icon)
 
 
+class FeeSettings(models.Model):
+    """Singleton delivery/handling fee configuration, managed from the store
+    dashboard. Any field left at 0 simply isn't charged."""
+    delivery_fee       = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, help_text='Flat delivery fee per order. Leave 0 for free delivery.')
+    free_delivery_over = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, help_text='Orders at or above this subtotal skip the delivery fee above, even if one is set. Leave 0 to always charge it (if set).')
+    handling_fee       = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, help_text='Flat handling fee per order. Leave 0 for no handling fee.')
+    updated_at         = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Delivery & Handling Fees'
+        verbose_name_plural = 'Delivery & Handling Fees'
+
+    def __str__(self):
+        return 'Delivery & handling fees'
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class EmailVerification(models.Model):
     """A pending email-verification OTP for an already-logged-in store user.
     Signup itself is never blocked on this — the account exists and is

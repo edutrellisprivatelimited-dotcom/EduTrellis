@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, Review, EmailVerification, PWASettings,
+    DropboxSettings, Review, EmailVerification, PWASettings, FeeSettings,
 )
 
 
@@ -93,6 +93,14 @@ class PWASettingsAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return not PWASettings.objects.exists()
+
+
+@admin.register(FeeSettings)
+class FeeSettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'delivery_fee', 'free_delivery_over', 'handling_fee', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not FeeSettings.objects.exists()
 
 
 @admin.register(EmailVerification)

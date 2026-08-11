@@ -19,11 +19,12 @@ from myapp.forms import (
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm, PWASettingsForm,
+    FeeSettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, EmailSettings, Review, EmailVerification, PWASettings,
+    DropboxSettings, EmailSettings, Review, EmailVerification, PWASettings, FeeSettings,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -35,12 +36,6 @@ try:
     import razorpay
 except ImportError:  # pragma: no cover - optional dependency until configured
     razorpay = None
-
-# The frontend reads these from store_boot_json (BOOT.shipping) instead of
-# hardcoding its own copy, so this is the single source of truth.
-FREE_SHIP_OVER = Decimal('299')
-SHIP_FEE = Decimal('0')
-HANDLING_FEE = Decimal('23')
 
 
 def home(request):
@@ -151,10 +146,22 @@ def _estore_context(request):
     cart = _get_or_create_cart(request)
     payment_settings = PaymentSettings.get_solo()
     pwa_settings = PWASettings.get_solo()
+    fee_settings = FeeSettings.get_solo()
+    if fee_settings.delivery_fee <= 0:
+        delivery_copy = 'Free delivery on all orders'
+    elif fee_settings.free_delivery_over > 0:
+        delivery_copy = f'Free delivery over ₹{fee_settings.free_delivery_over:.0f}'
+    else:
+        delivery_copy = f'Delivery ₹{fee_settings.delivery_fee:.0f} per order'
     boot = {
         'user': None,
         'cart': _cart_payload(cart),
-        'shipping': {'free_over': float(FREE_SHIP_OVER), 'fee': float(SHIP_FEE), 'handling_fee': float(HANDLING_FEE)},
+        'shipping': {
+            'free_over': float(fee_settings.free_delivery_over),
+            'fee': float(fee_settings.delivery_fee),
+            'handling_fee': float(fee_settings.handling_fee),
+            'copy': delivery_copy,
+        },
         'payments': {
             'cod_enabled': payment_settings.cod_enabled,
             'razorpay_enabled': payment_settings.razorpay_ready,
@@ -172,6 +179,7 @@ def _estore_context(request):
         "categories": categories,
         "about": AboutUsContent.get_solo(),
         "pwa": pwa_settings,
+        "delivery_copy": delivery_copy,
         "initial_product_slug": None,
         "meta_title": None,
         "meta_description": None,
@@ -759,10 +767,12 @@ def store_checkout(request):
 
     profile, _ = StoreProfile.objects.get_or_create(user=request.user)
 
+    fee_settings = FeeSettings.get_solo()
     subtotal = sum((i.subtotal for i in items), Decimal('0'))
     wallet_discount = min(profile.wallet_balance, subtotal) if use_wallet else Decimal('0')
-    shipping_fee = Decimal('0') if subtotal == 0 or subtotal >= FREE_SHIP_OVER else SHIP_FEE
-    handling_fee = Decimal('0') if subtotal == 0 else HANDLING_FEE
+    free_delivery = fee_settings.free_delivery_over > 0 and subtotal >= fee_settings.free_delivery_over
+    shipping_fee = Decimal('0') if subtotal == 0 or free_delivery else fee_settings.delivery_fee
+    handling_fee = Decimal('0') if subtotal == 0 else fee_settings.handling_fee
     total = max(Decimal('0'), subtotal + shipping_fee + handling_fee - wallet_discount)
 
     razorpay_client, payment_settings = (None, None)
@@ -1357,6 +1367,22 @@ def dashboard_pwa_settings(request):
         form = PWASettingsForm(instance=settings_obj)
     return render(request, 'dashboard/pwa_settings.html', {
         'active': 'pwa_settings', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+    })
+
+
+def dashboard_fee_settings(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    settings_obj = FeeSettings.get_solo()
+    form = FeeSettingsForm(request.POST or None, instance=settings_obj)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = FeeSettingsForm(instance=settings_obj)
+    return render(request, 'dashboard/fee_settings.html', {
+        'active': 'fee_settings', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
     })
 
 

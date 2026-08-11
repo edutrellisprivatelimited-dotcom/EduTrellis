@@ -47,6 +47,7 @@ urlpatterns = [
     path('store/dashboard/policies/', views.dashboard_policies, name='dashboard_policies'),
     path('store/dashboard/policies/<int:pk>/edit/', views.dashboard_policy_edit, name='dashboard_policy_edit'),
     path('store/dashboard/payment-settings/', views.dashboard_payment_settings, name='dashboard_payment_settings'),
+    path('store/dashboard/fee-settings/', views.dashboard_fee_settings, name='dashboard_fee_settings'),
     path('store/dashboard/email-settings/', views.dashboard_email_settings, name='dashboard_email_settings'),
     path('store/dashboard/email-settings/test/', views.dashboard_email_settings_test, name='dashboard_email_settings_test'),
     path('store/dashboard/pwa-settings/', views.dashboard_pwa_settings, name='dashboard_pwa_settings'),

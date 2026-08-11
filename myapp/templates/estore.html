@@ -931,7 +931,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 <!-- ==================== TRUST BAR ==================== -->
 <div class="trust-bar">
   <div class="tb-grid">
-    <div class="tb-item"><i class="fas fa-truck-fast"></i><div><b>Free delivery on all orders</b><span>Dispatched within 24 hours</span></div></div>
+    <div class="tb-item"><i class="fas fa-truck-fast"></i><div><b>{{ delivery_copy }}</b><span>Dispatched within 24 hours</span></div></div>
     <div class="tb-item"><i class="fas fa-file-invoice"></i><div><b>GST invoice on request</b><span>For business &amp; bulk purchases</span></div></div>
     <div class="tb-item"><i class="fas fa-headset"></i><div><b>Dedicated order support</b><span>A human replies, not a bot</span></div></div>
     <div class="tb-item"><i class="fas fa-lock"></i><div><b>Secure checkout</b><span>Razorpay, UPI, cards, COD</span></div></div>
@@ -1683,7 +1683,7 @@ function applyCartPayload(cart){
 /* ---------- 4. MARQUEE ---------- */
 (function marquee(){
   const items = [
-    ['fa-truck-fast','Free delivery on all orders'],
+    ['fa-truck-fast', (BOOT.shipping && BOOT.shipping.copy) || 'Free delivery on all orders'],
     ['fa-file-invoice','GST invoice on request'],
     ['fa-headset','Dedicated order support'],
     ['fa-box','Dispatch within 24 hours'],
