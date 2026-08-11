@@ -126,3 +126,4 @@ DEFAULT_FROM_EMAIL   = f'EduTrellis <{EMAIL_HOST_USER}>'
 LEAD_RECIPIENT_EMAIL = os.environ.get('LEAD_RECIPIENT_EMAIL', EMAIL_HOST_USER)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
