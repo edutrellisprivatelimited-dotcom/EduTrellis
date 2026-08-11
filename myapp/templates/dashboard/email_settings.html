@@ -7,6 +7,8 @@
 .flash{border-radius:12px;padding:.85rem 1rem;font-size:.88rem;font-weight:600;margin-bottom:1.2rem;display:flex;gap:.5rem;align-items:center}
 .flash.success{background:#e8f8ee;color:#177245}
 .flash.error{background:#fdeaea;color:var(--red)}
+.provider-presets{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.3rem}
+.provider-presets .btn{padding:.55rem 1.1rem;font-size:.8rem}
 </style>
 {% endblock %}
 
@@ -31,6 +33,15 @@
   </div>
 
   <div class="form-group" style="margin-top:1.2rem">
+    <label>Quick setup</label>
+    <div class="provider-presets">
+      <button type="button" class="btn btn-ghost" data-preset="gmail"><i class="fab fa-google"></i> Gmail</button>
+      <button type="button" class="btn btn-ghost" data-preset="titan"><i class="fas fa-at"></i> Titan Email</button>
+    </div>
+    <div class="help">Fills in the host, port and TLS/SSL fields below for that provider — you still enter your own username and password.</div>
+  </div>
+
+  <div class="form-group">
     <label for="{{ form.smtp_host.id_for_label }}">SMTP host</label>
     {{ form.smtp_host }}
     <div class="help">e.g. smtp.gmail.com</div>
@@ -87,4 +98,28 @@
   {% csrf_token %}
   <button type="submit" class="btn btn-ghost"><i class="fas fa-paper-plane"></i> Send test email</button>
 </form>
+
+<script>
+(function(){
+  var PRESETS = {
+    gmail: { host: 'smtp.gmail.com', port: 587, tls: true, ssl: false },
+    titan: { host: 'smtp.titan.email', port: 465, tls: false, ssl: true },
+  };
+  var hostInput = document.getElementById('{{ form.smtp_host.id_for_label }}');
+  var portInput = document.getElementById('{{ form.smtp_port.id_for_label }}');
+  var tlsInput  = document.getElementById('{{ form.use_tls.id_for_label }}');
+  var sslInput  = document.getElementById('{{ form.use_ssl.id_for_label }}');
+
+  document.querySelectorAll('[data-preset]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var p = PRESETS[btn.dataset.preset];
+      if (!p) return;
+      hostInput.value = p.host;
+      portInput.value = p.port;
+      tlsInput.checked = p.tls;
+      sslInput.checked = p.ssl;
+    });
+  });
+})();
+</script>
 {% endblock %}

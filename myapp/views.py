@@ -203,12 +203,12 @@ def _review_payload(r, viewer=None):
 
 def _product_payload(p):
     gallery = []
+    if p.video:
+        gallery.append({'type': 'video', 'url': p.video.url})
     if p.image:
         gallery.append({'type': 'image', 'url': p.image.url})
     for img in p.images.all():
         gallery.append({'type': 'image', 'url': img.image.url})
-    if p.video:
-        gallery.append({'type': 'video', 'url': p.video.url})
 
     return {
         'id': p.slug,
