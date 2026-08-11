@@ -253,6 +253,67 @@ def _order_payload(order):
     }
 
 
+def _send_order_confirmation_email(order, payment_method, paid):
+    """Emails the customer their order confirmation and notifies the store
+    of a new order. Best-effort — failures are logged, never raised, so a
+    flaky SMTP connection can't fail an already-placed/paid order."""
+    items_lines = "\n".join(
+        f"  {i.product_name} x{i.quantity} — Rs.{i.subtotal}"
+        for i in order.items.all()
+    )
+    payment_line = "Paid online via Razorpay" if paid else "Cash on Delivery — pay when your order arrives"
+
+    customer_body = (
+        f"Hi {order.recipient_name or order.user.get_full_name() or order.user.username},\n\n"
+        f"Thanks for your order — here's your confirmation.\n\n"
+        f"Order #{order.pk}\n"
+        "==========================================\n"
+        f"{items_lines}\n"
+        "------------------------------------------\n"
+        f"Subtotal      : Rs.{order.subtotal}\n"
+        f"Shipping      : Rs.{order.shipping_fee}\n"
+        f"Handling fee  : Rs.{order.handling_fee}\n"
+        + (f"Wallet credit : -Rs.{order.wallet_discount}\n" if order.wallet_discount else "")
+        + f"Total         : Rs.{order.total}\n"
+        "==========================================\n\n"
+        f"Payment: {payment_line}\n\n"
+        f"Delivering to:\n{order.recipient_name}, {order.recipient_phone}\n{order.full_address}\n\n"
+        "We'll notify you as your order ships. Track it anytime from My Orders on the store.\n\n"
+        "— Team EduTrellis"
+    )
+
+    try:
+        send_mail(
+            f"Order #{order.pk} confirmed — EduTrellis Store",
+            customer_body,
+            settings.DEFAULT_FROM_EMAIL,
+            [order.user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.exception("Order confirmation email failed for Order #%s: %s", order.pk, e)
+
+    admin_body = (
+        f"New order placed on the store.\n\n"
+        f"Order #{order.pk}\n"
+        f"Customer : {order.user.get_full_name() or order.user.username} ({order.user.email})\n"
+        f"{items_lines}\n"
+        f"Total    : Rs.{order.total}\n"
+        f"Payment  : {payment_line}\n"
+        f"Deliver to: {order.recipient_name}, {order.recipient_phone}\n{order.full_address}"
+    )
+    try:
+        send_mail(
+            f"New Order #{order.pk} — Rs.{order.total}",
+            admin_body,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.LEAD_RECIPIENT_EMAIL],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.exception("Order admin-notification email failed for Order #%s: %s", order.pk, e)
+
+
 # ── E-Store: auth ────────────────────────────────────────────────────────
 
 def store_signup(request):
@@ -551,10 +612,12 @@ def store_checkout(request):
             logger.exception("Razorpay order creation failed for Order #%s: %s", order.pk, e)
             Payment.objects.create(order=order, method=Payment.METHOD_COD, status=Payment.STATUS_COD_PENDING, amount=total)
             payment_method = Payment.METHOD_COD
+            _send_order_confirmation_email(order, payment_method, paid=False)
     else:
         pay_status = Payment.STATUS_PAID if total <= 0 else Payment.STATUS_COD_PENDING
         Payment.objects.create(order=order, method=Payment.METHOD_COD, status=pay_status, amount=total)
         payment_method = Payment.METHOD_COD
+        _send_order_confirmation_email(order, payment_method, paid=(total <= 0))
 
     return JsonResponse({
         'status': 'ok',
@@ -599,6 +662,7 @@ def store_razorpay_verify(request):
     payment.razorpay_payment_id = payload.get('razorpay_payment_id', '')
     payment.razorpay_signature = payload.get('razorpay_signature', '')
     payment.save(update_fields=['status', 'razorpay_payment_id', 'razorpay_signature'])
+    _send_order_confirmation_email(payment.order, Payment.METHOD_RAZORPAY, paid=True)
     return JsonResponse({'status': 'ok'})
 
 
