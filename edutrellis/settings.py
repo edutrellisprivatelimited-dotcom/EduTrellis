@@ -101,6 +101,9 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
+
+
+
 # ── Email ────────────────────────────────────────────────────────────────
 # All outbound store/site email (order confirmations, contact-lead alerts) is
 # sent via myapp/emailing.py using the SMTP account configured on the
