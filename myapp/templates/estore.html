@@ -488,7 +488,7 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .back-link:hover{color:var(--red)}
 .detail-card{text-align:left}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem;max-width:1080px}
-@media (max-width:760px){.detail-grid{grid-template-columns:1fr;gap:1.3rem}}
+@media (max-width:860px){.detail-grid{grid-template-columns:1fr;gap:1.3rem}}
 
 .detail-media-wrap{position:relative;border-radius:16px;overflow:hidden;background:var(--dark)}
 .detail-main-slide{position:relative;aspect-ratio:1/1;display:grid;place-items:center}
@@ -512,7 +512,7 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .detail-brand{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
 .detail-card h3{font-size:1.35rem;font-weight:800;margin:.2rem 0 .3rem;line-height:1.28}
 .detail-tagline{font-size:.9rem;color:var(--text);line-height:1.5;margin:0 0 .6rem}
-.detail-rate{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:#8a919c;margin-bottom:.7rem}
+.detail-rate{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;font-size:.85rem;color:#8a919c;margin-bottom:.7rem}
 .detail-rate .stars{color:#f5a623}
 .similar-pill{margin-left:auto;border:1.5px solid var(--line);background:#fff;color:var(--head);cursor:pointer;font-family:'Sora',sans-serif;font-size:.72rem;font-weight:700;padding:.4rem .85rem;border-radius:50px;display:inline-flex;align-items:center;gap:.35rem;transition:border-color .2s,color .2s}
 .similar-pill:hover{border-color:var(--red);color:var(--red)}
@@ -694,6 +694,15 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   .offer-body{padding:1.3rem 1.4rem 1.5rem}
   .offer-top{padding:1.8rem 1.4rem 1.5rem}
 }
+@media (max-width:480px){
+  .detail-qty-row{flex-direction:column;align-items:stretch}
+  .detail-qty-row .qty{align-self:center}
+  .detail-qty-row .add-btn,.buy-now-btn{min-width:0;width:100%}
+  .detail-card h3{font-size:1.15rem}
+  .review-form-box{padding:1rem}
+  .similar-pill{margin-left:0}
+}
+.strip-inner,.navrow ul,.detail-thumbs,.cp-items,.orders-list{-webkit-overflow-scrolling:touch}
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
   html{scroll-behavior:auto}
