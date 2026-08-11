@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, Review,
+    DropboxSettings, Review, SignupOTP,
 )
 
 
@@ -85,6 +85,13 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ('product', 'user', 'rating', 'created_at')
     list_filter = ('rating', 'created_at')
     search_fields = ('product__name', 'user__username', 'user__email', 'comment')
+
+
+@admin.register(SignupOTP)
+class SignupOTPAdmin(admin.ModelAdmin):
+    list_display = ('email', 'name', 'attempts', 'created_at', 'expires_at')
+    search_fields = ('email', 'name', 'phone')
+    exclude = ('password_hash',)
 
 
 @admin.register(ContactLead)

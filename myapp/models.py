@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class ContactLead(models.Model):
@@ -521,6 +522,33 @@ class DropboxSettings(models.Model):
     @property
     def is_configured(self):
         return bool(self.app_key and self.app_secret and self.refresh_token)
+
+
+class SignupOTP(models.Model):
+    """Holds a pending storefront signup until its emailed OTP is verified.
+    No User row is created until verification succeeds — the password is
+    kept here pre-hashed (never plaintext) so a stale/abandoned signup
+    can't leak a usable credential."""
+    email         = models.EmailField(unique=True)
+    name          = models.CharField(max_length=120)
+    phone         = models.CharField(max_length=20)
+    password_hash = models.CharField(max_length=255)
+    otp           = models.CharField(max_length=6)
+    attempts      = models.PositiveSmallIntegerField(default=0)
+    created_at    = models.DateTimeField(auto_now_add=True)
+    last_sent_at  = models.DateTimeField(auto_now_add=True)
+    expires_at    = models.DateTimeField()
+
+    class Meta:
+        verbose_name = 'Pending Signup OTP'
+        verbose_name_plural = 'Pending Signup OTPs'
+
+    def __str__(self):
+        return f"{self.email} (expires {self.expires_at:%d %b %H:%M})"
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
 
 
 class Review(models.Model):

@@ -478,6 +478,9 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .auth-pane.on{display:block}
 .auth-alt{text-align:center;font-size:.82rem;margin-top:1.1rem}
 .auth-alt button{border:none;background:none;color:var(--red);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem}
+.auth-alt button:disabled{color:#b6bcc6;cursor:default}
+.otp-sub{font-size:.88rem;color:var(--text);margin-bottom:1.1rem;line-height:1.5}
+#otpCode{letter-spacing:.5em;font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:700;text-align:center}
 .modal-x{position:absolute;top:1rem;right:1rem;z-index:3}
 
 /* product detail page */
@@ -1262,6 +1265,16 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <button class="submit-btn" id="doSignup">Create account</button>
       <p class="auth-alt">Already have an account? <button data-goto="login">Log in</button></p>
     </div>
+
+    <div class="auth-pane" id="pane-otp">
+      <p class="otp-sub">Enter the 6-digit code we emailed to <b id="otpEmailLbl"></b></p>
+      <div class="fg">
+        <label for="otpCode">Verification code</label>
+        <input type="text" id="otpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+      </div>
+      <button class="submit-btn" id="doVerifyOtp">Verify &amp; create account</button>
+      <p class="auth-alt">Didn't get it? <button type="button" id="resendOtp">Resend code</button> · <button type="button" data-goto="signup">Change email</button></p>
+    </div>
   </div>
 </div>
 
@@ -2027,6 +2040,7 @@ function closeAuth(){ $('#authModal').classList.remove('open'); $('#scrim').clas
 function switchPane(name){
   $$('.auth-tabs button').forEach(b => b.classList.toggle('on', b.dataset.pane === name));
   $$('.auth-pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + name));
+  $('.auth-tabs').style.display = name === 'otp' ? 'none' : 'flex';
 }
 function openOffer(){
   if (state.offerShown || state.user) return;
@@ -2562,6 +2576,22 @@ $('#addressForm').addEventListener('submit', e => {
 });
 
 /* auth — wired to Django backend (User + StoreProfile), session-based */
+let pendingSignupEmail = null;
+let otpResendTimer = null;
+
+function startOtpResendCooldown(seconds){
+  const btn = $('#resendOtp');
+  let left = seconds;
+  clearInterval(otpResendTimer);
+  btn.disabled = true;
+  const tick = () => { btn.textContent = left > 0 ? `Resend code (${left}s)` : 'Resend code'; left--; };
+  tick();
+  otpResendTimer = setInterval(() => {
+    if (left < 0){ clearInterval(otpResendTimer); btn.disabled = false; btn.textContent = 'Resend code'; return; }
+    tick();
+  }, 1000);
+}
+
 $('#doSignup').addEventListener('click', () => {
   const name  = $('#suName').value.trim();
   const phone = $('#suPhone').value.trim();
@@ -2573,7 +2603,7 @@ $('#doSignup').addEventListener('click', () => {
   if (!email) { toast('Enter your email address', 'fa-circle-exclamation'); return; }
   if (pw.length < 6) { toast('Password must be at least 6 characters', 'fa-circle-exclamation'); return; }
 
-  const btn = $('#doSignup'); setBtnBusy(btn, true, 'Creating account…');
+  const btn = $('#doSignup'); setBtnBusy(btn, true, 'Sending code…');
   postJSON('/store/api/signup/', { name, phone, email, password: pw })
     .then(({ ok, body }) => {
       setBtnBusy(btn, false);
@@ -2582,6 +2612,33 @@ $('#doSignup').addEventListener('click', () => {
         toast(msg, 'fa-circle-exclamation');
         return;
       }
+      pendingSignupEmail = body.email;
+      $('#otpEmailLbl').textContent = body.email;
+      $('#otpCode').value = '';
+      switchPane('otp');
+      startOtpResendCooldown(45);
+      toast('Verification code sent to your email', 'fa-envelope');
+      setTimeout(() => $('#otpCode').focus(), 150);
+    })
+    .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
+});
+
+$('#doVerifyOtp').addEventListener('click', () => {
+  const otp = $('#otpCode').value.trim();
+  if (!pendingSignupEmail){ switchPane('signup'); return; }
+  if (otp.length !== 6){ toast('Enter the full 6-digit code', 'fa-circle-exclamation'); return; }
+
+  const btn = $('#doVerifyOtp'); setBtnBusy(btn, true, 'Verifying…');
+  postJSON('/store/api/signup/verify/', { email: pendingSignupEmail, otp })
+    .then(({ ok, body }) => {
+      setBtnBusy(btn, false);
+      if (!ok){
+        const msg = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not verify that code');
+        toast(msg, 'fa-circle-exclamation');
+        return;
+      }
+      clearInterval(otpResendTimer);
+      pendingSignupEmail = null;
       state.user = body.user;
       state.wallet = body.user.wallet_balance || 0;
       applyCartPayload(body.cart);
@@ -2591,6 +2648,21 @@ $('#doSignup').addEventListener('click', () => {
       renderCart(); renderGrid();
     })
     .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
+});
+
+$('#resendOtp').addEventListener('click', () => {
+  if (!pendingSignupEmail || $('#resendOtp').disabled) return;
+  postJSON('/store/api/signup/resend/', { email: pendingSignupEmail })
+    .then(({ ok, body }) => {
+      if (!ok){ toast(body.detail || 'Could not resend the code', 'fa-circle-exclamation'); return; }
+      toast('New code sent', 'fa-envelope');
+      startOtpResendCooldown(45);
+    })
+    .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
+});
+
+$('#otpCode').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
 });
 
 $('#doLogin').addEventListener('click', () => {

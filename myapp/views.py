@@ -1,17 +1,21 @@
 import json
 import logging
+import random
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 from myapp.forms import (
-    ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
+    ContactLeadForm, StoreSignupForm, SignupVerifyForm, SignupResendForm, StoreLoginForm, StoreContactForm,
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm,
@@ -19,7 +23,7 @@ from myapp.forms import (
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, EmailSettings, Review,
+    DropboxSettings, EmailSettings, Review, SignupOTP,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -378,6 +382,23 @@ def _send_order_confirmation_email(order, payment_method, paid):
 
 # ── E-Store: auth ────────────────────────────────────────────────────────
 
+SIGNUP_OTP_TTL_MINUTES = 10
+SIGNUP_OTP_RESEND_COOLDOWN_SECONDS = 45
+SIGNUP_OTP_MAX_ATTEMPTS = 5
+
+
+def _send_signup_otp_email(pending):
+    send_store_email(
+        'Your EduTrellis Store verification code',
+        f"Hi {pending.name},\n\n"
+        f"Your verification code is: {pending.otp}\n\n"
+        f"It expires in {SIGNUP_OTP_TTL_MINUTES} minutes. If you didn't try to create an "
+        "EduTrellis Store account, you can ignore this email.\n\n"
+        "— Team EduTrellis",
+        [pending.email],
+    )
+
+
 def store_signup(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
@@ -393,25 +414,116 @@ def store_signup(request):
     phone = form.cleaned_data['phone']
     email = form.cleaned_data['email']
     password = form.cleaned_data['password']
-    first_name, _, last_name = name.partition(' ')
+    now = timezone.now()
 
-    user = User.objects.create_user(
-        username=email, email=email, password=password,
-        first_name=first_name, last_name=last_name,
+    pending = SignupOTP.objects.filter(email=email).first()
+    if pending and (now - pending.last_sent_at).total_seconds() < SIGNUP_OTP_RESEND_COOLDOWN_SECONDS:
+        wait = SIGNUP_OTP_RESEND_COOLDOWN_SECONDS - int((now - pending.last_sent_at).total_seconds())
+        return JsonResponse({'status': 'error', 'detail': f'Please wait {wait}s before requesting another code.'}, status=429)
+
+    otp = f'{random.randint(0, 999999):06d}'
+    pending, _created = SignupOTP.objects.update_or_create(
+        email=email,
+        defaults={
+            'name': name, 'phone': phone, 'password_hash': make_password(password),
+            'otp': otp, 'attempts': 0, 'last_sent_at': now,
+            'expires_at': now + timedelta(minutes=SIGNUP_OTP_TTL_MINUTES),
+        },
     )
-    StoreProfile.objects.create(user=user, phone=phone)
+
+    try:
+        _send_signup_otp_email(pending)
+    except Exception as e:
+        logger.exception("Signup OTP email failed for %s: %s", email, e)
+        return JsonResponse({'status': 'error', 'detail': 'Could not send the verification email. Please try again shortly.'}, status=502)
+
+    return JsonResponse({'status': 'otp_required', 'email': email})
+
+
+def store_signup_resend(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+
+    form = SignupResendForm(_parse_json_body(request))
+    if not form.is_valid():
+        return JsonResponse({'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}}, status=400)
+
+    email = form.cleaned_data['email']
+    pending = SignupOTP.objects.filter(email=email).first()
+    if not pending:
+        return JsonResponse({'status': 'error', 'detail': 'No pending signup for this email — please sign up again.'}, status=404)
+
+    now = timezone.now()
+    elapsed = (now - pending.last_sent_at).total_seconds()
+    if elapsed < SIGNUP_OTP_RESEND_COOLDOWN_SECONDS:
+        return JsonResponse({'status': 'error', 'detail': f'Please wait {int(SIGNUP_OTP_RESEND_COOLDOWN_SECONDS - elapsed)}s before requesting another code.'}, status=429)
+
+    pending.otp = f'{random.randint(0, 999999):06d}'
+    pending.attempts = 0
+    pending.last_sent_at = now
+    pending.expires_at = now + timedelta(minutes=SIGNUP_OTP_TTL_MINUTES)
+    pending.save(update_fields=['otp', 'attempts', 'last_sent_at', 'expires_at'])
+
+    try:
+        _send_signup_otp_email(pending)
+    except Exception as e:
+        logger.exception("Signup OTP resend failed for %s: %s", email, e)
+        return JsonResponse({'status': 'error', 'detail': 'Could not send the verification email. Please try again shortly.'}, status=502)
+
+    return JsonResponse({'status': 'ok'})
+
+
+def store_signup_verify(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+
+    form = SignupVerifyForm(_parse_json_body(request))
+    if not form.is_valid():
+        return JsonResponse({'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}}, status=400)
+
+    email = form.cleaned_data['email']
+    otp = form.cleaned_data['otp']
+
+    pending = SignupOTP.objects.filter(email=email).first()
+    if not pending:
+        return JsonResponse({'status': 'error', 'detail': 'No pending signup for this email — please sign up again.'}, status=404)
+
+    if pending.is_expired:
+        pending.delete()
+        return JsonResponse({'status': 'error', 'detail': 'That code has expired — please sign up again.'}, status=400)
+
+    if pending.attempts >= SIGNUP_OTP_MAX_ATTEMPTS:
+        pending.delete()
+        return JsonResponse({'status': 'error', 'detail': 'Too many incorrect attempts — please sign up again.'}, status=400)
+
+    if otp != pending.otp:
+        pending.attempts += 1
+        pending.save(update_fields=['attempts'])
+        left = SIGNUP_OTP_MAX_ATTEMPTS - pending.attempts
+        return JsonResponse({'status': 'error', 'detail': f'Incorrect code — {left} attempt{"s" if left != 1 else ""} left.'}, status=400)
+
+    if User.objects.filter(email__iexact=email).exists():
+        pending.delete()
+        return JsonResponse({'status': 'error', 'detail': 'An account with this email already exists — try logging in.'}, status=400)
+
+    first_name, _, last_name = pending.name.partition(' ')
+    user = User.objects.create(
+        username=email, email=email, first_name=first_name, last_name=last_name,
+        password=pending.password_hash,
+    )
+    StoreProfile.objects.create(user=user, phone=pending.phone)
+    pending.delete()
 
     if not request.session.session_key:
         request.session.create()
     pre_login_session_key = request.session.session_key
 
-    auth_user = authenticate(request, username=email, password=password)
-    if auth_user:
-        login(request, auth_user)
-        _merge_session_cart_into_user(auth_user, pre_login_session_key)
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+    _merge_session_cart_into_user(user, pre_login_session_key)
 
     cart = _get_or_create_cart(request)
-    return JsonResponse({'status': 'ok', 'user': _user_payload(auth_user or user), 'cart': _cart_payload(cart)})
+    return JsonResponse({'status': 'ok', 'user': _user_payload(user), 'cart': _cart_payload(cart)})
 
 
 def store_login(request):
@@ -538,8 +650,14 @@ def store_cart_add(request):
         defaults={'product_name': name, 'price': price, 'quantity': qty},
     )
     if not created:
+        # Re-adding the same product_id (e.g. after picking a different
+        # colour on the detail page) must still update the stored name —
+        # otherwise a colour picked on a later add silently never reaches
+        # the order, since only the first add's name was ever saved.
         item.quantity += qty
-        item.save(update_fields=['quantity'])
+        item.product_name = name
+        item.price = price
+        item.save(update_fields=['quantity', 'product_name', 'price'])
 
     return JsonResponse(_cart_payload(cart))
 

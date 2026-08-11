@@ -72,6 +72,29 @@ class StoreSignupForm(forms.Form):
         return email
 
 
+class SignupVerifyForm(forms.Form):
+    email = forms.EmailField(required=True, error_messages={'required': 'Missing email address.'})
+    otp   = forms.CharField(max_length=6, min_length=6, required=True, error_messages={
+        'required': 'Enter the code we emailed you.', 'min_length': 'Enter the full 6-digit code.',
+    })
+
+    def clean_otp(self):
+        otp = self.cleaned_data['otp'].strip()
+        if not otp.isdigit():
+            raise forms.ValidationError('Enter the full 6-digit code.')
+        return otp
+
+    def clean_email(self):
+        return self.cleaned_data['email'].strip().lower()
+
+
+class SignupResendForm(forms.Form):
+    email = forms.EmailField(required=True, error_messages={'required': 'Missing email address.'})
+
+    def clean_email(self):
+        return self.cleaned_data['email'].strip().lower()
+
+
 class StoreLoginForm(forms.Form):
     identifier = forms.CharField(max_length=150, required=True, error_messages={'required': 'Enter your email or phone number.'})
     password   = forms.CharField(required=True, error_messages={'required': 'Enter your password.'})
