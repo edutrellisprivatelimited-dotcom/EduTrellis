@@ -18,13 +18,13 @@ from myapp.forms import (
     ContactLeadForm, StoreSignupForm, EmailVerifyForm, StoreLoginForm, StoreContactForm, SignupEditForm,
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
-    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm, PWASettingsForm,
+    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
     FeeSettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, EmailSettings, Review, EmailVerification, PWASettings, FeeSettings,
+    DropboxSettings, Review, EmailVerification, PWASettings, FeeSettings,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -1355,16 +1355,11 @@ def dashboard_payment_settings(request):
 def dashboard_email_settings(request):
     if not _dashboard_guard(request):
         return redirect('estore')
-
-    settings_obj = EmailSettings.get_solo()
-    form = EmailSettingsForm(request.POST or None, instance=settings_obj)
-    saved = False
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        saved = True
-        form = EmailSettingsForm(instance=settings_obj)
     return render(request, 'dashboard/email_settings.html', {
-        'active': 'email_settings', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+        'active': 'email_settings',
+        'smtp_host': settings.EMAIL_HOST,
+        'smtp_user': settings.EMAIL_HOST_USER,
+        'notify_email': settings.LEAD_RECIPIENT_EMAIL,
     })
 
 
@@ -1372,9 +1367,6 @@ def dashboard_email_settings_test(request):
     if not _dashboard_guard(request):
         return redirect('estore')
     if request.method == 'POST':
-        if not EmailSettings.get_solo().ready:
-            messages.error(request, 'Enable SMTP and fill in host, username and password, then save, before sending a test email.')
-            return redirect('dashboard_email_settings')
         try:
             send_store_email(
                 'EduTrellis Store — test email',

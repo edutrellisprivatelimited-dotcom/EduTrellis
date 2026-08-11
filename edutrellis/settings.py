@@ -104,10 +104,25 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 
-# ── Email ────────────────────────────────────────────────────────────────
-# All outbound store/site email (order confirmations, contact-lead alerts) is
-# sent via myapp/emailing.py using the SMTP account configured on the
-# dashboard's Email Settings page (EmailSettings model). If nothing is
-# configured there, no email is sent — there is no fallback account here.
+# ── Email (Gmail SMTP via App Password) ─────────────────────────────────────
+# All outbound store/site email (order confirmations, contact-lead alerts,
+# signup verification codes) is sent via this account. The dashboard's Email
+# Settings page has been deactivated — this is the only email path now.
+# Override via env vars on Railway if this account ever needs to change.
+
+EMAIL_BACKEND  = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST     = 'smtp.gmail.com'
+EMAIL_PORT     = 587
+EMAIL_USE_TLS  = True
+EMAIL_USE_SSL  = False
+
+# Fail fast rather than hanging the request for 30+ seconds if Gmail's SMTP
+# doesn't respond within 10 seconds.
+EMAIL_TIMEOUT  = 10
+
+EMAIL_HOST_USER      = os.environ.get('EMAIL_HOST_USER', 'edutrellisprivatelimited@gmail.com')
+EMAIL_HOST_PASSWORD  = os.environ.get('EMAIL_HOST_PASSWORD', 'tnjwlzgzmnexoufo')
+DEFAULT_FROM_EMAIL   = f'EduTrellis <{EMAIL_HOST_USER}>'
+LEAD_RECIPIENT_EMAIL = os.environ.get('LEAD_RECIPIENT_EMAIL', EMAIL_HOST_USER)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
