@@ -39,7 +39,7 @@ except ImportError:  # pragma: no cover - optional dependency until configured
 # The frontend reads these from store_boot_json (BOOT.shipping) instead of
 # hardcoding its own copy, so this is the single source of truth.
 FREE_SHIP_OVER = Decimal('299')
-SHIP_FEE = Decimal('79')
+SHIP_FEE = Decimal('0')
 HANDLING_FEE = Decimal('23')
 
 

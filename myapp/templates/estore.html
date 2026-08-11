@@ -927,7 +927,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 <!-- ==================== TRUST BAR ==================== -->
 <div class="trust-bar">
   <div class="tb-grid">
-    <div class="tb-item"><i class="fas fa-truck-fast"></i><div><b>Free delivery over ₹299</b><span>Dispatched within 24 hours</span></div></div>
+    <div class="tb-item"><i class="fas fa-truck-fast"></i><div><b>Free delivery on all orders</b><span>Dispatched within 24 hours</span></div></div>
     <div class="tb-item"><i class="fas fa-file-invoice"></i><div><b>GST invoice on request</b><span>For business &amp; bulk purchases</span></div></div>
     <div class="tb-item"><i class="fas fa-headset"></i><div><b>Dedicated order support</b><span>A human replies, not a bot</span></div></div>
     <div class="tb-item"><i class="fas fa-lock"></i><div><b>Secure checkout</b><span>Razorpay, UPI, cards, COD</span></div></div>
@@ -1563,7 +1563,7 @@ const PRODUCTS = JSON.parse(document.getElementById('productsBoot').textContent 
 /* ---------- 2. STORE CONFIG + STATE ---------- */
 const BOOT = JSON.parse(document.getElementById('storeBoot').textContent || '{}');
 const FREE_SHIP_OVER = (BOOT.shipping && BOOT.shipping.free_over) || 299;
-const SHIP_FEE       = (BOOT.shipping && BOOT.shipping.fee) || 79;
+const SHIP_FEE       = (BOOT.shipping && BOOT.shipping.fee != null) ? BOOT.shipping.fee : 79;
 const HANDLING_FEE   = (BOOT.shipping && BOOT.shipping.handling_fee) || 23;
 
 /* ---------- 2a. PWA INSTALL ---------- */
@@ -1657,7 +1657,7 @@ function applyCartPayload(cart){
 /* ---------- 4. MARQUEE ---------- */
 (function marquee(){
   const items = [
-    ['fa-truck-fast','Free delivery over ₹299'],
+    ['fa-truck-fast','Free delivery on all orders'],
     ['fa-file-invoice','GST invoice on request'],
     ['fa-headset','Dedicated order support'],
     ['fa-box','Dispatch within 24 hours'],
