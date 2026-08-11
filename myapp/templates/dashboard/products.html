@@ -23,9 +23,9 @@
         <i class="fas fa-magnifying-glass"></i>
         <input type="search" name="q" value="{{ q }}" placeholder="Search name, brand, tag…">
       </form>
-      <form method="post" action="{% url 'dashboard_seed_reviews' %}" onsubmit="return confirm('Seed 10 demo buyer accounts (password: 123456) with a delivered order and review each, spread across your active products?')">
+      <form method="post" action="{% url 'dashboard_seed_reviews' %}" onsubmit="return confirm('Seed 54 demo buyer accounts (password: 123456) with a delivered order and review each, spread across your active products?')">
         {% csrf_token %}
-        <button type="submit" class="btn btn-ghost" title="Adds 10 demo accounts + humanized reviews so products don't launch with zero reviews"><i class="fas fa-comments"></i> Seed demo reviews</button>
+        <button type="submit" class="btn btn-ghost" title="Adds 54 demo accounts + humanized reviews so products don't launch with zero reviews"><i class="fas fa-comments"></i> Seed demo reviews</button>
       </form>
       <a href="{% url 'dashboard_product_add' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add product</a>
     </div>
