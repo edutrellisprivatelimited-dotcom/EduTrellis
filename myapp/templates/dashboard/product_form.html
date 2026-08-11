@@ -80,7 +80,7 @@
       </div>
     {% endif %}
     {{ form.image }}
-    <div class="help">Optional. Leave blank to use the icon + gradient tile below instead. Add more angles under "Product images" below (up to 5 total, including this cover).</div>
+    <div class="help">Optional. Leave blank to use the icon + gradient tile below instead. Add more angles under "Product images" below (up to 11 total, including this cover).</div>
     {{ form.image.errors }}
   </div>
 
@@ -96,7 +96,7 @@
 
   {% if product %}
   <div class="form-group">
-    <label>Product images <span class="help" style="display:inline">(up to 5, in addition to the cover image above)</span></label>
+    <label>Product images <span class="help" style="display:inline">(up to 10, in addition to the cover image above)</span></label>
     {{ image_formset.management_form }}
     {% if image_formset.non_form_errors %}<div class="help" style="color:var(--red)">{{ image_formset.non_form_errors }}</div>{% endif %}
     <div class="gallery-rows">

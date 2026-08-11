@@ -248,13 +248,13 @@ class ProductForm(forms.ModelForm):
 ProductImageFormSet = forms.inlineformset_factory(
     Product, ProductImage,
     fields=['image', 'order'],
-    extra=5, max_num=5, validate_max=True, can_delete=True,
+    extra=8, max_num=10, validate_max=True, can_delete=True,
 )
 
 ProductColorFormSet = forms.inlineformset_factory(
     Product, ProductColor,
     fields=['name', 'hex_code', 'image', 'order'],
-    extra=3, max_num=10, validate_max=True, can_delete=True,
+    extra=6, max_num=14, validate_max=True, can_delete=True,
     widgets={
         'name': forms.TextInput(attrs={'placeholder': 'Colour name, e.g. Midnight Black'}),
         'hex_code': forms.TextInput(attrs={'type': 'color'}),

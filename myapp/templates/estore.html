@@ -509,13 +509,15 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 
 .detail-info{display:flex;flex-direction:column}
 .detail-brand{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
-.detail-card h3{font-size:1.35rem;font-weight:800;margin:.2rem 0 .5rem;line-height:1.28}
+.detail-card h3{font-size:1.35rem;font-weight:800;margin:.2rem 0 .3rem;line-height:1.28}
+.detail-tagline{font-size:.9rem;color:var(--text);line-height:1.5;margin:0 0 .6rem}
 .detail-rate{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:#8a919c;margin-bottom:.7rem}
 .detail-rate .stars{color:#f5a623}
 .similar-pill{margin-left:auto;border:1.5px solid var(--line);background:#fff;color:var(--head);cursor:pointer;font-family:'Sora',sans-serif;font-size:.72rem;font-weight:700;padding:.4rem .85rem;border-radius:50px;display:inline-flex;align-items:center;gap:.35rem;transition:border-color .2s,color .2s}
 .similar-pill:hover{border-color:var(--red);color:var(--red)}
 .detail-price-row{display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem;flex-wrap:wrap}
-.detail-price-row .price{font-size:1.55rem}
+.detail-price-row .price{font-size:1.55rem;display:flex;align-items:baseline;gap:.55rem}
+.detail-price-row .price del{display:inline;font-size:.85rem}
 .detail-stock{font-size:.8rem;font-weight:700;color:var(--green-dark)}
 
 .detail-colors{margin-bottom:1rem}
@@ -1750,13 +1752,14 @@ function openProductDetail(id, pushUrl){
       '<div class="detail-info">' +
         '<span class="detail-brand">' + p.brand + '</span>' +
         '<h3>' + p.name + '</h3>' +
+        (p.desc ? '<p class="detail-tagline">' + p.desc + '</p>' : '') +
         '<div class="detail-rate" id="detailRateBox" data-pid="' + p.id + '"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews' +
           '<button type="button" class="similar-pill" data-similar="' + p.cat + '"><i class="fas fa-shapes"></i> Similar</button>' +
         '</div>' +
         '<div class="detail-price-row"><div class="price">' + inr(p.price) + '<del>' + inr(p.mrp) + '</del></div><span class="detail-stock"><i class="fas fa-circle-check"></i> ' + p.stock + '</span></div>' +
         colorSwatchesHtml(p) +
         '<div class="p-tags">' + p.tags.map(t => '<span>' + t + '</span>').join('') + '</div>' +
-        '<p class="detail-desc">' + (p.description || p.desc) + '</p>' +
+        (p.description && p.description !== p.desc ? '<p class="detail-desc">' + p.description + '</p>' : '') +
         specsTableHtml(p.specs) +
         '<div class="detail-qty-row" id="detailFoot" data-pid="' + p.id + '">' +
           '<div class="qty"><button type="button" data-qd="-1" aria-label="Decrease quantity"><i class="fas fa-minus"></i></button><b id="detailQtyVal">1</b><button type="button" data-qd="1" aria-label="Increase quantity"><i class="fas fa-plus"></i></button></div>' +
