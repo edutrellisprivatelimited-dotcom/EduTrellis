@@ -493,6 +493,7 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .detail-media-wrap{position:relative;border-radius:16px;overflow:hidden;background:var(--dark)}
 .detail-main-slide{position:relative;aspect-ratio:1/1;display:grid;place-items:center}
 .detail-main-slide img,.detail-main-slide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.detail-main-slide video{object-fit:contain}
 .detail-main-slide.zoomable{cursor:zoom-in}
 .dm-icon{font-size:4rem;color:rgba(255,255,255,.94);position:relative;z-index:1}
 .detail-media-wrap .p-flag{top:.9rem;left:.9rem;z-index:2}
@@ -1664,7 +1665,7 @@ function detailBuyNowBtnHtml(p){
 }
 function detailSlideInnerHtml(slide){
   return slide.type === 'video'
-    ? '<video src="' + slide.url + '" controls playsinline></video>'
+    ? '<video src="' + slide.url + '" controls playsinline loop></video>'
     : '<img src="' + slide.url + '" alt="">';
 }
 function detailThumbsHtml(){
