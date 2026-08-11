@@ -1,11 +1,11 @@
 import json
 import logging
+import os
 import random
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -15,15 +15,15 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from myapp.forms import (
-    ContactLeadForm, StoreSignupForm, SignupVerifyForm, SignupResendForm, StoreLoginForm, StoreContactForm,
+    ContactLeadForm, StoreSignupForm, EmailVerifyForm, StoreLoginForm, StoreContactForm,
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
-    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm,
+    AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm, PWASettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, EmailSettings, Review, SignupOTP,
+    DropboxSettings, EmailSettings, Review, EmailVerification, PWASettings,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -115,9 +115,42 @@ def product_review_submit(request, slug):
     })
 
 
+_ICON_MIME_TYPES = {'.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml'}
+
+
+def pwa_manifest(request):
+    settings_obj = PWASettings.get_solo()
+    icon_url = request.build_absolute_uri(settings_obj.icon.url) if settings_obj.icon else None
+    icon_type = 'image/png'
+    if settings_obj.icon:
+        ext = os.path.splitext(settings_obj.icon.name)[1].lower()
+        icon_type = _ICON_MIME_TYPES.get(ext, 'image/png')
+
+    manifest = {
+        'name': settings_obj.app_name,
+        'short_name': settings_obj.short_name,
+        'description': settings_obj.description,
+        'start_url': '/store/',
+        'scope': '/store/',
+        'display': 'standalone',
+        'background_color': settings_obj.background_color,
+        'theme_color': settings_obj.theme_color,
+        'icons': [
+            {'src': icon_url, 'sizes': '192x192', 'type': icon_type, 'purpose': 'any maskable'},
+            {'src': icon_url, 'sizes': '512x512', 'type': icon_type, 'purpose': 'any maskable'},
+        ] if icon_url else [],
+    }
+    return JsonResponse(manifest, content_type='application/manifest+json')
+
+
+def pwa_service_worker(request):
+    return render(request, 'sw.js', content_type='application/javascript')
+
+
 def _estore_context(request):
     cart = _get_or_create_cart(request)
     payment_settings = PaymentSettings.get_solo()
+    pwa_settings = PWASettings.get_solo()
     boot = {
         'user': None,
         'cart': _cart_payload(cart),
@@ -127,6 +160,7 @@ def _estore_context(request):
             'razorpay_enabled': payment_settings.razorpay_ready,
             'razorpay_key_id': payment_settings.razorpay_key_id if payment_settings.razorpay_ready else '',
         },
+        'pwa': {'enabled': pwa_settings.ready},
     }
     if request.user.is_authenticated:
         boot['user'] = _user_payload(request.user)
@@ -137,6 +171,7 @@ def _estore_context(request):
         "products_json": json.dumps([_product_payload(p) for p in products]),
         "categories": categories,
         "about": AboutUsContent.get_solo(),
+        "pwa": pwa_settings,
         "initial_product_slug": None,
         "meta_title": None,
         "meta_description": None,
@@ -210,6 +245,7 @@ def _user_payload(user):
         'is_staff': user.is_staff,
         'avatar_url': profile.avatar.url if (profile and profile.avatar) else None,
         'wallet_balance': float(profile.wallet_balance) if profile else 0.0,
+        'email_verified': bool(profile and profile.email_verified),
     }
 
 
@@ -382,20 +418,31 @@ def _send_order_confirmation_email(order, payment_method, paid):
 
 # ── E-Store: auth ────────────────────────────────────────────────────────
 
-SIGNUP_OTP_TTL_MINUTES = 10
-SIGNUP_OTP_RESEND_COOLDOWN_SECONDS = 45
-SIGNUP_OTP_MAX_ATTEMPTS = 5
+EMAIL_VERIFY_OTP_TTL_MINUTES = 10
+EMAIL_VERIFY_RESEND_COOLDOWN_SECONDS = 45
+EMAIL_VERIFY_MAX_ATTEMPTS = 5
 
 
-def _send_signup_otp_email(pending):
+def _new_email_verification(user, now):
+    pending, _created = EmailVerification.objects.update_or_create(
+        user=user,
+        defaults={
+            'otp': f'{random.randint(0, 999999):06d}', 'attempts': 0, 'last_sent_at': now,
+            'expires_at': now + timedelta(minutes=EMAIL_VERIFY_OTP_TTL_MINUTES),
+        },
+    )
+    return pending
+
+
+def _send_email_verification_otp(user, pending):
     send_store_email(
         'Your EduTrellis Store verification code',
-        f"Hi {pending.name},\n\n"
-        f"Your verification code is: {pending.otp}\n\n"
-        f"It expires in {SIGNUP_OTP_TTL_MINUTES} minutes. If you didn't try to create an "
-        "EduTrellis Store account, you can ignore this email.\n\n"
+        f"Hi {user.first_name or user.username},\n\n"
+        f"Your email verification code is: {pending.otp}\n\n"
+        f"It expires in {EMAIL_VERIFY_OTP_TTL_MINUTES} minutes. If you didn't request this, you "
+        "can ignore this email — your account is unaffected.\n\n"
         "— Team EduTrellis",
-        [pending.email],
+        [user.email],
     )
 
 
@@ -414,116 +461,98 @@ def store_signup(request):
     phone = form.cleaned_data['phone']
     email = form.cleaned_data['email']
     password = form.cleaned_data['password']
-    now = timezone.now()
+    first_name, _, last_name = name.partition(' ')
 
-    pending = SignupOTP.objects.filter(email=email).first()
-    if pending and (now - pending.last_sent_at).total_seconds() < SIGNUP_OTP_RESEND_COOLDOWN_SECONDS:
-        wait = SIGNUP_OTP_RESEND_COOLDOWN_SECONDS - int((now - pending.last_sent_at).total_seconds())
-        return JsonResponse({'status': 'error', 'detail': f'Please wait {wait}s before requesting another code.'}, status=429)
-
-    otp = f'{random.randint(0, 999999):06d}'
-    pending, _created = SignupOTP.objects.update_or_create(
-        email=email,
-        defaults={
-            'name': name, 'phone': phone, 'password_hash': make_password(password),
-            'otp': otp, 'attempts': 0, 'last_sent_at': now,
-            'expires_at': now + timedelta(minutes=SIGNUP_OTP_TTL_MINUTES),
-        },
+    user = User.objects.create_user(
+        username=email, email=email, password=password,
+        first_name=first_name, last_name=last_name,
     )
-
-    try:
-        _send_signup_otp_email(pending)
-    except Exception as e:
-        logger.exception("Signup OTP email failed for %s: %s", email, e)
-        return JsonResponse({'status': 'error', 'detail': 'Could not send the verification email. Please try again shortly.'}, status=502)
-
-    return JsonResponse({'status': 'otp_required', 'email': email})
-
-
-def store_signup_resend(request):
-    if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
-
-    form = SignupResendForm(_parse_json_body(request))
-    if not form.is_valid():
-        return JsonResponse({'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}}, status=400)
-
-    email = form.cleaned_data['email']
-    pending = SignupOTP.objects.filter(email=email).first()
-    if not pending:
-        return JsonResponse({'status': 'error', 'detail': 'No pending signup for this email — please sign up again.'}, status=404)
-
-    now = timezone.now()
-    elapsed = (now - pending.last_sent_at).total_seconds()
-    if elapsed < SIGNUP_OTP_RESEND_COOLDOWN_SECONDS:
-        return JsonResponse({'status': 'error', 'detail': f'Please wait {int(SIGNUP_OTP_RESEND_COOLDOWN_SECONDS - elapsed)}s before requesting another code.'}, status=429)
-
-    pending.otp = f'{random.randint(0, 999999):06d}'
-    pending.attempts = 0
-    pending.last_sent_at = now
-    pending.expires_at = now + timedelta(minutes=SIGNUP_OTP_TTL_MINUTES)
-    pending.save(update_fields=['otp', 'attempts', 'last_sent_at', 'expires_at'])
-
-    try:
-        _send_signup_otp_email(pending)
-    except Exception as e:
-        logger.exception("Signup OTP resend failed for %s: %s", email, e)
-        return JsonResponse({'status': 'error', 'detail': 'Could not send the verification email. Please try again shortly.'}, status=502)
-
-    return JsonResponse({'status': 'ok'})
-
-
-def store_signup_verify(request):
-    if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
-
-    form = SignupVerifyForm(_parse_json_body(request))
-    if not form.is_valid():
-        return JsonResponse({'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}}, status=400)
-
-    email = form.cleaned_data['email']
-    otp = form.cleaned_data['otp']
-
-    pending = SignupOTP.objects.filter(email=email).first()
-    if not pending:
-        return JsonResponse({'status': 'error', 'detail': 'No pending signup for this email — please sign up again.'}, status=404)
-
-    if pending.is_expired:
-        pending.delete()
-        return JsonResponse({'status': 'error', 'detail': 'That code has expired — please sign up again.'}, status=400)
-
-    if pending.attempts >= SIGNUP_OTP_MAX_ATTEMPTS:
-        pending.delete()
-        return JsonResponse({'status': 'error', 'detail': 'Too many incorrect attempts — please sign up again.'}, status=400)
-
-    if otp != pending.otp:
-        pending.attempts += 1
-        pending.save(update_fields=['attempts'])
-        left = SIGNUP_OTP_MAX_ATTEMPTS - pending.attempts
-        return JsonResponse({'status': 'error', 'detail': f'Incorrect code — {left} attempt{"s" if left != 1 else ""} left.'}, status=400)
-
-    if User.objects.filter(email__iexact=email).exists():
-        pending.delete()
-        return JsonResponse({'status': 'error', 'detail': 'An account with this email already exists — try logging in.'}, status=400)
-
-    first_name, _, last_name = pending.name.partition(' ')
-    user = User.objects.create(
-        username=email, email=email, first_name=first_name, last_name=last_name,
-        password=pending.password_hash,
-    )
-    StoreProfile.objects.create(user=user, phone=pending.phone)
-    pending.delete()
+    StoreProfile.objects.create(user=user, phone=phone)
 
     if not request.session.session_key:
         request.session.create()
     pre_login_session_key = request.session.session_key
 
-    user.backend = 'django.contrib.auth.backends.ModelBackend'
-    login(request, user)
-    _merge_session_cart_into_user(user, pre_login_session_key)
+    auth_user = authenticate(request, username=email, password=password)
+    if auth_user:
+        login(request, auth_user)
+        _merge_session_cart_into_user(auth_user, pre_login_session_key)
+
+    # Best-effort — the account is already created and the shopper is
+    # already logged in above, so a slow/flaky SMTP send (or none
+    # configured at all) can never fail or delay signup itself. They can
+    # verify anytime from Edit Profile.
+    try:
+        pending = _new_email_verification(auth_user or user, timezone.now())
+        _send_email_verification_otp(auth_user or user, pending)
+    except Exception as e:
+        logger.warning("Signup verification email failed for %s: %s", email, e)
 
     cart = _get_or_create_cart(request)
-    return JsonResponse({'status': 'ok', 'user': _user_payload(user), 'cart': _cart_payload(cart)})
+    return JsonResponse({'status': 'ok', 'user': _user_payload(auth_user or user), 'cart': _cart_payload(cart)})
+
+
+def store_email_verify_send(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+
+    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+    if profile.email_verified:
+        return JsonResponse({'status': 'error', 'detail': 'Your email is already verified.'}, status=400)
+
+    now = timezone.now()
+    existing = EmailVerification.objects.filter(user=request.user).first()
+    if existing and (now - existing.last_sent_at).total_seconds() < EMAIL_VERIFY_RESEND_COOLDOWN_SECONDS:
+        wait = EMAIL_VERIFY_RESEND_COOLDOWN_SECONDS - int((now - existing.last_sent_at).total_seconds())
+        return JsonResponse({'status': 'error', 'detail': f'Please wait {wait}s before requesting another code.'}, status=429)
+
+    pending = _new_email_verification(request.user, now)
+    try:
+        _send_email_verification_otp(request.user, pending)
+    except Exception as e:
+        logger.exception("Email verification send failed for %s: %s", request.user.email, e)
+        return JsonResponse({'status': 'error', 'detail': 'Could not send the verification email. Please try again shortly.'}, status=502)
+
+    return JsonResponse({'status': 'ok'})
+
+
+def store_email_verify_confirm(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+
+    form = EmailVerifyForm(_parse_json_body(request))
+    if not form.is_valid():
+        return JsonResponse({'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}}, status=400)
+
+    otp = form.cleaned_data['otp']
+    pending = EmailVerification.objects.filter(user=request.user).first()
+    if not pending:
+        return JsonResponse({'status': 'error', 'detail': 'No pending verification — send a new code first.'}, status=404)
+
+    if pending.is_expired:
+        pending.delete()
+        return JsonResponse({'status': 'error', 'detail': 'That code has expired — send a new one.'}, status=400)
+
+    if pending.attempts >= EMAIL_VERIFY_MAX_ATTEMPTS:
+        pending.delete()
+        return JsonResponse({'status': 'error', 'detail': 'Too many incorrect attempts — send a new code.'}, status=400)
+
+    if otp != pending.otp:
+        pending.attempts += 1
+        pending.save(update_fields=['attempts'])
+        left = EMAIL_VERIFY_MAX_ATTEMPTS - pending.attempts
+        return JsonResponse({'status': 'error', 'detail': f'Incorrect code — {left} attempt{"s" if left != 1 else ""} left.'}, status=400)
+
+    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+    profile.email_verified = True
+    profile.save(update_fields=['email_verified'])
+    pending.delete()
+
+    return JsonResponse({'status': 'ok', 'user': _user_payload(request.user)})
 
 
 def store_login(request):
@@ -1293,6 +1322,22 @@ def dashboard_email_settings_test(request):
             logger.exception("Test email failed: %s", exc)
             messages.error(request, f'Could not send test email: {exc}')
     return redirect('dashboard_email_settings')
+
+
+def dashboard_pwa_settings(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    settings_obj = PWASettings.get_solo()
+    form = PWASettingsForm(request.POST or None, request.FILES or None, instance=settings_obj)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = PWASettingsForm(instance=settings_obj)
+    return render(request, 'dashboard/pwa_settings.html', {
+        'active': 'pwa_settings', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+    })
 
 
 def dashboard_payments(request):

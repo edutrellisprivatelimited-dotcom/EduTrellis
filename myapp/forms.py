@@ -4,7 +4,7 @@ from django.utils.text import slugify
 
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor,
-    AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings,
+    AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings,
 )
 
 
@@ -72,9 +72,8 @@ class StoreSignupForm(forms.Form):
         return email
 
 
-class SignupVerifyForm(forms.Form):
-    email = forms.EmailField(required=True, error_messages={'required': 'Missing email address.'})
-    otp   = forms.CharField(max_length=6, min_length=6, required=True, error_messages={
+class EmailVerifyForm(forms.Form):
+    otp = forms.CharField(max_length=6, min_length=6, required=True, error_messages={
         'required': 'Enter the code we emailed you.', 'min_length': 'Enter the full 6-digit code.',
     })
 
@@ -83,16 +82,6 @@ class SignupVerifyForm(forms.Form):
         if not otp.isdigit():
             raise forms.ValidationError('Enter the full 6-digit code.')
         return otp
-
-    def clean_email(self):
-        return self.cleaned_data['email'].strip().lower()
-
-
-class SignupResendForm(forms.Form):
-    email = forms.EmailField(required=True, error_messages={'required': 'Missing email address.'})
-
-    def clean_email(self):
-        return self.cleaned_data['email'].strip().lower()
 
 
 class StoreLoginForm(forms.Form):
@@ -336,6 +325,17 @@ class DropboxSettingsForm(forms.ModelForm):
     class Meta:
         model = DropboxSettings
         fields = ['app_key', 'app_secret', 'refresh_token']
+
+
+class PWASettingsForm(forms.ModelForm):
+    class Meta:
+        model = PWASettings
+        fields = ['is_enabled', 'app_name', 'short_name', 'description', 'icon', 'theme_color', 'background_color']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+            'theme_color': forms.TextInput(attrs={'type': 'color'}),
+            'background_color': forms.TextInput(attrs={'type': 'color'}),
+        }
 
 
 class EmailSettingsForm(forms.ModelForm):

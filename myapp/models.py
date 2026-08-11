@@ -41,6 +41,7 @@ class StoreProfile(models.Model):
     phone          = models.CharField(max_length=20, blank=True)
     avatar         = models.ImageField(upload_to='avatars/', blank=True, null=True)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    email_verified = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Store Customer Profile'
@@ -524,15 +525,43 @@ class DropboxSettings(models.Model):
         return bool(self.app_key and self.app_secret and self.refresh_token)
 
 
-class SignupOTP(models.Model):
-    """Holds a pending storefront signup until its emailed OTP is verified.
-    No User row is created until verification succeeds — the password is
-    kept here pre-hashed (never plaintext) so a stale/abandoned signup
-    can't leak a usable credential."""
-    email         = models.EmailField(unique=True)
-    name          = models.CharField(max_length=120)
-    phone         = models.CharField(max_length=20)
-    password_hash = models.CharField(max_length=255)
+class PWASettings(models.Model):
+    """Singleton PWA (Progressive Web App) configuration, managed from the
+    store dashboard. When enabled (and an icon is set), the storefront
+    exposes a manifest + service worker and shows an 'Install App' button
+    to shoppers on supporting browsers."""
+    is_enabled        = models.BooleanField(default=False, help_text="Show the 'Install App' option on the storefront. Needs an icon set below to actually work.")
+    app_name          = models.CharField(max_length=100, default='EduTrellis Store', help_text='Full name shown during install and on the splash screen.')
+    short_name        = models.CharField(max_length=40, default='EduTrellis', help_text='Short name shown under the home-screen icon.')
+    description       = models.CharField(max_length=200, blank=True, default="Shop gadgets from EduTrellis — audio, wearables, charging and more.")
+    icon              = models.ImageField(upload_to='pwa/', blank=True, null=True, help_text='Square logo, ideally 512×512px or larger — used as the installed app icon.')
+    theme_color       = models.CharField(max_length=7, default='#e8001e', help_text='Hex color, e.g. #e8001e — used for the browser/app toolbar.')
+    background_color  = models.CharField(max_length=7, default='#ffffff', help_text='Hex color shown behind the splash screen while the app loads.')
+    updated_at        = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'PWA (Install App) Settings'
+        verbose_name_plural = 'PWA (Install App) Settings'
+
+    def __str__(self):
+        return 'PWA settings'
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def ready(self):
+        return bool(self.is_enabled and self.icon)
+
+
+class EmailVerification(models.Model):
+    """A pending email-verification OTP for an already-logged-in store user.
+    Signup itself is never blocked on this — the account exists and is
+    usable regardless of whether/when the shopper verifies. Sending the
+    email is always best-effort from the caller's side."""
+    user          = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_verification')
     otp           = models.CharField(max_length=6)
     attempts      = models.PositiveSmallIntegerField(default=0)
     created_at    = models.DateTimeField(auto_now_add=True)
@@ -540,11 +569,11 @@ class SignupOTP(models.Model):
     expires_at    = models.DateTimeField()
 
     class Meta:
-        verbose_name = 'Pending Signup OTP'
-        verbose_name_plural = 'Pending Signup OTPs'
+        verbose_name = 'Pending Email Verification'
+        verbose_name_plural = 'Pending Email Verifications'
 
     def __str__(self):
-        return f"{self.email} (expires {self.expires_at:%d %b %H:%M})"
+        return f"{self.user.email} (expires {self.expires_at:%d %b %H:%M})"
 
     @property
     def is_expired(self):

@@ -30,6 +30,12 @@
 <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 
+{% if pwa.ready %}
+<link rel="manifest" href="{% url 'pwa_manifest' %}">
+<meta name="theme-color" content="{{ pwa.theme_color }}">
+<link rel="apple-touch-icon" href="{{ pwa.icon.url }}">
+{% endif %}
+
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -480,7 +486,12 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .auth-alt button{border:none;background:none;color:var(--red);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem}
 .auth-alt button:disabled{color:#b6bcc6;cursor:default}
 .otp-sub{font-size:.88rem;color:var(--text);margin-bottom:1.1rem;line-height:1.5}
-#otpCode{letter-spacing:.5em;font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:700;text-align:center}
+#otpCode,#veCode{letter-spacing:.5em;font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:700;text-align:center}
+.pf-email-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.75rem .9rem;border:1.5px solid var(--line);border-radius:12px;background:var(--bg-alt)}
+.pf-email-row #pfEmail{font-size:.88rem;color:var(--head);font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf-verified-badge{display:none;align-items:center;gap:.35rem;font-size:.74rem;font-weight:700;color:var(--green-dark)}
+.pf-verify-btn{display:none;border:1.5px solid var(--red);background:#fff;color:var(--red);font-family:'Sora',sans-serif;font-size:.74rem;font-weight:700;padding:.35rem .8rem;border-radius:50px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
+.pf-verify-btn:hover{background:var(--red);color:#fff}
 .modal-x{position:absolute;top:1rem;right:1rem;z-index:3}
 
 /* product detail page */
@@ -596,6 +607,41 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .offer-body li i{color:var(--red);margin-top:.3rem;font-size:.82rem}
 .offer-skip{display:block;width:100%;margin-top:.7rem;border:none;background:none;color:#9aa3b0;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit}
 .offer-skip:hover{color:var(--head)}
+
+/* thank you / payment result page */
+.thankyou-page{position:fixed;inset:0;z-index:995;background:#fff;display:none;place-items:center;padding:1.5rem;text-align:center}
+.thankyou-page.open{display:grid}
+.ty-card{max-width:420px;animation:tyCardIn .45s cubic-bezier(.34,1.2,.64,1)}
+@keyframes tyCardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.ty-icon-success,.ty-icon-fail{position:relative;width:120px;height:120px;margin:0 auto 1.3rem;display:grid;place-items:center}
+.ty-icon-fail{display:none}
+.thankyou-page.failed .ty-icon-success{display:none}
+.thankyou-page.failed .ty-icon-fail{display:grid}
+.ty-face{font-size:5rem;color:var(--green);animation:tyBounce .7s cubic-bezier(.34,1.56,.64,1)}
+.ty-icon-fail .ty-face{color:var(--red)}
+@keyframes tyBounce{0%{opacity:0;transform:scale(.4) rotate(-15deg)}60%{opacity:1;transform:scale(1.15) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+.ty-badge{position:absolute;bottom:-2px;right:calc(50% - 50px);width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:.8rem;box-shadow:0 4px 14px rgba(37,211,102,.4);opacity:0;transform:scale(0);animation:tyBadgePop .3s .55s cubic-bezier(.34,1.56,.64,1) forwards}
+.ty-icon-fail .ty-badge{background:var(--red);box-shadow:0 4px 14px rgba(232,0,30,.4)}
+@keyframes tyBadgePop{to{opacity:1;transform:scale(1)}}
+.ty-confetti{position:absolute;width:7px;height:7px;border-radius:2px;opacity:0}
+.ty-confetti.c1{background:var(--red);top:8%;left:10%;animation:tyConf1 1s .5s ease-out forwards}
+.ty-confetti.c2{background:#f5a623;top:2%;right:12%;animation:tyConf2 1s .55s ease-out forwards}
+.ty-confetti.c3{background:var(--purple);bottom:12%;left:2%;animation:tyConf3 1s .6s ease-out forwards}
+.ty-confetti.c4{background:var(--green);bottom:6%;right:4%;animation:tyConf4 1s .5s ease-out forwards}
+.ty-confetti.c5{background:#3b5bdb;top:22%;left:-4%;animation:tyConf1 1.1s .65s ease-out forwards}
+.ty-confetti.c6{background:var(--red);top:16%;right:-4%;animation:tyConf2 1.1s .6s ease-out forwards}
+@keyframes tyConf1{0%{opacity:0;transform:translate(0,0) rotate(0)}20%{opacity:1}100%{opacity:0;transform:translate(-24px,-34px) rotate(200deg)}}
+@keyframes tyConf2{0%{opacity:0;transform:translate(0,0) rotate(0)}20%{opacity:1}100%{opacity:0;transform:translate(26px,-30px) rotate(-180deg)}}
+@keyframes tyConf3{0%{opacity:0;transform:translate(0,0) rotate(0)}20%{opacity:1}100%{opacity:0;transform:translate(-22px,26px) rotate(160deg)}}
+@keyframes tyConf4{0%{opacity:0;transform:translate(0,0) rotate(0)}20%{opacity:1}100%{opacity:0;transform:translate(24px,28px) rotate(-160deg)}}
+.ty-card h2{font-size:1.5rem;font-weight:800;margin-bottom:.5rem}
+.ty-card p{font-size:.94rem;color:var(--text);line-height:1.6;margin-bottom:1rem}
+.ty-order-num{display:inline-block;background:var(--bg-alt);border:1px solid var(--line);border-radius:50px;padding:.5rem 1.2rem;font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;color:var(--head);margin-bottom:1.6rem}
+.ty-btns{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center}
+.ty-btn-primary{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;padding:.85rem 1.6rem;border-radius:50px;box-shadow:0 10px 26px rgba(232,0,30,.3);transition:transform .25s;display:inline-flex;align-items:center;gap:.5rem}
+.ty-btn-primary:hover{transform:translateY(-2px)}
+.ty-btn-ghost{border:1.5px solid var(--line);background:#fff;color:var(--head);cursor:pointer;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;padding:.85rem 1.6rem;border-radius:50px;transition:border-color .2s,color .2s;display:inline-flex;align-items:center;gap:.5rem}
+.ty-btn-ghost:hover{border-color:var(--red);color:var(--red)}
 
 /* my wallet popup */
 .wallet-amt{text-align:center;font-family:'Sora',sans-serif;font-size:2.6rem;font-weight:900;color:var(--head);margin:.6rem 0 .3rem}
@@ -756,6 +802,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     </form>
 
     <div class="hd-actions">
+      <button class="icon-btn" id="installApp" aria-label="Install app" title="Install app" style="display:none"><i class="fas fa-download"></i></button>
       <button class="icon-btn" id="openCart" aria-label="Open cart">
         <i class="fas fa-cart-shopping"></i>
         <span class="cart-count" id="cartCount">0</span>
@@ -1265,16 +1312,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <button class="submit-btn" id="doSignup">Create account</button>
       <p class="auth-alt">Already have an account? <button data-goto="login">Log in</button></p>
     </div>
-
-    <div class="auth-pane" id="pane-otp">
-      <p class="otp-sub">Enter the 6-digit code we emailed to <b id="otpEmailLbl"></b></p>
-      <div class="fg">
-        <label for="otpCode">Verification code</label>
-        <input type="text" id="otpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
-      </div>
-      <button class="submit-btn" id="doVerifyOtp">Verify &amp; create account</button>
-      <p class="auth-alt">Didn't get it? <button type="button" id="resendOtp">Resend code</button> · <button type="button" data-goto="signup">Change email</button></p>
-    </div>
   </div>
 </div>
 
@@ -1366,11 +1403,36 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
         <input type="text" id="pfName" placeholder="Your full name">
       </div>
       <div class="fg">
+        <label>Email</label>
+        <div class="pf-email-row">
+          <span id="pfEmail"></span>
+          <span class="pf-verified-badge" id="pfVerifiedBadge"><i class="fas fa-circle-check"></i> Verified</span>
+          <button type="button" class="pf-verify-btn" id="pfVerifyBtn">Verify email</button>
+        </div>
+      </div>
+      <div class="fg">
         <label for="pfPhone">Phone</label>
         <input type="tel" id="pfPhone" placeholder="98XXXXXXXX">
       </div>
       <button type="submit" class="submit-btn" id="pfSubmit">Save changes</button>
     </form>
+  </div>
+</div>
+
+<!-- ==================== VERIFY EMAIL MODAL ==================== -->
+<div class="modal" id="verifyEmailModal" role="dialog" aria-modal="true" aria-label="Verify email">
+  <div class="modal-card" style="max-width:380px">
+    <button class="x-btn modal-x" id="closeVerifyEmail" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div class="modal-top">
+      <div class="logo-txt">Verify <span>Email</span></div>
+      <p>We've sent a 6-digit code to your email</p>
+    </div>
+    <div class="fg">
+      <label for="veCode">Verification code</label>
+      <input type="text" id="veCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+    </div>
+    <button type="button" class="submit-btn" id="doVerifyEmail">Verify email</button>
+    <p class="auth-alt">Didn't get it? <button type="button" id="resendVerifyEmail">Resend code</button></p>
   </div>
 </div>
 
@@ -1454,6 +1516,29 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   </div>
 </div>
 
+<!-- ==================== THANK YOU / PAYMENT RESULT PAGE ==================== -->
+<div class="thankyou-page" id="thankyouPage" role="dialog" aria-modal="true" aria-label="Order status">
+  <div class="ty-card">
+    <div class="ty-icon-success">
+      <i class="fas fa-face-smile-beam ty-face"></i>
+      <span class="ty-badge"><i class="fas fa-check"></i></span>
+      <span class="ty-confetti c1"></span><span class="ty-confetti c2"></span><span class="ty-confetti c3"></span>
+      <span class="ty-confetti c4"></span><span class="ty-confetti c5"></span><span class="ty-confetti c6"></span>
+    </div>
+    <div class="ty-icon-fail">
+      <i class="fas fa-face-frown ty-face"></i>
+      <span class="ty-badge"><i class="fas fa-xmark"></i></span>
+    </div>
+    <h2 id="tyTitle">Thank you!</h2>
+    <p id="tySub">Your order has been placed successfully.</p>
+    <div class="ty-order-num" id="tyOrderNum"></div>
+    <div class="ty-btns">
+      <button type="button" class="ty-btn-ghost" id="tyViewOrders"><i class="fas fa-box"></i> View my orders</button>
+      <button type="button" class="ty-btn-primary" id="tyContinue"><i class="fas fa-bag-shopping"></i> Continue shopping</button>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== FLOATING ==================== -->
 <div class="wa-float">
   <a href="https://wa.me/919695953183" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><i class="fab fa-whatsapp"></i></a>
@@ -1480,6 +1565,31 @@ const BOOT = JSON.parse(document.getElementById('storeBoot').textContent || '{}'
 const FREE_SHIP_OVER = (BOOT.shipping && BOOT.shipping.free_over) || 299;
 const SHIP_FEE       = (BOOT.shipping && BOOT.shipping.fee) || 79;
 const HANDLING_FEE   = (BOOT.shipping && BOOT.shipping.handling_fee) || 23;
+
+/* ---------- 2a. PWA INSTALL ---------- */
+(function pwaInstall(){
+  if (!BOOT.pwa || !BOOT.pwa.enabled) return;
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/store/sw.js').catch(() => {});
+
+  const btn = document.getElementById('installApp');
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (btn) btn.style.display = 'grid';
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    if (btn) btn.style.display = 'none';
+  });
+  if (btn){
+    btn.addEventListener('click', () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(() => { deferredPrompt = null; btn.style.display = 'none'; });
+    });
+  }
+})();
 
 const state = {
   cart: {},
@@ -2040,7 +2150,6 @@ function closeAuth(){ $('#authModal').classList.remove('open'); $('#scrim').clas
 function switchPane(name){
   $$('.auth-tabs button').forEach(b => b.classList.toggle('on', b.dataset.pane === name));
   $$('.auth-pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + name));
-  $('.auth-tabs').style.display = name === 'otp' ? 'none' : 'flex';
 }
 function openOffer(){
   if (state.offerShown || state.user) return;
@@ -2054,9 +2163,38 @@ function openProfile(){
   $('#pfName').value = state.user.name || '';
   $('#pfPhone').value = state.user.phone || '';
   $('#pfAvatarPreview').innerHTML = avatarHtml(state.user);
+  $('#pfEmail').textContent = state.user.email || '';
+  $('#pfVerifiedBadge').style.display = state.user.email_verified ? 'inline-flex' : 'none';
+  $('#pfVerifyBtn').style.display = state.user.email_verified ? 'none' : 'inline-flex';
   $('#profileModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
 }
 function closeProfile(){ $('#profileModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
+let verifyResendTimer = null;
+function startResendCooldown(btn, seconds){
+  let left = seconds;
+  clearInterval(verifyResendTimer);
+  btn.disabled = true;
+  const tick = () => { btn.textContent = left > 0 ? `Resend code (${left}s)` : 'Resend code'; left--; };
+  tick();
+  verifyResendTimer = setInterval(() => {
+    if (left < 0){ clearInterval(verifyResendTimer); btn.disabled = false; btn.textContent = 'Resend code'; return; }
+    tick();
+  }, 1000);
+}
+function openVerifyEmail(){
+  if (!state.user || state.user.email_verified) return;
+  $('#veCode').value = '';
+  $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+  const btn = $('#resendVerifyEmail');
+  postJSON('/store/api/profile/email/verify/send/', {})
+    .then(({ ok, body }) => {
+      if (ok){ toast('Verification code sent to your email', 'fa-envelope'); startResendCooldown(btn, 45); setTimeout(() => $('#veCode').focus(), 150); }
+      else toast(body.detail || 'Could not send the verification email', 'fa-circle-exclamation');
+    })
+    .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
+}
+function closeVerifyEmail(){ $('#verifyEmailModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); clearInterval(verifyResendTimer); }
 
 /* India states + major cities — state is a strict dropdown, city is a free-text
    field with suggestions from this list (via <datalist>) so an unlisted town
@@ -2190,6 +2328,21 @@ function openOrders(){
   });
 }
 function closeOrders(){ $('#ordersModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
+
+function openThankYou(success, orderId, opts){
+  opts = opts || {};
+  const page = $('#thankyouPage');
+  page.classList.toggle('failed', !success);
+  $('#tyTitle').textContent = success ? 'Thank you!' : 'Payment failed';
+  $('#tySub').textContent = opts.message || (success
+    ? 'Your order has been placed successfully. We\'ll notify you as it ships.'
+    : 'We couldn\'t confirm your payment, but your order is saved — you can retry payment or pay on delivery from My Orders.');
+  const num = $('#tyOrderNum');
+  if (orderId){ num.style.display = 'inline-block'; num.textContent = 'Order #' + orderId; } else { num.style.display = 'none'; }
+  document.body.classList.add('locked');
+  page.classList.add('open');
+}
+function closeThankYou(){ $('#thankyouPage').classList.remove('open'); document.body.classList.remove('locked'); }
 
 /* ---------- 9b. ACCOUNT DROPDOWN ---------- */
 function initials(name){
@@ -2411,14 +2564,49 @@ $('#closeOrders').addEventListener('click', closeOrders);
 $('#closeOffer').addEventListener('click', closeOffer);
 $('#offerSkip').addEventListener('click', closeOffer);
 $('#offerClaim').addEventListener('click', () => openAuth('signup'));
+$('#tyContinue').addEventListener('click', closeThankYou);
+$('#tyViewOrders').addEventListener('click', () => { closeThankYou(); openOrders(); });
 $('#closeDetail').addEventListener('click', () => closeProductDetail());
 $('#closeLightbox').addEventListener('click', closeLightbox);
 $('#lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
-$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeAddress(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); });
+$('#pfVerifyBtn').addEventListener('click', openVerifyEmail);
+$('#closeVerifyEmail').addEventListener('click', closeVerifyEmail);
+$('#veCode').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
+$('#resendVerifyEmail').addEventListener('click', () => {
+  if ($('#resendVerifyEmail').disabled) return;
+  postJSON('/store/api/profile/email/verify/send/', {})
+    .then(({ ok, body }) => {
+      if (ok){ toast('New code sent', 'fa-envelope'); startResendCooldown($('#resendVerifyEmail'), 45); }
+      else toast(body.detail || 'Could not resend the code', 'fa-circle-exclamation');
+    })
+    .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
+});
+$('#doVerifyEmail').addEventListener('click', () => {
+  const otp = $('#veCode').value.trim();
+  if (otp.length !== 6){ toast('Enter the full 6-digit code', 'fa-circle-exclamation'); return; }
+  const btn = $('#doVerifyEmail'); setBtnBusy(btn, true, 'Verifying…');
+  postJSON('/store/api/profile/email/verify/confirm/', { otp })
+    .then(({ ok, body }) => {
+      setBtnBusy(btn, false);
+      if (!ok){
+        const msg = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not verify that code');
+        toast(msg, 'fa-circle-exclamation');
+        return;
+      }
+      state.user = body.user;
+      renderAccountUI();
+      $('#pfVerifiedBadge').style.display = 'inline-flex';
+      $('#pfVerifyBtn').style.display = 'none';
+      closeVerifyEmail();
+      toast('Email verified!', 'fa-circle-check');
+    })
+    .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
+});
+$('#scrim').addEventListener('click', () => { closeDrawer(); closeAuth(); closeAddress(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeVerifyEmail(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){
     if ($('#lightbox').classList.contains('open')){ closeLightbox(); return; }
-    closeDrawer(); closeAuth(); closeAddress(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu();
+    closeDrawer(); closeAuth(); closeAddress(); closeProfile(); closePassword(); closeWallet(); closeOrders(); closeOffer(); closeAccountMenu(); closeThankYou(); closeVerifyEmail();
   }
 });
 window.addEventListener('popstate', e => {
@@ -2491,7 +2679,7 @@ $('#passwordForm').addEventListener('submit', e => {
 
 $('#useWallet').addEventListener('change', e => { state.useWallet = e.target.checked; renderCart(); });
 
-function openRazorpayCheckout(rp){
+function openRazorpayCheckout(rp, orderId){
   if (typeof Razorpay === 'undefined'){
     toast('Payment gateway failed to load — order saved, pay from My Orders', 'fa-circle-exclamation');
     return;
@@ -2512,8 +2700,8 @@ function openRazorpayCheckout(rp){
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_signature: response.razorpay_signature
       }).then(({ ok }) => {
-        toast(ok ? 'Payment received — thank you!' : 'Payment verification failed — our team will follow up', ok ? 'fa-circle-check' : 'fa-circle-exclamation');
-      }).catch(() => toast('Payment verification failed — our team will follow up', 'fa-circle-exclamation'));
+        openThankYou(ok, orderId, ok ? {} : { message: "We couldn't verify that payment. Your order is saved — retry payment or switch to COD from My Orders." });
+      }).catch(() => openThankYou(false, orderId));
     },
     modal: {
       ondismiss: function(){ toast('Payment window closed — your order is saved, pay anytime from My Orders', 'fa-circle-info'); }
@@ -2567,31 +2755,15 @@ $('#addressForm').addEventListener('submit', e => {
       $('#addressForm').reset();
       if (body.payment_method === 'razorpay' && body.razorpay){
         toast('Order #' + body.order.id + ' placed — complete payment to confirm', 'fa-circle-check');
-        openRazorpayCheckout(body.razorpay);
+        openRazorpayCheckout(body.razorpay, body.order.id);
       } else {
-        toast('Order #' + body.order.id + ' placed — thank you!', 'fa-circle-check');
+        openThankYou(true, body.order.id);
       }
     })
     .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
 });
 
 /* auth — wired to Django backend (User + StoreProfile), session-based */
-let pendingSignupEmail = null;
-let otpResendTimer = null;
-
-function startOtpResendCooldown(seconds){
-  const btn = $('#resendOtp');
-  let left = seconds;
-  clearInterval(otpResendTimer);
-  btn.disabled = true;
-  const tick = () => { btn.textContent = left > 0 ? `Resend code (${left}s)` : 'Resend code'; left--; };
-  tick();
-  otpResendTimer = setInterval(() => {
-    if (left < 0){ clearInterval(otpResendTimer); btn.disabled = false; btn.textContent = 'Resend code'; return; }
-    tick();
-  }, 1000);
-}
-
 $('#doSignup').addEventListener('click', () => {
   const name  = $('#suName').value.trim();
   const phone = $('#suPhone').value.trim();
@@ -2603,7 +2775,7 @@ $('#doSignup').addEventListener('click', () => {
   if (!email) { toast('Enter your email address', 'fa-circle-exclamation'); return; }
   if (pw.length < 6) { toast('Password must be at least 6 characters', 'fa-circle-exclamation'); return; }
 
-  const btn = $('#doSignup'); setBtnBusy(btn, true, 'Sending code…');
+  const btn = $('#doSignup'); setBtnBusy(btn, true, 'Creating account…');
   postJSON('/store/api/signup/', { name, phone, email, password: pw })
     .then(({ ok, body }) => {
       setBtnBusy(btn, false);
@@ -2612,33 +2784,6 @@ $('#doSignup').addEventListener('click', () => {
         toast(msg, 'fa-circle-exclamation');
         return;
       }
-      pendingSignupEmail = body.email;
-      $('#otpEmailLbl').textContent = body.email;
-      $('#otpCode').value = '';
-      switchPane('otp');
-      startOtpResendCooldown(45);
-      toast('Verification code sent to your email', 'fa-envelope');
-      setTimeout(() => $('#otpCode').focus(), 150);
-    })
-    .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
-});
-
-$('#doVerifyOtp').addEventListener('click', () => {
-  const otp = $('#otpCode').value.trim();
-  if (!pendingSignupEmail){ switchPane('signup'); return; }
-  if (otp.length !== 6){ toast('Enter the full 6-digit code', 'fa-circle-exclamation'); return; }
-
-  const btn = $('#doVerifyOtp'); setBtnBusy(btn, true, 'Verifying…');
-  postJSON('/store/api/signup/verify/', { email: pendingSignupEmail, otp })
-    .then(({ ok, body }) => {
-      setBtnBusy(btn, false);
-      if (!ok){
-        const msg = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not verify that code');
-        toast(msg, 'fa-circle-exclamation');
-        return;
-      }
-      clearInterval(otpResendTimer);
-      pendingSignupEmail = null;
       state.user = body.user;
       state.wallet = body.user.wallet_balance || 0;
       applyCartPayload(body.cart);
@@ -2648,21 +2793,6 @@ $('#doVerifyOtp').addEventListener('click', () => {
       renderCart(); renderGrid();
     })
     .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
-});
-
-$('#resendOtp').addEventListener('click', () => {
-  if (!pendingSignupEmail || $('#resendOtp').disabled) return;
-  postJSON('/store/api/signup/resend/', { email: pendingSignupEmail })
-    .then(({ ok, body }) => {
-      if (!ok){ toast(body.detail || 'Could not resend the code', 'fa-circle-exclamation'); return; }
-      toast('New code sent', 'fa-envelope');
-      startOtpResendCooldown(45);
-    })
-    .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
-});
-
-$('#otpCode').addEventListener('input', e => {
-  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
 });
 
 $('#doLogin').addEventListener('click', () => {

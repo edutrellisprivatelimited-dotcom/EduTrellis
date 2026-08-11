@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, Review, SignupOTP,
+    DropboxSettings, Review, EmailVerification, PWASettings,
 )
 
 
@@ -87,11 +87,18 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ('product__name', 'user__username', 'user__email', 'comment')
 
 
-@admin.register(SignupOTP)
-class SignupOTPAdmin(admin.ModelAdmin):
-    list_display = ('email', 'name', 'attempts', 'created_at', 'expires_at')
-    search_fields = ('email', 'name', 'phone')
-    exclude = ('password_hash',)
+@admin.register(PWASettings)
+class PWASettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_enabled', 'app_name', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not PWASettings.objects.exists()
+
+
+@admin.register(EmailVerification)
+class EmailVerificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'attempts', 'created_at', 'expires_at')
+    search_fields = ('user__username', 'user__email')
 
 
 @admin.register(ContactLead)

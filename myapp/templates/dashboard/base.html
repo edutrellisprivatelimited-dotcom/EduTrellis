@@ -188,6 +188,7 @@ tbody tr:hover{background:var(--bg-alt)}
       <a href="{% url 'dashboard_payments' %}" class="{% if active == 'payments' %}active{% endif %}"><i class="fas fa-money-check-dollar"></i> Payments</a>
       <a href="{% url 'dashboard_payment_settings' %}" class="{% if active == 'payment_settings' %}active{% endif %}"><i class="fas fa-credit-card"></i> Payment Settings</a>
       <a href="{% url 'dashboard_email_settings' %}" class="{% if active == 'email_settings' %}active{% endif %}"><i class="fas fa-envelope-circle-check"></i> Email Settings</a>
+      <a href="{% url 'dashboard_pwa_settings' %}" class="{% if active == 'pwa_settings' %}active{% endif %}"><i class="fas fa-mobile-screen-button"></i> PWA / Install App</a>
       <a href="{% url 'dashboard_backup' %}" class="{% if active == 'backup' %}active{% endif %}"><i class="fas fa-database"></i> Backup &amp; Restore</a>
       <a href="{% url 'dashboard_about' %}" class="{% if active == 'about' %}active{% endif %}"><i class="fas fa-circle-info"></i> About Us</a>
       <a href="{% url 'dashboard_policies' %}" class="{% if active == 'policies' %}active{% endif %}"><i class="fas fa-file-shield"></i> Policies</a>
