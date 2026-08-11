@@ -1088,6 +1088,9 @@ def dashboard_email_settings_test(request):
     if not _dashboard_guard(request):
         return redirect('estore')
     if request.method == 'POST':
+        if not EmailSettings.get_solo().ready:
+            messages.error(request, 'Enable SMTP and fill in host, username and password, then save, before sending a test email.')
+            return redirect('dashboard_email_settings')
         try:
             send_store_email(
                 'EduTrellis Store — test email',

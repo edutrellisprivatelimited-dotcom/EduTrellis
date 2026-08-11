@@ -276,12 +276,11 @@ class PaymentSettings(models.Model):
 
 
 class EmailSettings(models.Model):
-    """Singleton SMTP configuration, managed from the store dashboard. When
-    enabled, this overrides the EMAIL_HOST_* environment variables in
-    settings.py for every email the app sends (order confirmations, contact
-    leads) — so the store owner can change or fix email delivery without a
-    redeploy."""
-    is_enabled     = models.BooleanField(default=False, help_text="Use these settings instead of the server's default email configuration.")
+    """Singleton SMTP configuration, managed from the store dashboard. This is
+    the only source of SMTP credentials for every email the app sends (order
+    confirmations, contact leads) — there is no fallback in settings.py. If
+    left disabled or incomplete, no email is sent."""
+    is_enabled     = models.BooleanField(default=False, help_text='Turn on to send emails using the SMTP details below. If off (or incomplete), no email is sent.')
     smtp_host      = models.CharField(max_length=200, blank=True, default='smtp.gmail.com')
     smtp_port      = models.PositiveIntegerField(default=587)
     smtp_username  = models.CharField(max_length=200, blank=True)

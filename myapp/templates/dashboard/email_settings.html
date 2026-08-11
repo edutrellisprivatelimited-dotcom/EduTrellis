@@ -13,7 +13,7 @@
 {% block content %}
 <p class="backup-sub" style="color:var(--text);font-size:.88rem;margin:0 0 1.4rem">
   Configure the SMTP account used to send order confirmations, contact-lead notifications and new-order alerts.
-  Leave this disabled to keep using the server's default email configuration.
+  This is the only email account the site uses — if it's left disabled or incomplete, no emails are sent.
 </p>
 
 {% for message in messages %}
@@ -26,7 +26,7 @@
   {% csrf_token %}
 
   <div class="toggle-row">
-    <div><b>Use these SMTP settings</b><span>When off, the server's built-in email configuration is used instead.</span></div>
+    <div><b>Use these SMTP settings</b><span>When off, no emails (order confirmations, alerts) are sent at all.</span></div>
     {{ form.is_enabled }}
   </div>
 
