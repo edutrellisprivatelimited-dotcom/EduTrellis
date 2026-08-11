@@ -57,6 +57,7 @@ urlpatterns = [
     path('store/dashboard/backup/restore/', views.dashboard_backup_restore, name='dashboard_backup_restore'),
     path('store/dashboard/orders/', views.dashboard_orders, name='dashboard_orders'),
     path('store/dashboard/orders/<int:pk>/status/', views.dashboard_order_status_update, name='dashboard_order_status_update'),
+    path('store/dashboard/delivery/', views.dashboard_delivery, name='dashboard_delivery'),
     path('store/dashboard/logout/', views.dashboard_logout, name='dashboard_logout'),
 
     path('contact/', views.contact_lead, name='contact_lead'),

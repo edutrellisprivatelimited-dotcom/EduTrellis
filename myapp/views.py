@@ -1161,6 +1161,26 @@ def dashboard_orders(request):
     })
 
 
+def dashboard_delivery(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    q = request.GET.get('q', '').strip()
+    status = request.GET.get('status', '').strip()
+    orders = Order.objects.select_related('user').filter(recipient_name__gt='').order_by('-created_at')
+    if q:
+        orders = orders.filter(
+            Q(recipient_name__icontains=q) | Q(recipient_phone__icontains=q) |
+            Q(city__icontains=q) | Q(pincode__icontains=q)
+        )
+    if status:
+        orders = orders.filter(status=status)
+    return render(request, 'dashboard/delivery.html', {
+        'active': 'delivery', 'orders': orders, 'q': q, 'status': status,
+        'status_choices': Order.STATUS_CHOICES,
+    })
+
+
 def dashboard_order_status_update(request, pk):
     if not _dashboard_guard(request):
         return redirect('estore')
