@@ -32,6 +32,8 @@ urlpatterns = [
 
     path('store/dashboard/', views.dashboard_home, name='dashboard_home'),
     path('store/dashboard/signups/', views.dashboard_signups, name='dashboard_signups'),
+    path('store/dashboard/signups/<int:pk>/edit/', views.dashboard_signup_edit, name='dashboard_signup_edit'),
+    path('store/dashboard/signups/<int:pk>/delete/', views.dashboard_signup_delete, name='dashboard_signup_delete'),
     path('store/dashboard/contacts/', views.dashboard_contacts, name='dashboard_contacts'),
     path('store/dashboard/contacts/<int:pk>/delete/', views.dashboard_contact_delete, name='dashboard_contact_delete'),
     path('store/dashboard/categories/', views.dashboard_categories, name='dashboard_categories'),

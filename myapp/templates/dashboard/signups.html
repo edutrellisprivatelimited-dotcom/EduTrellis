@@ -2,7 +2,19 @@
 {% block title %}Signups{% endblock %}
 {% block page_title %}Signups{% endblock %}
 
+{% block extra_head %}
+<style>
+.flash{border-radius:12px;padding:.85rem 1rem;font-size:.88rem;font-weight:600;margin-bottom:1.2rem;display:flex;gap:.5rem;align-items:center}
+.flash.success{background:#e8f8ee;color:#177245}
+.flash.error{background:#fdeaea;color:var(--red)}
+</style>
+{% endblock %}
+
 {% block content %}
+{% for message in messages %}
+  <div class="flash {{ message.tags }}"><i class="fas {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i> {{ message }}</div>
+{% endfor %}
+
 <div class="panel">
   <div class="panel-head">
     <h3>{{ users|length }} customer{{ users|length|pluralize }}</h3>
@@ -13,7 +25,7 @@
   </div>
   <div class="table-scroll">
   <table>
-    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Wallet</th><th>Role</th><th>Joined</th></tr></thead>
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Wallet</th><th>Role</th><th>Joined</th><th></th></tr></thead>
     <tbody>
       {% for u in users %}
       <tr>
@@ -27,9 +39,20 @@
           {% else %}<span class="badge user">Customer</span>{% endif %}
         </td>
         <td>{{ u.date_joined|date:"d M Y, h:i A" }}</td>
+        <td>
+          <div class="row-actions">
+            <a class="edit-btn" href="{% url 'dashboard_signup_edit' u.pk %}" title="Edit"><i class="fas fa-pen"></i></a>
+            {% if not u.is_staff and not u.is_superuser %}
+            <form method="post" action="{% url 'dashboard_signup_delete' u.pk %}" onsubmit="return confirm('Permanently delete this customer? This also deletes all their orders, reviews and cart. This cannot be undone.')">
+              {% csrf_token %}
+              <button type="submit" class="del-btn" title="Delete"><i class="fas fa-trash"></i></button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
       </tr>
       {% empty %}
-      <tr><td colspan="6" class="empty-row">No signups match your search</td></tr>
+      <tr><td colspan="7" class="empty-row">No signups match your search</td></tr>
       {% endfor %}
     </tbody>
   </table>

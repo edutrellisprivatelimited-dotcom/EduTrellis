@@ -15,7 +15,7 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from myapp.forms import (
-    ContactLeadForm, StoreSignupForm, EmailVerifyForm, StoreLoginForm, StoreContactForm,
+    ContactLeadForm, StoreSignupForm, EmailVerifyForm, StoreLoginForm, StoreContactForm, SignupEditForm,
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm, PWASettingsForm,
@@ -1077,6 +1077,40 @@ def dashboard_signups(request):
             Q(store_profile__phone__icontains=q)
         )
     return render(request, 'dashboard/signups.html', {'active': 'signups', 'users': users, 'q': q})
+
+
+def dashboard_signup_edit(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+
+    edited_user = get_object_or_404(User, pk=pk)
+    profile, _ = StoreProfile.objects.get_or_create(user=edited_user)
+    form = SignupEditForm(
+        request.POST or None, instance=edited_user,
+        initial={'phone': profile.phone, 'wallet_balance': profile.wallet_balance},
+    )
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        profile.phone = form.cleaned_data['phone']
+        profile.wallet_balance = form.cleaned_data['wallet_balance']
+        profile.save(update_fields=['phone', 'wallet_balance'])
+        return redirect('dashboard_signups')
+    return render(request, 'dashboard/signup_form.html', {'active': 'signups', 'form': form, 'edited_user': edited_user})
+
+
+def dashboard_signup_delete(request, pk):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        target = get_object_or_404(User, pk=pk)
+        if target.pk == request.user.pk:
+            messages.error(request, "You can't delete your own account from here.")
+        elif target.is_staff or target.is_superuser:
+            messages.error(request, "Staff and admin accounts can't be deleted from here — use Django admin if you're sure.")
+        else:
+            target.delete()
+            messages.success(request, 'Customer account deleted.')
+    return redirect('dashboard_signups')
 
 
 def dashboard_contacts(request):

@@ -177,6 +177,27 @@ class ReviewForm(forms.Form):
         return self.cleaned_data.get('comment', '').strip()
 
 
+class SignupEditForm(forms.ModelForm):
+    phone = forms.CharField(max_length=20, required=False)
+    wallet_balance = forms.DecimalField(max_digits=10, decimal_places=2, required=False, min_value=0)
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        qs = User.objects.filter(email__iexact=email)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('Another account already uses this email.')
+        return email
+
+    def clean_wallet_balance(self):
+        return self.cleaned_data.get('wallet_balance') or 0
+
+
 class CategoryForm(forms.ModelForm):
     slug = forms.CharField(
         max_length=80, required=False,
