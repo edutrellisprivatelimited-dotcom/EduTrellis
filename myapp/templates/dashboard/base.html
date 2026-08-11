@@ -142,6 +142,16 @@ tbody tr:hover{background:var(--bg-alt)}
 .current-thumb-sm{width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid var(--line);flex:none}
 .color-row input[type=color]{width:44px;height:38px;padding:.2rem;border:1.5px solid var(--line);border-radius:8px;background:var(--bg-alt)}
 
+.spec-table{width:100%;border-collapse:collapse;margin-top:.5rem}
+.spec-table th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#9aa3b0;padding:0 .5rem .4rem}
+.spec-table td{padding:.3rem .5rem .3rem 0;vertical-align:middle}
+.spec-table td:first-child{width:42%}
+.spec-table input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:.55rem .7rem;font-family:inherit;font-size:.85rem;background:#fff}
+.spec-table input[type=text]:focus{outline:none;border-color:var(--red)}
+.spec-row-del{width:34px;height:34px;flex:none;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--red);cursor:pointer}
+.spec-row-del:hover{background:var(--red-soft)}
+.spec-add-row{margin-top:.6rem}
+
 @media (max-width:900px){
   .dash-sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:.3s;z-index:100}
   .dash-sidebar.open{transform:translateX(0)}

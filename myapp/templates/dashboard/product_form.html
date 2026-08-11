@@ -47,9 +47,14 @@
   </div>
 
   <div class="form-group">
-    <label for="{{ form.specs.id_for_label }}">Specifications</label>
-    {{ form.specs }}
-    <div class="help">One per line, formatted as "Label: Value" — shown as a spec table on the product detail view.</div>
+    <label>Specifications</label>
+    <div class="help" style="margin:0 0 .3rem">Add each spec as a label/value pair — shown as a table on the product detail view.</div>
+    <table class="spec-table" id="specTable">
+      <thead><tr><th>Label</th><th>Value</th><th></th></tr></thead>
+      <tbody id="specTableBody"></tbody>
+    </table>
+    <button type="button" class="btn btn-ghost spec-add-row" id="specAddRow"><i class="fas fa-plus"></i> Add row</button>
+    <div style="display:none">{{ form.specs }}</div>
     {{ form.specs.errors }}
   </div>
 
@@ -207,4 +212,67 @@
     <a href="{% url 'dashboard_products' %}" class="btn btn-ghost">Cancel</a>
   </div>
 </form>
+
+<script>
+(function(){
+  var ta = document.getElementById('{{ form.specs.id_for_label }}');
+  var tbody = document.getElementById('specTableBody');
+
+  function addRow(label, value){
+    var tr = document.createElement('tr');
+    var tdLabel = document.createElement('td');
+    var inLabel = document.createElement('input');
+    inLabel.type = 'text'; inLabel.className = 'spec-label'; inLabel.placeholder = 'e.g. Battery'; inLabel.value = label || '';
+    tdLabel.appendChild(inLabel);
+
+    var tdValue = document.createElement('td');
+    var inValue = document.createElement('input');
+    inValue.type = 'text'; inValue.className = 'spec-value'; inValue.placeholder = 'e.g. 40 hours'; inValue.value = value || '';
+    tdValue.appendChild(inValue);
+
+    var tdDel = document.createElement('td');
+    var btnDel = document.createElement('button');
+    btnDel.type = 'button'; btnDel.className = 'spec-row-del'; btnDel.setAttribute('aria-label', 'Remove row');
+    btnDel.innerHTML = '<i class="fas fa-xmark"></i>';
+    tdDel.appendChild(btnDel);
+
+    tr.appendChild(tdLabel); tr.appendChild(tdValue); tr.appendChild(tdDel);
+    tbody.appendChild(tr);
+  }
+
+  var any = false;
+  ta.value.split('\n').forEach(function(line){
+    var idx = line.indexOf(':');
+    if (idx === -1) return;
+    var label = line.slice(0, idx).trim();
+    if (!label) return;
+    addRow(label, line.slice(idx + 1).trim());
+    any = true;
+  });
+  if (!any) addRow('', '');
+
+  document.getElementById('specAddRow').addEventListener('click', function(){ addRow('', ''); });
+
+  tbody.addEventListener('click', function(e){
+    var btn = e.target.closest('.spec-row-del');
+    if (!btn) return;
+    var rows = tbody.querySelectorAll('tr');
+    if (rows.length <= 1){
+      tbody.querySelectorAll('input').forEach(function(i){ i.value = ''; });
+      return;
+    }
+    btn.closest('tr').remove();
+  });
+
+  ta.closest('form').addEventListener('submit', function(){
+    var lines = [];
+    tbody.querySelectorAll('tr').forEach(function(tr){
+      var label = tr.querySelector('.spec-label').value.trim();
+      var value = tr.querySelector('.spec-value').value.trim();
+      if (label) lines.push(label + ': ' + value);
+    });
+    ta.value = lines.join('\n');
+  });
+})();
+</script>
 {% endblock %}

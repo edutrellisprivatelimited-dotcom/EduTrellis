@@ -12,17 +12,18 @@ from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
 from myapp.forms import (
     ContactLeadForm, StoreSignupForm, StoreLoginForm, StoreContactForm,
-    StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, CategoryForm, OrderStatusForm,
+    StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, EmailSettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, EmailSettings,
+    DropboxSettings, EmailSettings, Review,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
+from myapp.seed_data import seed_demo_reviews
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,48 @@ def product_detail(request, slug):
     return render(request, "estore.html", context)
 
 
+def product_reviews(request, slug):
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    reviews = product.reviews.select_related('user').all()
+    return JsonResponse({
+        'status': 'ok',
+        'can_review': _user_can_review(request.user, product),
+        'reviews': [_review_payload(r, request.user) for r in reviews],
+    })
+
+
+def product_review_submit(request, slug):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in to review a product.'}, status=401)
+
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    if not _user_can_review(request.user, product):
+        return JsonResponse(
+            {'status': 'error', 'detail': "You can review this product once your delivered order for it arrives."},
+            status=403,
+        )
+
+    form = ReviewForm(_parse_json_body(request))
+    if not form.is_valid():
+        return JsonResponse(
+            {'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}},
+            status=400,
+        )
+
+    review, _created = Review.objects.update_or_create(
+        product=product, user=request.user,
+        defaults={'rating': form.cleaned_data['rating'], 'comment': form.cleaned_data['comment']},
+    )
+    rating, count = product.review_stats
+    return JsonResponse({
+        'status': 'ok',
+        'review': _review_payload(review, request.user),
+        'review_stats': {'rating': rating, 'count': count},
+    })
+
+
 def _estore_context(request):
     cart = _get_or_create_cart(request)
     payment_settings = PaymentSettings.get_solo()
@@ -84,7 +127,7 @@ def _estore_context(request):
     if request.user.is_authenticated:
         boot['user'] = _user_payload(request.user)
     categories = Category.objects.filter(is_active=True)
-    products = Product.objects.filter(is_active=True).select_related('category').prefetch_related('images', 'colors')
+    products = Product.objects.filter(is_active=True).select_related('category').prefetch_related('images', 'colors', 'reviews')
     return {
         "store_boot_json": json.dumps(boot),
         "products_json": json.dumps([_product_payload(p) for p in products]),
@@ -94,6 +137,28 @@ def _estore_context(request):
         "meta_title": None,
         "meta_description": None,
         "meta_image": None,
+    }
+
+
+def _user_can_review(user, product):
+    """A shopper may review a product once they have a Delivered order
+    containing it — this is the sole gate, checked fresh on every request
+    rather than cached on the Review row."""
+    if not user.is_authenticated:
+        return False
+    return OrderItem.objects.filter(
+        order__user=user, order__status=Order.STATUS_DELIVERED, product_id=product.slug,
+    ).exists()
+
+
+def _review_payload(r, viewer=None):
+    return {
+        'id': r.pk,
+        'name': r.user.first_name or 'Verified Buyer',
+        'rating': r.rating,
+        'comment': r.comment,
+        'created_at': r.created_at.strftime('%d %b %Y'),
+        'mine': bool(viewer and viewer.is_authenticated and r.user_id == viewer.pk),
     }
 
 
@@ -127,8 +192,8 @@ def _product_payload(p):
         'flag': p.flag,
         'stock': p.stock_status,
         'tags': p.tag_list,
-        'rating': float(p.rating),
-        'reviews': p.reviews_count,
+        'rating': p.review_stats[0],
+        'reviews': p.review_stats[1],
     }
 
 
@@ -1014,6 +1079,14 @@ def dashboard_product_delete(request, pk):
         return redirect('estore')
     if request.method == 'POST':
         get_object_or_404(Product, pk=pk).delete()
+    return redirect('dashboard_products')
+
+
+def dashboard_seed_reviews(request):
+    if not _dashboard_guard(request):
+        return redirect('estore')
+    if request.method == 'POST':
+        messages.success(request, seed_demo_reviews())
     return redirect('dashboard_products')
 
 

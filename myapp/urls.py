@@ -23,6 +23,8 @@ urlpatterns = [
 
     path('store/policy/<str:key>/', views.policy_page, name='policy_page'),
     path('store/product/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('store/api/product/<slug:slug>/reviews/', views.product_reviews, name='product_reviews'),
+    path('store/api/product/<slug:slug>/reviews/submit/', views.product_review_submit, name='product_review_submit'),
 
     path('store/dashboard/', views.dashboard_home, name='dashboard_home'),
     path('store/dashboard/signups/', views.dashboard_signups, name='dashboard_signups'),
@@ -36,6 +38,7 @@ urlpatterns = [
     path('store/dashboard/products/add/', views.dashboard_product_add, name='dashboard_product_add'),
     path('store/dashboard/products/<int:pk>/edit/', views.dashboard_product_edit, name='dashboard_product_edit'),
     path('store/dashboard/products/<int:pk>/delete/', views.dashboard_product_delete, name='dashboard_product_delete'),
+    path('store/dashboard/products/seed-reviews/', views.dashboard_seed_reviews, name='dashboard_seed_reviews'),
     path('store/dashboard/about/', views.dashboard_about, name='dashboard_about'),
     path('store/dashboard/policies/', views.dashboard_policies, name='dashboard_policies'),
     path('store/dashboard/policies/<int:pk>/edit/', views.dashboard_policy_edit, name='dashboard_policy_edit'),

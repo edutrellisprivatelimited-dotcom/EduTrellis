@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings,
+    DropboxSettings, Review,
 )
 
 
@@ -78,6 +78,13 @@ class DropboxSettingsAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return not DropboxSettings.objects.exists()
     search_fields = ('order__id', 'order__user__username', 'razorpay_order_id', 'razorpay_payment_id')
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'rating', 'created_at')
+    list_filter = ('rating', 'created_at')
+    search_fields = ('product__name', 'user__username', 'user__email', 'comment')
 
 
 @admin.register(ContactLead)

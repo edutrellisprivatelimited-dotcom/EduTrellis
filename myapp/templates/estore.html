@@ -537,6 +537,35 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .buy-now-btn{flex:1;justify-content:center;min-width:160px;border:1.5px solid var(--dark);cursor:pointer;background:#fff;color:var(--dark);font-family:'Sora',sans-serif;font-size:.8rem;font-weight:700;padding:.9rem 1rem;border-radius:50px;display:inline-flex;align-items:center;gap:.4rem;transition:transform .25s,background .2s,color .2s}
 .buy-now-btn:hover{transform:translateY(-2px);background:var(--dark);color:#fff}
 
+.detail-reviews{max-width:1080px;margin-top:2.4rem;padding-top:2rem;border-top:1px solid var(--line)}
+.detail-reviews h4{font-size:1.05rem;font-weight:800;margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem}
+.detail-reviews h4 i{color:#f5a623}
+.review-loading{font-size:.85rem;color:var(--text)}
+.review-form-box{background:var(--bg-alt);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;margin-bottom:1.5rem;max-width:520px}
+.review-form-box b{display:block;font-size:.95rem;margin-bottom:.2rem}
+.review-form-box .help{display:block;font-size:.8rem;color:var(--text);margin-bottom:.8rem}
+.review-star-input{display:flex;gap:.3rem;margin-bottom:.8rem}
+.rsi-star{border:none;background:none;cursor:pointer;font-size:1.35rem;color:#d8dce2;padding:.1rem;transition:color .15s,transform .15s}
+.rsi-star:hover{transform:scale(1.12)}
+.rsi-star.on{color:#f5a623}
+.review-form-box textarea{width:100%;min-height:80px;padding:.7rem .85rem;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.85rem;resize:vertical;margin-bottom:.8rem;background:#fff}
+.btn-review-submit{border:none;background:var(--red);color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;padding:.75rem 1.3rem;border-radius:50px;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;transition:transform .2s}
+.btn-review-submit:hover{transform:translateY(-2px)}
+.btn-review-submit:disabled{opacity:.6;cursor:default;transform:none}
+.review-form-box.locked{opacity:.9}
+.review-locked-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:700;color:var(--text);background:#fff;border:1px solid var(--line);padding:.35rem .75rem;border-radius:50px;margin:.5rem 0}
+.review-form-box.locked .rsi-star{cursor:default;pointer-events:none;color:#e4e7eb}
+
+.review-item{border-bottom:1px solid var(--line);padding:1rem 0}
+.review-item:last-child{border-bottom:none}
+.review-item-top{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:.35rem}
+.review-item-top b{font-size:.88rem}
+.review-item-top .stars{color:#f5a623;font-size:.78rem}
+.review-verified{margin-left:auto;font-size:.72rem;font-weight:700;color:var(--green-dark);display:inline-flex;align-items:center;gap:.3rem}
+.review-item p{font-size:.86rem;line-height:1.55;color:var(--head);margin-bottom:.35rem;white-space:pre-wrap}
+.review-date{font-size:.72rem;color:var(--text)}
+.review-empty{font-size:.85rem;color:var(--text)}
+
 /* lightbox */
 .lightbox{position:fixed;inset:0;z-index:980;background:rgba(6,8,14,.94);display:grid;place-items:center;opacity:0;visibility:hidden;transition:.3s;padding:1.5rem}
 .lightbox.open{opacity:1;visibility:visible}
@@ -694,7 +723,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <a href="https://www.instagram.com/edutrellis" class="strip-link" target="_blank" rel="noopener"><i class="fab fa-instagram"></i><span>@edutrellis</span></a>
     <span class="strip-sep"></span>
     <a href="https://www.linkedin.com/company/edutrellis" class="strip-link" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i><span>EduTrellis</span></a>
-    <span class="strip-owner"><i class="fas fa-circle-check"></i> Owned &amp; operated by EduTrellis Pvt. Ltd.</span>
+    <span class="strip-owner"><i class="fas fa-circle-check"></i> Owned &amp; operated by EduTrellis</span>
   </div>
 </div>
 
@@ -776,7 +805,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <div class="hslide-bg" style="background-image:url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1600&amp;q=80')"></div>
       <div class="hslide-mesh"></div>
       <div class="hslide-in">
-        <div class="hbadge"><i class="fas fa-circle-check"></i> The official gadget store of EduTrellis Pvt. Ltd.</div>
+        <div class="hbadge"><i class="fas fa-circle-check"></i> The official gadget store of EduTrellis</div>
         <h1>Gadgets That Actually <em>Last</em> the Year</h1>
         <p>Earbuds, smartwatches, keyboards and chargers — every unit boxed, warrantied and tested before it ships from our Lucknow warehouse.</p>
         <div class="hero-btns">
@@ -1084,7 +1113,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <div class="foot-brand">
       <div class="foot-logo">Edu<span>Trellis</span> Store</div>
       <p>The official gadget store of EduTrellis — audio, wearables, charging, computing and smart home gear, stocked and shipped from Lucknow.</p>
-      <div class="owner-badge"><i class="fas fa-circle-check"></i> Owned &amp; operated by EduTrellis Pvt. Ltd.</div>
+      <div class="owner-badge"><i class="fas fa-circle-check"></i> Owned &amp; operated by EduTrellis</div>
       <div class="socials">
         <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -1501,7 +1530,7 @@ function applyCartPayload(cart){
     ['fa-lock','Secure Razorpay checkout'],
     ['fa-money-bill-wave','Cash on delivery available'],
     ['fa-star','98% satisfaction rate'],
-    ['fa-certificate','An EduTrellis Pvt. Ltd. store']
+    ['fa-certificate','An EduTrellis . Ltd.Pvt store']
   ];
   const html = items.map(([i,t]) =>
     '<div class="marquee-item"><i class="fas ' + i + '"></i>' + t + '<span class="sep">✦</span></div>').join('');
@@ -1721,7 +1750,7 @@ function openProductDetail(id, pushUrl){
       '<div class="detail-info">' +
         '<span class="detail-brand">' + p.brand + '</span>' +
         '<h3>' + p.name + '</h3>' +
-        '<div class="detail-rate"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews' +
+        '<div class="detail-rate" id="detailRateBox" data-pid="' + p.id + '"><span class="stars">' + stars(p.rating) + '</span> ' + p.rating + ' · ' + p.reviews + ' reviews' +
           '<button type="button" class="similar-pill" data-similar="' + p.cat + '"><i class="fas fa-shapes"></i> Similar</button>' +
         '</div>' +
         '<div class="detail-price-row"><div class="price">' + inr(p.price) + '<del>' + inr(p.mrp) + '</del></div><span class="detail-stock"><i class="fas fa-circle-check"></i> ' + p.stock + '</span></div>' +
@@ -1735,6 +1764,11 @@ function openProductDetail(id, pushUrl){
           detailAddBtnHtml(p) +
         '</div>' +
       '</div>' +
+    '</div>' +
+    '<div class="detail-reviews" id="detailReviews" data-pid="' + p.id + '">' +
+      '<h4><i class="fas fa-star"></i> Ratings &amp; Reviews</h4>' +
+      '<div id="reviewFormWrap"><div class="review-loading">Loading reviews…</div></div>' +
+      '<div id="reviewList"></div>' +
     '</div>';
 
   document.body.classList.add('pdp');
@@ -1742,6 +1776,7 @@ function openProductDetail(id, pushUrl){
   if (pushUrl !== false){
     history.pushState({ detail: id }, '', '/store/product/' + id + '/');
   }
+  loadProductReviews(id);
 }
 function closeProductDetail(popUrl){
   document.body.classList.remove('pdp');
@@ -1769,6 +1804,98 @@ function addToCartFromDetail(id){
   postJSON('/store/api/cart/add/', { product_id: id, name: name, price: p.price, qty: qty })
     .then(({ ok, body }) => { if (ok) { applyCartPayload(body); renderCart(); renderGrid(); refreshDetailButton(id); } })
     .catch(() => {});
+}
+
+/* ---------- 7c2. PRODUCT REVIEWS ---------- */
+function escHtml(s){
+  return String(s == null ? '' : s)
+    .split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quot;');
+}
+function reviewStarInputHtml(rating){
+  let html = '<div class="review-star-input" id="reviewStarInput" data-rating="' + rating + '">';
+  for (let i = 1; i <= 5; i++){
+    html += '<button type="button" class="rsi-star' + (i <= rating ? ' on' : '') + '" data-star="' + i + '" aria-label="Rate ' + i + ' star' + (i > 1 ? 's' : '') + '"><i class="fas fa-star"></i></button>';
+  }
+  return html + '</div>';
+}
+function reviewFormHtml(body){
+  const mine = (body.reviews || []).find(r => r.mine);
+  if (body.can_review){
+    return '' +
+      '<div class="review-form-box">' +
+        '<b>' + (mine ? 'Update your review' : 'Write a review') + '</b>' +
+        '<span class="help"><i class="fas fa-badge-check"></i> Verified purchase — you bought and received this product.</span>' +
+        reviewStarInputHtml(mine ? mine.rating : 0) +
+        '<textarea id="reviewComment" placeholder="Share what you liked or didn’t…">' + escHtml(mine ? mine.comment : '') + '</textarea>' +
+        '<button type="button" class="btn-review-submit" id="reviewSubmitBtn"><i class="fas fa-paper-plane"></i> ' + (mine ? 'Update review' : 'Submit review') + '</button>' +
+      '</div>';
+  }
+  const loggedIn = !!state.user;
+  return '' +
+    '<div class="review-form-box locked">' +
+      reviewStarInputHtml(0) +
+      '<span class="review-locked-badge"><i class="fas fa-lock"></i> Not purchased</span>' +
+      '<span class="help">' + (loggedIn
+        ? 'You can rate and review this product once your order for it is delivered.'
+        : 'Log in and buy this product to leave a review once it’s delivered.') + '</span>' +
+    '</div>';
+}
+function reviewListHtml(reviews){
+  if (!reviews || !reviews.length) return '<p class="review-empty">No reviews yet — be the first to review this product.</p>';
+  return reviews.map(r => '' +
+    '<div class="review-item">' +
+      '<div class="review-item-top"><b>' + escHtml(r.name) + '</b><span class="stars">' + stars(r.rating) + '</span>' +
+        '<span class="review-verified"><i class="fas fa-circle-check"></i> Verified purchase</span>' +
+      '</div>' +
+      (r.comment ? '<p>' + escHtml(r.comment) + '</p>' : '') +
+      '<span class="review-date">' + r.created_at + '</span>' +
+    '</div>'
+  ).join('');
+}
+function wireReviewForm(id, body){
+  const starWrap = $('#reviewStarInput');
+  if (!starWrap || !body.can_review) return;
+  starWrap.querySelectorAll('.rsi-star').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const r = Number(btn.dataset.star);
+      starWrap.dataset.rating = r;
+      starWrap.querySelectorAll('.rsi-star').forEach(b => b.classList.toggle('on', Number(b.dataset.star) <= r));
+    });
+  });
+  const submitBtn = $('#reviewSubmitBtn');
+  if (!submitBtn) return;
+  submitBtn.addEventListener('click', () => {
+    const rating = Number(starWrap.dataset.rating || 0);
+    const comment = ($('#reviewComment').value || '').trim();
+    if (!rating){ toast('Pick a star rating first', 'fa-circle-exclamation'); return; }
+    submitBtn.disabled = true;
+    postJSON('/store/api/product/' + id + '/reviews/submit/', { rating, comment })
+      .then(({ ok, body: res }) => {
+        submitBtn.disabled = false;
+        if (!ok){ toast(res.detail || 'Could not submit your review', 'fa-circle-exclamation'); return; }
+        const p = PRODUCTS.find(x => x.id === id);
+        if (p && res.review_stats){ p.rating = res.review_stats.rating; p.reviews = res.review_stats.count; }
+        const rateBox = $('#detailRateBox');
+        if (p && rateBox && rateBox.dataset.pid === id){
+          rateBox.querySelector('.stars').innerHTML = stars(p.rating);
+          rateBox.childNodes[1].textContent = ' ' + p.rating + ' · ' + p.reviews + ' reviews';
+        }
+        toast('Thanks for your review!', 'fa-circle-check');
+        loadProductReviews(id);
+        renderGrid();
+      })
+      .catch(() => { submitBtn.disabled = false; toast('Network error — try again', 'fa-circle-exclamation'); });
+  });
+}
+function loadProductReviews(id){
+  const wrap = $('#reviewFormWrap'), list = $('#reviewList'), holder = $('#detailReviews');
+  if (!wrap || !list || !holder) return;
+  getJSON('/store/api/product/' + id + '/reviews/').then(({ ok, body }) => {
+    if (!ok || holder.dataset.pid !== id) return;
+    wrap.innerHTML = reviewFormHtml(body);
+    list.innerHTML = reviewListHtml(body.reviews);
+    wireReviewForm(id, body);
+  }).catch(() => { wrap.innerHTML = ''; });
 }
 
 /* ---------- 7c. LIGHTBOX ---------- */

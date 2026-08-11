@@ -124,6 +124,20 @@ class Product(models.Model):
             return 0
         return round((1 - float(self.price) / float(self.mrp)) * 100)
 
+    @property
+    def review_stats(self):
+        """Blends the manually-set `rating`/`reviews_count` (the store's
+        starting/base figures) with real Review rows, so the displayed
+        average updates honestly as genuine reviews come in instead of
+        either ignoring them or discarding the base numbers outright."""
+        real = list(self.reviews.all())
+        real_count = len(real)
+        total_count = self.reviews_count + real_count
+        if total_count == 0:
+            return (0.0, 0)
+        points = float(self.rating) * self.reviews_count + sum(r.rating for r in real)
+        return (round(points / total_count, 1), total_count)
+
 class ProductImage(models.Model):
     """One extra gallery photo for a Product's detail-page slider. Capped at
     5 per product by the admin form (ProductImageFormSet)."""
@@ -507,3 +521,24 @@ class DropboxSettings(models.Model):
     @property
     def is_configured(self):
         return bool(self.app_key and self.app_secret and self.refresh_token)
+
+
+class Review(models.Model):
+    """A shopper's rating/comment on a Product. Every row here is a verified
+    purchase — creating one is gated (see views._user_can_review) on the
+    shopper having a Delivered order containing this product, so there's no
+    separate 'verified' flag to track."""
+    product    = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='product_reviews')
+    rating     = models.PositiveSmallIntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    comment    = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('product', 'user')
+        verbose_name = 'Product Review'
+        verbose_name_plural = 'Product Reviews'
+
+    def __str__(self):
+        return f"{self.user.username} → {self.product.name} ({self.rating}★)"

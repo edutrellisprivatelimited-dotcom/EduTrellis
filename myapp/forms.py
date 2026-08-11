@@ -157,6 +157,14 @@ class CheckoutAddressForm(forms.Form):
         return pincode
 
 
+class ReviewForm(forms.Form):
+    rating  = forms.IntegerField(min_value=1, max_value=5, error_messages={'required': 'Pick a star rating.'})
+    comment = forms.CharField(max_length=2000, required=False, widget=forms.Textarea)
+
+    def clean_comment(self):
+        return self.cleaned_data.get('comment', '').strip()
+
+
 class CategoryForm(forms.ModelForm):
     slug = forms.CharField(
         max_length=80, required=False,
