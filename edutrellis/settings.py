@@ -105,12 +105,14 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # ── Email (Gmail SMTP via App Password) ─────────────────────────────────────
-# All outbound store/site email (order confirmations, contact-lead alerts,
-# signup verification codes) is sent via this account. The dashboard's Email
-# Settings page has been deactivated — this is the only email path now.
-# Hardcoded on purpose, with NO os.environ.get() indirection — a stale
-# EMAIL_HOST_USER/PASSWORD env var left over from earlier SMTP testing on a
-# dev machine would otherwise silently override these and nobody would know.
+# All outbound store/site email (order confirmations, contact-lead alerts) is
+# sent via this account. Signup/profile verification codes moved to SMS (see
+# TWO_FACTOR_API_KEY below) — email is no longer in that path. The
+# dashboard's Email Settings page has been deactivated — this is the only
+# email path now. Hardcoded on purpose, with NO os.environ.get() indirection
+# — a stale EMAIL_HOST_USER/PASSWORD env var left over from earlier SMTP
+# testing on a dev machine would otherwise silently override these and
+# nobody would know.
 
 EMAIL_BACKEND  = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST     = 'smtp.gmail.com'
@@ -126,6 +128,12 @@ EMAIL_HOST_USER      = 'edutrellisprivatelimited@gmail.com'
 EMAIL_HOST_PASSWORD  = 'tnjwlzgzmnexoufo'
 DEFAULT_FROM_EMAIL   = f'EduTrellis <{EMAIL_HOST_USER}>'
 LEAD_RECIPIENT_EMAIL = EMAIL_HOST_USER
+
+# ── SMS OTP (2Factor.in) ─────────────────────────────────────────────────────
+# Signup/profile phone verification goes over SMS via this API key — a plain
+# HTTPS call, so it isn't affected by the Gmail/Titan SMTP delivery problems
+# or by Railway potentially blocking outbound SMTP on production.
+TWO_FACTOR_API_KEY = '12feb4c9-9636-11f1-9cb1-0200cd936042'
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

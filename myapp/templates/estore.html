@@ -1408,34 +1408,36 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       </div>
       <div class="fg">
         <label>Email</label>
-        <div class="pf-email-row">
-          <span id="pfEmail"></span>
-          <span class="pf-verified-badge" id="pfVerifiedBadge"><i class="fas fa-circle-check"></i> Verified</span>
-          <button type="button" class="pf-verify-btn" id="pfVerifyBtn">Verify email</button>
-        </div>
+        <span id="pfEmail" style="display:block;padding:.75rem .95rem;border:1.5px solid var(--line);border-radius:12px;background:var(--bg-alt);font-size:.9rem;color:var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
       </div>
       <div class="fg">
-        <label for="pfPhone">Phone</label>
-        <input type="tel" id="pfPhone" placeholder="98XXXXXXXX">
+        <label for="pfPhone" style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+          <span>Phone</span>
+          <span class="pf-verified-badge" id="pfVerifiedBadge"><i class="fas fa-circle-check"></i> Verified</span>
+        </label>
+        <div class="pf-email-row">
+          <input type="tel" id="pfPhone" placeholder="98XXXXXXXX" style="flex:1;border:none;background:transparent;padding:0;font-size:.9rem">
+          <button type="button" class="pf-verify-btn" id="pfVerifyBtn">Verify phone</button>
+        </div>
       </div>
       <button type="submit" class="submit-btn" id="pfSubmit">Save changes</button>
     </form>
   </div>
 </div>
 
-<!-- ==================== VERIFY EMAIL MODAL ==================== -->
-<div class="modal" id="verifyEmailModal" role="dialog" aria-modal="true" aria-label="Verify email">
+<!-- ==================== VERIFY PHONE MODAL ==================== -->
+<div class="modal" id="verifyEmailModal" role="dialog" aria-modal="true" aria-label="Verify phone">
   <div class="modal-card" style="max-width:380px">
     <button class="x-btn modal-x" id="closeVerifyEmail" aria-label="Close"><i class="fas fa-xmark"></i></button>
     <div class="modal-top">
-      <div class="logo-txt">Verify <span>Email</span></div>
-      <p>We've sent a 6-digit code to your email</p>
+      <div class="logo-txt">Verify <span>Phone</span></div>
+      <p>We've sent a 6-digit code to your phone via SMS</p>
     </div>
     <div class="fg">
       <label for="veCode">Verification code</label>
       <input type="text" id="veCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
     </div>
-    <button type="button" class="submit-btn" id="doVerifyEmail">Verify email</button>
+    <button type="button" class="submit-btn" id="doVerifyEmail">Verify phone</button>
     <p class="auth-alt">Didn't get it? <button type="button" id="resendVerifyEmail">Resend code</button></p>
   </div>
 </div>
@@ -2190,8 +2192,8 @@ function openProfile(){
   $('#pfPhone').value = state.user.phone || '';
   $('#pfAvatarPreview').innerHTML = avatarHtml(state.user);
   $('#pfEmail').textContent = state.user.email || '';
-  $('#pfVerifiedBadge').style.display = state.user.email_verified ? 'inline-flex' : 'none';
-  $('#pfVerifyBtn').style.display = state.user.email_verified ? 'none' : 'inline-flex';
+  $('#pfVerifiedBadge').style.display = state.user.phone_verified ? 'inline-flex' : 'none';
+  $('#pfVerifyBtn').style.display = state.user.phone_verified ? 'none' : 'inline-flex';
   $('#profileModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
 }
 function closeProfile(){ $('#profileModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
@@ -2209,14 +2211,14 @@ function startResendCooldown(btn, seconds){
   }, 1000);
 }
 function openVerifyEmail(){
-  if (!state.user || state.user.email_verified) return;
+  if (!state.user || state.user.phone_verified) return;
   $('#veCode').value = '';
   $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
   const btn = $('#resendVerifyEmail');
-  postJSON('/store/api/profile/email/verify/send/', {})
+  postJSON('/store/api/profile/phone/verify/send/', {})
     .then(({ ok, body }) => {
-      if (ok){ toast('Verification code sent to your email', 'fa-envelope'); startResendCooldown(btn, 45); setTimeout(() => $('#veCode').focus(), 150); }
-      else toast(body.detail || 'Could not send the verification email', 'fa-circle-exclamation');
+      if (ok){ toast('Verification code sent to your phone', 'fa-envelope'); startResendCooldown(btn, 45); setTimeout(() => $('#veCode').focus(), 150); }
+      else toast(body.detail || 'Could not send the verification code', 'fa-circle-exclamation');
     })
     .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
 }
@@ -2224,7 +2226,7 @@ function openVerifyEmail(){
 // the modal for that already-sent code instead of requesting a second one
 // (which would immediately hit the resend cooldown and show an error).
 function openVerifyEmailPostSignup(){
-  if (!state.user || state.user.email_verified) return;
+  if (!state.user || state.user.phone_verified) return;
   $('#veCode').value = '';
   $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
   startResendCooldown($('#resendVerifyEmail'), 45);
@@ -2610,7 +2612,7 @@ $('#closeVerifyEmail').addEventListener('click', closeVerifyEmail);
 $('#veCode').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
 $('#resendVerifyEmail').addEventListener('click', () => {
   if ($('#resendVerifyEmail').disabled) return;
-  postJSON('/store/api/profile/email/verify/send/', {})
+  postJSON('/store/api/profile/phone/verify/send/', {})
     .then(({ ok, body }) => {
       if (ok){ toast('New code sent', 'fa-envelope'); startResendCooldown($('#resendVerifyEmail'), 45); }
       else toast(body.detail || 'Could not resend the code', 'fa-circle-exclamation');
@@ -2621,7 +2623,7 @@ $('#doVerifyEmail').addEventListener('click', () => {
   const otp = $('#veCode').value.trim();
   if (otp.length !== 6){ toast('Enter the full 6-digit code', 'fa-circle-exclamation'); return; }
   const btn = $('#doVerifyEmail'); setBtnBusy(btn, true, 'Verifying…');
-  postJSON('/store/api/profile/email/verify/confirm/', { otp })
+  postJSON('/store/api/profile/phone/verify/confirm/', { otp })
     .then(({ ok, body }) => {
       setBtnBusy(btn, false);
       if (!ok){
@@ -2634,7 +2636,7 @@ $('#doVerifyEmail').addEventListener('click', () => {
       $('#pfVerifiedBadge').style.display = 'inline-flex';
       $('#pfVerifyBtn').style.display = 'none';
       closeVerifyEmail();
-      toast('Email verified!', 'fa-circle-check');
+      toast('Phone verified!', 'fa-circle-check');
     })
     .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
 });
@@ -2830,7 +2832,7 @@ $('#doSignup').addEventListener('click', () => {
       // Primary verification touchpoint is right here at signup, since the
       // OTP was just sent as part of account creation. If they skip or the
       // code doesn't arrive, they can still verify anytime from Edit Profile.
-      if (!body.user.email_verified) openVerifyEmailPostSignup();
+      if (!body.user.phone_verified) openVerifyEmailPostSignup();
     })
     .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
 });

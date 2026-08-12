@@ -72,9 +72,9 @@ class StoreSignupForm(forms.Form):
         return email
 
 
-class EmailVerifyForm(forms.Form):
+class PhoneVerifyForm(forms.Form):
     otp = forms.CharField(max_length=6, min_length=6, required=True, error_messages={
-        'required': 'Enter the code we emailed you.', 'min_length': 'Enter the full 6-digit code.',
+        'required': 'Enter the code we texted you.', 'min_length': 'Enter the full 6-digit code.',
     })
 
     def clean_otp(self):

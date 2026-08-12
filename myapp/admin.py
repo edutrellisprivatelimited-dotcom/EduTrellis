@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, Review, EmailVerification, PWASettings, FeeSettings,
+    DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
 )
 
 
@@ -103,10 +103,10 @@ class FeeSettingsAdmin(admin.ModelAdmin):
         return not FeeSettings.objects.exists()
 
 
-@admin.register(EmailVerification)
-class EmailVerificationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'attempts', 'created_at', 'expires_at')
-    search_fields = ('user__username', 'user__email')
+@admin.register(PhoneVerification)
+class PhoneVerificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone', 'attempts', 'created_at', 'expires_at')
+    search_fields = ('user__username', 'user__email', 'phone')
 
 
 @admin.register(ContactLead)

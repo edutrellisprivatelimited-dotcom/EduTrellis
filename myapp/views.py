@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import random
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
@@ -15,7 +14,7 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from myapp.forms import (
-    ContactLeadForm, StoreSignupForm, EmailVerifyForm, StoreLoginForm, StoreContactForm, SignupEditForm,
+    ContactLeadForm, StoreSignupForm, PhoneVerifyForm, StoreLoginForm, StoreContactForm, SignupEditForm,
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
@@ -24,10 +23,11 @@ from myapp.forms import (
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, Review, EmailVerification, PWASettings, FeeSettings,
+    DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
+from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
 
 logger = logging.getLogger(__name__)
@@ -253,7 +253,7 @@ def _user_payload(user):
         'is_staff': user.is_staff,
         'avatar_url': profile.avatar.url if (profile and profile.avatar) else None,
         'wallet_balance': float(profile.wallet_balance) if profile else 0.0,
-        'email_verified': bool(profile and profile.email_verified),
+        'phone_verified': bool(profile and profile.phone_verified),
     }
 
 
@@ -426,39 +426,29 @@ def _send_order_confirmation_email(order, payment_method, paid):
 
 # ── E-Store: auth ────────────────────────────────────────────────────────
 
-EMAIL_VERIFY_OTP_TTL_MINUTES = 10
-EMAIL_VERIFY_RESEND_COOLDOWN_SECONDS = 45
-EMAIL_VERIFY_MAX_ATTEMPTS = 5
+PHONE_VERIFY_OTP_TTL_MINUTES = 10
+PHONE_VERIFY_RESEND_COOLDOWN_SECONDS = 45
+PHONE_VERIFY_MAX_ATTEMPTS = 5
 
 
-def _new_email_verification(user, now):
-    pending, _created = EmailVerification.objects.update_or_create(
+def _new_phone_verification(user, phone, now):
+    """Sends a fresh OTP via 2Factor and records the resulting session so
+    a later confirm can check the code against it. The OTP digits
+    themselves live at 2Factor, not here."""
+    session_id = send_phone_otp(phone)
+    pending, _created = PhoneVerification.objects.update_or_create(
         user=user,
         defaults={
-            'otp': f'{random.randint(0, 999999):06d}', 'attempts': 0, 'last_sent_at': now,
-            'expires_at': now + timedelta(minutes=EMAIL_VERIFY_OTP_TTL_MINUTES),
+            'session_id': session_id, 'phone': phone, 'attempts': 0, 'last_sent_at': now,
+            'expires_at': now + timedelta(minutes=PHONE_VERIFY_OTP_TTL_MINUTES),
         },
     )
-    return pending
-
-
-def _send_email_verification_otp(user, pending):
     if settings.DEBUG:
-        # Local/dev fallback that never depends on SMTP actually working —
-        # the code is always readable straight from the runserver console,
-        # regardless of whether the email itself gets through.
-        print(f"\n{'='*60}\nOTP for {user.email}: {pending.otp}\n{'='*60}\n")
-        logger.warning("DEBUG email verification OTP for %s: %s", user.email, pending.otp)
-
-    send_store_email(
-        'Your EduTrellis Store verification code',
-        f"Hi {user.first_name or user.username},\n\n"
-        f"Your email verification code is: {pending.otp}\n\n"
-        f"It expires in {EMAIL_VERIFY_OTP_TTL_MINUTES} minutes. If you didn't request this, you "
-        "can ignore this email — your account is unaffected.\n\n"
-        "— Team EduTrellis",
-        [user.email],
-    )
+        # Local/dev visibility — the OTP itself isn't known to us (2Factor
+        # generates and checks it), but this confirms the SMS send attempt
+        # ran and which phone/session it's tied to.
+        print(f"\n{'='*60}\nPhone OTP sent to {phone} (2Factor session {session_id})\n{'='*60}\n")
+    return pending
 
 
 def store_signup(request):
@@ -494,64 +484,61 @@ def store_signup(request):
         _merge_session_cart_into_user(auth_user, pre_login_session_key)
 
     # Best-effort — the account is already created and the shopper is
-    # already logged in above, so a slow/flaky SMTP send (or none
-    # configured at all) can never fail or delay signup itself. They can
-    # verify anytime from Edit Profile.
+    # already logged in above, so a slow/flaky SMS send (or none configured
+    # at all) can never fail or delay signup itself. They can verify anytime
+    # from Edit Profile.
     try:
-        pending = _new_email_verification(auth_user or user, timezone.now())
-        _send_email_verification_otp(auth_user or user, pending)
-        print(f"[signup email] OTP email SENT via SMTP to {email}")
+        _new_phone_verification(auth_user or user, phone, timezone.now())
+        print(f"[signup sms] OTP SMS SENT via 2Factor to {phone}")
     except Exception as e:
-        # Printed (not just logged) so the real SMTP failure reason is always
-        # visible straight in the runserver terminal, even if logging isn't
-        # configured to show it — this is what actually failed, not a guess.
         import traceback
-        print(f"[signup email] OTP email FAILED to send via SMTP to {email}: {e!r}")
+        print(f"[signup sms] OTP SMS FAILED to send via 2Factor to {phone}: {e!r}")
         traceback.print_exc()
-        logger.warning("Signup verification email failed for %s: %s", email, e)
+        logger.warning("Signup verification SMS failed for %s: %s", phone, e)
 
     cart = _get_or_create_cart(request)
     return JsonResponse({'status': 'ok', 'user': _user_payload(auth_user or user), 'cart': _cart_payload(cart)})
 
 
-def store_email_verify_send(request):
+def store_phone_verify_send(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
 
     profile, _ = StoreProfile.objects.get_or_create(user=request.user)
-    if profile.email_verified:
-        return JsonResponse({'status': 'error', 'detail': 'Your email is already verified.'}, status=400)
+    if profile.phone_verified:
+        return JsonResponse({'status': 'error', 'detail': 'Your phone number is already verified.'}, status=400)
+    if not profile.phone:
+        return JsonResponse({'status': 'error', 'detail': 'Add a phone number to your profile first.'}, status=400)
 
     now = timezone.now()
-    existing = EmailVerification.objects.filter(user=request.user).first()
-    if existing and (now - existing.last_sent_at).total_seconds() < EMAIL_VERIFY_RESEND_COOLDOWN_SECONDS:
-        wait = EMAIL_VERIFY_RESEND_COOLDOWN_SECONDS - int((now - existing.last_sent_at).total_seconds())
+    existing = PhoneVerification.objects.filter(user=request.user).first()
+    if existing and (now - existing.last_sent_at).total_seconds() < PHONE_VERIFY_RESEND_COOLDOWN_SECONDS:
+        wait = PHONE_VERIFY_RESEND_COOLDOWN_SECONDS - int((now - existing.last_sent_at).total_seconds())
         return JsonResponse({'status': 'error', 'detail': f'Please wait {wait}s before requesting another code.'}, status=429)
 
-    pending = _new_email_verification(request.user, now)
     try:
-        _send_email_verification_otp(request.user, pending)
+        _new_phone_verification(request.user, profile.phone, now)
     except Exception as e:
-        logger.exception("Email verification send failed for %s: %s", request.user.email, e)
-        return JsonResponse({'status': 'error', 'detail': 'Could not send the verification email. Please try again shortly.'}, status=502)
+        logger.exception("Phone verification SMS failed for %s: %s", profile.phone, e)
+        return JsonResponse({'status': 'error', 'detail': 'Could not send the verification code. Please try again shortly.'}, status=502)
 
     return JsonResponse({'status': 'ok'})
 
 
-def store_email_verify_confirm(request):
+def store_phone_verify_confirm(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
 
-    form = EmailVerifyForm(_parse_json_body(request))
+    form = PhoneVerifyForm(_parse_json_body(request))
     if not form.is_valid():
         return JsonResponse({'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}}, status=400)
 
     otp = form.cleaned_data['otp']
-    pending = EmailVerification.objects.filter(user=request.user).first()
+    pending = PhoneVerification.objects.filter(user=request.user).first()
     if not pending:
         return JsonResponse({'status': 'error', 'detail': 'No pending verification — send a new code first.'}, status=404)
 
@@ -559,19 +546,25 @@ def store_email_verify_confirm(request):
         pending.delete()
         return JsonResponse({'status': 'error', 'detail': 'That code has expired — send a new one.'}, status=400)
 
-    if pending.attempts >= EMAIL_VERIFY_MAX_ATTEMPTS:
+    if pending.attempts >= PHONE_VERIFY_MAX_ATTEMPTS:
         pending.delete()
         return JsonResponse({'status': 'error', 'detail': 'Too many incorrect attempts — send a new code.'}, status=400)
 
-    if otp != pending.otp:
+    try:
+        matched = verify_phone_otp(pending.session_id, otp)
+    except Exception as e:
+        logger.exception("2Factor verify call failed for %s: %s", pending.phone, e)
+        return JsonResponse({'status': 'error', 'detail': 'Could not verify that code right now. Please try again shortly.'}, status=502)
+
+    if not matched:
         pending.attempts += 1
         pending.save(update_fields=['attempts'])
-        left = EMAIL_VERIFY_MAX_ATTEMPTS - pending.attempts
+        left = PHONE_VERIFY_MAX_ATTEMPTS - pending.attempts
         return JsonResponse({'status': 'error', 'detail': f'Incorrect code — {left} attempt{"s" if left != 1 else ""} left.'}, status=400)
 
     profile, _ = StoreProfile.objects.get_or_create(user=request.user)
-    profile.email_verified = True
-    profile.save(update_fields=['email_verified'])
+    profile.phone_verified = True
+    profile.save(update_fields=['phone_verified'])
     pending.delete()
 
     return JsonResponse({'status': 'ok', 'user': _user_payload(request.user)})

@@ -41,7 +41,8 @@ class StoreProfile(models.Model):
     phone          = models.CharField(max_length=20, blank=True)
     avatar         = models.ImageField(upload_to='avatars/', blank=True, null=True)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    email_verified = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False)  # unused — verification moved to phone/SMS, see phone_verified
+    phone_verified = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Store Customer Profile'
@@ -595,6 +596,32 @@ class EmailVerification(models.Model):
 
     def __str__(self):
         return f"{self.user.email} (expires {self.expires_at:%d %b %H:%M})"
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+
+class PhoneVerification(models.Model):
+    """A pending phone-verification OTP, sent and checked via the 2Factor
+    SMS API — the actual OTP digits live at 2Factor against `session_id`,
+    we never generate or store them ourselves. Signup itself is never
+    blocked on this — the account exists and is usable regardless of
+    whether/when the shopper verifies."""
+    user          = models.OneToOneField(User, on_delete=models.CASCADE, related_name='phone_verification')
+    session_id    = models.CharField(max_length=100)
+    phone         = models.CharField(max_length=20)
+    attempts      = models.PositiveSmallIntegerField(default=0)
+    created_at    = models.DateTimeField(auto_now_add=True)
+    last_sent_at  = models.DateTimeField(auto_now_add=True)
+    expires_at    = models.DateTimeField()
+
+    class Meta:
+        verbose_name = 'Pending Phone Verification'
+        verbose_name_plural = 'Pending Phone Verifications'
+
+    def __str__(self):
+        return f"{self.phone} (expires {self.expires_at:%d %b %H:%M})"
 
     @property
     def is_expired(self):
