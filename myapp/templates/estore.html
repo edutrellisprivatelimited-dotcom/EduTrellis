@@ -1437,7 +1437,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     </div>
     <button type="button" class="submit-btn" id="doVerifyEmail">Verify email</button>
     <p class="auth-alt">Didn't get it? <button type="button" id="resendVerifyEmail">Resend code</button></p>
-    <p class="auth-alt" id="skipVerifyEmailRow" style="display:none">or <button type="button" id="skipVerifyEmail">skip for now, verify later from your profile</button></p>
   </div>
 </div>
 
@@ -2212,7 +2211,6 @@ function startResendCooldown(btn, seconds){
 function openVerifyEmail(){
   if (!state.user || state.user.email_verified) return;
   $('#veCode').value = '';
-  $('#skipVerifyEmailRow').style.display = 'none';
   $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
   const btn = $('#resendVerifyEmail');
   postJSON('/store/api/profile/email/verify/send/', {})
@@ -2228,7 +2226,6 @@ function openVerifyEmail(){
 function openVerifyEmailPostSignup(){
   if (!state.user || state.user.email_verified) return;
   $('#veCode').value = '';
-  $('#skipVerifyEmailRow').style.display = 'block';
   $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
   startResendCooldown($('#resendVerifyEmail'), 45);
   setTimeout(() => $('#veCode').focus(), 150);
@@ -2610,7 +2607,6 @@ $('#closeLightbox').addEventListener('click', closeLightbox);
 $('#lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
 $('#pfVerifyBtn').addEventListener('click', openVerifyEmail);
 $('#closeVerifyEmail').addEventListener('click', closeVerifyEmail);
-$('#skipVerifyEmail').addEventListener('click', () => { closeVerifyEmail(); toast('No problem — verify anytime from your profile', 'fa-circle-info'); });
 $('#veCode').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
 $('#resendVerifyEmail').addEventListener('click', () => {
   if ($('#resendVerifyEmail').disabled) return;
