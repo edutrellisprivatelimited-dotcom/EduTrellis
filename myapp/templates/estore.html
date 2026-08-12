@@ -1566,9 +1566,9 @@ const PRODUCTS = JSON.parse(document.getElementById('productsBoot').textContent 
 
 /* ---------- 2. STORE CONFIG + STATE ---------- */
 const BOOT = JSON.parse(document.getElementById('storeBoot').textContent || '{}');
-const FREE_SHIP_OVER = (BOOT.shipping && BOOT.shipping.free_over) || 299;
+const FREE_SHIP_OVER = (BOOT.shipping && BOOT.shipping.free_over != null) ? BOOT.shipping.free_over : 299;
 const SHIP_FEE       = (BOOT.shipping && BOOT.shipping.fee != null) ? BOOT.shipping.fee : 79;
-const HANDLING_FEE   = (BOOT.shipping && BOOT.shipping.handling_fee) || 23;
+const HANDLING_FEE   = (BOOT.shipping && BOOT.shipping.handling_fee != null) ? BOOT.shipping.handling_fee : 23;
 
 /* ---------- 2a. PWA INSTALL ---------- */
 (function pwaInstall(){
@@ -2074,7 +2074,7 @@ function subtotal(){ return cartLines().reduce((s, l) => s + l.p.price * l.q, 0)
 function walletApplies(){ return state.wallet > 0 && state.useWallet && subtotal() > 0; }
 function cartTotals(){
   const sub = subtotal();
-  const ship = sub === 0 ? 0 : (sub >= FREE_SHIP_OVER ? 0 : SHIP_FEE);
+  const ship = sub === 0 ? 0 : ((FREE_SHIP_OVER > 0 && sub >= FREE_SHIP_OVER) ? 0 : SHIP_FEE);
   const handling = sub === 0 ? 0 : HANDLING_FEE;
   const disc = walletApplies() ? Math.min(state.wallet, sub) : 0;
   const total = Math.max(0, sub + ship + handling - disc);
