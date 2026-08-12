@@ -443,6 +443,13 @@ def _new_email_verification(user, now):
 
 
 def _send_email_verification_otp(user, pending):
+    if settings.DEBUG:
+        # Local/dev fallback that never depends on SMTP actually working —
+        # the code is always readable straight from the runserver console,
+        # regardless of whether the email itself gets through.
+        print(f"\n{'='*60}\nOTP for {user.email}: {pending.otp}\n{'='*60}\n")
+        logger.warning("DEBUG email verification OTP for %s: %s", user.email, pending.otp)
+
     send_store_email(
         'Your EduTrellis Store verification code',
         f"Hi {user.first_name or user.username},\n\n"
