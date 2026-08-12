@@ -500,7 +500,14 @@ def store_signup(request):
     try:
         pending = _new_email_verification(auth_user or user, timezone.now())
         _send_email_verification_otp(auth_user or user, pending)
+        print(f"[signup email] OTP email SENT via SMTP to {email}")
     except Exception as e:
+        # Printed (not just logged) so the real SMTP failure reason is always
+        # visible straight in the runserver terminal, even if logging isn't
+        # configured to show it — this is what actually failed, not a guess.
+        import traceback
+        print(f"[signup email] OTP email FAILED to send via SMTP to {email}: {e!r}")
+        traceback.print_exc()
         logger.warning("Signup verification email failed for %s: %s", email, e)
 
     cart = _get_or_create_cart(request)
