@@ -23,8 +23,11 @@ main{flex:1;max-width:760px;margin:0 auto;padding:4rem 1.25rem;display:flex;flex
 .code{font-family:'Sora',sans-serif;font-size:clamp(4rem,12vw,7rem);font-weight:900;color:var(--red);letter-spacing:-.03em;line-height:1}
 h1{font-family:'Sora',sans-serif;font-size:clamp(1.3rem,3.5vw,1.7rem);font-weight:800;color:var(--head);letter-spacing:-.02em;margin:.5rem 0 .75rem}
 p{font-size:.96rem;color:var(--text);max-width:32rem;margin-bottom:2rem}
+.btn-row{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center}
 .btn-home{display:inline-flex;align-items:center;gap:.5rem;background:var(--red);color:#fff;font-weight:700;font-size:.9rem;padding:.75rem 1.5rem;border-radius:.5rem;transition:background .15s}
 .btn-home:hover{background:var(--red-dark);text-decoration:none}
+.btn-ghost{display:inline-flex;align-items:center;gap:.5rem;background:#fff;color:var(--head);font-weight:700;font-size:.9rem;padding:.75rem 1.5rem;border-radius:.5rem;border:1.5px solid var(--line);transition:border-color .15s,color .15s}
+.btn-ghost:hover{border-color:var(--red);color:var(--red);text-decoration:none}
 footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
 </style>
 </head>
@@ -38,7 +41,10 @@ footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
   <div class="code">404</div>
   <h1>Page Not Found</h1>
   <p>The page you're looking for doesn't exist or may have been moved. Let's get you back on track.</p>
-  <a href="/" class="btn-home"><i class="fas fa-home"></i>Back to Homepage</a>
+  <div class="btn-row">
+    <a href="/" class="btn-home"><i class="fas fa-home"></i>EduTrellis Homepage</a>
+    <a href="/store/" class="btn-ghost"><i class="fas fa-store"></i>EduTrellis Store</a>
+  </div>
 </main>
 <footer>&copy; 2026 EduTrellis Private Limited. All rights reserved.</footer>
 </body>

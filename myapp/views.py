@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import resolve, Resolver404
 from django.http import JsonResponse
 from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
@@ -936,6 +937,21 @@ def policy_page(request, key):
 
 
 def custom_404(request, exception=None):
+    # edutrellis/urls.py adds a catch-all pattern (matching every path, with
+    # or without a trailing slash) so this view renders even with DEBUG=True.
+    # That catch-all is itself a URL match, though, so it silently defeats
+    # Django's normal APPEND_SLASH redirect (which only fires when the
+    # un-slashed path doesn't resolve to anything). Reimplement that check
+    # here against myapp.urls directly (which has no catch-all) so e.g.
+    # /store and /store/ both work instead of the former 404ing.
+    path = request.path
+    if not path.endswith('/'):
+        try:
+            resolve(path + '/', urlconf='myapp.urls')
+            query = f'?{request.META["QUERY_STRING"]}' if request.META.get('QUERY_STRING') else ''
+            return redirect(path + '/' + query)
+        except Resolver404:
+            pass
     return render(request, '404.html', status=404)
 
 
