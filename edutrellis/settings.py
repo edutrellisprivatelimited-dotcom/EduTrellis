@@ -135,7 +135,6 @@ LEAD_RECIPIENT_EMAIL = EMAIL_HOST_USER
 # or by Railway potentially blocking outbound SMTP on production.
 TWO_FACTOR_API_KEY = '12feb4c9-9636-11f1-9cb1-0200cd936042'
 
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
