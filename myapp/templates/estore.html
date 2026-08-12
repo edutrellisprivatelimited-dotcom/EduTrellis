@@ -1437,6 +1437,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     </div>
     <button type="button" class="submit-btn" id="doVerifyEmail">Verify email</button>
     <p class="auth-alt">Didn't get it? <button type="button" id="resendVerifyEmail">Resend code</button></p>
+    <p class="auth-alt" id="skipVerifyEmailRow" style="display:none">or <button type="button" id="skipVerifyEmail">skip for now, verify later from your profile</button></p>
   </div>
 </div>
 
@@ -2211,6 +2212,7 @@ function startResendCooldown(btn, seconds){
 function openVerifyEmail(){
   if (!state.user || state.user.email_verified) return;
   $('#veCode').value = '';
+  $('#skipVerifyEmailRow').style.display = 'none';
   $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
   const btn = $('#resendVerifyEmail');
   postJSON('/store/api/profile/email/verify/send/', {})
@@ -2219,6 +2221,17 @@ function openVerifyEmail(){
       else toast(body.detail || 'Could not send the verification email', 'fa-circle-exclamation');
     })
     .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
+}
+// Signup already triggers the first OTP send server-side, so this just opens
+// the modal for that already-sent code instead of requesting a second one
+// (which would immediately hit the resend cooldown and show an error).
+function openVerifyEmailPostSignup(){
+  if (!state.user || state.user.email_verified) return;
+  $('#veCode').value = '';
+  $('#skipVerifyEmailRow').style.display = 'block';
+  $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
+  startResendCooldown($('#resendVerifyEmail'), 45);
+  setTimeout(() => $('#veCode').focus(), 150);
 }
 function closeVerifyEmail(){ $('#verifyEmailModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); clearInterval(verifyResendTimer); }
 
@@ -2597,6 +2610,7 @@ $('#closeLightbox').addEventListener('click', closeLightbox);
 $('#lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
 $('#pfVerifyBtn').addEventListener('click', openVerifyEmail);
 $('#closeVerifyEmail').addEventListener('click', closeVerifyEmail);
+$('#skipVerifyEmail').addEventListener('click', () => { closeVerifyEmail(); toast('No problem — verify anytime from your profile', 'fa-circle-info'); });
 $('#veCode').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
 $('#resendVerifyEmail').addEventListener('click', () => {
   if ($('#resendVerifyEmail').disabled) return;
@@ -2817,6 +2831,10 @@ $('#doSignup').addEventListener('click', () => {
       closeAuth();
       toast('Account created — welcome to EduTrellis Store!', 'fa-circle-check');
       renderCart(); renderGrid();
+      // Primary verification touchpoint is right here at signup, since the
+      // OTP was just sent as part of account creation. If they skip or the
+      // code doesn't arrive, they can still verify anytime from Edit Profile.
+      if (!body.user.email_verified) openVerifyEmailPostSignup();
     })
     .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
 });
