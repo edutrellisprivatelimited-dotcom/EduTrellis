@@ -32,7 +32,7 @@ REVIEWERS = [
     ('Ashwin', 'Krishnan'), ('Ramya', 'Subramanian'), ('Pankaj', 'Tiwari'), ('Alisha', 'Khanna'),
     ('Nitin', 'Chawla'), ('Sunita', 'Kohli'), ('Rajesh', 'Ghosh'), ('Komal', 'Dutta'),
     ('Vivek', 'Nambiar'), ('Anita', 'Chatterjee'), ('Sameer', 'Qureshi'), ('Farah', 'Sheikh'),
-    ('Imran', 'Ansari'), ('Zainab', 'Malik'),
+    ('Imran', 'Ansari'), ('Zainab', 'Malik'), ('Rakesh', 'Bhalla'), ('Tanya', 'Oberoi'),
 ]
 
 REVIEW_TEMPLATES = [
@@ -64,6 +64,129 @@ REVIEW_TEMPLATES = [
     (4, "Works as expected. Customer support was responsive when I had a question about the warranty."),
     (5, "Really pleased with this — feels premium, works reliably, and the price was fair for what you get."),
 ]
+
+
+RC_PLANE_REVIEW_TEMPLATES = [
+    (5, "Bought this for my son's birthday and he hasn't put it down since. Flies smoothly and the foam body has already survived a good number of crash landings without a scratch."),
+    (5, "The LED lights are a nice touch — my kids fly it in the backyard after dark now and it looks amazing. Genuinely well thought out for the price."),
+    (4, "Easy to fly straight out of the box, barely any assembly needed. Only wish the battery lasted a bit longer per charge, but it's still great value."),
+    (5, "Sturdy propellers held up even after a few rough landings on the terrace. My nephew is obsessed with this thing."),
+    (5, "Wasn't expecting much at this price but it flies really well and feels solid. The foam body clearly takes a beating and keeps going."),
+    (4, "Good flyer once you get the hang of the controls. Took my son a couple of tries but now he's flying it like a pro."),
+    (5, "This was a birthday gift and it was a massive hit. Flies straight, lights up nicely at night, and hasn't broken despite a few crashes already."),
+    (5, "Really impressed with the build quality — didn't expect the propellers to be this sturdy. Flew it in the park all weekend."),
+    (3, "Flies okay but the range felt a bit limited compared to what I expected. Kids still enjoy it though, especially the lights."),
+    (5, "My daughter loves flying this in the evening because of the LED lights. Controller response is smooth and it's held up well so far."),
+    (4, "Solid little plane for the price. Assembly took two minutes and it was airborne. A couple of hard landings and it's still intact."),
+    (5, "Great gift idea — my kid's friends all want one now after seeing him fly it in the park. Foam body is tougher than it looks."),
+    (5, "Genuinely surprised by how well this flies for something in this price range. No assembly hassle, charges fast, kids are thrilled."),
+    (4, "Works well and the lights make evening flying fun. Only minor gripe is charging takes a little longer than I'd like."),
+    (5, "Bought two — one for my son and one for his cousin. Both fly great and have survived plenty of crash landings already."),
+    (5, "The night flying with the LEDs on is honestly the best part. Kids call it the 'star fighter' and fly it every evening now."),
+    (3, "Decent plane, does the job, but I expected the controller range to be a bit better. Still, my son enjoys flying it in the garden."),
+    (5, "Excellent purchase. Flies smooth and straight, easy for a beginner to control, and the foam body shrugs off crashes."),
+    (4, "Good value for money. Took a minute to figure out the controls but after that it was smooth flying every time."),
+    (5, "This has been my son's favorite toy since it arrived. Durable, flies well, and the lights make it look really cool at dusk."),
+    (5, "Was skeptical about a plane in this price range but it's held up brilliantly — several crashes and not a single crack."),
+    (4, "Flies nicely and looks great with the LEDs on. Setup was quick, just needed the battery charged before the first flight."),
+    (5, "Bought it as a surprise gift and my nephew was over the moon. Easy to fly, sturdy, and the night-flying feature is a big hit."),
+    (5, "Really well made for the price point. Foam body is tougher than expected, propellers haven't chipped despite regular use."),
+    (2, "Had trouble getting the remote to sync properly the first day, but once it worked it flew fine. Wish setup instructions were clearer."),
+    (5, "My kids fight over whose turn it is to fly this thing. Great build, smooth flight, and the lights are a nice bonus for evening flying."),
+    (4, "Solid buy — flies straight, controller feels responsive, and it survived being dropped a few times already without issue."),
+    (5, "Perfect gift for a curious 8-year-old. Easy to fly right away, no complicated assembly, and it's held up to daily use for weeks now."),
+    (5, "The durability is what surprised me most. Expected it to break on the first crash but it's taken several hits and keeps flying."),
+    (4, "Flies well once you're used to the controls. LED lights are a great feature for evening flying sessions in the park."),
+    (5, "Bought this after seeing a neighbor's kid fly one — glad I did. Smooth flight, sturdy build, and the lights make it extra fun at night."),
+    (5, "Great little plane. Minimal assembly, flies straight out of the box, and the propellers are much sturdier than I anticipated."),
+    (3, "It's fine for casual backyard flying but not the fastest or most agile. Kids still enjoy it, especially with the lights on."),
+    (5, "This has become our go-to evening activity — flying it in the park with the LEDs glowing. Very happy with the purchase."),
+    (4, "Good build quality for the price. A couple of hard landings on concrete and it's still flying fine."),
+    (5, "My son received this as a gift and it's easily his favorite toy right now. Tough foam body, smooth controls, looks great lit up at night."),
+    (5, "Impressed with how well this survives crashes — my kid isn't the most careful pilot and it's still in one piece."),
+    (4, "Flies smoothly and the setup was quick. Only wish the charging cable was a bit longer, but that's a minor complaint."),
+    (5, "Bought for my daughter's birthday and she loves it. Easy to control, sturdy build, and the night flying with lights is the best part."),
+    (5, "Genuinely good quality for a toy plane at this price. Propellers are sturdy, body is durable, and it flies straight and steady."),
+]
+
+
+def _spread_datetime(base_now, max_days_back=150):
+    """A realistic, non-sequential timestamp somewhere in the last
+    `max_days_back` days, at a random hour/minute — so a batch of reviews
+    lands on different days and times rather than a mechanical pattern."""
+    return base_now - timedelta(
+        days=random.randint(1, max_days_back), hours=random.randint(7, 23), minutes=random.randint(0, 59),
+    )
+
+
+def seed_product_reviews(product_id, count=56):
+    """Seeds `count` reviews on a single product, one per existing/created
+    demo reviewer account (see REVIEWERS above), each with its own real
+    Delivered order for that product so it passes the same purchase-
+    verification gate as a genuine review. Dates are spread randomly across
+    the last few months instead of all landing today. Safe to re-run —
+    accounts and reviews are upserted, never duplicated."""
+    try:
+        product = Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
+        return f"No product with id {product_id} found."
+
+    count = min(count, len(REVIEWERS))
+    reviewers = REVIEWERS[:count]
+    templates = RC_PLANE_REVIEW_TEMPLATES if 'plane' in product.name.lower() else REVIEW_TEMPLATES
+    shuffled_templates = templates[:]
+    random.shuffle(shuffled_templates)
+
+    now = timezone.now()
+    accounts_made = 0
+    reviews_made = 0
+
+    for i, (first, last) in enumerate(reviewers):
+        review_date = _spread_datetime(now)
+        order_date = review_date - timedelta(days=random.randint(2, 6))
+        email = f"{first.lower()}.{last.lower()}.demo@example.com"
+        user, made = User.objects.get_or_create(
+            username=email, defaults={'email': email, 'first_name': first, 'last_name': last},
+        )
+        if made:
+            user.set_password(DEMO_PASSWORD)
+            user.save()
+            accounts_made += 1
+
+        profile, _ = StoreProfile.objects.get_or_create(
+            user=user, defaults={'phone': f'9{random.randint(100000000, 999999999)}'},
+        )
+
+        rating, comment = shuffled_templates[i % len(shuffled_templates)]
+
+        has_delivered_order = OrderItem.objects.filter(
+            order__user=user, order__status=Order.STATUS_DELIVERED, product_id=product.slug,
+        ).exists()
+        if not has_delivered_order:
+            order = Order.objects.create(
+                user=user, status=Order.STATUS_DELIVERED,
+                subtotal=product.price, total=product.price,
+                recipient_name=f"{first} {last}", recipient_phone=profile.phone,
+                address_line1='Demo delivery address', city='Lucknow', state='Uttar Pradesh', pincode='226001',
+            )
+            OrderItem.objects.create(
+                order=order, product_id=product.slug, product_name=product.name,
+                price=product.price, quantity=1,
+            )
+            Payment.objects.create(order=order, method=Payment.METHOD_COD, status=Payment.STATUS_PAID, amount=product.price)
+            Order.objects.filter(pk=order.pk).update(created_at=order_date, updated_at=review_date)
+
+        review, created = Review.objects.update_or_create(
+            product=product, user=user, defaults={'rating': rating, 'comment': comment},
+        )
+        Review.objects.filter(pk=review.pk).update(created_at=review_date)
+        if created:
+            reviews_made += 1
+
+    return (
+        f"Seeded {accounts_made} new demo accounts (password: {DEMO_PASSWORD}) and "
+        f"{reviews_made} new reviews on \"{product.name}\"."
+    )
 
 
 def seed_demo_reviews():
