@@ -2215,6 +2215,17 @@ function startResendCooldown(btn, seconds){
 }
 function openVerifyEmail(){
   if (!state.user || state.user.phone_verified) return;
+  if (!state.user.phone){
+    // No phone on file (only possible for accounts created outside the
+    // signup form, which always requires one) — sending an OTP would just
+    // 400, leaving them stuck in an empty modal. Send them to add one instead.
+    // Don't reopen (and thus reset) the profile form if it's already open —
+    // that would wipe out a phone number the user just typed but hasn't saved yet.
+    toast('Add a phone number to your profile first', 'fa-circle-exclamation');
+    if (!$('#profileModal').classList.contains('open')) openProfile();
+    setTimeout(() => $('#pfPhone').focus(), 150);
+    return;
+  }
   $('#veCode').value = '';
   $('#verifyEmailModal').classList.add('open'); $('#scrim').classList.add('on'); document.body.classList.add('locked');
   const btn = $('#resendVerifyEmail');
@@ -2755,7 +2766,6 @@ $('#checkout').addEventListener('click', () => {
   if (!state.user){ closeDrawer(); openAuth('signup'); toast('Log in to complete your order', 'fa-user'); return; }
   if (!state.user.phone_verified){
     closeDrawer();
-    toast('Verify your phone number before placing an order', 'fa-circle-exclamation');
     openVerifyEmail();
     return;
   }
@@ -2791,7 +2801,6 @@ $('#addressForm').addEventListener('submit', e => {
       if (!ok){
         if (body.status === 'phone_unverified'){
           closeAddress();
-          toast(body.detail || 'Please verify your phone number before placing an order', 'fa-circle-exclamation');
           openVerifyEmail();
           return;
         }
