@@ -22,6 +22,7 @@ urlpatterns = [
     path('store/api/checkout/', views.store_checkout, name='store_checkout'),
     path('store/api/checkout/razorpay/verify/', views.store_razorpay_verify, name='store_razorpay_verify'),
     path('store/api/orders/', views.store_orders_list, name='store_orders_list'),
+    path('store/api/orders/<int:order_id>/retry-payment/', views.store_order_retry_payment, name='store_order_retry_payment'),
     path('store/api/wallet/', views.store_wallet_get, name='store_wallet_get'),
     path('store/api/contact/', views.store_contact, name='store_contact'),
 

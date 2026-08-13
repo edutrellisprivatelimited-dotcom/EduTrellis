@@ -3,6 +3,7 @@ import logging
 import os
 import threading
 from decimal import Decimal, InvalidOperation
+from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -341,6 +342,15 @@ def _parse_json_body(request):
 
 
 def _order_payload(order):
+    # payments is prefetched/ordered newest-first (Payment.Meta.ordering) —
+    # the latest attempt is what decides whether a "Pay now" retry applies.
+    payments = list(order.payments.all())
+    latest_payment = payments[0] if payments else None
+    can_retry_payment = bool(
+        latest_payment and latest_payment.method == Payment.METHOD_RAZORPAY
+        and latest_payment.status in (Payment.STATUS_FAILED, Payment.STATUS_PENDING)
+        and order.status not in (Order.STATUS_CANCELLED, Order.STATUS_DELIVERED)
+    )
     return {
         'id': order.pk,
         'status': order.status,
@@ -351,6 +361,9 @@ def _order_payload(order):
         'handling_fee': float(order.handling_fee),
         'total': float(order.total),
         'created_at': timezone.localtime(order.created_at).strftime('%d %b %Y, %I:%M %p'),
+        'payment_status': latest_payment.status if latest_payment else None,
+        'payment_status_display': latest_payment.get_status_display() if latest_payment else None,
+        'can_retry_payment': can_retry_payment,
         'address': {
             'recipient_name': order.recipient_name,
             'recipient_phone': order.recipient_phone,
@@ -765,6 +778,37 @@ def _razorpay_client():
     return razorpay.Client(auth=(settings_obj.razorpay_key_id, settings_obj.razorpay_key_secret)), settings_obj
 
 
+def _create_razorpay_payment_payload(order, amount, razorpay_client, payment_settings, user, profile):
+    """Creates a fresh Razorpay order + Payment row for `order` (used both
+    at checkout and when retrying a failed/abandoned payment from My
+    Orders) and returns what the frontend's Razorpay widget needs. Raises
+    on failure — callers decide how to handle that."""
+    rp_order = razorpay_client.order.create({
+        'amount': int(amount * 100),
+        'currency': 'INR',
+        'receipt': f'order_{order.pk}_{int(timezone.now().timestamp())}',
+        'payment_capture': 1,
+    })
+    payment = Payment.objects.create(
+        order=order, method=Payment.METHOD_RAZORPAY, status=Payment.STATUS_PENDING,
+        amount=amount, razorpay_order_id=rp_order['id'],
+    )
+    return {
+        'key_id': payment_settings.razorpay_key_id,
+        'razorpay_order_id': rp_order['id'],
+        'amount': int(amount * 100),
+        'currency': 'INR',
+        'payment_pk': payment.pk,
+        'name': 'EduTrellis Store',
+        'description': f'Order #{order.pk}',
+        'prefill': {
+            'name': user.get_full_name() or user.username,
+            'email': user.email,
+            'contact': profile.phone,
+        },
+    }
+
+
 def store_checkout(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
@@ -844,30 +888,9 @@ def store_checkout(request):
     payment_fallback = False
     if payment_method == Payment.METHOD_RAZORPAY and total > 0:
         try:
-            rp_order = razorpay_client.order.create({
-                'amount': int(total * 100),
-                'currency': 'INR',
-                'receipt': f'order_{order.pk}',
-                'payment_capture': 1,
-            })
-            payment = Payment.objects.create(
-                order=order, method=Payment.METHOD_RAZORPAY, status=Payment.STATUS_PENDING,
-                amount=total, razorpay_order_id=rp_order['id'],
+            razorpay_payload = _create_razorpay_payment_payload(
+                order, total, razorpay_client, payment_settings, request.user, profile,
             )
-            razorpay_payload = {
-                'key_id': payment_settings.razorpay_key_id,
-                'razorpay_order_id': rp_order['id'],
-                'amount': int(total * 100),
-                'currency': 'INR',
-                'payment_pk': payment.pk,
-                'name': 'EduTrellis Store',
-                'description': f'Order #{order.pk}',
-                'prefill': {
-                    'name': request.user.get_full_name() or request.user.username,
-                    'email': request.user.email,
-                    'contact': profile.phone,
-                },
-            }
         except Exception as e:
             logger.exception("Razorpay order creation failed for Order #%s: %s", order.pk, e)
             Payment.objects.create(order=order, method=Payment.METHOD_COD, status=Payment.STATUS_COD_PENDING, amount=total)
@@ -933,10 +956,48 @@ def store_razorpay_verify(request):
     return JsonResponse({'status': 'ok'})
 
 
+def store_order_retry_payment(request, order_id):
+    """Lets a shopper pay again for an order whose Razorpay attempt failed
+    or was abandoned (closed the popup) — the order and cart items are
+    already committed at checkout time, so this just opens a fresh Razorpay
+    order for the same total instead of requiring a whole new checkout."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
+
+    order = Order.objects.filter(pk=order_id, user=request.user).prefetch_related('payments').first()
+    if not order:
+        return JsonResponse({'status': 'error', 'detail': 'Order not found.'}, status=404)
+    if order.status in (Order.STATUS_CANCELLED, Order.STATUS_DELIVERED):
+        return JsonResponse({'status': 'error', 'detail': 'This order can no longer be paid online.'}, status=400)
+
+    latest_payment = order.payments.all()[0] if order.payments.all() else None
+    if not latest_payment or latest_payment.method != Payment.METHOD_RAZORPAY or latest_payment.status not in (
+        Payment.STATUS_FAILED, Payment.STATUS_PENDING,
+    ):
+        return JsonResponse({'status': 'error', 'detail': 'This order does not have a pending online payment.'}, status=400)
+
+    razorpay_client, payment_settings = _razorpay_client()
+    if not razorpay_client:
+        return JsonResponse({'status': 'error', 'detail': 'Payment gateway is not configured.'}, status=400)
+
+    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+    try:
+        razorpay_payload = _create_razorpay_payment_payload(
+            order, order.total, razorpay_client, payment_settings, request.user, profile,
+        )
+    except Exception as e:
+        logger.exception("Razorpay retry-payment order creation failed for Order #%s: %s", order.pk, e)
+        return JsonResponse({'status': 'error', 'detail': 'Could not start payment right now — please try again shortly.'}, status=502)
+
+    return JsonResponse({'status': 'ok', 'razorpay': razorpay_payload})
+
+
 def store_orders_list(request):
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'detail': 'You need to be logged in.'}, status=401)
-    orders = Order.objects.filter(user=request.user).prefetch_related('items').order_by('-created_at')
+    orders = Order.objects.filter(user=request.user).prefetch_related('items', 'payments').order_by('-created_at')
     return JsonResponse({'status': 'ok', 'orders': [_order_payload(o) for o in orders]})
 
 
@@ -1110,10 +1171,21 @@ def _dashboard_guard(request):
     return request.user.is_authenticated and request.user.is_staff
 
 
-def dashboard_home(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
+def dashboard_staff_required(view_func):
+    """Every dashboard_* view needs this same staff-only check — used to be
+    copy-pasted as the first two lines of each one (easy to forget on a new
+    view, silently exposing a staff-only page). Applying this decorator
+    instead makes the guard structurally impossible to skip."""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not _dashboard_guard(request):
+            return redirect('estore')
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
+
+@dashboard_staff_required
+def dashboard_home(request):
     context = {
         'active': 'home',
         'total_users': User.objects.count(),
@@ -1129,10 +1201,8 @@ def dashboard_home(request):
     return render(request, 'dashboard/home.html', context)
 
 
+@dashboard_staff_required
 def dashboard_signups(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     q = request.GET.get('q', '').strip()
     users = User.objects.select_related('store_profile').order_by('-date_joined')
     if q:
@@ -1144,10 +1214,8 @@ def dashboard_signups(request):
     return render(request, 'dashboard/signups.html', {'active': 'signups', 'users': users, 'q': q})
 
 
+@dashboard_staff_required
 def dashboard_signup_edit(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     edited_user = get_object_or_404(User, pk=pk)
     profile, _ = StoreProfile.objects.get_or_create(user=edited_user)
     form = SignupEditForm(
@@ -1163,9 +1231,8 @@ def dashboard_signup_edit(request, pk):
     return render(request, 'dashboard/signup_form.html', {'active': 'signups', 'form': form, 'edited_user': edited_user})
 
 
+@dashboard_staff_required
 def dashboard_signup_delete(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         target = get_object_or_404(User, pk=pk)
         if target.pk == request.user.pk:
@@ -1182,10 +1249,8 @@ def dashboard_signup_delete(request, pk):
     return redirect('dashboard_signups')
 
 
+@dashboard_staff_required
 def dashboard_contacts(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     q = request.GET.get('q', '').strip()
     leads = ContactLead.objects.order_by('-created_at')
     if q:
@@ -1204,18 +1269,15 @@ def dashboard_contacts(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_contact_delete(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         get_object_or_404(ContactLead, pk=pk).delete()
     return redirect('dashboard_contacts')
 
 
+@dashboard_staff_required
 def dashboard_categories(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     q = request.GET.get('q', '').strip()
     categories = Category.objects.all()
     if q:
@@ -1223,10 +1285,8 @@ def dashboard_categories(request):
     return render(request, 'dashboard/categories.html', {'active': 'categories', 'categories': categories, 'q': q})
 
 
+@dashboard_staff_required
 def dashboard_category_add(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     form = CategoryForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -1234,10 +1294,8 @@ def dashboard_category_add(request):
     return render(request, 'dashboard/category_form.html', {'active': 'categories', 'form': form, 'category': None})
 
 
+@dashboard_staff_required
 def dashboard_category_edit(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     category = get_object_or_404(Category, pk=pk)
     form = CategoryForm(request.POST or None, request.FILES or None, instance=category)
     if request.method == 'POST' and form.is_valid():
@@ -1246,18 +1304,15 @@ def dashboard_category_edit(request, pk):
     return render(request, 'dashboard/category_form.html', {'active': 'categories', 'form': form, 'category': category})
 
 
+@dashboard_staff_required
 def dashboard_category_delete(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         get_object_or_404(Category, pk=pk).delete()
     return redirect('dashboard_categories')
 
 
+@dashboard_staff_required
 def dashboard_orders(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     q = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
     orders = Order.objects.select_related('user').prefetch_related('items').order_by('-created_at')
@@ -1274,10 +1329,8 @@ def dashboard_orders(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_delivery(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     q = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
     orders = Order.objects.select_related('user').filter(recipient_name__gt='').order_by('-created_at')
@@ -1294,9 +1347,8 @@ def dashboard_delivery(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_order_status_update(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     order = get_object_or_404(Order, pk=pk)
     if request.method == 'POST':
         form = OrderStatusForm(request.POST, instance=order)
@@ -1306,10 +1358,8 @@ def dashboard_order_status_update(request, pk):
     return redirect('dashboard_orders')
 
 
+@dashboard_staff_required
 def dashboard_products(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     q = request.GET.get('q', '').strip()
     products = Product.objects.select_related('category').all()
     if q:
@@ -1319,10 +1369,8 @@ def dashboard_products(request):
     return render(request, 'dashboard/products.html', {'active': 'products', 'products': products, 'q': q})
 
 
+@dashboard_staff_required
 def dashboard_product_add(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     form = ProductForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         product = form.save()
@@ -1335,10 +1383,8 @@ def dashboard_product_add(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_product_edit(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     product = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     image_formset = ProductImageFormSet(request.POST or None, request.FILES or None, instance=product, prefix='images')
@@ -1354,26 +1400,22 @@ def dashboard_product_edit(request, pk):
     })
 
 
+@dashboard_staff_required
 def dashboard_product_delete(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         get_object_or_404(Product, pk=pk).delete()
     return redirect('dashboard_products')
 
 
+@dashboard_staff_required
 def dashboard_seed_reviews(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         messages.success(request, seed_demo_reviews())
     return redirect('dashboard_products')
 
 
+@dashboard_staff_required
 def dashboard_about(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     about = AboutUsContent.get_solo()
     form = AboutUsContentForm(request.POST or None, request.FILES or None, instance=about)
     saved = False
@@ -1384,18 +1426,14 @@ def dashboard_about(request):
     return render(request, 'dashboard/about_form.html', {'active': 'about', 'form': form, 'about': about, 'saved': saved})
 
 
+@dashboard_staff_required
 def dashboard_policies(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     policies = PolicyPage.objects.all()
     return render(request, 'dashboard/policies.html', {'active': 'policies', 'policies': policies})
 
 
+@dashboard_staff_required
 def dashboard_policy_edit(request, pk):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     policy = get_object_or_404(PolicyPage, pk=pk)
     form = PolicyPageForm(request.POST or None, instance=policy)
     if request.method == 'POST' and form.is_valid():
@@ -1404,10 +1442,8 @@ def dashboard_policy_edit(request, pk):
     return render(request, 'dashboard/policy_form.html', {'active': 'policies', 'form': form, 'policy': policy})
 
 
+@dashboard_staff_required
 def dashboard_payment_settings(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     settings_obj = PaymentSettings.get_solo()
     form = PaymentSettingsForm(request.POST or None, instance=settings_obj)
     saved = False
@@ -1421,9 +1457,8 @@ def dashboard_payment_settings(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_email_settings(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     return render(request, 'dashboard/email_settings.html', {
         'active': 'email_settings',
         'smtp_host': settings.EMAIL_HOST,
@@ -1432,9 +1467,8 @@ def dashboard_email_settings(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_email_settings_test(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         try:
             send_store_email(
@@ -1449,10 +1483,8 @@ def dashboard_email_settings_test(request):
     return redirect('dashboard_email_settings')
 
 
+@dashboard_staff_required
 def dashboard_pwa_settings(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     settings_obj = PWASettings.get_solo()
     form = PWASettingsForm(request.POST or None, request.FILES or None, instance=settings_obj)
     saved = False
@@ -1465,10 +1497,8 @@ def dashboard_pwa_settings(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_fee_settings(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     settings_obj = FeeSettings.get_solo()
     form = FeeSettingsForm(request.POST or None, instance=settings_obj)
     saved = False
@@ -1481,10 +1511,8 @@ def dashboard_fee_settings(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_payments(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     q = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
     payments = Payment.objects.select_related('order', 'order__user').order_by('-created_at')
@@ -1502,10 +1530,8 @@ def dashboard_payments(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_backup(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     settings_obj = DropboxSettings.get_solo()
     backups = []
     list_error = None
@@ -1522,10 +1548,8 @@ def dashboard_backup(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_backup_settings(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
-
     settings_obj = DropboxSettings.get_solo()
     form = DropboxSettingsForm(request.POST or None, instance=settings_obj)
     saved = False
@@ -1539,9 +1563,8 @@ def dashboard_backup_settings(request):
     })
 
 
+@dashboard_staff_required
 def dashboard_backup_run(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         settings_obj = DropboxSettings.get_solo()
         try:
@@ -1552,9 +1575,8 @@ def dashboard_backup_run(request):
     return redirect('dashboard_backup')
 
 
+@dashboard_staff_required
 def dashboard_backup_restore(request):
-    if not _dashboard_guard(request):
-        return redirect('estore')
     if request.method == 'POST':
         settings_obj = DropboxSettings.get_solo()
         filename = request.POST.get('filename', '').strip()

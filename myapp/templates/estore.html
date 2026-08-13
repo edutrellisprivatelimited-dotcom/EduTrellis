@@ -647,6 +647,8 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .ty-btn-primary{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;padding:.85rem 1.6rem;border-radius:50px;box-shadow:0 10px 26px rgba(232,0,30,.3);transition:transform .25s;display:inline-flex;align-items:center;gap:.5rem}
 .ty-btn-primary:hover{transform:translateY(-2px)}
 .ty-btn-ghost{border:1.5px solid var(--line);background:#fff;color:var(--head);cursor:pointer;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;padding:.85rem 1.6rem;border-radius:50px;transition:border-color .2s,color .2s;display:inline-flex;align-items:center;gap:.5rem}
+.ty-support-link{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.1rem;font-size:.82rem;font-weight:700;color:#25d366}
+.ty-support-link:hover{text-decoration:underline}
 .ty-btn-ghost:hover{border-color:var(--red);color:var(--red)}
 
 /* my wallet popup */
@@ -666,6 +668,19 @@ body.pdp .hero,body.pdp #categories,body.pdp #shop,body.pdp #services,body.pdp #
 .oc-addr i{color:var(--red);margin-right:.3rem}
 .oc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)}
 .oc-foot b{font-family:'Sora',sans-serif;font-size:.92rem;color:var(--head)}
+.oc-timeline{position:relative;margin:.7rem 0 .2rem;padding-top:2px}
+.oc-tl-track{position:absolute;top:11px;left:11px;right:11px;height:2px;background:var(--line);z-index:0}
+.oc-tl-fill{height:100%;background:#1a9e5c;transition:width .3s}
+.oc-tl-steps{position:relative;display:flex;justify-content:space-between;z-index:1}
+.oc-tl-step{display:flex;flex-direction:column;align-items:center;gap:.3rem;width:64px}
+.oc-tl-dot{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--text);flex-shrink:0}
+.oc-tl-step.done .oc-tl-dot{background:#1a9e5c;border-color:#1a9e5c;color:#fff}
+.oc-tl-step.current .oc-tl-dot{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 0 4px rgba(232,0,30,.15)}
+.oc-tl-label{font-size:.6rem;font-weight:600;color:var(--text);text-align:center;line-height:1.2}
+.oc-tl-step.done .oc-tl-label,.oc-tl-step.current .oc-tl-label{color:var(--head)}
+.oc-timeline-cancelled{display:flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;color:var(--red);margin:.7rem 0}
+.btn-pay-retry{width:100%;margin-top:.6rem;border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700;padding:.65rem;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.btn-pay-retry:disabled{opacity:.6;cursor:default}
 .ord-badge{font-size:.68rem;font-weight:800;padding:.2rem .6rem;border-radius:50px;white-space:nowrap}
 .ord-badge.placed{background:#eef2ff;color:#3b5bdb}
 .ord-badge.processing{background:#fff7e6;color:#b45309}
@@ -1545,6 +1560,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <button type="button" class="ty-btn-ghost" id="tyViewOrders"><i class="fas fa-box"></i> View my orders</button>
       <button type="button" class="ty-btn-primary" id="tyContinue"><i class="fas fa-bag-shopping"></i> Continue shopping</button>
     </div>
+    <a href="#" class="ty-support-link" id="tySupportLink" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Need help? Chat with us on WhatsApp</a>
   </div>
 </div>
 
@@ -2361,6 +2377,30 @@ function openWallet(){
 function closeWallet(){ $('#walletModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
 
 function orderBadge(status, label){ return '<span class="ord-badge ' + status + '">' + label + '</span>'; }
+const ORDER_TIMELINE_STEPS = [
+  { key: 'placed', label: 'Placed', icon: 'fa-receipt' },
+  { key: 'processing', label: 'Processing', icon: 'fa-box-open' },
+  { key: 'shipped', label: 'Shipped', icon: 'fa-truck-fast' },
+  { key: 'delivered', label: 'Delivered', icon: 'fa-house-circle-check' },
+];
+function orderTimelineHtml(status){
+  if (status === 'cancelled'){
+    return '<div class="oc-timeline-cancelled"><i class="fas fa-circle-xmark"></i> Order cancelled</div>';
+  }
+  const idx = ORDER_TIMELINE_STEPS.findIndex(s => s.key === status);
+  const safeIdx = idx < 0 ? 0 : idx;
+  const fillPct = (safeIdx / (ORDER_TIMELINE_STEPS.length - 1)) * 100;
+  const steps = ORDER_TIMELINE_STEPS.map((s, i) => {
+    const cls = i < safeIdx ? 'done' : (i === safeIdx ? 'current' : '');
+    const icon = i <= safeIdx ? 'fa-check' : s.icon;
+    return '<div class="oc-tl-step ' + cls + '"><span class="oc-tl-dot"><i class="fas ' + icon + '"></i></span><span class="oc-tl-label">' + s.label + '</span></div>';
+  }).join('');
+  return '' +
+    '<div class="oc-timeline">' +
+      '<div class="oc-tl-track"><div class="oc-tl-fill" style="width:' + fillPct + '%"></div></div>' +
+      '<div class="oc-tl-steps">' + steps + '</div>' +
+    '</div>';
+}
 function openOrders(){
   if (!state.user) return;
   $('#ordersList').innerHTML = '<div class="orders-empty"><i class="fas fa-spinner fa-spin"></i>Loading your orders…</div>';
@@ -2373,11 +2413,27 @@ function openOrders(){
     $('#ordersList').innerHTML = body.orders.map(o => '' +
       '<div class="order-card">' +
         '<div class="oc-head"><b>Order #' + o.id + '</b>' + orderBadge(o.status, o.status_display) + '</div>' +
+        orderTimelineHtml(o.status) +
         '<div class="oc-items">' + o.items.map(i => i.name + ' × ' + i.quantity).join(', ') + '</div>' +
         (o.address && o.address.full_address ? '<div class="oc-addr"><i class="fas fa-location-dot"></i> ' + o.address.full_address + '</div>' : '') +
         '<div class="oc-foot"><span>' + o.created_at + '</span><b>' + inr(o.total) + '</b></div>' +
+        (o.can_retry_payment ? '<button type="button" class="btn-pay-retry" data-retry-order="' + o.id + '"><i class="fas fa-credit-card"></i> Pay now — ' + inr(o.total) + '</button>' : '') +
       '</div>').join('');
   });
+}
+function retryOrderPayment(orderId, btn){
+  setBtnBusy(btn, true, 'Starting payment…');
+  postJSON('/store/api/orders/' + orderId + '/retry-payment/', {})
+    .then(({ ok, body }) => {
+      setBtnBusy(btn, false);
+      if (!ok || !body.razorpay){
+        toast(body.detail || 'Could not start payment right now', 'fa-circle-exclamation');
+        return;
+      }
+      closeOrders();
+      openRazorpayCheckout(body.razorpay, orderId);
+    })
+    .catch(() => { setBtnBusy(btn, false); toast('Something went wrong — please try again', 'fa-circle-exclamation'); });
 }
 function closeOrders(){ $('#ordersModal').classList.remove('open'); $('#scrim').classList.remove('on'); document.body.classList.remove('locked'); }
 
@@ -2391,6 +2447,8 @@ function openThankYou(success, orderId, opts){
     : 'We couldn\'t confirm your payment, but your order is saved — you can retry payment or pay on delivery from My Orders.');
   const num = $('#tyOrderNum');
   if (orderId){ num.style.display = 'inline-block'; num.textContent = 'Order #' + orderId; } else { num.style.display = 'none'; }
+  const waMsg = encodeURIComponent('Hi, I need help with my order' + (orderId ? ' #' + orderId : '') + ' on EduTrellis Store.');
+  $('#tySupportLink').href = 'https://wa.me/919695953183?text=' + waMsg;
   document.body.classList.add('locked');
   page.classList.add('open');
 }
@@ -2474,6 +2532,9 @@ document.addEventListener('click', e => {
 
   const detailAdd = e.target.closest('[data-detail-add]');
   if (detailAdd){ addToCartFromDetail(detailAdd.dataset.detailAdd); return; }
+
+  const retryPay = e.target.closest('[data-retry-order]');
+  if (retryPay){ retryOrderPayment(retryPay.dataset.retryOrder, retryPay); return; }
 
   const detailBuy = e.target.closest('[data-detail-buy]');
   if (detailBuy){ addToCartFromDetail(detailBuy.dataset.detailBuy); openDrawer(); return; }
