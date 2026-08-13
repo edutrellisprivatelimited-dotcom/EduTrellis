@@ -1431,12 +1431,13 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <button class="x-btn modal-x" id="closeVerifyEmail" aria-label="Close"><i class="fas fa-xmark"></i></button>
     <div class="modal-top">
       <div class="logo-txt">Verify <span>Phone</span></div>
-      <p>We've sent a 6-digit code to your phone via SMS</p>
+      <p>We've sent a 6-digit code to your phone by SMS — if it doesn't arrive, you'll get an automated call reading it out instead</p>
     </div>
     <div class="fg">
       <label for="veCode">Verification code</label>
       <input type="text" id="veCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
     </div>
+    <p class="auth-alt" style="margin-top:-.5rem"><i class="fas fa-phone-volume"></i> Phone ringing instead of a text? Answer it — the code is read out at the start of the call.</p>
     <button type="button" class="submit-btn" id="doVerifyEmail">Verify phone</button>
     <p class="auth-alt">Didn't get it? <button type="button" id="resendVerifyEmail">Resend code</button></p>
   </div>
@@ -2217,7 +2218,7 @@ function openVerifyEmail(){
   const btn = $('#resendVerifyEmail');
   postJSON('/store/api/profile/phone/verify/send/', {})
     .then(({ ok, body }) => {
-      if (ok){ toast('Verification code sent to your phone', 'fa-envelope'); startResendCooldown(btn, 45); setTimeout(() => $('#veCode').focus(), 150); }
+      if (ok){ toast('Code sent — by SMS, or a call if SMS doesn\'t reach you', 'fa-phone-volume'); startResendCooldown(btn, 45); setTimeout(() => $('#veCode').focus(), 150); }
       else toast(body.detail || 'Could not send the verification code', 'fa-circle-exclamation');
     })
     .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
@@ -2614,7 +2615,7 @@ $('#resendVerifyEmail').addEventListener('click', () => {
   if ($('#resendVerifyEmail').disabled) return;
   postJSON('/store/api/profile/phone/verify/send/', {})
     .then(({ ok, body }) => {
-      if (ok){ toast('New code sent', 'fa-envelope'); startResendCooldown($('#resendVerifyEmail'), 45); }
+      if (ok){ toast('New code sent — by SMS, or a call if SMS doesn\'t reach you', 'fa-phone-volume'); startResendCooldown($('#resendVerifyEmail'), 45); }
       else toast(body.detail || 'Could not resend the code', 'fa-circle-exclamation');
     })
     .catch(() => toast('Something went wrong — please try again', 'fa-circle-exclamation'));
