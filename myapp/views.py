@@ -206,7 +206,7 @@ def _review_payload(r, viewer=None):
         'name': r.user.first_name or 'Verified Buyer',
         'rating': r.rating,
         'comment': r.comment,
-        'created_at': r.created_at.strftime('%d %b %Y'),
+        'created_at': timezone.localtime(r.created_at).strftime('%d %b %Y'),
         'mine': bool(viewer and viewer.is_authenticated and r.user_id == viewer.pk),
     }
 
@@ -350,7 +350,7 @@ def _order_payload(order):
         'shipping_fee': float(order.shipping_fee),
         'handling_fee': float(order.handling_fee),
         'total': float(order.total),
-        'created_at': order.created_at.strftime('%d %b %Y, %I:%M %p'),
+        'created_at': timezone.localtime(order.created_at).strftime('%d %b %Y, %I:%M %p'),
         'address': {
             'recipient_name': order.recipient_name,
             'recipient_phone': order.recipient_phone,

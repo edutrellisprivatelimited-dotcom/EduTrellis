@@ -32,7 +32,7 @@ class ContactLead(models.Model):
         verbose_name_plural = 'Contact Leads'
 
     def __str__(self):
-        return f"{self.name} — {self.phone} ({self.created_at:%d %b %Y %H:%M})"
+        return f"{self.name} — {self.phone} ({timezone.localtime(self.created_at):%d %b %Y %H:%M})"
 
 
 class StoreProfile(models.Model):
@@ -595,7 +595,7 @@ class EmailVerification(models.Model):
         verbose_name_plural = 'Pending Email Verifications'
 
     def __str__(self):
-        return f"{self.user.email} (expires {self.expires_at:%d %b %H:%M})"
+        return f"{self.user.email} (expires {timezone.localtime(self.expires_at):%d %b %H:%M})"
 
     @property
     def is_expired(self):
@@ -621,7 +621,7 @@ class PhoneVerification(models.Model):
         verbose_name_plural = 'Pending Phone Verifications'
 
     def __str__(self):
-        return f"{self.phone} (expires {self.expires_at:%d %b %H:%M})"
+        return f"{self.phone} (expires {timezone.localtime(self.expires_at):%d %b %H:%M})"
 
     @property
     def is_expired(self):
