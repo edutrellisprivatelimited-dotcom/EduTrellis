@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import F
 from django.utils import timezone
 
 
@@ -426,17 +427,20 @@ class Order(models.Model):
     def maybe_credit_wallet(self):
         """Credits the ₹100 welcome offer once this order is Delivered, if
         it's the customer's first order and contains the Metal Bluetooth
-        Speaker. Idempotent via wallet_credit_applied."""
+        Speaker. Idempotent via wallet_credit_applied — guarded with an
+        atomic compare-and-swap UPDATE so two concurrent calls (e.g. a
+        double-click on "Mark Delivered") can't both pass the check and
+        double-credit the wallet."""
         if self.wallet_credit_applied or self.status != self.STATUS_DELIVERED:
             return
+        claimed = Order.objects.filter(pk=self.pk, wallet_credit_applied=False).update(wallet_credit_applied=True)
+        if not claimed:
+            return
+        self.wallet_credit_applied = True
         is_first_order = not Order.objects.filter(user=self.user).exclude(pk=self.pk).exists()
         has_offer_product = self.items.filter(product_id=WALLET_OFFER_PRODUCT_ID).exists()
         if is_first_order and has_offer_product:
-            profile, _ = StoreProfile.objects.get_or_create(user=self.user)
-            profile.wallet_balance += WALLET_OFFER_CREDIT
-            profile.save(update_fields=['wallet_balance'])
-        self.wallet_credit_applied = True
-        self.save(update_fields=['wallet_credit_applied'])
+            StoreProfile.objects.filter(user=self.user).update(wallet_balance=F('wallet_balance') + WALLET_OFFER_CREDIT)
 
 
 class OrderItem(models.Model):

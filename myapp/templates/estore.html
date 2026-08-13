@@ -2818,6 +2818,11 @@ $('#addressForm').addEventListener('submit', e => {
       if (body.payment_method === 'razorpay' && body.razorpay){
         toast('Order #' + body.order.id + ' placed — complete payment to confirm', 'fa-circle-check');
         openRazorpayCheckout(body.razorpay, body.order.id);
+      } else if (body.payment_fallback){
+        // Online payment was picked but the gateway failed server-side, so
+        // the order was placed as COD instead — make that switch explicit
+        // instead of showing a generic "paid" thank-you the customer didn't ask for.
+        openThankYou(true, body.order.id, { message: "Online payment wasn't available right now, so we've placed this as Cash on Delivery instead — pay when it arrives." });
       } else {
         openThankYou(true, body.order.id);
       }

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 
 from myapp.models import (
-    Category, Order, Product, ProductImage, ProductColor,
+    Category, Order, Product, ProductImage, ProductColor, StoreProfile,
     AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings, FeeSettings,
 )
 
@@ -63,6 +63,8 @@ class StoreSignupForm(forms.Form):
         digits = ''.join(ch for ch in phone if ch.isdigit())
         if len(digits) < 10:
             raise forms.ValidationError('Enter a valid phone number.')
+        if StoreProfile.objects.filter(phone=phone).exists():
+            raise forms.ValidationError('An account with this phone number already exists — try logging in.')
         return phone
 
     def clean_email(self):

@@ -7,7 +7,7 @@ from decimal import Decimal, InvalidOperation
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, F
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve, Resolver404
 from django.http import JsonResponse
@@ -690,16 +690,21 @@ def store_cart_add(request):
     product_id = str(payload.get('product_id', '')).strip()
     name = str(payload.get('name', '')).strip()
     try:
-        price = Decimal(str(payload.get('price', '0')))
-    except InvalidOperation:
-        price = Decimal('0')
-    try:
         qty = max(1, int(payload.get('qty', 1)))
     except (TypeError, ValueError):
         qty = 1
 
-    if not product_id or not name or price <= 0:
+    if not product_id or not name:
         return JsonResponse({'status': 'error', 'detail': 'Missing product details.'}, status=400)
+
+    # Price is always taken from the catalogue, never trusted from the
+    # client — the JS also sends a `price` for its optimistic UI update, but
+    # it's ignored here so a tampered request can't check out at a
+    # fabricated price for real inventory.
+    product = Product.objects.filter(slug=product_id, is_active=True).first()
+    if not product:
+        return JsonResponse({'status': 'error', 'detail': 'That product is no longer available.'}, status=404)
+    price = product.price
 
     cart = _get_or_create_cart(request)
     item, created = CartItem.objects.get_or_create(
@@ -820,12 +825,23 @@ def store_checkout(request):
     ])
 
     if wallet_discount > 0:
-        profile.wallet_balance -= wallet_discount
-        profile.save(update_fields=['wallet_balance'])
+        # Guarded atomic UPDATE instead of a Python-level read-modify-write —
+        # a double-submitted checkout can't debit the same balance twice or
+        # drive it negative, since the second UPDATE simply matches 0 rows
+        # once the balance has already dropped below wallet_discount.
+        debited = StoreProfile.objects.filter(
+            pk=profile.pk, wallet_balance__gte=wallet_discount,
+        ).update(wallet_balance=F('wallet_balance') - wallet_discount)
+        if not debited:
+            logger.warning(
+                "Wallet debit skipped for Order #%s — balance changed concurrently for user %s",
+                order.pk, request.user.pk,
+            )
 
     cart.items.all().delete()
 
     razorpay_payload = None
+    payment_fallback = False
     if payment_method == Payment.METHOD_RAZORPAY and total > 0:
         try:
             rp_order = razorpay_client.order.create({
@@ -856,6 +872,7 @@ def store_checkout(request):
             logger.exception("Razorpay order creation failed for Order #%s: %s", order.pk, e)
             Payment.objects.create(order=order, method=Payment.METHOD_COD, status=Payment.STATUS_COD_PENDING, amount=total)
             payment_method = Payment.METHOD_COD
+            payment_fallback = True
             _send_order_confirmation_email_async(order, payment_method, paid=False)
     else:
         pay_status = Payment.STATUS_PAID if total <= 0 else Payment.STATUS_COD_PENDING
@@ -870,6 +887,7 @@ def store_checkout(request):
         'user': _user_payload(request.user),
         'payment_method': payment_method,
         'razorpay': razorpay_payload,
+        'payment_fallback': payment_fallback,
     })
 
 
@@ -885,6 +903,11 @@ def store_razorpay_verify(request):
     ).first()
     if not payment:
         return JsonResponse({'status': 'error', 'detail': 'Payment record not found.'}, status=404)
+    if payment.status == Payment.STATUS_PAID:
+        # Already verified — a double-submit (double-click, or Razorpay's
+        # handler firing twice) would otherwise re-verify and re-send the
+        # order confirmation/admin-notification emails a second time.
+        return JsonResponse({'status': 'ok'})
 
     client, _ = _razorpay_client()
     if not client:
@@ -962,7 +985,9 @@ def custom_404(request, exception=None):
     # here against myapp.urls directly (which has no catch-all) so e.g.
     # /store and /store/ both work instead of the former 404ing.
     path = request.path
-    if not path.endswith('/'):
+    # Only redirect safe methods — a 302 on POST/PUT/etc. gets turned into a
+    # GET by the browser, silently dropping the request body.
+    if request.method in ('GET', 'HEAD') and not path.endswith('/'):
         try:
             resolve(path + '/', urlconf='myapp.urls')
             query = f'?{request.META["QUERY_STRING"]}' if request.META.get('QUERY_STRING') else ''
@@ -1147,6 +1172,10 @@ def dashboard_signup_delete(request, pk):
             messages.error(request, "You can't delete your own account from here.")
         elif target.is_staff or target.is_superuser:
             messages.error(request, "Staff and admin accounts can't be deleted from here — use Django admin if you're sure.")
+        elif Order.objects.filter(user=target).exists():
+            # Deleting the User cascades and wipes their Order/OrderItem/
+            # Payment rows — real financial records, not just a login.
+            messages.error(request, "This customer has order history — deleting the account would erase those orders and payment records. Use Django admin if you're sure.")
         else:
             target.delete()
             messages.success(request, 'Customer account deleted.')
