@@ -424,6 +424,30 @@ class Order(models.Model):
         lines = [self.address_line1, self.address_line2, self.city, self.state, self.pincode]
         return ', '.join(line for line in lines if line)
 
+    @property
+    def latest_payment(self):
+        """The most recent Payment attempt for this order (COD or Razorpay,
+        whatever its status). payments is ordered newest-first
+        (Payment.Meta.ordering), and when the caller has
+        .prefetch_related('payments') this hits that cache instead of a
+        fresh query per order."""
+        return self.payments.first()
+
+    @property
+    def payment_label(self):
+        """'COD — pay on delivery', 'COD — Paid', 'Online — Paid',
+        'Online — Pending', 'Online — Failed', etc. — shown in the
+        dashboard Orders/Delivery pages so staff can see COD vs Online at
+        a glance, and whether it's actually been paid."""
+        payment = self.latest_payment
+        if not payment:
+            return None
+        if payment.method == payment.METHOD_COD:
+            if payment.status == payment.STATUS_COD_PENDING:
+                return payment.get_status_display()
+            return f'COD — {payment.get_status_display()}'
+        return f'Online — {payment.get_status_display()}'
+
     def maybe_credit_wallet(self):
         """Credits the ₹100 welcome offer once this order is Delivered, if
         it's the customer's first order and contains the Metal Bluetooth

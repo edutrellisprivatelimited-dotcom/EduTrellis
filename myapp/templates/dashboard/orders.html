@@ -22,7 +22,7 @@
   </div>
   <div class="table-scroll">
   <table>
-    <thead><tr><th>Order</th><th>Customer</th><th>Deliver to</th><th>Items</th><th>Total</th><th>Wallet</th><th>Status</th><th>Placed</th></tr></thead>
+    <thead><tr><th>Order</th><th>Customer</th><th>Deliver to</th><th>Items</th><th>Total</th><th>Payment</th><th>Wallet</th><th>Status</th><th>Placed</th></tr></thead>
     <tbody>
       {% for order in orders %}
       <tr>
@@ -37,6 +37,11 @@
           {% for item in order.items.all %}{{ item.product_name }} × {{ item.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}
         </td>
         <td>₹{{ order.total|floatformat:0 }}<span class="sub-line">incl. ₹{{ order.handling_fee|floatformat:0 }} handling</span></td>
+        <td>
+          {% with pay=order.latest_payment %}
+          {% if pay %}<span class="badge pay-{{ pay.status }}">{{ order.payment_label }}</span>{% else %}—{% endif %}
+          {% endwith %}
+        </td>
         <td>
           {% if order.wallet_credit_applied %}<span class="wallet-tag"><i class="fas fa-wallet"></i> Credit checked</span>{% else %}—{% endif %}
           {% if order.wallet_discount %}<span class="sub-line">−₹{{ order.wallet_discount|floatformat:0 }} used</span>{% endif %}
@@ -56,7 +61,7 @@
         <td>{{ order.created_at|date:"d M Y, h:i A" }}</td>
       </tr>
       {% empty %}
-      <tr><td colspan="8" class="empty-row">No orders match your search</td></tr>
+      <tr><td colspan="9" class="empty-row">No orders match your search</td></tr>
       {% endfor %}
     </tbody>
   </table>

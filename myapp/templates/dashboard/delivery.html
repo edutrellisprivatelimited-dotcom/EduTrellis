@@ -38,7 +38,7 @@
   </div>
   <div class="table-scroll">
   <table>
-    <thead><tr><th>Order</th><th>Recipient</th><th>Address</th><th>Status</th><th>Distance</th><th>Placed</th></tr></thead>
+    <thead><tr><th>Order</th><th>Recipient</th><th>Address</th><th>Payment</th><th>Status</th><th>Distance</th><th>Placed</th></tr></thead>
     <tbody>
       {% for order in orders %}
       <tr class="deliv-row" data-address="{{ order.full_address }}">
@@ -48,12 +48,17 @@
           {{ order.full_address }}<br>
           <a class="deliv-map-link" href="https://www.google.com/maps/search/?api=1&query={{ order.full_address|urlencode }}" target="_blank" rel="noopener"><i class="fas fa-map-location-dot"></i> Open in Maps</a>
         </td>
+        <td>
+          {% with pay=order.latest_payment %}
+          {% if pay %}<span class="badge pay-{{ pay.status }}">{{ order.payment_label }}</span>{% else %}—{% endif %}
+          {% endwith %}
+        </td>
         <td><span class="badge st-{{ order.status }}">{{ order.get_status_display }}</span></td>
         <td class="deliv-distance pending">—</td>
         <td>{{ order.created_at|date:"d M Y, h:i A" }}</td>
       </tr>
       {% empty %}
-      <tr><td colspan="6" class="empty-row">No orders with a delivery address yet</td></tr>
+      <tr><td colspan="7" class="empty-row">No orders with a delivery address yet</td></tr>
       {% endfor %}
     </tbody>
   </table>

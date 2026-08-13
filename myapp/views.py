@@ -1315,7 +1315,7 @@ def dashboard_category_delete(request, pk):
 def dashboard_orders(request):
     q = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
-    orders = Order.objects.select_related('user').prefetch_related('items').order_by('-created_at')
+    orders = Order.objects.select_related('user').prefetch_related('items', 'payments').order_by('-created_at')
     if q:
         orders = orders.filter(
             Q(user__username__icontains=q) | Q(user__email__icontains=q) |
@@ -1333,7 +1333,7 @@ def dashboard_orders(request):
 def dashboard_delivery(request):
     q = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
-    orders = Order.objects.select_related('user').filter(recipient_name__gt='').order_by('-created_at')
+    orders = Order.objects.select_related('user').prefetch_related('payments').filter(recipient_name__gt='').order_by('-created_at')
     if q:
         orders = orders.filter(
             Q(recipient_name__icontains=q) | Q(recipient_phone__icontains=q) |
