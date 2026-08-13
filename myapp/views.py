@@ -766,6 +766,13 @@ def store_checkout(request):
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'detail': 'You need to be logged in to check out.'}, status=401)
 
+    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+    if not profile.phone_verified:
+        return JsonResponse({
+            'status': 'phone_unverified',
+            'detail': 'Please verify your phone number before placing an order.',
+        }, status=403)
+
     cart = _get_or_create_cart(request)
     items = list(cart.items.all())
     if not items:
@@ -784,8 +791,6 @@ def store_checkout(request):
             status=400,
         )
     address = address_form.cleaned_data
-
-    profile, _ = StoreProfile.objects.get_or_create(user=request.user)
 
     fee_settings = FeeSettings.get_solo()
     subtotal = sum((i.subtotal for i in items), Decimal('0'))

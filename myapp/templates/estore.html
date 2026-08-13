@@ -2753,6 +2753,12 @@ function openRazorpayCheckout(rp, orderId){
 
 $('#checkout').addEventListener('click', () => {
   if (!state.user){ closeDrawer(); openAuth('signup'); toast('Log in to complete your order', 'fa-user'); return; }
+  if (!state.user.phone_verified){
+    closeDrawer();
+    toast('Verify your phone number before placing an order', 'fa-circle-exclamation');
+    openVerifyEmail();
+    return;
+  }
   closeDrawer();
   openAddress();
 });
@@ -2783,6 +2789,12 @@ $('#addressForm').addEventListener('submit', e => {
     .then(({ ok, body }) => {
       setBtnBusy(btn, false);
       if (!ok){
+        if (body.status === 'phone_unverified'){
+          closeAddress();
+          toast(body.detail || 'Please verify your phone number before placing an order', 'fa-circle-exclamation');
+          openVerifyEmail();
+          return;
+        }
         const err = body.errors ? Object.values(body.errors)[0] : (body.detail || 'Could not place your order');
         toast(err, 'fa-circle-exclamation');
         return;
