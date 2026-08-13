@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import threading
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
@@ -425,6 +426,17 @@ def _send_order_confirmation_email(order, payment_method, paid):
         logger.exception("Order admin-notification email failed for Order #%s: %s", order.pk, e)
 
 
+def _send_order_confirmation_email_async(order, payment_method, paid):
+    """Fires the confirmation + admin-notification emails on a background
+    thread instead of blocking the request. Each send_store_email() call is
+    a real SMTP round trip (up to EMAIL_TIMEOUT=10s, twice) — doing that
+    inline was what made the Thank You page appear "very late" after
+    checkout, since the frontend only shows it once this response lands."""
+    threading.Thread(
+        target=_send_order_confirmation_email, args=(order, payment_method, paid), daemon=True,
+    ).start()
+
+
 # ── E-Store: auth ────────────────────────────────────────────────────────
 
 PHONE_VERIFY_OTP_TTL_MINUTES = 10
@@ -839,12 +851,12 @@ def store_checkout(request):
             logger.exception("Razorpay order creation failed for Order #%s: %s", order.pk, e)
             Payment.objects.create(order=order, method=Payment.METHOD_COD, status=Payment.STATUS_COD_PENDING, amount=total)
             payment_method = Payment.METHOD_COD
-            _send_order_confirmation_email(order, payment_method, paid=False)
+            _send_order_confirmation_email_async(order, payment_method, paid=False)
     else:
         pay_status = Payment.STATUS_PAID if total <= 0 else Payment.STATUS_COD_PENDING
         Payment.objects.create(order=order, method=Payment.METHOD_COD, status=pay_status, amount=total)
         payment_method = Payment.METHOD_COD
-        _send_order_confirmation_email(order, payment_method, paid=(total <= 0))
+        _send_order_confirmation_email_async(order, payment_method, paid=(total <= 0))
 
     return JsonResponse({
         'status': 'ok',
@@ -889,7 +901,7 @@ def store_razorpay_verify(request):
     payment.razorpay_payment_id = payload.get('razorpay_payment_id', '')
     payment.razorpay_signature = payload.get('razorpay_signature', '')
     payment.save(update_fields=['status', 'razorpay_payment_id', 'razorpay_signature'])
-    _send_order_confirmation_email(payment.order, Payment.METHOD_RAZORPAY, paid=True)
+    _send_order_confirmation_email_async(payment.order, Payment.METHOD_RAZORPAY, paid=True)
     return JsonResponse({'status': 'ok'})
 
 

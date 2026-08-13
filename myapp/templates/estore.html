@@ -486,6 +486,8 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .auth-tabs button.on{background:#fff;color:var(--red);box-shadow:0 3px 10px rgba(0,0,0,.08)}
 .auth-pane{display:none}
 .auth-pane.on{display:block}
+.call-notice{display:flex;align-items:flex-start;gap:.6rem;background:#fff4e5;color:#8a5a00;border:1.5px solid #ffd9a0;border-radius:12px;padding:.8rem .9rem;font-size:.82rem;line-height:1.5;margin:.9rem 0}
+.call-notice i{font-size:1.05rem;margin-top:.1rem;flex-shrink:0}
 .auth-alt{text-align:center;font-size:.82rem;margin-top:1.1rem}
 .auth-alt button{border:none;background:none;color:var(--red);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem}
 .auth-alt button:disabled{color:#b6bcc6;cursor:default}
@@ -1431,13 +1433,13 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <button class="x-btn modal-x" id="closeVerifyEmail" aria-label="Close"><i class="fas fa-xmark"></i></button>
     <div class="modal-top">
       <div class="logo-txt">Verify <span>Phone</span></div>
-      <p>We've sent a 6-digit code to your phone by SMS — if it doesn't arrive, you'll get an automated call reading it out instead</p>
+      <p>We've sent a 6-digit code to your phone</p>
     </div>
+    <div class="call-notice"><i class="fas fa-phone-volume"></i><span><b>You may get a phone call</b> instead of a text — it's an automated call reading your code aloud. Please answer it.</span></div>
     <div class="fg">
       <label for="veCode">Verification code</label>
       <input type="text" id="veCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
     </div>
-    <p class="auth-alt" style="margin-top:-.5rem"><i class="fas fa-phone-volume"></i> Phone ringing instead of a text? Answer it — the code is read out at the start of the call.</p>
     <button type="button" class="submit-btn" id="doVerifyEmail">Verify phone</button>
     <p class="auth-alt">Didn't get it? <button type="button" id="resendVerifyEmail">Resend code</button></p>
   </div>
