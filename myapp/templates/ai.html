@@ -110,6 +110,11 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 #sendBtn{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s,transform .1s}
 #sendBtn:hover:not(:disabled){transform:scale(1.06)}
 #sendBtn:disabled{opacity:.45;cursor:default}
+.mic-btn{border:none;cursor:pointer;background:none;color:#9aa3b0;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;transition:color .15s,background .15s}
+.mic-btn:hover:not(:disabled){color:var(--red);background:#fff}
+.mic-btn:disabled{opacity:.4;cursor:default}
+.mic-btn.listening{color:#fff;background:var(--red);animation:micPulse 1.4s infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,0,30,.4)}50%{box-shadow:0 0 0 7px rgba(232,0,30,0)}}
 .foot-note{max-width:780px;margin:.6rem auto 0;font-size:.7rem;color:#9aa3b0;text-align:center}
 .guest-meter{max-width:780px;margin:.5rem auto 0;font-size:.75rem;color:var(--text);text-align:center;font-weight:600}
 .guest-meter a{font-weight:700}
@@ -236,6 +241,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
     <footer>
       <div class="input-wrap" id="inputWrap">
+        <button type="button" id="micBtn" class="mic-btn" aria-label="Voice typing" title="Speak your message"><i class="fas fa-microphone"></i></button>
         <textarea id="chatInput" rows="1" placeholder="Message EduTrellis AI…" maxlength="4000"></textarea>
         <button type="button" id="sendBtn" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
       </div>
@@ -270,6 +276,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   var input = document.getElementById('chatInput');
   var inputWrap = document.getElementById('inputWrap');
   var sendBtn = document.getElementById('sendBtn');
+  var micBtn = document.getElementById('micBtn');
   var convList = document.getElementById('convList');
   var newChatBtn = document.getElementById('newChatBtn');
   var sidebar = document.getElementById('sidebar');
@@ -391,7 +398,61 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     state.streaming = on;
     sendBtn.disabled = on || state.gated;
     input.disabled = on || state.gated;
+    if (micBtn) micBtn.disabled = on || state.gated;
   }
+
+  // ---- voice typing (dictate into the input box) ----
+  // Browser-native speech recognition — no server round trip, no API cost.
+  // Chrome/Edge support it (as webkitSpeechRecognition); browsers that
+  // don't (Firefox, most of Safari) just never get the mic button at all,
+  // rather than showing one that silently fails.
+  var stopVoiceTyping = function(){};
+
+  (function setupVoiceTyping(){
+    var SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor || !micBtn) {
+      if (micBtn) { micBtn.remove(); micBtn = null; }
+      return;
+    }
+    var recognition = null;
+    var listening = false;
+    var baseText = '';
+
+    function stopListening(){
+      listening = false;
+      micBtn.classList.remove('listening');
+      if (recognition) { try { recognition.stop(); } catch (e) {} }
+    }
+    stopVoiceTyping = stopListening;
+
+    function startListening(){
+      baseText = input.value ? input.value.replace(/\s+$/, '') + ' ' : '';
+      recognition = new SpeechRecognitionCtor();
+      recognition.lang = 'en-IN';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      recognition.onresult = function(e){
+        var transcript = '';
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          transcript += e.results[i][0].transcript;
+        }
+        input.value = (baseText + transcript).slice(0, 4000);
+        autoResize();
+      };
+      recognition.onerror = function(){ stopListening(); };
+      recognition.onend = function(){ stopListening(); };
+      try {
+        recognition.start();
+        listening = true;
+        micBtn.classList.add('listening');
+      } catch (e) { stopListening(); }
+    }
+
+    micBtn.addEventListener('click', function(){
+      if (micBtn.disabled) return;
+      listening ? stopListening() : startListening();
+    });
+  })();
 
   function renderConvList(){
     if (!state.conversations.length) {
@@ -573,6 +634,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     var text = (typeof promptText === 'string' ? promptText : input.value).trim();
     if (!text || state.streaming) return;
 
+    stopVoiceTyping();
     renderRow('user', text);
     var userRow = col.lastElementChild;
     input.value = '';
