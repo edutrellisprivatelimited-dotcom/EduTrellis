@@ -16,6 +16,16 @@ html,body{height:100%}
 body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:#fff;display:flex;flex-direction:column;overflow:hidden}
 a{color:var(--red);text-decoration:none}
 
+/* ---- boot loader (matches the EduTrellis Store loader) ---- */
+#loader{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem;transition:opacity .6s ease,visibility .6s ease}
+#loader.done{opacity:0;visibility:hidden}
+.loader-logo{font-family:'Sora',sans-serif;font-size:clamp(1.7rem,5vw,2.4rem);font-weight:900;letter-spacing:-.03em}
+.loader-logo span{color:var(--red)}
+.loader-tag{font-size:.72rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--text);margin-top:-.7rem}
+.loader-progress{width:min(260px,62vw);height:5px;border-radius:99px;background:#eef0f5;overflow:hidden}
+.loader-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--red),var(--red-dark));transition:width .18s linear}
+.loader-pct{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--red)}
+
 /* ---- brand logo (matches the EduTrellis Store header) ---- */
 .logo-wrap{display:flex;flex-direction:column;justify-content:center;text-decoration:none;flex:none;line-height:1.15}
 .logo-txt{font-family:'Sora',sans-serif;font-size:1.28rem;font-weight:900;letter-spacing:-.035em;color:var(--head)}
@@ -29,13 +39,13 @@ a{color:var(--red);text-decoration:none}
 
 header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:.85rem 1.25rem;flex:none;z-index:20}
 .hd-wrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.hd-left{display:flex;align-items:center;gap:.7rem}
+.hd-left{display:flex;align-items:center;gap:.7rem;min-width:0}
 .sidebar-toggle{border:1.5px solid var(--line);background:#fff;color:var(--head);width:36px;height:36px;border-radius:10px;cursor:pointer;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;display:none}
-.hd-right{display:flex;align-items:center;gap:.8rem}
+.hd-right{display:flex;align-items:center;gap:.8rem;min-width:0}
 .hd-back{font-size:.82rem;font-weight:700;color:var(--text);display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .7rem;border-radius:10px;transition:background .15s,color .15s}
 .hd-back:hover{color:var(--red);background:var(--bg-alt)}
 .hd-login-btn{font-size:.82rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--red),var(--red-dark));padding:.5rem 1rem;border-radius:10px;border:none;cursor:pointer}
-.acct-chip{display:flex;align-items:center;gap:.5rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:50px;padding:.3rem .5rem .3rem .3rem}
+.acct-chip{display:flex;align-items:center;gap:.5rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:50px;padding:.3rem .5rem .3rem .3rem;min-width:0;flex-shrink:1}
 .acct-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .acct-name{font-size:.78rem;font-weight:700;color:var(--head);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acct-logout{border:none;background:none;color:#9aa3b0;cursor:pointer;font-size:.82rem;padding:.2rem;display:flex}
@@ -125,6 +135,8 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   .sidebar-backdrop.open{display:block}
   .acct-name{max-width:70px}
   .hd-back span{display:none}
+  .hd-wrap{gap:.6rem}
+  .chat-col{gap:.9rem}
 }
 @media (max-width:640px){
   .msg-bubble{max-width:88%}
@@ -132,10 +144,46 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   .suggest-row{gap:.4rem}
   .suggest-chip{font-size:.75rem;padding:.45rem .75rem}
   .gate-card{padding:1.4rem 1.1rem}
+  header{padding:.75rem 1rem}
+  footer{padding:.75rem 1rem .9rem}
+  .input-wrap{padding:.45rem .55rem .45rem .75rem}
+  .foot-note,.guest-meter{font-size:.68rem}
+}
+@media (max-width:420px){
+  .logo-txt{font-size:1.05rem}
+  .logo-sub{font-size:.5rem;letter-spacing:.1em}
+  .hd-login-btn{padding:.45rem .7rem;font-size:.76rem}
+  .acct-chip{padding:.25rem .4rem .25rem .25rem;gap:.35rem}
+  .acct-name{max-width:46px}
+  .acct-avatar{width:22px;height:22px;font-size:.65rem}
+  #sendBtn{width:32px;height:32px}
+  .brand-mark .logo-txt{font-size:1.35rem}
+  .empty-state{padding:1.3rem .5rem}
+  .empty-state p{font-size:.84rem}
+  .gate-card{padding:1.2rem .9rem;border-radius:14px}
+  .msg-avatar{width:26px;height:26px}
 }
 </style>
 </head>
 <body>
+<div id="loader">
+  <div class="loader-logo">Edu<span>Trellis</span> AI</div>
+  <div class="loader-tag">An EduTrellis Company</div>
+  <div class="loader-progress"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="loader-pct" id="loaderPct">0%</div>
+</div>
+<script>
+(function loader(){
+  var fill = document.getElementById('loaderFill'), pct = document.getElementById('loaderPct'), box = document.getElementById('loader');
+  var n = 0;
+  var t = setInterval(function(){
+    n += Math.random() * 13 + 4;
+    if (n >= 100){ n = 100; clearInterval(t); setTimeout(function(){ box.classList.add('done'); }, 320); }
+    fill.style.width = n + '%';
+    pct.textContent = Math.floor(n) + '%';
+  }, 110);
+})();
+</script>
 <header>
   <div class="hd-wrap">
     <div class="hd-left">
@@ -321,9 +369,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     return bubble;
   }
 
-  function showEmptyState(){
-    col.innerHTML = EMPTY_STATE_HTML;
-    emptyState = document.getElementById('emptyState');
+  function bindSuggestRow(){
     var row = document.getElementById('suggestRow');
     if (row) {
       row.addEventListener('click', function(e){
@@ -333,6 +379,13 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       });
     }
   }
+
+  function showEmptyState(){
+    col.innerHTML = EMPTY_STATE_HTML;
+    emptyState = document.getElementById('emptyState');
+    bindSuggestRow();
+  }
+  bindSuggestRow(); // the empty state rendered by the server on first load needs this too
 
   function setStreaming(on){
     state.streaming = on;
