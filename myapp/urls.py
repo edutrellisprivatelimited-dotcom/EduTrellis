@@ -65,4 +65,7 @@ urlpatterns = [
     path('store/dashboard/logout/', views.dashboard_logout, name='dashboard_logout'),
 
     path('contact/', views.contact_lead, name='contact_lead'),
+
+    path('AI/', views.ai_page, name='ai_page'),
+    path('AI/api/send/', views.ai_chat_send, name='ai_chat_send'),
 ]

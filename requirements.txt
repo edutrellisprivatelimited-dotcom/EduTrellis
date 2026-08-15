@@ -9,4 +9,5 @@ Pillow>=10.0
 razorpay>=1.4
 dropbox>=12.0
 requests>=2.31
+openai>=1.0
 

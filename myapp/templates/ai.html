@@ -1,0 +1,214 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduTrellis AI</title>
+<meta name="robots" content="noindex, follow">
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--red:#e8001e;--red-dark:#c0001a;--dark:#1c2333;--text:#555f6d;--head:#111418;--line:#e7eaf0;--bg-alt:#f8f9fc}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:#fff;display:flex;flex-direction:column;overflow:hidden}
+a{color:var(--red);text-decoration:none}
+
+header{background:#fff;border-bottom:1px solid var(--line);padding:.9rem 1.25rem;flex:none}
+.hd-wrap{max-width:820px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.logo-txt{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:900;letter-spacing:-.03em;color:var(--head)}
+.logo-txt span{color:var(--red)}
+.ai-tag{font-size:.68rem;font-weight:800;letter-spacing:.08em;color:#fff;background:linear-gradient(135deg,var(--red),var(--red-dark));padding:.2rem .55rem;border-radius:50px;margin-left:.5rem;vertical-align:middle}
+.hd-back{font-size:.82rem;font-weight:700;color:var(--text);display:inline-flex;align-items:center;gap:.4rem}
+.hd-back:hover{color:var(--red)}
+
+main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem}
+.chat-col{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:1.1rem;min-height:100%}
+
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:.6rem;padding:2rem 1rem;color:var(--text)}
+.empty-state i{font-size:2.2rem;color:var(--red);margin-bottom:.3rem}
+.empty-state h1{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;color:var(--head)}
+.empty-state p{font-size:.9rem;max-width:26rem}
+
+.msg-row{display:flex;gap:.7rem;max-width:100%}
+.msg-row.user{flex-direction:row-reverse}
+.msg-avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff}
+.msg-row.user .msg-avatar{background:var(--dark)}
+.msg-row.assistant .msg-avatar{background:linear-gradient(135deg,var(--red),var(--red-dark))}
+.msg-bubble{font-size:.92rem;line-height:1.6;padding:.75rem 1rem;border-radius:14px;white-space:pre-wrap;word-wrap:break-word;max-width:min(600px,80%)}
+.msg-row.user .msg-bubble{background:var(--dark);color:#fff;border-top-right-radius:4px}
+.msg-row.assistant .msg-bubble{background:var(--bg-alt);color:var(--head);border-top-left-radius:4px}
+.msg-bubble.error{background:#fdeaea;color:var(--red)}
+.msg-cursor{display:inline-block;width:.5em;height:1em;background:var(--head);vertical-align:text-bottom;animation:blink 1s step-start infinite;margin-left:1px}
+@keyframes blink{50%{opacity:0}}
+
+footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 1.25rem 1.1rem}
+.input-wrap{max-width:820px;margin:0 auto;display:flex;align-items:flex-end;gap:.6rem;background:var(--bg-alt);border:1.5px solid var(--line);border-radius:16px;padding:.5rem .6rem .5rem 1rem;transition:border-color .2s}
+.input-wrap:focus-within{border-color:var(--red)}
+#chatInput{flex:1;border:none;background:none;resize:none;font-family:inherit;font-size:.92rem;color:var(--head);max-height:140px;line-height:1.5;padding:.4rem 0}
+#chatInput:focus{outline:none}
+#sendBtn{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+#sendBtn:disabled{opacity:.45;cursor:default}
+.foot-note{max-width:820px;margin:.5rem auto 0;font-size:.7rem;color:#9aa3b0;text-align:center}
+
+@media (max-width:640px){
+  .msg-bubble{max-width:88%}
+  main{padding:1.1rem .9rem .8rem}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd-wrap">
+    <a href="/" class="logo-txt">Edu<span>Trellis</span><span class="ai-tag">AI</span></a>
+    <a href="/" class="hd-back"><i class="fas fa-arrow-left"></i> Back to site</a>
+  </div>
+</header>
+
+<main id="chatMain">
+  <div class="chat-col" id="chatCol">
+    <div class="empty-state" id="emptyState">
+      <i class="fas fa-sparkles"></i>
+      <h1>EduTrellis AI</h1>
+      <p>Ask me anything — I'm a conversational assistant only, with no access to your account, orders, or any other system.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="input-wrap">
+    <textarea id="chatInput" rows="1" placeholder="Message EduTrellis AI…" maxlength="4000"></textarea>
+    <button type="button" id="sendBtn" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
+  </div>
+  <p class="foot-note">Responses are AI-generated and may be inaccurate. Don't share sensitive personal information.</p>
+</footer>
+
+{% csrf_token %}
+<script>
+(function(){
+  var messages = [];               // [{role, content}]
+  var streaming = false;
+
+  var main = document.getElementById('chatMain');
+  var col = document.getElementById('chatCol');
+  var emptyState = document.getElementById('emptyState');
+  var input = document.getElementById('chatInput');
+  var sendBtn = document.getElementById('sendBtn');
+
+  function csrfToken(){
+    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
+  function escHtml(s){
+    return String(s || '').replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function autoResize(){
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+  }
+  input.addEventListener('input', autoResize);
+
+  function scrollToBottom(){
+    main.scrollTop = main.scrollHeight;
+  }
+
+  function renderRow(role, text, opts){
+    opts = opts || {};
+    if (emptyState) { emptyState.remove(); emptyState = null; }
+    var row = document.createElement('div');
+    row.className = 'msg-row ' + role;
+    var avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.innerHTML = role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-sparkles"></i>';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg-bubble' + (opts.error ? ' error' : '');
+    bubble.innerHTML = escHtml(text) + (opts.streaming ? '<span class="msg-cursor"></span>' : '');
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    col.appendChild(row);
+    scrollToBottom();
+    return bubble;
+  }
+
+  function setStreaming(on){
+    streaming = on;
+    sendBtn.disabled = on;
+    input.disabled = on;
+  }
+
+  function send(){
+    var text = input.value.trim();
+    if (!text || streaming) return;
+
+    messages.push({ role: 'user', content: text });
+    renderRow('user', text);
+    input.value = '';
+    autoResize();
+    setStreaming(true);
+
+    var assistantText = '';
+    var bubble = renderRow('assistant', '', { streaming: true });
+
+    fetch('/AI/api/send/', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+      body: JSON.stringify({ messages: messages })
+    }).then(function(resp){
+      if (!resp.ok){
+        return resp.json().catch(function(){ return {}; }).then(function(body){
+          throw new Error(body.detail || 'Something went wrong — please try again.');
+        });
+      }
+      if (!resp.body || !resp.body.getReader){
+        return resp.text().then(function(text){
+          assistantText = text;
+          bubble.innerHTML = escHtml(assistantText);
+        });
+      }
+      var reader = resp.body.getReader();
+      var decoder = new TextDecoder();
+      function pump(){
+        return reader.read().then(function(result){
+          if (result.done) return;
+          assistantText += decoder.decode(result.value, { stream: true });
+          bubble.innerHTML = escHtml(assistantText) + '<span class="msg-cursor"></span>';
+          scrollToBottom();
+          return pump();
+        });
+      }
+      return pump();
+    }).then(function(){
+      bubble.innerHTML = escHtml(assistantText) || '<i>No response — please try again.</i>';
+      if (assistantText.trim()) messages.push({ role: 'assistant', content: assistantText });
+      setStreaming(false);
+      scrollToBottom();
+      input.focus();
+    }).catch(function(err){
+      bubble.className = 'msg-bubble error';
+      bubble.textContent = err.message || 'Something went wrong — please try again.';
+      messages.pop(); // drop the failed turn's user message so a retry doesn't duplicate context oddly
+      setStreaming(false);
+      input.focus();
+    });
+  }
+
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      send();
+    }
+  });
+
+  input.focus();
+})();
+</script>
+</body>
+</html>

@@ -135,6 +135,14 @@ LEAD_RECIPIENT_EMAIL = EMAIL_HOST_USER
 # or by Railway potentially blocking outbound SMTP on production.
 TWO_FACTOR_API_KEY = '12feb4c9-9636-11f1-9cb1-0200cd936042'
 
+# ── AI Chat (NVIDIA API) ─────────────────────────────────────────────────────
+# Powers the public /AI/ chat page (myapp/ai_chat.py). This is a real,
+# billable API key — hardcoded here at the user's explicit choice, same as
+# the credentials above, which means it's visible in this repo's git
+# history to anyone with access. Rotate it in the NVIDIA console if it ever
+# needs to change.
+NVIDIA_API_KEY = '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'
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 

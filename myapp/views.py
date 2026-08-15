@@ -11,8 +11,9 @@ from django.contrib.auth.models import User
 from django.db.models import Q, F
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve, Resolver404
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.core.mail import send_mail, BadHeaderError
+from django.core.cache import cache
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
@@ -29,6 +30,7 @@ from myapp.models import (
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
 )
 from myapp import dropbox_backup
+from myapp import ai_chat
 from myapp.emailing import send_store_email, get_notify_email
 from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
@@ -1594,3 +1596,73 @@ def dashboard_backup_restore(request):
 def dashboard_logout(request):
     logout(request)
     return redirect('estore')
+
+
+# ── AI Chat (public, /AI/) ───────────────────────────────────────────────
+
+AI_CHAT_RATE_LIMIT = 20           # messages
+AI_CHAT_RATE_WINDOW = 10 * 60     # per 10 minutes, per IP
+AI_CHAT_MAX_MESSAGE_CHARS = 4000
+AI_CHAT_MAX_HISTORY = 20          # most recent messages kept from what the client sends
+
+
+def ai_page(request):
+    return render(request, 'ai.html')
+
+
+def _client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    return forwarded.split(',')[0].strip() if forwarded else request.META.get('REMOTE_ADDR', 'unknown')
+
+
+def ai_chat_send(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+
+    # This proxies a real, billable API key with no login wall in front of
+    # it (by design — it's a public chat widget), so a basic per-IP rate
+    # limit is the only thing standing between this page and someone
+    # scripting a loop against it. Uses Django's cache, which on a
+    # single-process dev server is exact; under multiple gunicorn workers
+    # each worker has its own count, so the effective ceiling is
+    # (limit × worker count) — a soft brake, not a hard guarantee.
+    ip = _client_ip(request)
+    cache_key = f'ai_chat_rate:{ip}'
+    count = cache.get(cache_key, 0)
+    if count >= AI_CHAT_RATE_LIMIT:
+        return JsonResponse(
+            {'status': 'error', 'detail': "You're sending messages too quickly — please wait a bit and try again."},
+            status=429,
+        )
+    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
+
+    payload = _parse_json_body(request)
+    history = payload.get('messages')
+    if not isinstance(history, list) or not history:
+        return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
+
+    # Only role/content survive, and only user/assistant roles — a client
+    # can't smuggle in its own system message to override the real one.
+    clean_history = []
+    for m in history[-AI_CHAT_MAX_HISTORY:]:
+        if not isinstance(m, dict):
+            continue
+        role = m.get('role')
+        content = str(m.get('content', ''))[:AI_CHAT_MAX_MESSAGE_CHARS].strip()
+        if role in ('user', 'assistant') and content:
+            clean_history.append({'role': role, 'content': content})
+    if not clean_history:
+        return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
+
+    def event_stream():
+        try:
+            for chunk in ai_chat.stream_chat(clean_history):
+                yield chunk
+        except Exception as e:
+            logger.exception("AI chat stream failed: %s", e)
+            yield "\n\n[Something went wrong on our end — please try again.]"
+
+    response = StreamingHttpResponse(event_stream(), content_type='text/plain; charset=utf-8')
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'
+    return response
