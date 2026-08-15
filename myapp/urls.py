@@ -1,8 +1,13 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from myapp import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    # Common lowercase/typo ways people type the AI page — all land on the
+    # canonical /AI/.
+    path('ai/', RedirectView.as_view(url='/AI/', permanent=False)),
+    path('aii/', RedirectView.as_view(url='/AI/', permanent=False)),
     path('websitecreation/', views.home2, name='home2'),
     path('websitecreation/contact/', views.websitecreation_contact, name='websitecreation_contact'),
     path('store/', views.estore, name='estore'),

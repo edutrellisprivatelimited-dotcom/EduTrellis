@@ -368,6 +368,7 @@
       <li><a href="#services">Services</a></li>
       <li><a href="{% url 'home2' %}">Website Development</a></li>
       <li><a href="{% url 'estore' %}">E-Store</a></li>
+      <li><a href="{% url 'ai_page' %}">EduTrellis AI</a></li>
       <li><a href="#portfolio">Portfolio</a></li>
       <li><a href="#projects">Blog</a></li>
       <li><a href="#clients">Founder</a></li>
@@ -387,6 +388,7 @@
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="{% url 'estore' %}">E-Store</a></li>
+    <li><a href="{% url 'ai_page' %}">EduTrellis AI</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#projects">Blog</a></li>
     <li><a href="#clients">Founder</a></li>
@@ -1264,6 +1266,41 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
 <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
   <i class="fas fa-arrow-up"></i>
 </button>
+
+<!-- AI LAUNCH PROMO -->
+<style>
+.ai-promo-toast{position:fixed;left:1.15rem;bottom:1.15rem;z-index:850;max-width:270px;background:#fff;border:1px solid var(--border,#e2e8f0);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.16);padding:1rem 1.1rem;font-family:var(--font-body,'DM Sans',sans-serif);transform:translateY(16px);opacity:0;pointer-events:none;transition:transform .35s ease,opacity .35s ease}
+.ai-promo-toast.show{transform:translateY(0);opacity:1;pointer-events:auto}
+.ai-promo-close{position:absolute;top:.45rem;right:.55rem;border:none;background:none;font-size:1.15rem;line-height:1;color:#9aa3b0;cursor:pointer;padding:.25rem}
+.ai-promo-close:hover{color:var(--red)}
+.ai-promo-flag{font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--red);margin-bottom:.35rem}
+.ai-promo-text{font-size:.83rem;color:var(--text,#4a5568);line-height:1.4;margin:0 0 .7rem}
+.ai-promo-text strong{color:var(--dark)}
+.ai-promo-cta{display:inline-flex;align-items:center;gap:.4rem;background:var(--red);color:#fff;font-weight:700;font-size:.78rem;padding:.5rem .85rem;border-radius:9px;text-decoration:none}
+.ai-promo-cta:hover{opacity:.9;text-decoration:none}
+@media (max-width:480px){.ai-promo-toast{left:.75rem;right:.75rem;max-width:none;bottom:.75rem}}
+</style>
+<div class="ai-promo-toast" id="aiPromoToast" hidden>
+  <button type="button" class="ai-promo-close" id="aiPromoClose" aria-label="Dismiss">&times;</button>
+  <div class="ai-promo-flag">🇮🇳 Made in India</div>
+  <p class="ai-promo-text">We've launched <strong>EduTrellis AI</strong> — try it for free!</p>
+  <a href="/AI/" class="ai-promo-cta">Try it free <i class="fas fa-arrow-right"></i></a>
+</div>
+<script>
+(function(){
+  var KEY = 'edutrellis_ai_promo_dismissed';
+  if (localStorage.getItem(KEY) === '1') return;
+  var el = document.getElementById('aiPromoToast');
+  if (!el) return;
+  el.hidden = false;
+  setTimeout(function(){ el.classList.add('show'); }, 1800);
+  var closeBtn = document.getElementById('aiPromoClose');
+  if (closeBtn) closeBtn.addEventListener('click', function(){
+    el.classList.remove('show');
+    localStorage.setItem(KEY, '1');
+  });
+})();
+</script>
 </body>
   <script type="application/ld+json">
 {
