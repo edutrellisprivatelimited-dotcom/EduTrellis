@@ -1606,6 +1606,15 @@ def dashboard_backup_restore(request):
         else:
             try:
                 dropbox_backup.restore_backup(settings_obj, filename)
+                # restore_backup just swapped out db.sqlite3 from under this
+                # very request, taking the django_session table — and this
+                # request's own session row — with it. Without recreating it,
+                # SessionMiddleware's save() at the end of the request can't
+                # find the row to UPDATE and raises SessionInterrupted.
+                # must_create=True forces an INSERT into the freshly-restored
+                # table instead, so the admin doesn't get logged out or hit
+                # an error page by restoring a backup.
+                request.session.save(must_create=True)
                 messages.success(request, f'Database restored from "{filename}". Restart the app if you notice anything odd.')
             except dropbox_backup.BackupError as exc:
                 messages.error(request, str(exc))
