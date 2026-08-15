@@ -675,3 +675,38 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username} → {self.product.name} ({self.rating}★)"
+
+
+class AIConversation(models.Model):
+    """One saved chat thread on /AI/ for a logged-in user, ChatGPT-style."""
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ai_conversations')
+    title      = models.CharField(max_length=80, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'AI Conversation'
+        verbose_name_plural = 'AI Conversations'
+
+    def __str__(self):
+        return self.title or f"Conversation #{self.pk}"
+
+
+class AIMessage(models.Model):
+    ROLE_USER = 'user'
+    ROLE_ASSISTANT = 'assistant'
+    ROLE_CHOICES = [(ROLE_USER, 'User'), (ROLE_ASSISTANT, 'Assistant')]
+
+    conversation = models.ForeignKey(AIConversation, on_delete=models.CASCADE, related_name='messages')
+    role         = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    content      = models.TextField()
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'AI Message'
+        verbose_name_plural = 'AI Messages'
+
+    def __str__(self):
+        return f"{self.role}: {self.content[:40]}"
