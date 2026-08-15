@@ -1664,6 +1664,7 @@ def ai_page(request):
         'ai_guest_used': 0 if request.user.is_authenticated else request.session.get('ai_guest_msg_count', 0),
         'ai_models': models,
         'ai_default_model': ai_chat.DEFAULT_MODEL_KEY,
+        'ai_default_model_label': model_labels[ai_chat.DEFAULT_MODEL_KEY],
         'ai_model_labels': model_labels,
     })
 

@@ -27,15 +27,13 @@ a{color:var(--red);text-decoration:none}
 .loader-pct{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--red)}
 
 /* ---- brand logo (matches the EduTrellis Store header) ---- */
-.logo-wrap{display:flex;flex-direction:column;justify-content:center;text-decoration:none;flex:none;line-height:1.15}
+.logo-wrap{display:flex;align-items:center;text-decoration:none;flex:none}
 .logo-txt{font-family:'Sora',sans-serif;font-size:1.28rem;font-weight:900;letter-spacing:-.035em;color:var(--head)}
 .logo-txt span{color:var(--red)}
-.logo-sub{font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9aa3b0}
 
 /* larger version of the same wordmark, used in place of a generic icon badge */
-.brand-mark{display:flex;flex-direction:column;align-items:center;gap:.15rem;margin-bottom:.3rem}
+.brand-mark{margin-bottom:.3rem}
 .brand-mark .logo-txt{font-size:1.7rem}
-.brand-mark .logo-sub{font-size:.68rem}
 
 header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:.85rem 1.25rem;flex:none;z-index:20}
 .hd-wrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
@@ -116,16 +114,28 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 .mic-btn.listening{color:#fff;background:var(--red);animation:micPulse 1.4s infinite}
 @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,0,30,.4)}50%{box-shadow:0 0 0 7px rgba(232,0,30,0)}}
 
-/* ---- model switcher ---- */
-.model-row{max-width:780px;margin:0 auto .5rem;display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center}
-.model-chip{font-size:.72rem;font-weight:700;color:var(--text);background:var(--bg-alt);border:1.5px solid var(--line);padding:.35rem .75rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
-.model-chip:hover:not(:disabled){border-color:var(--red);color:var(--red)}
-.model-chip.active{background:var(--dark);color:#fff;border-color:var(--dark)}
-.model-chip:disabled{opacity:.5;cursor:default}
+/* ---- model picker (dropdown, lives in the composer bar itself) ---- */
+.model-picker-wrap{position:relative;flex-shrink:0;align-self:center}
+.model-picker-btn{display:flex;align-items:center;gap:.35rem;height:32px;font-size:.74rem;font-weight:700;color:var(--head);background:#fff;border:1.5px solid var(--line);padding:0 .65rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s;white-space:nowrap}
+.model-picker-btn:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.model-picker-btn:disabled{opacity:.5;cursor:default}
+.model-picker-btn i{font-size:.6rem;color:#9aa3b0;transition:transform .18s}
+.model-picker-btn.open i{transform:rotate(180deg)}
+.model-dropdown{position:absolute;bottom:calc(100% + .6rem);left:0;min-width:230px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.4rem;z-index:30}
+.model-option{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;width:100%;text-align:left;border:none;background:none;padding:.55rem .65rem;border-radius:10px;cursor:pointer}
+.model-option:hover{background:var(--bg-alt)}
+.model-option.active{background:#fff1f3}
+.model-option-label{font-size:.82rem;font-weight:700;color:var(--head)}
+.model-option.active .model-option-label{color:var(--red)}
+.model-option-desc{font-size:.7rem;color:#9aa3b0;line-height:1.35}
 .msg-model-tag{font-size:.66rem;font-weight:800;color:var(--red);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.04em}
 
 /* ---- image attach ---- */
-.attach-preview{max-width:780px;margin:0 auto .5rem;display:flex;align-items:center;gap:.6rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:12px;padding:.45rem .6rem}
+/* display set only via :not([hidden]) — a class-level `display` next to the
+   [hidden] attribute would win the cascade over the browser's built-in
+   [hidden]{display:none} rule and the preview would stay visible. */
+.attach-preview{max-width:780px;margin:0 auto .5rem;align-items:center;gap:.6rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:12px;padding:.45rem .6rem}
+.attach-preview:not([hidden]){display:flex}
 .attach-preview img{width:42px;height:42px;object-fit:cover;border-radius:8px;flex-shrink:0}
 .attach-preview span{flex:1;font-size:.78rem;color:var(--text);font-weight:600}
 .attach-preview button{border:none;background:none;color:#9aa3b0;cursor:pointer;font-size:.9rem;padding:.35rem;flex-shrink:0}
@@ -171,9 +181,13 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   .input-wrap{padding:.45rem .55rem .45rem .75rem}
   .foot-note,.guest-meter{font-size:.68rem}
 }
+@media (max-width:480px){
+  .model-picker-btn{padding:0 .5rem 0 .6rem}
+  .model-picker-btn span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .model-dropdown{left:auto;right:0}
+}
 @media (max-width:420px){
   .logo-txt{font-size:1.05rem}
-  .logo-sub{font-size:.5rem;letter-spacing:.1em}
   .hd-login-btn{padding:.45rem .7rem;font-size:.76rem}
   .acct-chip{padding:.25rem .4rem .25rem .25rem;gap:.35rem}
   .acct-name{max-width:46px}
@@ -190,7 +204,6 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 <body>
 <div id="loader">
   <div class="loader-logo">Edu<span>Trellis</span> AI</div>
-  <div class="loader-tag">An EduTrellis Company</div>
   <div class="loader-progress"><div class="loader-fill" id="loaderFill"></div></div>
   <div class="loader-pct" id="loaderPct">0%</div>
 </div>
@@ -212,7 +225,6 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle chat history"><i class="fas fa-bars"></i></button>
       <a href="/" class="logo-wrap">
         <span class="logo-txt">Edu<span>Trellis</span> AI</span>
-        <span class="logo-sub">An EduTrellis Company</span>
       </a>
     </div>
     <div class="hd-right">
@@ -243,7 +255,6 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         <div class="empty-state" id="emptyState">
           <div class="brand-mark">
             <span class="logo-txt">Edu<span>Trellis</span> AI</span>
-            <span class="logo-sub">An EduTrellis Company</span>
           </div>
           <p>Ask me anything — I'm a conversational assistant only, with no access to your account, orders, or any other system.</p>
           <div class="suggest-row" id="suggestRow">
@@ -257,17 +268,26 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     </main>
 
     <footer>
-      <div class="model-row" id="modelRow">
-        {% for m in ai_models %}
-        <button type="button" class="model-chip{% if m.key == ai_default_model %} active{% endif %}" data-model="{{ m.key }}" title="{{ m.description }}">{{ m.label }}</button>
-        {% endfor %}
-      </div>
       <div class="attach-preview" id="attachPreview" hidden>
         <img id="attachThumb" alt="Attached image">
         <span>Image attached</span>
         <button type="button" id="attachRemove" aria-label="Remove image"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="input-wrap" id="inputWrap">
+        <div class="model-picker-wrap">
+          <button type="button" class="model-picker-btn" id="modelPickerBtn" aria-haspopup="true" aria-expanded="false">
+            <span id="modelPickerLabel">{{ ai_default_model_label }}</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="model-dropdown" id="modelDropdown" hidden>
+            {% for m in ai_models %}
+            <button type="button" class="model-option{% if m.key == ai_default_model %} active{% endif %}" data-model="{{ m.key }}" data-label="{{ m.label }}">
+              <span class="model-option-label">{{ m.label }}</span>
+              <span class="model-option-desc">{{ m.description }}</span>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
         <button type="button" id="attachBtn" class="mic-btn" aria-label="Attach image" title="Attach an image"><i class="fas fa-image"></i></button>
         <input type="file" id="imageInput" accept="image/*" hidden>
         <button type="button" id="micBtn" class="mic-btn" aria-label="Voice typing" title="Speak your message"><i class="fas fa-microphone"></i></button>
@@ -310,7 +330,9 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   var inputWrap = document.getElementById('inputWrap');
   var sendBtn = document.getElementById('sendBtn');
   var micBtn = document.getElementById('micBtn');
-  var modelRow = document.getElementById('modelRow');
+  var modelPickerBtn = document.getElementById('modelPickerBtn');
+  var modelPickerLabel = document.getElementById('modelPickerLabel');
+  var modelDropdown = document.getElementById('modelDropdown');
   var attachBtn = document.getElementById('attachBtn');
   var imageInput = document.getElementById('imageInput');
   var attachPreview = document.getElementById('attachPreview');
@@ -454,27 +476,53 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     input.disabled = on || state.gated;
     if (micBtn) micBtn.disabled = on || state.gated;
     if (attachBtn) attachBtn.disabled = on || state.gated;
-    if (modelRow) {
-      modelRow.querySelectorAll('.model-chip').forEach(function(chip){ chip.disabled = on || state.gated; });
-    }
+    if (modelPickerBtn) modelPickerBtn.disabled = on || state.gated;
   }
 
-  // ---- model switcher ----
+  // ---- model picker (dropdown) ----
   var currentModel = AI_DEFAULT_MODEL;
-  if (modelRow) {
+  if (modelPickerBtn && modelDropdown && modelPickerLabel) {
+    var applyModelSelection = function(key){
+      var opt = modelDropdown.querySelector('[data-model="' + key + '"]');
+      if (!opt) return;
+      currentModel = key;
+      localStorage.setItem('ai_model', key);
+      modelPickerLabel.textContent = opt.getAttribute('data-label');
+      modelDropdown.querySelectorAll('.model-option').forEach(function(o){ o.classList.toggle('active', o === opt); });
+    };
+
     var savedModel = localStorage.getItem('ai_model');
-    if (savedModel && modelRow.querySelector('[data-model="' + savedModel + '"]')) {
-      currentModel = savedModel;
-      modelRow.querySelectorAll('.model-chip').forEach(function(chip){
-        chip.classList.toggle('active', chip.getAttribute('data-model') === currentModel);
-      });
+    if (savedModel && modelDropdown.querySelector('[data-model="' + savedModel + '"]')) {
+      applyModelSelection(savedModel);
     }
-    modelRow.addEventListener('click', function(e){
-      var chip = e.target.closest('.model-chip');
-      if (!chip || state.streaming || state.gated) return;
-      currentModel = chip.getAttribute('data-model');
-      localStorage.setItem('ai_model', currentModel);
-      modelRow.querySelectorAll('.model-chip').forEach(function(c){ c.classList.toggle('active', c === chip); });
+
+    function openDropdown(){
+      modelDropdown.hidden = false;
+      modelPickerBtn.classList.add('open');
+      modelPickerBtn.setAttribute('aria-expanded', 'true');
+    }
+    function closeDropdown(){
+      modelDropdown.hidden = true;
+      modelPickerBtn.classList.remove('open');
+      modelPickerBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    modelPickerBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (modelPickerBtn.disabled) return;
+      modelDropdown.hidden ? openDropdown() : closeDropdown();
+    });
+    modelDropdown.addEventListener('click', function(e){
+      var opt = e.target.closest('.model-option');
+      if (!opt || state.streaming || state.gated) return;
+      applyModelSelection(opt.getAttribute('data-model'));
+      closeDropdown();
+    });
+    document.addEventListener('click', function(e){
+      if (!modelDropdown.hidden && !modelPickerBtn.contains(e.target) && !modelDropdown.contains(e.target)) closeDropdown();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && !modelDropdown.hidden) closeDropdown();
     });
   }
 

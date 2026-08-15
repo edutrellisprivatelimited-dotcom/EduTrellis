@@ -111,7 +111,15 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY):
     cfg = MODELS.get(model_key) or MODELS[DEFAULT_MODEL_KEY]
     client = _get_client()
 
-    system_prompt = SYSTEM_PROMPT + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
+    # Told explicitly which of the four EduTrellis modes it's answering as —
+    # otherwise it has no way to correctly answer "which model/mode is this"
+    # and would either guess or fall back to a generic non-answer.
+    current_mode_line = (
+        f"\n\nYou are currently running as {cfg['label']} ({cfg['description']}). "
+        "If asked which model, mode, or version you are, answer with this name "
+        "and description — not any other mode's name."
+    )
+    system_prompt = SYSTEM_PROMPT + current_mode_line + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
     full_messages = [{'role': 'system', 'content': system_prompt}] + messages
 
     kwargs = dict(
