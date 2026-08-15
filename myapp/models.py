@@ -698,6 +698,26 @@ class AIConversation(models.Model):
         return self.title or f"Conversation #{self.pk}"
 
 
+class GitHubConnection(models.Model):
+    """A staff member's personal-access-token connection to GitHub, used by
+    /AI/'s GitHub mode to read files from and push commits to a chosen repo
+    on their instruction. One per staff user; never exposed to non-staff,
+    and the token itself is never sent back to the browser once saved."""
+    user            = models.OneToOneField(User, on_delete=models.CASCADE, related_name='github_connection')
+    access_token    = models.CharField(max_length=255)
+    github_username = models.CharField(max_length=120, blank=True)
+    repo_full_name  = models.CharField(max_length=200, blank=True, help_text="owner/repo this connection reads/writes, e.g. 'boosternotes/EduTrellis'.")
+    default_branch  = models.CharField(max_length=100, blank=True, default='main')
+    connected_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'GitHub Connection'
+        verbose_name_plural = 'GitHub Connections'
+
+    def __str__(self):
+        return f"{self.github_username or self.user.username} → {self.repo_full_name or '(no repo set)'}"
+
+
 class AIMessage(models.Model):
     ROLE_USER = 'user'
     ROLE_ASSISTANT = 'assistant'

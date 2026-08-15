@@ -28,10 +28,11 @@ from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
-    AIConversation, AIMessage,
+    AIConversation, AIMessage, GitHubConnection,
 )
 from myapp import dropbox_backup
 from myapp import ai_chat
+from myapp import github_ops
 from myapp.emailing import send_store_email, get_notify_email
 from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
@@ -1879,3 +1880,230 @@ def ai_conversation_delete(request, conversation_id):
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     conversation.delete()
     return JsonResponse({'status': 'ok'})
+
+
+# ── AI GitHub mode: connect a repo, let the AI CRUD + push to it on prompt ──
+# Staff-only end to end (every view here starts with the same guard) — this
+# is real write/push access to a real repo, and /AI/ itself is a page any
+# logged-in store customer (or, briefly, a guest) can reach. Each staff user
+# has their own connection/token; nothing here is shared across accounts.
+
+AI_GITHUB_RATE_LIMIT = 10
+AI_GITHUB_MAX_FILE_CHARS = 60_000  # skip pulling absurdly large files into the prompt
+
+
+def _github_guard(request):
+    return request.user.is_authenticated and request.user.is_staff
+
+
+def _github_forbidden():
+    return JsonResponse({'status': 'error', 'detail': 'Forbidden.'}, status=403)
+
+
+def github_status(request):
+    if not _github_guard(request):
+        return _github_forbidden()
+    conn = GitHubConnection.objects.filter(user=request.user).first()
+    if not conn:
+        return JsonResponse({'status': 'ok', 'connected': False})
+    return JsonResponse({
+        'status': 'ok', 'connected': True, 'github_username': conn.github_username,
+        'repo': conn.repo_full_name, 'branch': conn.default_branch,
+    })
+
+
+def github_connect(request):
+    if not _github_guard(request):
+        return _github_forbidden()
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    payload = _parse_json_body(request)
+    if not isinstance(payload, dict):
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request body.'}, status=400)
+    token = str(payload.get('token', '')).strip()
+    if not token:
+        return JsonResponse({'status': 'error', 'detail': 'Token required.'}, status=400)
+    try:
+        gh_user = github_ops.get_authenticated_user(token)
+        repos = github_ops.list_user_repos(token)
+    except github_ops.GitHubAPIError as e:
+        return JsonResponse({'status': 'error', 'detail': f"Couldn't connect: {e}"}, status=400)
+    conn, _created = GitHubConnection.objects.update_or_create(
+        user=request.user,
+        defaults={'access_token': token, 'github_username': gh_user.get('login', '')},
+    )
+    if not conn.repo_full_name and repos:
+        preferred = next((r for r in repos if 'edutrellis' in r['full_name'].lower()), repos[0])
+        conn.repo_full_name = preferred['full_name']
+        conn.default_branch = preferred['default_branch']
+        conn.save(update_fields=['repo_full_name', 'default_branch'])
+    return JsonResponse({
+        'status': 'ok', 'github_username': conn.github_username, 'repos': repos,
+        'repo': conn.repo_full_name, 'branch': conn.default_branch,
+    })
+
+
+def github_repos(request):
+    if not _github_guard(request):
+        return _github_forbidden()
+    conn = GitHubConnection.objects.filter(user=request.user).first()
+    if not conn:
+        return JsonResponse({'status': 'error', 'detail': 'Not connected.'}, status=400)
+    try:
+        repos = github_ops.list_user_repos(conn.access_token)
+    except github_ops.GitHubAPIError as e:
+        return JsonResponse({'status': 'error', 'detail': str(e)}, status=400)
+    return JsonResponse({'status': 'ok', 'repos': repos})
+
+
+def github_set_repo(request):
+    if not _github_guard(request):
+        return _github_forbidden()
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    conn = GitHubConnection.objects.filter(user=request.user).first()
+    if not conn:
+        return JsonResponse({'status': 'error', 'detail': 'Not connected.'}, status=400)
+    payload = _parse_json_body(request)
+    repo = str(payload.get('repo', '')).strip() if isinstance(payload, dict) else ''
+    if '/' not in repo:
+        return JsonResponse({'status': 'error', 'detail': 'Invalid repo.'}, status=400)
+    owner, _, name = repo.partition('/')
+    try:
+        info = github_ops.get_repo(conn.access_token, owner, name)
+    except github_ops.GitHubAPIError as e:
+        return JsonResponse({'status': 'error', 'detail': str(e)}, status=400)
+    conn.repo_full_name = info['full_name']
+    conn.default_branch = info['default_branch']
+    conn.save(update_fields=['repo_full_name', 'default_branch'])
+    return JsonResponse({'status': 'ok', 'repo': conn.repo_full_name, 'branch': conn.default_branch})
+
+
+def github_disconnect(request):
+    if not _github_guard(request):
+        return _github_forbidden()
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    GitHubConnection.objects.filter(user=request.user).delete()
+    return JsonResponse({'status': 'ok'})
+
+
+def ai_github_send(request):
+    if not _github_guard(request):
+        return _github_forbidden()
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+
+    cache_key = f'ai_github_rate:{request.user.pk}'
+    count = cache.get(cache_key, 0)
+    if count >= AI_GITHUB_RATE_LIMIT:
+        return JsonResponse({'status': 'error', 'detail': 'Too many GitHub requests — please wait a bit.'}, status=429)
+    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
+
+    conn = GitHubConnection.objects.filter(user=request.user).first()
+    if not conn or not conn.repo_full_name:
+        return JsonResponse({'status': 'error', 'detail': 'Connect a GitHub repo first.'}, status=400)
+
+    payload = _parse_json_body(request)
+    if not isinstance(payload, dict):
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request body.'}, status=400)
+    message = str(payload.get('message', ''))[:AI_CHAT_MAX_MESSAGE_CHARS].strip()
+    if not message:
+        return JsonResponse({'status': 'error', 'detail': 'No instruction provided.'}, status=400)
+
+    owner, _, repo = conn.repo_full_name.partition('/')
+    branch = conn.default_branch or 'main'
+
+    owner_filter = _ai_owner_filter(request)
+    conversation_id = payload.get('conversation_id')
+    conversation = AIConversation.objects.filter(owner_filter, pk=conversation_id).first() if conversation_id else None
+    if conversation is None:
+        conversation = AIConversation.objects.create(user=request.user, title=message[:AI_CONVERSATION_TITLE_CHARS])
+    AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_USER, content=message)
+    conversation.updated_at = timezone.now()
+    conversation.save(update_fields=['updated_at'])
+
+    def finish(reply_text):
+        AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_ASSISTANT, content=reply_text, model_key='github')
+        return JsonResponse({'status': 'ok', 'reply': reply_text, 'conversation_id': conversation.id})
+
+    try:
+        file_paths = github_ops.get_tree(conn.access_token, owner, repo, branch)
+    except github_ops.GitHubAPIError as e:
+        return finish(f"Couldn't read the repository: {e}")
+
+    wanted = ai_chat.github_select_files(message, file_paths)
+    file_contents, file_shas = {}, {}
+    for path in wanted:
+        try:
+            content, sha = github_ops.get_file(conn.access_token, owner, repo, path, branch)
+        except github_ops.GitHubAPIError:
+            continue
+        if len(content) > AI_GITHUB_MAX_FILE_CHARS:
+            content = content[:AI_GITHUB_MAX_FILE_CHARS] + '\n...[truncated]'
+        file_contents[path] = content
+        file_shas[path] = sha
+
+    try:
+        plan = ai_chat.github_plan_changes(message, file_paths, file_contents)
+    except Exception as e:
+        logger.exception("GitHub plan generation failed: %s", e)
+        return finish("Something went wrong while planning the change — please try again or rephrase your request.")
+
+    if not isinstance(plan, dict):
+        return finish("The AI's response wasn't understood — please try rephrasing your request.")
+
+    summary = str(plan.get('summary') or 'No changes were made.')
+    commit_message = str(plan.get('commit_message') or message)[:200] or message[:200]
+    operations = plan.get('operations') or []
+
+    applied, skipped = [], []
+    for op in operations[:20]:
+        if not isinstance(op, dict):
+            continue
+        action = op.get('action')
+        path = str(op.get('path', '')).strip()
+        if not path or github_ops.is_path_blocked(path):
+            skipped.append(f"{path or '(blank path)'} — blocked")
+            continue
+        try:
+            if action in ('update', 'create'):
+                content = op.get('content')
+                if not isinstance(content, str):
+                    skipped.append(f"{path} — no content given")
+                    continue
+                sha = file_shas.get(path)
+                if sha is None and action == 'update':
+                    try:
+                        _, sha = github_ops.get_file(conn.access_token, owner, repo, path, branch)
+                    except github_ops.GitHubAPIError:
+                        sha = None
+                github_ops.upsert_file(conn.access_token, owner, repo, path, content, commit_message, branch, sha=sha)
+                applied.append(path)
+            elif action == 'delete':
+                sha = file_shas.get(path)
+                if sha is None:
+                    try:
+                        _, sha = github_ops.get_file(conn.access_token, owner, repo, path, branch)
+                    except github_ops.GitHubAPIError:
+                        sha = None
+                if sha is None:
+                    skipped.append(f"{path} — not found")
+                    continue
+                github_ops.delete_file(conn.access_token, owner, repo, path, commit_message, branch, sha)
+                applied.append(path)
+            else:
+                skipped.append(f"{path} — unknown action '{action}'")
+        except github_ops.GitHubAPIError as e:
+            skipped.append(f"{path} — {e}")
+
+    lines = [summary]
+    if applied:
+        lines.append(f"\n**Pushed to {conn.repo_full_name}@{branch}:**")
+        lines.extend(f"- {p}" for p in applied)
+    if skipped:
+        lines.append("\n**Skipped:**")
+        lines.extend(f"- {s}" for s in skipped)
+    if not applied and not skipped and not plan.get('summary'):
+        lines.append("\nNo file changes were made.")
+    return finish('\n'.join(lines))

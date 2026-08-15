@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from openai import OpenAI
 
@@ -8,9 +10,13 @@ TOP_P = 0.95
 SYSTEM_PROMPT = (
     "You are EduTrellis AI, a friendly assistant embedded on the EduTrellis "
     "website (edutrellis.in). Keep answers clear and reasonably concise, and "
-    "format them for readability: use **bold** for key terms, and short "
-    "bullet or numbered lists when listing multiple items, instead of one "
-    "dense paragraph. You are a conversational assistant only — you have no "
+    "format them for readability using plain markdown only: use **bold** for "
+    "key terms or short section labels, and lines starting with '- ' for "
+    "bullet lists when listing multiple items, instead of one dense "
+    "paragraph. Never use markdown headers (#), decorative symbols, or emoji "
+    "as bullets or section markers (no ◆, ●, ▪, ➤, etc — plain '- ' only), "
+    "and never leave more than one blank line between sections. You are a "
+    "conversational assistant only — you have no "
     "access to any files, tools, or the ability to take actions (you can't "
     "place orders, edit a cart, change account details, etc.), you can only "
     "talk. The one exception: if the user is logged in, you're given a "
@@ -156,3 +162,90 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None):
         content = getattr(chunk.choices[0].delta, 'content', None)
         if content:
             yield content
+
+
+# ── GitHub mode: repo-aware code changes, driven by a plain-English prompt ──
+# Two deterministic LLM calls rather than a general multi-turn tool-use loop
+# (NVIDIA's OpenAI-compatible endpoint doesn't have verified tool-calling
+# support for these models) — phase 1 picks which existing files are worth
+# reading, phase 2 turns the instruction + those files' content into a
+# concrete list of file operations. The caller (views.ai_github_send) is
+# responsible for actually applying each operation via github_ops and for
+# enforcing the blocked-path list — this module only ever proposes JSON.
+GITHUB_MODEL_KEY = 'code'
+GITHUB_FILE_LIST_CAP = 4000  # paths sent to the model per call
+GITHUB_SELECT_FILE_CAP = 8   # files the model may ask to read per request
+
+
+def _github_llm_json(client, model_id, system, user_content):
+    resp = client.chat.completions.create(
+        model=model_id,
+        messages=[{'role': 'system', 'content': system}, {'role': 'user', 'content': user_content}],
+        temperature=0.2,
+        top_p=0.9,
+        max_tokens=4096,
+        stream=False,
+    )
+    text = (resp.choices[0].message.content or '').strip()
+    if text.startswith('```'):
+        text = text.split('```', 2)[1]
+        if text.lower().startswith('json'):
+            text = text[4:]
+        text = text.rsplit('```', 1)[0]
+    return json.loads(text)
+
+
+def github_select_files(prompt, file_paths):
+    """Ask which existing files (out of the real repo file list) are worth
+    reading before proposing a change. Result is always filtered against the
+    real path list, so the model can't cause a lookup of a path it invented."""
+    client = _get_client()
+    system = (
+        "You are a senior software engineer with access to a Git repository's "
+        "file tree. Given the user's instruction, decide which existing files "
+        "you need to read the full content of before you can make the change. "
+        f"Reply with ONLY a JSON array of up to {GITHUB_SELECT_FILE_CAP} file "
+        "paths, copied exactly from the provided file list — no other text, "
+        "no markdown fences. If you don't need to read anything, reply []."
+    )
+    listing = '\n'.join(file_paths[:GITHUB_FILE_LIST_CAP])
+    user_content = f"Instruction: {prompt}\n\nRepository files:\n{listing}"
+    try:
+        result = _github_llm_json(client, MODELS[GITHUB_MODEL_KEY]['id'], system, user_content)
+    except Exception:
+        return []
+    if not isinstance(result, list):
+        return []
+    valid = set(file_paths)
+    return [p for p in result if isinstance(p, str) and p in valid][:GITHUB_SELECT_FILE_CAP]
+
+
+def github_plan_changes(prompt, file_paths, file_contents):
+    """file_contents: {path: content} for whatever github_select_files asked
+    for. Returns {'summary', 'commit_message', 'operations': [...]}, or
+    raises if the model's reply isn't valid JSON — the caller decides how to
+    surface that as a chat reply."""
+    client = _get_client()
+    system = (
+        "You are a senior software engineer making a direct commit to a Git "
+        "repository on the user's instruction. Reply with ONLY a JSON object "
+        "(no markdown fences, no other text) of exactly this shape:\n"
+        '{"summary": "one or two sentences describing the change, for the '
+        'user", "commit_message": "a short git commit message", '
+        '"operations": [{"action": "update"|"create"|"delete", "path": '
+        '"path/to/file", "content": "full new file content (omit for '
+        'delete)"}]}\n'
+        "Rules: 'content' for update/create must be the COMPLETE new file "
+        "content, never a diff or a snippet with '...'. Only touch files "
+        "that are actually necessary. Never invent a path that doesn't fit "
+        "this project's structure. If the instruction is unclear, unsafe, or "
+        "you don't have enough information, return an empty operations array "
+        "and explain why in 'summary'."
+    )
+    listing = '\n'.join(file_paths[:GITHUB_FILE_LIST_CAP])
+    context_blocks = '\n\n'.join(f"--- {path} ---\n{content}" for path, content in file_contents.items())
+    user_content = (
+        f"Instruction: {prompt}\n\nRepository file list:\n{listing}\n\n"
+        f"Current content of the files you asked to see:\n{context_blocks}"
+    )
+    return _github_llm_json(client, MODELS[GITHUB_MODEL_KEY]['id'], system, user_content)

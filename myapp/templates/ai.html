@@ -93,6 +93,10 @@ main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem;background:radial-gradie
 .msg-row.user .msg-bubble code{background:rgba(255,255,255,.15)}
 .msg-bubble ul,.msg-bubble ol{margin:.35rem 0 .35rem 1.15rem}
 .msg-bubble li{margin:.15rem 0}
+.msg-bubble.md{white-space:normal}
+.msg-bubble.md p{margin:.5rem 0}
+.msg-bubble.md p:first-child,.msg-bubble.md .msg-model-tag:first-child + p{margin-top:0}
+.msg-bubble.md >:last-child{margin-bottom:0}
 .msg-cursor{display:inline-block;width:.5em;height:1em;background:var(--head);vertical-align:text-bottom;animation:blink 1s step-start infinite;margin-left:1px}
 @keyframes blink{50%{opacity:0}}
 .typing-dots{display:inline-flex;gap:.25rem;padding:.15rem 0}
@@ -135,6 +139,26 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 .model-option.active .model-option-label{color:var(--red)}
 .model-option-desc{font-size:.7rem;color:#9aa3b0;line-height:1.35}
 .msg-model-tag{font-size:.66rem;font-weight:800;color:var(--red);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.04em}
+
+/* ---- GitHub mode (staff-only) ---- */
+.github-wrap{position:relative;flex-shrink:0;align-self:center}
+.github-btn{display:flex;align-items:center;gap:.35rem;height:32px;font-size:.74rem;font-weight:700;color:var(--head);background:#fff;border:1.5px solid var(--line);padding:0 .65rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s;white-space:nowrap}
+.github-btn:hover:not(:disabled){border-color:var(--dark);color:var(--dark)}
+.github-btn:disabled{opacity:.5;cursor:default}
+.github-btn.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.github-panel{position:absolute;bottom:calc(100% + .6rem);left:0;width:260px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.85rem;z-index:30}
+.github-panel-title{font-size:.82rem;font-weight:700;color:var(--head);margin-bottom:.35rem}
+.github-panel-title span{color:var(--red)}
+.github-panel-note{font-size:.72rem;color:#9aa3b0;line-height:1.4;margin-bottom:.55rem}
+.github-panel-label{display:block;font-size:.7rem;font-weight:700;color:#9aa3b0;text-transform:uppercase;letter-spacing:.03em;margin:.5rem 0 .3rem}
+#githubTokenInput,#githubRepoSelect{width:100%;font-size:.82rem;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;color:var(--head);background:var(--bg-alt)}
+#githubTokenInput:focus,#githubRepoSelect:focus{outline:none;border-color:var(--dark)}
+.github-action-btn{width:100%;margin-top:.55rem;background:var(--dark);color:#fff;border:none;font-weight:700;font-size:.8rem;padding:.55rem;border-radius:9px;cursor:pointer}
+.github-action-btn:hover{opacity:.9}
+.github-action-btn.ghost{background:none;color:var(--red);border:1.5px solid var(--line)}
+.github-panel-error{font-size:.72rem;color:var(--red);margin-top:.4rem}
+.github-toggle{display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:var(--head);margin-top:.65rem;cursor:pointer}
+.github-toggle input{width:16px;height:16px;accent-color:var(--dark);cursor:pointer}
 
 /* ---- image attach ---- */
 /* display set only via :not([hidden]) — a class-level `display` next to the
@@ -193,11 +217,23 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   /* anchored left, not right — the button sits at the left edge of the
      composer, so the dropdown must grow rightward to stay on-screen */
   .model-dropdown{left:0;right:auto;min-width:210px}
+  /* up to six controls (model picker, github, attach, camera, mic, send)
+     plus the textarea now share the composer row — tighten spacing so the
+     input itself keeps enough room on narrow phones. */
+  .input-wrap{gap:.3rem}
+  .mic-btn{width:30px;height:30px;font-size:.85rem}
+  .github-btn{padding:0 .5rem}
+  .github-btn span{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* centered instead of left-anchored — github-btn can sit mid-row, so a
+     fixed-width panel anchored to its left edge could run off either side */
+  .github-panel{left:50%;right:auto;transform:translateX(-50%);width:min(88vw,280px)}
 }
 @media (max-width:360px){
   .model-picker-btn span{display:none}
   .model-picker-btn{padding:0 .45rem}
   .model-dropdown{min-width:190px}
+  .github-btn span{display:none}
+  .github-btn{padding:0 .45rem}
 }
 @media (max-width:420px){
   .logo-txt{font-size:1.05rem}
@@ -304,8 +340,37 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
             {% endfor %}
           </div>
         </div>
+        {% if ai_user.is_staff %}
+        <div class="github-wrap">
+          <button type="button" class="github-btn" id="githubBtn" aria-haspopup="true" aria-expanded="false" title="GitHub">
+            <i class="fab fa-github"></i>
+            <span id="githubBtnLabel">GitHub</span>
+          </button>
+          <div class="github-panel" id="githubPanel" hidden>
+            <div id="githubDisconnected">
+              <p class="github-panel-title">Connect GitHub</p>
+              <p class="github-panel-note">Paste a Personal Access Token (repo scope). Staff-only — lets the AI read, edit, and push commits to a repo you choose when you switch GitHub mode on.</p>
+              <input type="password" id="githubTokenInput" placeholder="ghp_…" autocomplete="off">
+              <button type="button" id="githubConnectBtn" class="github-action-btn">Connect</button>
+              <p class="github-panel-error" id="githubConnectError" hidden></p>
+            </div>
+            <div id="githubConnected" hidden>
+              <p class="github-panel-title">Connected as <span id="githubUsername"></span></p>
+              <label class="github-panel-label">Repository</label>
+              <select id="githubRepoSelect"></select>
+              <label class="github-toggle">
+                <input type="checkbox" id="githubModeToggle">
+                Use GitHub for my next message
+              </label>
+              <button type="button" id="githubDisconnectBtn" class="github-action-btn ghost">Disconnect</button>
+            </div>
+          </div>
+        </div>
+        {% endif %}
         <button type="button" id="attachBtn" class="mic-btn" aria-label="Attach image" title="Attach an image"><i class="fas fa-image"></i></button>
         <input type="file" id="imageInput" accept="image/*" hidden>
+        <button type="button" id="cameraBtn" class="mic-btn" aria-label="Take a photo" title="Take a photo"><i class="fas fa-camera"></i></button>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
         <button type="button" id="micBtn" class="mic-btn" aria-label="Voice typing" title="Speak your message"><i class="fas fa-microphone"></i></button>
         <textarea id="chatInput" rows="1" placeholder="Message EduTrellis AI…" maxlength="4000"></textarea>
         <button type="button" id="sendBtn" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
@@ -333,6 +398,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
   var state = {
     currentConversationId: null,
+    githubMode: false,
     conversations: JSON.parse(document.getElementById('boot-conversations').textContent || '[]'),
     streaming: false,
     guestUsed: AI_GUEST_USED,
@@ -351,6 +417,20 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   var modelDropdown = document.getElementById('modelDropdown');
   var attachBtn = document.getElementById('attachBtn');
   var imageInput = document.getElementById('imageInput');
+  var cameraBtn = document.getElementById('cameraBtn');
+  var cameraInput = document.getElementById('cameraInput');
+  var githubBtn = document.getElementById('githubBtn');
+  var githubBtnLabel = document.getElementById('githubBtnLabel');
+  var githubPanel = document.getElementById('githubPanel');
+  var githubDisconnected = document.getElementById('githubDisconnected');
+  var githubConnected = document.getElementById('githubConnected');
+  var githubTokenInput = document.getElementById('githubTokenInput');
+  var githubConnectBtn = document.getElementById('githubConnectBtn');
+  var githubConnectError = document.getElementById('githubConnectError');
+  var githubUsername = document.getElementById('githubUsername');
+  var githubRepoSelect = document.getElementById('githubRepoSelect');
+  var githubModeToggle = document.getElementById('githubModeToggle');
+  var githubDisconnectBtn = document.getElementById('githubDisconnectBtn');
   var attachPreview = document.getElementById('attachPreview');
   var attachThumb = document.getElementById('attachThumb');
   var attachRemove = document.getElementById('attachRemove');
@@ -379,7 +459,12 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
   // Lightweight markdown → HTML for assistant replies only. Operates on
   // already-escaped text, so the markdown syntax characters (*, `, -, digits)
-  // are the only thing being turned into tags — no raw HTML ever passes through.
+  // are the only thing being turned into tags — no raw HTML ever passes
+  // through. Builds real block elements (<p>/<ul>/<ol>) instead of leaning on
+  // the bubble's white-space:pre-wrap for spacing — mixing pre-wrap blank
+  // lines with block-element margins was what produced the misaligned,
+  // over-spaced replies (and models sometimes use decorative bullets like
+  // ◆/●/▪ instead of '-', which used to fall through as unstyled plain text).
   function formatMd(raw){
     var text = escHtml(raw);
     text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
@@ -388,23 +473,36 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     var lines = text.split('\n');
     var out = [];
     var listType = null;
+    var para = [];
     function closeList(){ if (listType) { out.push('</' + listType + '>'); listType = null; } }
+    function flushPara(){ if (para.length) { out.push('<p>' + para.join('<br>') + '</p>'); para = []; } }
     lines.forEach(function(line){
-      var ul = /^\s*[-*]\s+(.+)$/.exec(line);
-      var ol = /^\s*\d+\.\s+(.+)$/.exec(line);
+      var trimmed = line.trim();
+      var ul = /^[-*•◆●▪‣➤»]\s+(.+)$/.exec(trimmed);
+      var ol = /^\d+[.)]\s+(.+)$/.exec(trimmed);
+      var heading = /^#{1,6}\s+(.+)$/.exec(trimmed);
       if (ul) {
+        flushPara();
         if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
         out.push('<li>' + ul[1] + '</li>');
       } else if (ol) {
+        flushPara();
         if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol'; }
         out.push('<li>' + ol[1] + '</li>');
+      } else if (heading) {
+        closeList(); flushPara();
+        out.push('<p><strong>' + heading[1] + '</strong></p>');
+      } else if (trimmed === '') {
+        closeList();
+        flushPara();
       } else {
         closeList();
-        out.push(line);
+        para.push(trimmed);
       }
     });
     closeList();
-    return out.join('\n');
+    flushPara();
+    return out.join('');
   }
 
   function autoResize(){
@@ -439,7 +537,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       ? '<i class="fas fa-user"></i>'
       : '<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 1.5l2.55 7.95L22.5 12l-7.95 2.55L12 22.5l-2.55-7.95L1.5 12l7.95-2.55L12 1.5z"/></svg>';
     var bubble = document.createElement('div');
-    bubble.className = 'msg-bubble' + (opts.error ? ' error' : '');
+    bubble.className = 'msg-bubble' + (opts.error ? ' error' : '') + (role === 'assistant' ? ' md' : '');
     if (opts.typing) {
       bubble.innerHTML = TYPING_HTML;
     } else {
@@ -492,7 +590,9 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     input.disabled = on || state.gated;
     if (micBtn) micBtn.disabled = on || state.gated;
     if (attachBtn) attachBtn.disabled = on || state.gated;
+    if (cameraBtn) cameraBtn.disabled = on || state.gated;
     if (modelPickerBtn) modelPickerBtn.disabled = on || state.gated;
+    if (githubBtn) githubBtn.disabled = on || state.gated;
   }
 
   // ---- model picker (dropdown) ----
@@ -547,6 +647,153 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     });
     document.addEventListener('keydown', function(e){
       if (e.key === 'Escape' && !modelDropdown.hidden) closeDropdown();
+    });
+  }
+
+  // ---- GitHub mode (staff-only — element only exists in the DOM when
+  // ai_user.is_staff was true server-side) ----
+  if (githubBtn && githubPanel) {
+    var githubState = { connected: false, username: '', repo: '', branch: 'main', reposLoaded: false };
+
+    function openGithubPanel(){ githubPanel.hidden = false; githubBtn.setAttribute('aria-expanded', 'true'); }
+    function closeGithubPanel(){ githubPanel.hidden = true; githubBtn.setAttribute('aria-expanded', 'false'); }
+
+    function renderGithubConnected(){
+      githubDisconnected.hidden = true;
+      githubConnected.hidden = false;
+      githubUsername.textContent = githubState.username || '';
+      githubBtnLabel.textContent = githubState.repo ? githubState.repo.split('/')[1] : 'GitHub';
+    }
+    function renderGithubDisconnected(){
+      githubConnected.hidden = true;
+      githubDisconnected.hidden = false;
+      githubBtnLabel.textContent = 'GitHub';
+      githubModeToggle.checked = false;
+      githubBtn.classList.remove('active');
+      state.githubMode = false;
+    }
+
+    function populateRepoSelect(repos){
+      githubRepoSelect.innerHTML = '';
+      (repos || []).forEach(function(r){
+        var opt = document.createElement('option');
+        opt.value = r.full_name;
+        opt.textContent = r.full_name + (r.private ? ' (private)' : '');
+        if (r.full_name === githubState.repo) opt.selected = true;
+        githubRepoSelect.appendChild(opt);
+      });
+    }
+
+    function loadRepos(){
+      if (githubState.reposLoaded) return;
+      fetch('/AI/api/github/repos/', { credentials: 'same-origin' })
+        .then(function(r){ return r.json(); })
+        .then(function(body){
+          if (body.status === 'ok') { populateRepoSelect(body.repos); githubState.reposLoaded = true; }
+        }).catch(function(){});
+    }
+
+    fetch('/AI/api/github/status/', { credentials: 'same-origin' })
+      .then(function(r){ return r.json(); })
+      .then(function(body){
+        if (body.status !== 'ok' || !body.connected) return;
+        githubState.connected = true;
+        githubState.username = body.github_username;
+        githubState.repo = body.repo;
+        githubState.branch = body.branch;
+        if (body.repo) {
+          var opt = document.createElement('option');
+          opt.value = body.repo; opt.textContent = body.repo; opt.selected = true;
+          githubRepoSelect.appendChild(opt);
+        }
+        renderGithubConnected();
+      }).catch(function(){});
+
+    githubBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (githubBtn.disabled) return;
+      if (githubPanel.hidden) {
+        openGithubPanel();
+        if (githubState.connected) loadRepos();
+      } else {
+        closeGithubPanel();
+      }
+    });
+    document.addEventListener('click', function(e){
+      if (!githubPanel.hidden && !githubBtn.contains(e.target) && !githubPanel.contains(e.target)) closeGithubPanel();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && !githubPanel.hidden) closeGithubPanel();
+    });
+
+    githubConnectBtn.addEventListener('click', function(){
+      var token = githubTokenInput.value.trim();
+      if (!token) return;
+      githubConnectError.hidden = true;
+      githubConnectBtn.disabled = true;
+      githubConnectBtn.textContent = 'Connecting…';
+      fetch('/AI/api/github/connect/', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+        body: JSON.stringify({ token: token }),
+      }).then(function(r){ return r.json().then(function(body){ return { ok: r.ok, body: body }; }); })
+        .then(function(res){
+          githubConnectBtn.disabled = false;
+          githubConnectBtn.textContent = 'Connect';
+          if (!res.ok || res.body.status !== 'ok') {
+            githubConnectError.textContent = res.body.detail || 'Could not connect.';
+            githubConnectError.hidden = false;
+            return;
+          }
+          githubTokenInput.value = '';
+          githubState.connected = true;
+          githubState.username = res.body.github_username;
+          githubState.repo = res.body.repo;
+          githubState.branch = res.body.branch;
+          populateRepoSelect(res.body.repos);
+          githubState.reposLoaded = true;
+          renderGithubConnected();
+        }).catch(function(){
+          githubConnectBtn.disabled = false;
+          githubConnectBtn.textContent = 'Connect';
+          githubConnectError.textContent = 'Could not connect — please try again.';
+          githubConnectError.hidden = false;
+        });
+    });
+
+    githubRepoSelect.addEventListener('change', function(){
+      var repo = githubRepoSelect.value;
+      if (!repo || repo === githubState.repo) return;
+      fetch('/AI/api/github/repo/', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+        body: JSON.stringify({ repo: repo }),
+      }).then(function(r){ return r.json(); })
+        .then(function(body){
+          if (body.status === 'ok') {
+            githubState.repo = body.repo; githubState.branch = body.branch;
+            githubBtnLabel.textContent = body.repo.split('/')[1];
+          }
+        }).catch(function(){});
+    });
+
+    githubModeToggle.addEventListener('change', function(){
+      state.githubMode = githubModeToggle.checked;
+      githubBtn.classList.toggle('active', state.githubMode);
+      input.placeholder = state.githubMode
+        ? 'Tell the AI what to change in ' + (githubState.repo || 'the repo') + '…'
+        : 'Message EduTrellis AI…';
+    });
+
+    githubDisconnectBtn.addEventListener('click', function(){
+      fetch('/AI/api/github/disconnect/', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'X-CSRFToken': csrfToken() },
+      }).then(function(){
+        githubState = { connected: false, username: '', repo: '', branch: 'main', reposLoaded: false };
+        renderGithubDisconnected();
+        closeGithubPanel();
+      }).catch(function(){});
     });
   }
 
@@ -605,24 +852,34 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     img.src = url;
   }
 
+  function handleImageFile(fileInput){
+    var file = fileInput.files && fileInput.files[0];
+    fileInput.value = '';
+    if (!file) return;
+    if (!file.type || file.type.indexOf('image/') !== 0) {
+      showAttachError('Please choose an image file.');
+      return;
+    }
+    compressImage(file, stageImage, function(){
+      showAttachError('Could not use that image — please try a smaller one.');
+    });
+  }
+
   if (attachBtn && imageInput) {
     attachBtn.addEventListener('click', function(){
       if (attachBtn.disabled) return;
       imageInput.click();
     });
-    imageInput.addEventListener('change', function(){
-      var file = imageInput.files && imageInput.files[0];
-      imageInput.value = '';
-      if (!file) return;
-      if (!file.type || file.type.indexOf('image/') !== 0) {
-        showAttachError('Please choose an image file.');
-        return;
-      }
-      compressImage(file, stageImage, function(){
-        showAttachError('Could not use that image — please try a smaller one.');
-      });
-    });
+    imageInput.addEventListener('change', function(){ handleImageFile(imageInput); });
     if (attachRemove) attachRemove.addEventListener('click', clearStagedImage);
+  }
+
+  if (cameraBtn && cameraInput) {
+    cameraBtn.addEventListener('click', function(){
+      if (cameraBtn.disabled) return;
+      cameraInput.click();
+    });
+    cameraInput.addEventListener('change', function(){ handleImageFile(cameraInput); });
   }
 
   // ---- voice typing (dictate into the input box) ----
@@ -722,7 +979,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         col.innerHTML = '';
         emptyState = null;
         data.messages.forEach(function(m){
-          var label = m.model_key ? MODEL_LABELS[m.model_key] : null;
+          var label = m.model_key === 'github' ? 'EduTrellis GitHub' : (m.model_key ? MODEL_LABELS[m.model_key] : null);
           renderRow(m.role, m.content, { image: m.image_data || null, modelLabel: label });
         });
         renderConvList();
@@ -856,8 +1113,46 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
   if (headerLoginBtn) headerLoginBtn.addEventListener('click', showGate);
 
+  function sendGithub(promptText){
+    var text = (typeof promptText === 'string' ? promptText : input.value).trim();
+    if (!text || state.streaming) return;
+
+    stopVoiceTyping();
+    renderRow('user', text, {});
+    input.value = '';
+    autoResize();
+    setStreaming(true);
+    var bubble = renderRow('assistant', '', { typing: true });
+
+    fetch('/AI/api/github/send/', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+      body: JSON.stringify({ conversation_id: state.currentConversationId, message: text }),
+    }).then(function(resp){
+      return resp.json().then(function(body){ return { ok: resp.ok, body: body }; });
+    }).then(function(res){
+      if (!res.ok || res.body.status !== 'ok') {
+        throw new Error(res.body.detail || 'Something went wrong — please try again.');
+      }
+      if (res.body.conversation_id) state.currentConversationId = res.body.conversation_id;
+      var tagHtml = '<div class="msg-model-tag">EduTrellis GitHub</div>';
+      bubble.innerHTML = tagHtml + (formatMd(res.body.reply) || '<i>No response — please try again.</i>');
+      setStreaming(false);
+      scrollToBottom();
+      input.focus();
+      refreshConversations();
+    }).catch(function(err){
+      bubble.className = 'msg-bubble error';
+      bubble.textContent = err.message || 'Something went wrong — please try again.';
+      setStreaming(false);
+      input.focus();
+    });
+  }
+
   function send(promptText){
     if (state.gated) { showGate(); return; }
+    if (state.githubMode) { sendGithub(promptText); return; }
     var text = (typeof promptText === 'string' ? promptText : input.value).trim();
     var imageToSend = stagedImage;
     if ((!text && !imageToSend) || state.streaming) return;

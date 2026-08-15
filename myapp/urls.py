@@ -71,4 +71,11 @@ urlpatterns = [
     path('AI/api/conversations/', views.ai_conversations_list, name='ai_conversations_list'),
     path('AI/api/conversations/<int:conversation_id>/', views.ai_conversation_messages, name='ai_conversation_messages'),
     path('AI/api/conversations/<int:conversation_id>/delete/', views.ai_conversation_delete, name='ai_conversation_delete'),
+
+    path('AI/api/github/status/', views.github_status, name='github_status'),
+    path('AI/api/github/connect/', views.github_connect, name='github_connect'),
+    path('AI/api/github/repos/', views.github_repos, name='github_repos'),
+    path('AI/api/github/repo/', views.github_set_repo, name='github_set_repo'),
+    path('AI/api/github/disconnect/', views.github_disconnect, name='github_disconnect'),
+    path('AI/api/github/send/', views.ai_github_send, name='ai_github_send'),
 ]

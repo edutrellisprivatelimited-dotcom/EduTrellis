@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, re_path, include
 from django.contrib.sitemaps.views import sitemap
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 
 from myapp.sitemaps import StaticViewSitemap, ProductSitemap
 from myapp.views import custom_404
@@ -15,6 +15,10 @@ sitemaps = {
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Private shortcut to the Django admin login — not linked anywhere on the
+    # site, just a memorable URL for direct access.
+    path('welcomernt/', RedirectView.as_view(url='/admin/', permanent=False), name='welcomernt_admin'),
 
     # Main App
     path('', include('myapp.urls')),

@@ -6,6 +6,7 @@ from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
+    EmailSettings, EmailVerification, AIConversation, AIMessage, GitHubConnection,
 )
 
 
@@ -101,6 +102,57 @@ class FeeSettingsAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return not FeeSettings.objects.exists()
+
+
+@admin.register(EmailSettings)
+class EmailSettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_enabled', 'smtp_host', 'smtp_username', 'ready', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not EmailSettings.objects.exists()
+
+
+@admin.register(EmailVerification)
+class EmailVerificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'attempts', 'created_at', 'expires_at')
+    search_fields = ('user__username', 'user__email')
+
+
+@admin.register(StoreProfile)
+class StoreProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone', 'wallet_balance', 'phone_verified')
+    search_fields = ('user__username', 'user__email', 'phone')
+    list_filter = ('phone_verified',)
+
+
+class AIMessageInline(admin.TabularInline):
+    model = AIMessage
+    extra = 0
+    readonly_fields = ('role', 'content', 'image_data', 'model_key', 'created_at')
+    can_delete = False
+
+
+@admin.register(AIConversation)
+class AIConversationAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'user', 'session_key', 'created_at', 'updated_at')
+    search_fields = ('title', 'user__username', 'user__email', 'session_key')
+    list_filter = ('created_at',)
+    inlines = [AIMessageInline]
+
+
+@admin.register(AIMessage)
+class AIMessageAdmin(admin.ModelAdmin):
+    list_display = ('conversation', 'role', 'model_key', 'created_at')
+    list_filter = ('role', 'model_key')
+    search_fields = ('content', 'conversation__title')
+
+
+@admin.register(GitHubConnection)
+class GitHubConnectionAdmin(admin.ModelAdmin):
+    # access_token deliberately left out of list_display so it's never
+    # casually visible while scanning the list view.
+    list_display = ('user', 'github_username', 'repo_full_name', 'default_branch', 'connected_at')
+    search_fields = ('user__username', 'github_username', 'repo_full_name')
 
 
 @admin.register(PhoneVerification)
