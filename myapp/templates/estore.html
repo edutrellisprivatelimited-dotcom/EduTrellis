@@ -1630,6 +1630,15 @@ const state = {
   offerShown: false
 };
 (BOOT.cart && BOOT.cart.items || []).forEach(i => { state.cart[i.product_id] = i.quantity; });
+// Same self-heal as applyCartPayload() below — a cart item can outlive the
+// product it points to, and this is the very first read of state.cart on
+// page load, before any add/update/login response would otherwise trigger it.
+Object.keys(state.cart).forEach(id => {
+  if (!PRODUCTS.find(x => x.id === id)) {
+    postJSON('/store/api/cart/update/', { product_id: id, qty: 0 }).catch(() => {});
+    delete state.cart[id];
+  }
+});
 
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -1687,6 +1696,16 @@ function getJSON(url){
 function applyCartPayload(cart){
   state.cart = {};
   (cart && cart.items || []).forEach(i => { state.cart[i.product_id] = i.quantity; });
+  // A cart item can outlive the product it points to (deleted/deactivated
+  // from the dashboard after someone added it) — cartLines() already
+  // tolerates that defensively, but silently clear it server-side too so
+  // the badge count and totals don't stay permanently off by a phantom item.
+  Object.keys(state.cart).forEach(id => {
+    if (!PRODUCTS.find(x => x.id === id)) {
+      postJSON('/store/api/cart/update/', { product_id: id, qty: 0 }).catch(() => {});
+      delete state.cart[id];
+    }
+  });
 }
 
 /* ---------- 3. LOADER ---------- */
@@ -2089,7 +2108,16 @@ function closeLightbox(){ $('#lightbox').classList.remove('open'); }
 
 /* ---------- 8. CART ---------- */
 function cartLines(){
-  return Object.keys(state.cart).map(id => ({ p: PRODUCTS.find(x => x.id === id), q: state.cart[id] }));
+  // .filter(l => l.p) — a cart can hold an id for a product that's since
+  // been deleted or deactivated (CartItem.product_id isn't a real FK, so
+  // deleting a Product doesn't clean up carts that reference it). Without
+  // this filter, every downstream consumer (renderCart, subtotal, checkout
+  // totals) crashes on l.p.price/l.p.name of an undefined match — which is
+  // exactly what silently broke login/checkout for any account still
+  // holding one of those stale items.
+  return Object.keys(state.cart)
+    .map(id => ({ p: PRODUCTS.find(x => x.id === id), q: state.cart[id] }))
+    .filter(l => l.p);
 }
 function subtotal(){ return cartLines().reduce((s, l) => s + l.p.price * l.q, 0); }
 function walletApplies(){ return state.wallet > 0 && state.useWallet && subtotal() > 0; }
