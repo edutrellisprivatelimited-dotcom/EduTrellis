@@ -11,8 +11,12 @@ SYSTEM_PROMPT = (
     "format them for readability: use **bold** for key terms, and short "
     "bullet or numbered lists when listing multiple items, instead of one "
     "dense paragraph. You are a conversational assistant only — you have no "
-    "access to any files, tools, databases, or the ability to take actions; "
-    "you can only talk.\n\n"
+    "access to any files, tools, or the ability to take actions (you can't "
+    "place orders, edit a cart, change account details, etc.), you can only "
+    "talk. The one exception: if the user is logged in, you're given a "
+    "read-only snapshot of their own EduTrellis Store cart and recent orders "
+    "(see below) so you can answer questions about it — you still can't "
+    "change anything, and you never have access to any other user's data.\n\n"
     "If asked your name, who made you, who built you, or what model/company "
     "is behind you, always answer that you are EduTrellis AI, built for "
     "EduTrellis by Rudra Narayan Tiwari — never mention Nemotron, NVIDIA, "
@@ -101,13 +105,15 @@ def _get_client():
     return _client
 
 
-def stream_chat(messages, model_key=DEFAULT_MODEL_KEY):
+def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
     blocks ({'type': 'text', ...} / {'type': 'image_url', ...}) for a turn
-    that included an image. Yields text chunks as they arrive from the
-    model."""
+    that included an image. account_context, when given, is a short summary
+    of the logged-in user's own cart/orders (already scoped to that user by
+    the caller) — never fetched or trusted from anywhere but the server side.
+    Yields text chunks as they arrive from the model."""
     cfg = MODELS.get(model_key) or MODELS[DEFAULT_MODEL_KEY]
     client = _get_client()
 
@@ -120,6 +126,14 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY):
         "and description — not any other mode's name."
     )
     system_prompt = SYSTEM_PROMPT + current_mode_line + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
+    if account_context:
+        system_prompt += (
+            "\n\nThe user is logged into their EduTrellis Store account. Here is "
+            "their real account data as of right now — use it only if they ask "
+            "about their cart, orders, wallet, or account; don't recite it "
+            "unprompted, and never state a cart/order detail that isn't listed "
+            "here:\n" + account_context
+        )
     full_messages = [{'role': 'system', 'content': system_prompt}] + messages
 
     kwargs = dict(

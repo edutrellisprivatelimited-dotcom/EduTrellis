@@ -1624,6 +1624,51 @@ AI_GUEST_MESSAGE_LIMIT = 6        # free messages before a guest must log in/sig
 # body, so an oversized image gets our own clean error instead of Django's
 # generic one. The client also resizes/compresses before ever uploading.
 AI_IMAGE_MAX_DATA_URI_CHARS = 2_000_000
+AI_ACCOUNT_CART_ITEM_LIMIT = 10
+AI_ACCOUNT_ORDER_LIMIT = 5
+
+
+def _ai_account_context(user):
+    """A compact, bounded snapshot of the logged-in user's own store data —
+    cart contents and recent orders — so the assistant can actually answer
+    'what's in my cart' / 'where's my order' instead of only explaining how
+    to go check. Always scoped to `user` (the authenticated request.user),
+    so there's no path here that can pull another shopper's data. Computed
+    fresh on every request rather than cached, so it can't go stale mid-
+    conversation if the cart or an order status changes."""
+    lines = [f"Logged in as: {user.first_name or user.username}."]
+
+    profile = getattr(user, 'store_profile', None)
+    if profile:
+        lines.append(f"Wallet balance: Rs {profile.wallet_balance}.")
+
+    cart = Cart.objects.filter(user=user).first()
+    cart_items = list(cart.items.all()[:AI_ACCOUNT_CART_ITEM_LIMIT]) if cart else []
+    if cart_items:
+        total_qty = sum(i.quantity for i in cart_items)
+        subtotal = sum((i.subtotal for i in cart_items), Decimal('0'))
+        lines.append(f"Current cart ({total_qty} item(s), Rs {subtotal} subtotal):")
+        for i in cart_items:
+            lines.append(f"- {i.product_name} x{i.quantity} — Rs {i.subtotal}")
+    else:
+        lines.append("Current cart: empty.")
+
+    orders = list(
+        Order.objects.filter(user=user).prefetch_related('items').order_by('-created_at')[:AI_ACCOUNT_ORDER_LIMIT]
+    )
+    if orders:
+        lines.append(f"Recent orders (most recent {len(orders)}):")
+        for o in orders:
+            item_summary = ', '.join(f"{it.product_name} x{it.quantity}" for it in list(o.items.all())[:5])
+            lines.append(
+                f"- Order #{o.pk}: {o.get_status_display()}, placed "
+                f"{timezone.localtime(o.created_at):%d %b %Y}, total Rs {o.total}, "
+                f"payment: {o.payment_label or 'pending'}. Items: {item_summary}"
+            )
+    else:
+        lines.append("Orders: none placed yet.")
+
+    return '\n'.join(lines)
 
 
 def _ai_owner_filter(request):
@@ -1774,10 +1819,12 @@ def ai_chat_send(request):
             content = m['content']
         clean_history.append({'role': m['role'], 'content': content})
 
+    account_context = _ai_account_context(request.user) if request.user.is_authenticated else None
+
     def event_stream():
         full_reply = ''
         try:
-            for chunk in ai_chat.stream_chat(clean_history, model_key=model_key):
+            for chunk in ai_chat.stream_chat(clean_history, model_key=model_key, account_context=account_context):
                 full_reply += chunk
                 yield chunk
         except Exception as e:

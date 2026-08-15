@@ -27,13 +27,15 @@ a{color:var(--red);text-decoration:none}
 .loader-pct{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--red)}
 
 /* ---- brand logo (matches the EduTrellis Store header) ---- */
-.logo-wrap{display:flex;align-items:center;text-decoration:none;flex:none}
+.logo-wrap{display:flex;flex-direction:column;justify-content:center;text-decoration:none;flex:none;line-height:1.15}
 .logo-txt{font-family:'Sora',sans-serif;font-size:1.28rem;font-weight:900;letter-spacing:-.035em;color:var(--head)}
 .logo-txt span{color:var(--red)}
+.logo-sub{font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9aa3b0}
 
 /* larger version of the same wordmark, used in place of a generic icon badge */
-.brand-mark{margin-bottom:.3rem}
+.brand-mark{display:flex;flex-direction:column;align-items:center;gap:.15rem;margin-bottom:.3rem}
 .brand-mark .logo-txt{font-size:1.7rem}
+.brand-mark .logo-sub{font-size:.68rem}
 
 header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:.85rem 1.25rem;flex:none;z-index:20}
 .hd-wrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
@@ -121,6 +123,10 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 .model-picker-btn:disabled{opacity:.5;cursor:default}
 .model-picker-btn i{font-size:.6rem;color:#9aa3b0;transition:transform .18s}
 .model-picker-btn.open i{transform:rotate(180deg)}
+/* immediate confirmation that the switch registered, independent of
+   waiting for the next reply to come back */
+.model-picker-btn.switched{border-color:var(--red);color:var(--red);animation:modelSwitchFlash .5s ease}
+@keyframes modelSwitchFlash{0%{background:#fff1f3}100%{background:#fff}}
 .model-dropdown{position:absolute;bottom:calc(100% + .6rem);left:0;min-width:230px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.4rem;z-index:30}
 .model-option{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;width:100%;text-align:left;border:none;background:none;padding:.55rem .65rem;border-radius:10px;cursor:pointer}
 .model-option:hover{background:var(--bg-alt)}
@@ -183,8 +189,15 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 }
 @media (max-width:480px){
   .model-picker-btn{padding:0 .5rem 0 .6rem}
-  .model-picker-btn span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .model-dropdown{left:auto;right:0}
+  .model-picker-btn span{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* anchored left, not right — the button sits at the left edge of the
+     composer, so the dropdown must grow rightward to stay on-screen */
+  .model-dropdown{left:0;right:auto;min-width:210px}
+}
+@media (max-width:360px){
+  .model-picker-btn span{display:none}
+  .model-picker-btn{padding:0 .45rem}
+  .model-dropdown{min-width:190px}
 }
 @media (max-width:420px){
   .logo-txt{font-size:1.05rem}
@@ -204,6 +217,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 <body>
 <div id="loader">
   <div class="loader-logo">Edu<span>Trellis</span> AI</div>
+  <div class="loader-tag">An EduTrellis Company</div>
   <div class="loader-progress"><div class="loader-fill" id="loaderFill"></div></div>
   <div class="loader-pct" id="loaderPct">0%</div>
 </div>
@@ -225,6 +239,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle chat history"><i class="fas fa-bars"></i></button>
       <a href="/" class="logo-wrap">
         <span class="logo-txt">Edu<span>Trellis</span> AI</span>
+        <span class="logo-sub">An EduTrellis Company</span>
       </a>
     </div>
     <div class="hd-right">
@@ -255,8 +270,9 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         <div class="empty-state" id="emptyState">
           <div class="brand-mark">
             <span class="logo-txt">Edu<span>Trellis</span> AI</span>
+            <span class="logo-sub">An EduTrellis Company</span>
           </div>
-          <p>Ask me anything — I'm a conversational assistant only, with no access to your account, orders, or any other system.</p>
+          <p>Ask me anything — including about your EduTrellis Store cart and orders if you're logged in. I can't take actions on your account, only answer questions about it.</p>
           <div class="suggest-row" id="suggestRow">
             <button type="button" class="suggest-chip" data-prompt="What is EduTrellis?">What is EduTrellis?</button>
             <button type="button" class="suggest-chip" data-prompt="Help me choose a service for my business website.">Help me pick a service</button>
@@ -482,13 +498,21 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   // ---- model picker (dropdown) ----
   var currentModel = AI_DEFAULT_MODEL;
   if (modelPickerBtn && modelDropdown && modelPickerLabel) {
-    var applyModelSelection = function(key){
+    var applyModelSelection = function(key, flash){
       var opt = modelDropdown.querySelector('[data-model="' + key + '"]');
       if (!opt) return;
+      var changed = currentModel !== key;
       currentModel = key;
       localStorage.setItem('ai_model', key);
       modelPickerLabel.textContent = opt.getAttribute('data-label');
       modelDropdown.querySelectorAll('.model-option').forEach(function(o){ o.classList.toggle('active', o === opt); });
+      // Instant confirmation the switch registered, decoupled from waiting
+      // on the next reply — a brief flash on the button itself.
+      if (flash && changed) {
+        modelPickerBtn.classList.remove('switched');
+        void modelPickerBtn.offsetWidth; // restart the animation if clicked again quickly
+        modelPickerBtn.classList.add('switched');
+      }
     };
 
     var savedModel = localStorage.getItem('ai_model');
@@ -515,7 +539,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     modelDropdown.addEventListener('click', function(e){
       var opt = e.target.closest('.model-option');
       if (!opt || state.streaming || state.gated) return;
-      applyModelSelection(opt.getAttribute('data-model'));
+      applyModelSelection(opt.getAttribute('data-model'), true);
       closeDropdown();
     });
     document.addEventListener('click', function(e){
@@ -698,7 +722,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         col.innerHTML = '';
         emptyState = null;
         data.messages.forEach(function(m){
-          var label = (m.model_key && m.model_key !== 'ultra') ? MODEL_LABELS[m.model_key] : null;
+          var label = m.model_key ? MODEL_LABELS[m.model_key] : null;
           renderRow(m.role, m.content, { image: m.image_data || null, modelLabel: label });
         });
         renderConvList();
@@ -901,7 +925,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       return pump();
     }).then(function(result){
       if (result === null) return; // gated — bubble already removed
-      var label = (answeredModelKey && answeredModelKey !== 'ultra') ? MODEL_LABELS[answeredModelKey] : null;
+      var label = answeredModelKey ? MODEL_LABELS[answeredModelKey] : null;
       var tagHtml = label ? '<div class="msg-model-tag">' + escHtml(label) + '</div>' : '';
       bubble.innerHTML = tagHtml + (formatMd(assistantText) || '<i>No response — please try again.</i>');
       setStreaming(false);
