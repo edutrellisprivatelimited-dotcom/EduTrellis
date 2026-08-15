@@ -678,11 +678,16 @@ class Review(models.Model):
 
 
 class AIConversation(models.Model):
-    """One saved chat thread on /AI/ for a logged-in user, ChatGPT-style."""
-    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ai_conversations')
-    title      = models.CharField(max_length=80, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    """One saved chat thread on /AI/, ChatGPT-style. A guest (not logged in)
+    can chat for a few messages before being asked to log in — their
+    conversation is kept here tied to session_key (user is null) and gets
+    handed over to their account (user set, session_key cleared) the moment
+    they log in or sign up, the same way an anonymous cart is merged in."""
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ai_conversations', null=True, blank=True)
+    session_key = models.CharField(max_length=40, blank=True, db_index=True)
+    title       = models.CharField(max_length=80, blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-updated_at']

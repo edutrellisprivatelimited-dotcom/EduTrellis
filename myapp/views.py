@@ -318,6 +318,16 @@ def _merge_session_cart_into_user(user, session_key):
     anon_cart.delete()
 
 
+def _merge_session_ai_chats_into_user(user, session_key):
+    """Same idea as _merge_session_cart_into_user: any /AI/ conversations a
+    guest started before logging in are tied to their pre-login session_key,
+    not to a User row yet. Hand them over on login/signup instead of
+    stranding them as an orphaned anonymous chat."""
+    if not session_key:
+        return
+    AIConversation.objects.filter(session_key=session_key, user__isnull=True).update(user=user, session_key='')
+
+
 def _cart_payload(cart):
     items = list(cart.items.all())
     subtotal = sum((i.subtotal for i in items), Decimal('0'))
@@ -511,6 +521,7 @@ def store_signup(request):
     if auth_user:
         login(request, auth_user)
         _merge_session_cart_into_user(auth_user, pre_login_session_key)
+        _merge_session_ai_chats_into_user(auth_user, pre_login_session_key)
 
     # Best-effort — the account is already created and the shopper is
     # already logged in above, so a slow/flaky SMS send (or none configured
@@ -631,6 +642,7 @@ def store_login(request):
 
     login(request, auth_user)
     _merge_session_cart_into_user(auth_user, pre_login_session_key)
+    _merge_session_ai_chats_into_user(auth_user, pre_login_session_key)
 
     cart = _get_or_create_cart(request)
     return JsonResponse({'status': 'ok', 'user': _user_payload(auth_user), 'cart': _cart_payload(cart)})
@@ -1606,20 +1618,34 @@ AI_CHAT_RATE_WINDOW = 10 * 60     # per 10 minutes, per IP
 AI_CHAT_MAX_MESSAGE_CHARS = 4000
 AI_CHAT_MAX_HISTORY = 20          # most recent saved messages sent to the model as context
 AI_CONVERSATION_TITLE_CHARS = 60
+AI_GUEST_MESSAGE_LIMIT = 6        # free messages before a guest must log in/sign up
+
+
+def _ai_owner_filter(request):
+    """Logged-in users own conversations by user FK; guests own them by the
+    session_key their browser already carries (same session used for the
+    anonymous cart) — that's what lets a guest's chat survive a page reload
+    and then get handed to their account the moment they log in."""
+    if request.user.is_authenticated:
+        return Q(user=request.user)
+    if not request.session.session_key:
+        request.session.create()
+    return Q(user__isnull=True, session_key=request.session.session_key)
 
 
 def ai_page(request):
-    conversations = []
-    if request.user.is_authenticated:
-        conversations = list(
-            request.user.ai_conversations.values('id', 'title', 'updated_at').order_by('-updated_at')[:100]
-        )
-        for c in conversations:
-            c['updated_at'] = timezone.localtime(c['updated_at']).isoformat()
+    conversations = list(
+        AIConversation.objects.filter(_ai_owner_filter(request))
+        .values('id', 'title', 'updated_at').order_by('-updated_at')[:100]
+    )
+    for c in conversations:
+        c['updated_at'] = timezone.localtime(c['updated_at']).isoformat()
     return render(request, 'ai.html', {
         'ai_authenticated': request.user.is_authenticated,
         'ai_user': _user_payload(request.user) if request.user.is_authenticated else None,
         'ai_conversations': conversations,
+        'ai_guest_limit': AI_GUEST_MESSAGE_LIMIT,
+        'ai_guest_used': 0 if request.user.is_authenticated else request.session.get('ai_guest_msg_count', 0),
     })
 
 
@@ -1631,15 +1657,13 @@ def _client_ip(request):
 def ai_chat_send(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
-    if not request.user.is_authenticated:
-        return JsonResponse({'status': 'error', 'detail': 'Please log in to chat with EduTrellis AI.'}, status=401)
 
     # A real, billable API key sits behind this — a basic per-IP rate limit
-    # is the brake against a logged-in account (or a script cycling through
-    # accounts) hammering it. Uses Django's cache, which on a single-process
-    # dev server is exact; under multiple gunicorn workers each worker has
-    # its own count, so the effective ceiling is (limit × worker count) —
-    # a soft brake, not a hard guarantee.
+    # is the brake against an account (or a guest, or a script cycling
+    # through either) hammering it. Uses Django's cache, which on a
+    # single-process dev server is exact; under multiple gunicorn workers
+    # each worker has its own count, so the effective ceiling is
+    # (limit × worker count) — a soft brake, not a hard guarantee.
     ip = _client_ip(request)
     cache_key = f'ai_chat_rate:{ip}'
     count = cache.get(cache_key, 0)
@@ -1648,25 +1672,44 @@ def ai_chat_send(request):
             {'status': 'error', 'detail': "You're sending messages too quickly — please wait a bit and try again."},
             status=429,
         )
-    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
 
     payload = _parse_json_body(request)
     message = str(payload.get('message', ''))[:AI_CHAT_MAX_MESSAGE_CHARS].strip()
     if not message:
         return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
 
+    if not request.user.is_authenticated:
+        if not request.session.session_key:
+            request.session.create()
+        guest_count = request.session.get('ai_guest_msg_count', 0)
+        if guest_count >= AI_GUEST_MESSAGE_LIMIT:
+            return JsonResponse({
+                'status': 'login_required',
+                'detail': "You've reached the free message limit — log in or sign up to keep chatting. Your conversation is saved and will carry over.",
+            }, status=403)
+
+    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
+
+    owner_filter = _ai_owner_filter(request)
     conversation_id = payload.get('conversation_id')
     conversation = None
     if conversation_id:
-        conversation = AIConversation.objects.filter(pk=conversation_id, user=request.user).first()
+        conversation = AIConversation.objects.filter(owner_filter, pk=conversation_id).first()
         if not conversation:
             return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     if conversation is None:
-        conversation = AIConversation.objects.create(user=request.user, title=message[:AI_CONVERSATION_TITLE_CHARS])
+        title = message[:AI_CONVERSATION_TITLE_CHARS]
+        if request.user.is_authenticated:
+            conversation = AIConversation.objects.create(user=request.user, title=title)
+        else:
+            conversation = AIConversation.objects.create(session_key=request.session.session_key, title=title)
 
     AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_USER, content=message)
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
+
+    if not request.user.is_authenticated:
+        request.session['ai_guest_msg_count'] = request.session.get('ai_guest_msg_count', 0) + 1
 
     recent = list(conversation.messages.order_by('-created_at').values('role', 'content')[:AI_CHAT_MAX_HISTORY])
     recent.reverse()
@@ -1693,10 +1736,9 @@ def ai_chat_send(request):
 
 
 def ai_conversations_list(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'status': 'error', 'detail': 'Please log in.'}, status=401)
     conversations = list(
-        request.user.ai_conversations.values('id', 'title', 'updated_at').order_by('-updated_at')[:100]
+        AIConversation.objects.filter(_ai_owner_filter(request))
+        .values('id', 'title', 'updated_at').order_by('-updated_at')[:100]
     )
     for c in conversations:
         c['updated_at'] = timezone.localtime(c['updated_at']).isoformat()
@@ -1704,9 +1746,7 @@ def ai_conversations_list(request):
 
 
 def ai_conversation_messages(request, conversation_id):
-    if not request.user.is_authenticated:
-        return JsonResponse({'status': 'error', 'detail': 'Please log in.'}, status=401)
-    conversation = AIConversation.objects.filter(pk=conversation_id, user=request.user).first()
+    conversation = AIConversation.objects.filter(_ai_owner_filter(request), pk=conversation_id).first()
     if not conversation:
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     messages_qs = list(conversation.messages.order_by('created_at').values('role', 'content'))
@@ -1716,9 +1756,7 @@ def ai_conversation_messages(request, conversation_id):
 def ai_conversation_delete(request, conversation_id):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
-    if not request.user.is_authenticated:
-        return JsonResponse({'status': 'error', 'detail': 'Please log in.'}, status=401)
-    conversation = AIConversation.objects.filter(pk=conversation_id, user=request.user).first()
+    conversation = AIConversation.objects.filter(_ai_owner_filter(request), pk=conversation_id).first()
     if not conversation:
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     conversation.delete()

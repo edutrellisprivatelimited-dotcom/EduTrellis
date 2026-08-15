@@ -22,13 +22,19 @@ a{color:var(--red);text-decoration:none}
 .logo-txt span{color:var(--red)}
 .logo-sub{font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9aa3b0}
 
+/* larger version of the same wordmark, used in place of a generic icon badge */
+.brand-mark{display:flex;flex-direction:column;align-items:center;gap:.15rem;margin-bottom:.3rem}
+.brand-mark .logo-txt{font-size:1.7rem}
+.brand-mark .logo-sub{font-size:.68rem}
+
 header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:.85rem 1.25rem;flex:none;z-index:20}
 .hd-wrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .hd-left{display:flex;align-items:center;gap:.7rem}
-.sidebar-toggle{display:none;border:1.5px solid var(--line);background:#fff;color:var(--head);width:36px;height:36px;border-radius:10px;cursor:pointer;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.sidebar-toggle{border:1.5px solid var(--line);background:#fff;color:var(--head);width:36px;height:36px;border-radius:10px;cursor:pointer;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;display:none}
 .hd-right{display:flex;align-items:center;gap:.8rem}
 .hd-back{font-size:.82rem;font-weight:700;color:var(--text);display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .7rem;border-radius:10px;transition:background .15s,color .15s}
 .hd-back:hover{color:var(--red);background:var(--bg-alt)}
+.hd-login-btn{font-size:.82rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--red),var(--red-dark));padding:.5rem 1rem;border-radius:10px;border:none;cursor:pointer}
 .acct-chip{display:flex;align-items:center;gap:.5rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:50px;padding:.3rem .5rem .3rem .3rem}
 .acct-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .acct-name{font-size:.78rem;font-weight:700;color:var(--head);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -55,11 +61,8 @@ header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:
 main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem;background:radial-gradient(circle at 50% 0%,#fff6f6 0%,#fff 45%)}
 .chat-col{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:1.1rem;min-height:100%}
 
-.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:.7rem;padding:2rem 1rem;color:var(--text)}
-.empty-badge{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;margin-bottom:.2rem;box-shadow:0 8px 24px rgba(232,0,30,.22)}
-.empty-state h1{font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:800;color:var(--head)}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:.6rem;padding:2rem 1rem;color:var(--text)}
 .empty-state p{font-size:.9rem;max-width:26rem}
-.empty-credit{font-size:.72rem;color:#b3bac4;font-weight:600}
 .suggest-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-top:.6rem;max-width:34rem}
 .suggest-chip{font-size:.8rem;font-weight:600;color:var(--head);background:var(--bg-alt);border:1px solid var(--line);padding:.5rem .9rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s,transform .1s}
 .suggest-chip:hover{border-color:var(--red);color:var(--red)}
@@ -90,31 +93,28 @@ main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem;background:radial-gradie
 footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 1.25rem 1.1rem}
 .input-wrap{max-width:780px;margin:0 auto;display:flex;align-items:flex-end;gap:.6rem;background:var(--bg-alt);border:1.5px solid var(--line);border-radius:16px;padding:.5rem .6rem .5rem 1rem;transition:border-color .2s,box-shadow .2s}
 .input-wrap:focus-within{border-color:var(--red);box-shadow:0 0 0 3px rgba(232,0,30,.08)}
+.input-wrap.disabled{opacity:.6}
 #chatInput{flex:1;border:none;background:none;resize:none;font-family:inherit;font-size:.92rem;color:var(--head);max-height:140px;line-height:1.5;padding:.4rem 0}
 #chatInput:focus{outline:none}
 #sendBtn{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s,transform .1s}
 #sendBtn:hover:not(:disabled){transform:scale(1.06)}
 #sendBtn:disabled{opacity:.45;cursor:default}
-.foot-note{max-width:780px;margin:.6rem auto 0;font-size:.7rem;color:#9aa3b0;text-align:center;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap}
-.foot-dot{opacity:.5}
-.foot-credit{color:#b3bac4;font-weight:600}
+.foot-note{max-width:780px;margin:.6rem auto 0;font-size:.7rem;color:#9aa3b0;text-align:center}
+.guest-meter{max-width:780px;margin:.5rem auto 0;font-size:.75rem;color:var(--text);text-align:center;font-weight:600}
+.guest-meter a{font-weight:700}
 
-/* ---- auth gate (login / signup) ---- */
-.auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1.25rem;overflow-y:auto;background:radial-gradient(circle at 50% 0%,#fff6f6 0%,#fff 45%)}
-.auth-card{width:100%;max-width:380px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:2rem 1.7rem;box-shadow:0 20px 50px rgba(17,20,24,.08);text-align:center}
-.auth-badge{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.35rem;margin:0 auto .9rem;box-shadow:0 8px 22px rgba(232,0,30,.22)}
-.auth-card h1{font-family:'Sora',sans-serif;font-size:1.25rem;font-weight:800;color:var(--head)}
-.auth-card>p{font-size:.83rem;color:var(--text);margin:.55rem 0 1.3rem;line-height:1.55}
-.auth-tabs{display:flex;background:var(--bg-alt);border-radius:12px;padding:.25rem;margin-bottom:1.2rem}
+/* ---- inline "log in to keep chatting" gate card ---- */
+.gate-card{max-width:420px;margin:.5rem auto 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:1.6rem 1.5rem;box-shadow:0 12px 32px rgba(17,20,24,.08);text-align:center}
+.gate-card p{font-size:.85rem;color:var(--text);margin:.5rem 0 1.1rem;line-height:1.55}
+.auth-tabs{display:flex;background:var(--bg-alt);border-radius:12px;padding:.25rem;margin-bottom:1.1rem}
 .auth-tab{flex:1;border:none;background:none;padding:.55rem 0;font-size:.83rem;font-weight:700;color:var(--text);border-radius:9px;cursor:pointer;transition:background .15s,color .15s}
 .auth-tab.active{background:#fff;color:var(--red);box-shadow:0 1px 4px rgba(17,20,24,.1)}
-.auth-form{display:flex;flex-direction:column;gap:.7rem;text-align:left}
+.auth-form{display:flex;flex-direction:column;gap:.65rem;text-align:left}
 .auth-form input{border:1.5px solid var(--line);border-radius:11px;padding:.7rem .85rem;font-family:inherit;font-size:.87rem;color:var(--head);background:var(--bg-alt)}
 .auth-form input:focus{outline:none;border-color:var(--red);background:#fff}
 .auth-error{font-size:.78rem;color:var(--red);min-height:1em;font-weight:600}
 .auth-submit{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-weight:700;font-size:.88rem;padding:.75rem 0;border-radius:11px;margin-top:.2rem;transition:opacity .15s}
 .auth-submit:disabled{opacity:.55;cursor:default}
-.auth-switch-note{font-size:.72rem;color:#9aa3b0;margin-top:1rem}
 
 @media (max-width:880px){
   .sidebar-toggle{display:flex}
@@ -130,7 +130,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   main{padding:1.1rem .9rem .8rem}
   .suggest-row{gap:.4rem}
   .suggest-chip{font-size:.75rem;padding:.45rem .75rem}
-  .auth-card{padding:1.6rem 1.2rem}
+  .gate-card{padding:1.4rem 1.1rem}
 }
 </style>
 </head>
@@ -138,7 +138,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 <header>
   <div class="hd-wrap">
     <div class="hd-left">
-      {% if ai_authenticated %}<button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle chat history"><i class="fas fa-bars"></i></button>{% endif %}
+      <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle chat history"><i class="fas fa-bars"></i></button>
       <a href="/" class="logo-wrap">
         <span class="logo-txt">Edu<span>Trellis</span> AI</span>
         <span class="logo-sub">An EduTrellis Company</span>
@@ -151,13 +151,14 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         <span class="acct-name">{{ ai_user.name }}</span>
         <button type="button" class="acct-logout" id="logoutBtn" aria-label="Log out"><i class="fas fa-arrow-right-from-bracket"></i></button>
       </div>
+      {% else %}
+      <button type="button" class="hd-login-btn" id="headerLoginBtn">Log In</button>
       {% endif %}
       <a href="/" class="hd-back"><i class="fas fa-arrow-left"></i> <span>Back to site</span></a>
     </div>
   </div>
 </header>
 
-{% if ai_authenticated %}
 <div class="body-row">
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <aside class="sidebar" id="sidebar">
@@ -169,8 +170,10 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     <main id="chatMain">
       <div class="chat-col" id="chatCol">
         <div class="empty-state" id="emptyState">
-          <div class="empty-badge"><i class="fas fa-sparkles"></i></div>
-          <h1>EduTrellis AI</h1>
+          <div class="brand-mark">
+            <span class="logo-txt">Edu<span>Trellis</span> AI</span>
+            <span class="logo-sub">An EduTrellis Company</span>
+          </div>
           <p>Ask me anything — I'm a conversational assistant only, with no access to your account, orders, or any other system.</p>
           <div class="suggest-row" id="suggestRow">
             <button type="button" class="suggest-chip" data-prompt="What is EduTrellis?">What is EduTrellis?</button>
@@ -178,68 +181,45 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
             <button type="button" class="suggest-chip" data-prompt="How do I track my order on the EduTrellis store?">Track my order</button>
             <button type="button" class="suggest-chip" data-prompt="Explain a tricky topic to me in simple terms.">Explain something simply</button>
           </div>
-          <p class="empty-credit">Built for EduTrellis by Rudra Narayan Tiwari</p>
         </div>
       </div>
     </main>
 
     <footer>
-      <div class="input-wrap">
+      <div class="input-wrap" id="inputWrap">
         <textarea id="chatInput" rows="1" placeholder="Message EduTrellis AI…" maxlength="4000"></textarea>
         <button type="button" id="sendBtn" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
       </div>
-      <p class="foot-note">
-        <span>Responses are AI-generated and may be inaccurate. Don't share sensitive personal information.</span>
-        <span class="foot-dot">·</span>
-        <span class="foot-credit">EduTrellis AI, built by Rudra Narayan Tiwari</span>
-      </p>
+      {% if ai_authenticated %}
+      <p class="foot-note">Responses are AI-generated and may be inaccurate. Don't share sensitive personal information.</p>
+      {% else %}
+      <p class="guest-meter" id="guestMeter"></p>
+      {% endif %}
     </footer>
   </div>
 </div>
-{% else %}
-<div class="auth-wrap">
-  <div class="auth-card">
-    <div class="auth-badge"><i class="fas fa-sparkles"></i></div>
-    <h1>EduTrellis AI</h1>
-    <p>Log in or create a free account to start chatting — it's the same account you use on the EduTrellis Store, and your conversations are saved to it.</p>
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab active" id="tabLogin" data-tab="login">Log In</button>
-      <button type="button" class="auth-tab" id="tabSignup" data-tab="signup">Sign Up</button>
-    </div>
-    <form id="loginForm" class="auth-form">
-      <input type="text" name="identifier" placeholder="Email or phone number" required autocomplete="username">
-      <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
-      <p class="auth-error" id="loginError"></p>
-      <button type="submit" class="auth-submit" id="loginSubmit">Log In</button>
-    </form>
-    <form id="signupForm" class="auth-form" style="display:none">
-      <input type="text" name="name" placeholder="Full name" required autocomplete="name">
-      <input type="tel" name="phone" placeholder="Phone number" required autocomplete="tel">
-      <input type="email" name="email" placeholder="Email address" required autocomplete="email">
-      <input type="password" name="password" placeholder="Create a password (6+ characters)" required autocomplete="new-password" minlength="6">
-      <p class="auth-error" id="signupError"></p>
-      <button type="submit" class="auth-submit" id="signupSubmit">Create Account</button>
-    </form>
-    <p class="auth-switch-note">Built for EduTrellis by Rudra Narayan Tiwari</p>
-  </div>
-</div>
-{% endif %}
 
 {% csrf_token %}
-{% if ai_authenticated %}
 {{ ai_conversations|json_script:"boot-conversations" }}
 <script>
 (function(){
+  var AI_AUTHENTICATED = {% if ai_authenticated %}true{% else %}false{% endif %};
+  var AI_GUEST_LIMIT = {{ ai_guest_limit|default:6 }};
+  var AI_GUEST_USED = {{ ai_guest_used|default:0 }};
+
   var state = {
     currentConversationId: null,
     conversations: JSON.parse(document.getElementById('boot-conversations').textContent || '[]'),
     streaming: false,
+    guestUsed: AI_GUEST_USED,
+    gated: false,
   };
 
   var main = document.getElementById('chatMain');
   var col = document.getElementById('chatCol');
   var emptyState = document.getElementById('emptyState');
   var input = document.getElementById('chatInput');
+  var inputWrap = document.getElementById('inputWrap');
   var sendBtn = document.getElementById('sendBtn');
   var convList = document.getElementById('convList');
   var newChatBtn = document.getElementById('newChatBtn');
@@ -247,8 +227,10 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   var sidebarToggle = document.getElementById('sidebarToggle');
   var sidebarBackdrop = document.getElementById('sidebarBackdrop');
   var logoutBtn = document.getElementById('logoutBtn');
+  var headerLoginBtn = document.getElementById('headerLoginBtn');
+  var guestMeter = document.getElementById('guestMeter');
 
-  var EMPTY_STATE_HTML = document.getElementById('emptyState') ? document.getElementById('emptyState').outerHTML : '';
+  var EMPTY_STATE_HTML = emptyState ? emptyState.outerHTML : '';
 
   function csrfToken(){
     var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
@@ -301,6 +283,15 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     main.scrollTop = main.scrollHeight;
   }
 
+  function updateGuestMeter(){
+    if (AI_AUTHENTICATED || !guestMeter) return;
+    var left = Math.max(0, AI_GUEST_LIMIT - state.guestUsed);
+    guestMeter.innerHTML = left + ' of ' + AI_GUEST_LIMIT + ' free messages left — <a href="#" id="guestMeterLogin">log in</a> to chat without limits and keep your history.';
+    var link = document.getElementById('guestMeterLogin');
+    if (link) link.addEventListener('click', function(e){ e.preventDefault(); showGate(); });
+  }
+  updateGuestMeter();
+
   var TYPING_HTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
 
   function renderRow(role, text, opts){
@@ -342,8 +333,8 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
   function setStreaming(on){
     state.streaming = on;
-    sendBtn.disabled = on;
-    input.disabled = on;
+    sendBtn.disabled = on || state.gated;
+    input.disabled = on || state.gated;
   }
 
   function renderConvList(){
@@ -427,21 +418,107 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
   function openSidebarMobile(){ sidebar.classList.add('open'); sidebarBackdrop.classList.add('open'); }
   function closeSidebarMobile(){ sidebar.classList.remove('open'); sidebarBackdrop.classList.remove('open'); }
-  if (sidebarToggle) sidebarToggle.addEventListener('click', function(){
+  sidebarToggle.addEventListener('click', function(){
     sidebar.classList.contains('open') ? closeSidebarMobile() : openSidebarMobile();
   });
   sidebarBackdrop.addEventListener('click', closeSidebarMobile);
 
-  logoutBtn.addEventListener('click', function(){
-    fetch('/store/api/logout/', { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRFToken': csrfToken() } })
-      .then(function(){ window.location.reload(); });
-  });
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function(){
+      fetch('/store/api/logout/', { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRFToken': csrfToken() } })
+        .then(function(){ window.location.reload(); });
+    });
+  }
+
+  // ---- inline "log in to keep chatting" gate ----
+  function gateCardHtml(){
+    return (
+      '<div class="gate-card" id="gateCard">' +
+        '<p>You\'ve used your ' + AI_GUEST_LIMIT + ' free messages. Log in or sign up to keep chatting — your conversation is saved and carries over to your account.</p>' +
+        '<div class="auth-tabs"><button type="button" class="auth-tab active" data-tab="login">Log In</button><button type="button" class="auth-tab" data-tab="signup">Sign Up</button></div>' +
+        '<form id="gateLoginForm" class="auth-form">' +
+          '<input type="text" name="identifier" placeholder="Email or phone number" required autocomplete="username">' +
+          '<input type="password" name="password" placeholder="Password" required autocomplete="current-password">' +
+          '<p class="auth-error" id="gateLoginError"></p>' +
+          '<button type="submit" class="auth-submit">Log In</button>' +
+        '</form>' +
+        '<form id="gateSignupForm" class="auth-form" style="display:none">' +
+          '<input type="text" name="name" placeholder="Full name" required autocomplete="name">' +
+          '<input type="tel" name="phone" placeholder="Phone number" required autocomplete="tel">' +
+          '<input type="email" name="email" placeholder="Email address" required autocomplete="email">' +
+          '<input type="password" name="password" placeholder="Create a password (6+ characters)" required autocomplete="new-password" minlength="6">' +
+          '<p class="auth-error" id="gateSignupError"></p>' +
+          '<button type="submit" class="auth-submit">Create Account</button>' +
+        '</form>' +
+      '</div>'
+    );
+  }
+
+  function submitGateForm(form, url, body, errorEl, submitBtn){
+    errorEl.textContent = '';
+    submitBtn.disabled = true;
+    fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+      body: JSON.stringify(body)
+    }).then(function(resp){ return resp.json().then(function(data){ return { ok: resp.ok, data: data }; }); })
+      .then(function(res){
+        if (res.data.status === 'ok') { window.location.reload(); return; }
+        errorEl.textContent = res.data.errors ? Object.values(res.data.errors)[0] : (res.data.detail || 'Something went wrong — please try again.');
+        submitBtn.disabled = false;
+      }).catch(function(){
+        errorEl.textContent = 'Something went wrong — please try again.';
+        submitBtn.disabled = false;
+      });
+  }
+
+  function showGate(){
+    if (state.gated) return;
+    state.gated = true;
+    setStreaming(state.streaming);
+    var wrap = document.createElement('div');
+    wrap.innerHTML = gateCardHtml();
+    var card = wrap.firstChild;
+    col.appendChild(card);
+    scrollToBottom();
+
+    var tabs = card.querySelectorAll('.auth-tab');
+    var loginForm = card.querySelector('#gateLoginForm');
+    var signupForm = card.querySelector('#gateSignupForm');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.classList.remove('active'); });
+        tab.classList.add('active');
+        var isLogin = tab.getAttribute('data-tab') === 'login';
+        loginForm.style.display = isLogin ? 'flex' : 'none';
+        signupForm.style.display = isLogin ? 'none' : 'flex';
+      });
+    });
+    loginForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      submitGateForm(loginForm, '/store/api/login/', {
+        identifier: loginForm.identifier.value.trim(), password: loginForm.password.value,
+      }, card.querySelector('#gateLoginError'), loginForm.querySelector('.auth-submit'));
+    });
+    signupForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      submitGateForm(signupForm, '/store/api/signup/', {
+        name: signupForm.name.value.trim(), phone: signupForm.phone.value.trim(),
+        email: signupForm.email.value.trim(), password: signupForm.password.value,
+      }, card.querySelector('#gateSignupError'), signupForm.querySelector('.auth-submit'));
+    });
+  }
+
+  if (headerLoginBtn) headerLoginBtn.addEventListener('click', showGate);
 
   function send(promptText){
+    if (state.gated) { showGate(); return; }
     var text = (typeof promptText === 'string' ? promptText : input.value).trim();
     if (!text || state.streaming) return;
 
     renderRow('user', text);
+    var userRow = col.lastElementChild;
     input.value = '';
     autoResize();
     setStreaming(true);
@@ -456,6 +533,18 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
       body: JSON.stringify({ conversation_id: state.currentConversationId, message: text })
     }).then(function(resp){
+      if (resp.status === 403) {
+        return resp.json().then(function(body){
+          if (body.status === 'login_required') {
+            bubble.parentElement.remove();
+            if (userRow) userRow.remove();
+            setStreaming(false);
+            showGate();
+            return null;
+          }
+          throw new Error(body.detail || 'Something went wrong — please try again.');
+        });
+      }
       if (!resp.ok){
         return resp.json().catch(function(){ return {}; }).then(function(body){
           throw new Error(body.detail || 'Something went wrong — please try again.');
@@ -463,6 +552,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       }
       var newConvId = resp.headers.get('X-Conversation-Id');
       if (newConvId) state.currentConversationId = parseInt(newConvId, 10);
+      if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
 
       if (!resp.body || !resp.body.getReader){
         return resp.text().then(function(text){
@@ -484,7 +574,8 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         });
       }
       return pump();
-    }).then(function(){
+    }).then(function(result){
+      if (result === null) return; // gated — bubble already removed
       bubble.innerHTML = formatMd(assistantText) || '<i>No response — please try again.</i>';
       setStreaming(false);
       scrollToBottom();
@@ -510,74 +601,5 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   input.focus();
 })();
 </script>
-{% else %}
-<script>
-(function(){
-  function csrfToken(){
-    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-  }
-
-  var tabLogin = document.getElementById('tabLogin');
-  var tabSignup = document.getElementById('tabSignup');
-  var loginForm = document.getElementById('loginForm');
-  var signupForm = document.getElementById('signupForm');
-
-  function showTab(tab){
-    var isLogin = tab === 'login';
-    tabLogin.classList.toggle('active', isLogin);
-    tabSignup.classList.toggle('active', !isLogin);
-    loginForm.style.display = isLogin ? 'flex' : 'none';
-    signupForm.style.display = isLogin ? 'none' : 'flex';
-  }
-  tabLogin.addEventListener('click', function(){ showTab('login'); });
-  tabSignup.addEventListener('click', function(){ showTab('signup'); });
-
-  function submitForm(form, url, body, errorEl, submitBtn){
-    errorEl.textContent = '';
-    submitBtn.disabled = true;
-    fetch(url, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
-      body: JSON.stringify(body)
-    }).then(function(resp){ return resp.json().then(function(data){ return { ok: resp.ok, data: data }; }); })
-      .then(function(res){
-        if (res.data.status === 'ok') {
-          window.location.reload();
-          return;
-        }
-        if (res.data.errors) {
-          errorEl.textContent = Object.values(res.data.errors)[0];
-        } else {
-          errorEl.textContent = res.data.detail || 'Something went wrong — please try again.';
-        }
-        submitBtn.disabled = false;
-      }).catch(function(){
-        errorEl.textContent = 'Something went wrong — please try again.';
-        submitBtn.disabled = false;
-      });
-  }
-
-  loginForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    submitForm(loginForm, '/store/api/login/', {
-      identifier: loginForm.identifier.value.trim(),
-      password: loginForm.password.value,
-    }, document.getElementById('loginError'), document.getElementById('loginSubmit'));
-  });
-
-  signupForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    submitForm(signupForm, '/store/api/signup/', {
-      name: signupForm.name.value.trim(),
-      phone: signupForm.phone.value.trim(),
-      email: signupForm.email.value.trim(),
-      password: signupForm.password.value,
-    }, document.getElementById('signupError'), document.getElementById('signupSubmit'));
-  });
-})();
-</script>
-{% endif %}
 </body>
 </html>
