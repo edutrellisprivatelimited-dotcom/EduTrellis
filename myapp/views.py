@@ -1625,12 +1625,18 @@ def _ai_owner_filter(request):
     """Logged-in users own conversations by user FK; guests own them by the
     session_key their browser already carries (same session used for the
     anonymous cart) — that's what lets a guest's chat survive a page reload
-    and then get handed to their account the moment they log in."""
+    and then get handed to their account the moment they log in. Deliberately
+    does NOT create a session for a guest that doesn't have one yet — a plain
+    page view or list/read call has no conversation to attach to anyway, and
+    forcing a new database-backed session row on every cookie-less visit is
+    an easy way to grow django_session unbounded. Only ai_chat_send (which
+    actually needs a stable key to save a message under) creates one."""
     if request.user.is_authenticated:
         return Q(user=request.user)
-    if not request.session.session_key:
-        request.session.create()
-    return Q(user__isnull=True, session_key=request.session.session_key)
+    session_key = request.session.session_key
+    if not session_key:
+        return Q(pk__in=[])
+    return Q(user__isnull=True, session_key=session_key)
 
 
 def ai_page(request):
@@ -1672,8 +1678,15 @@ def ai_chat_send(request):
             {'status': 'error', 'detail': "You're sending messages too quickly — please wait a bit and try again."},
             status=429,
         )
+    # Counted immediately, before any further validation — a request that
+    # gets rejected downstream (bad payload, guest cap, etc.) still cost a
+    # request and should still count against the brake, otherwise a blocked
+    # guest can hit this endpoint an unlimited number of times for free.
+    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
 
     payload = _parse_json_body(request)
+    if not isinstance(payload, dict):
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request body.'}, status=400)
     message = str(payload.get('message', ''))[:AI_CHAT_MAX_MESSAGE_CHARS].strip()
     if not message:
         return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
@@ -1687,8 +1700,6 @@ def ai_chat_send(request):
                 'status': 'login_required',
                 'detail': "You've reached the free message limit — log in or sign up to keep chatting. Your conversation is saved and will carry over.",
             }, status=403)
-
-    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
 
     owner_filter = _ai_owner_filter(request)
     conversation_id = payload.get('conversation_id')
@@ -1725,8 +1736,16 @@ def ai_chat_send(request):
             logger.exception("AI chat stream failed: %s", e)
             yield "\n\n[Something went wrong on our end — please try again.]"
         finally:
+            # The conversation can have been deleted (by this same user, in
+            # another tab, or via the sidebar delete button) while this reply
+            # was still streaming — check it still exists before trying to
+            # attach a message to it, instead of letting that blow up here.
             if full_reply.strip():
-                AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_ASSISTANT, content=full_reply)
+                try:
+                    if AIConversation.objects.filter(pk=conversation.pk).exists():
+                        AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_ASSISTANT, content=full_reply)
+                except Exception:
+                    logger.exception("Failed to save AI assistant reply for conversation %s", conversation.pk)
 
     response = StreamingHttpResponse(event_stream(), content_type='text/plain; charset=utf-8')
     response['Cache-Control'] = 'no-cache'
