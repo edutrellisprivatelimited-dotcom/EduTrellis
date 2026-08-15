@@ -115,6 +115,23 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 .mic-btn:disabled{opacity:.4;cursor:default}
 .mic-btn.listening{color:#fff;background:var(--red);animation:micPulse 1.4s infinite}
 @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,0,30,.4)}50%{box-shadow:0 0 0 7px rgba(232,0,30,0)}}
+
+/* ---- model switcher ---- */
+.model-row{max-width:780px;margin:0 auto .5rem;display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center}
+.model-chip{font-size:.72rem;font-weight:700;color:var(--text);background:var(--bg-alt);border:1.5px solid var(--line);padding:.35rem .75rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.model-chip:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.model-chip.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.model-chip:disabled{opacity:.5;cursor:default}
+.msg-model-tag{font-size:.66rem;font-weight:800;color:var(--red);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.04em}
+
+/* ---- image attach ---- */
+.attach-preview{max-width:780px;margin:0 auto .5rem;display:flex;align-items:center;gap:.6rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:12px;padding:.45rem .6rem}
+.attach-preview img{width:42px;height:42px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.attach-preview span{flex:1;font-size:.78rem;color:var(--text);font-weight:600}
+.attach-preview button{border:none;background:none;color:#9aa3b0;cursor:pointer;font-size:.9rem;padding:.35rem;flex-shrink:0}
+.attach-preview button:hover{color:var(--red)}
+.attach-error{max-width:780px;margin:.4rem auto 0;font-size:.75rem;color:var(--red);text-align:center;font-weight:600}
+.msg-img{max-width:220px;max-height:220px;border-radius:12px;display:block;margin-bottom:.45rem;object-fit:cover}
 .foot-note{max-width:780px;margin:.6rem auto 0;font-size:.7rem;color:#9aa3b0;text-align:center}
 .guest-meter{max-width:780px;margin:.5rem auto 0;font-size:.75rem;color:var(--text);text-align:center;font-weight:600}
 .guest-meter a{font-weight:700}
@@ -240,11 +257,24 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     </main>
 
     <footer>
+      <div class="model-row" id="modelRow">
+        {% for m in ai_models %}
+        <button type="button" class="model-chip{% if m.key == ai_default_model %} active{% endif %}" data-model="{{ m.key }}" title="{{ m.description }}">{{ m.label }}</button>
+        {% endfor %}
+      </div>
+      <div class="attach-preview" id="attachPreview" hidden>
+        <img id="attachThumb" alt="Attached image">
+        <span>Image attached</span>
+        <button type="button" id="attachRemove" aria-label="Remove image"><i class="fas fa-xmark"></i></button>
+      </div>
       <div class="input-wrap" id="inputWrap">
+        <button type="button" id="attachBtn" class="mic-btn" aria-label="Attach image" title="Attach an image"><i class="fas fa-image"></i></button>
+        <input type="file" id="imageInput" accept="image/*" hidden>
         <button type="button" id="micBtn" class="mic-btn" aria-label="Voice typing" title="Speak your message"><i class="fas fa-microphone"></i></button>
         <textarea id="chatInput" rows="1" placeholder="Message EduTrellis AI…" maxlength="4000"></textarea>
         <button type="button" id="sendBtn" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
       </div>
+      <p class="attach-error" id="attachError" hidden></p>
       {% if ai_authenticated %}
       <p class="foot-note">Responses are AI-generated and may be inaccurate. Don't share sensitive personal information.</p>
       {% else %}
@@ -256,11 +286,14 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
 {% csrf_token %}
 {{ ai_conversations|json_script:"boot-conversations" }}
+{{ ai_model_labels|json_script:"boot-model-labels" }}
 <script>
 (function(){
   var AI_AUTHENTICATED = {% if ai_authenticated %}true{% else %}false{% endif %};
   var AI_GUEST_LIMIT = {{ ai_guest_limit|default:6 }};
   var AI_GUEST_USED = {{ ai_guest_used|default:0 }};
+  var AI_DEFAULT_MODEL = '{{ ai_default_model|default:"ultra" }}';
+  var MODEL_LABELS = JSON.parse(document.getElementById('boot-model-labels').textContent || '{}');
 
   var state = {
     currentConversationId: null,
@@ -277,6 +310,13 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   var inputWrap = document.getElementById('inputWrap');
   var sendBtn = document.getElementById('sendBtn');
   var micBtn = document.getElementById('micBtn');
+  var modelRow = document.getElementById('modelRow');
+  var attachBtn = document.getElementById('attachBtn');
+  var imageInput = document.getElementById('imageInput');
+  var attachPreview = document.getElementById('attachPreview');
+  var attachThumb = document.getElementById('attachThumb');
+  var attachRemove = document.getElementById('attachRemove');
+  var attachError = document.getElementById('attachError');
   var convList = document.getElementById('convList');
   var newChatBtn = document.getElementById('newChatBtn');
   var sidebar = document.getElementById('sidebar');
@@ -364,10 +404,24 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     bubble.className = 'msg-bubble' + (opts.error ? ' error' : '');
     if (opts.typing) {
       bubble.innerHTML = TYPING_HTML;
-    } else if (role === 'assistant') {
-      bubble.innerHTML = formatMd(text) + (opts.streaming ? '<span class="msg-cursor"></span>' : '');
     } else {
-      bubble.innerHTML = escHtml(text);
+      var textHtml = role === 'assistant'
+        ? formatMd(text) + (opts.streaming ? '<span class="msg-cursor"></span>' : '')
+        : escHtml(text);
+      var tagHtml = (role === 'assistant' && opts.modelLabel) ? '<div class="msg-model-tag">' + escHtml(opts.modelLabel) + '</div>' : '';
+      bubble.innerHTML = tagHtml + textHtml;
+      if (opts.image) {
+        // Set as a DOM property, never concatenated into an HTML string —
+        // opts.image is a data: URI that's either generated client-side or
+        // came back from the server; either way it must never be treated as
+        // markup, since a crafted value could otherwise break out of an
+        // attribute and inject HTML.
+        var imgEl = document.createElement('img');
+        imgEl.className = 'msg-img';
+        imgEl.alt = 'Attached image';
+        imgEl.src = opts.image;
+        bubble.insertBefore(imgEl, bubble.firstChild);
+      }
     }
     row.appendChild(avatar);
     row.appendChild(bubble);
@@ -399,6 +453,104 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     sendBtn.disabled = on || state.gated;
     input.disabled = on || state.gated;
     if (micBtn) micBtn.disabled = on || state.gated;
+    if (attachBtn) attachBtn.disabled = on || state.gated;
+    if (modelRow) {
+      modelRow.querySelectorAll('.model-chip').forEach(function(chip){ chip.disabled = on || state.gated; });
+    }
+  }
+
+  // ---- model switcher ----
+  var currentModel = AI_DEFAULT_MODEL;
+  if (modelRow) {
+    var savedModel = localStorage.getItem('ai_model');
+    if (savedModel && modelRow.querySelector('[data-model="' + savedModel + '"]')) {
+      currentModel = savedModel;
+      modelRow.querySelectorAll('.model-chip').forEach(function(chip){
+        chip.classList.toggle('active', chip.getAttribute('data-model') === currentModel);
+      });
+    }
+    modelRow.addEventListener('click', function(e){
+      var chip = e.target.closest('.model-chip');
+      if (!chip || state.streaming || state.gated) return;
+      currentModel = chip.getAttribute('data-model');
+      localStorage.setItem('ai_model', currentModel);
+      modelRow.querySelectorAll('.model-chip').forEach(function(c){ c.classList.toggle('active', c === chip); });
+    });
+  }
+
+  // ---- image attach ----
+  var stagedImage = null;
+
+  function showAttachError(msg){
+    if (!attachError) return;
+    attachError.textContent = msg;
+    attachError.hidden = false;
+    setTimeout(function(){ attachError.hidden = true; }, 4000);
+  }
+
+  function clearStagedImage(){
+    stagedImage = null;
+    if (attachPreview) attachPreview.hidden = true;
+    if (imageInput) imageInput.value = '';
+  }
+
+  function stageImage(dataUri){
+    stagedImage = dataUri;
+    if (attachThumb) attachThumb.src = dataUri;
+    if (attachPreview) attachPreview.hidden = false;
+  }
+
+  // Resizes to a max 1280px edge and re-encodes as JPEG, stepping quality
+  // down if still too big — phone photos routinely run 3-10MB, and both
+  // Django's request-body limit and the model's own input size expectations
+  // need this shrunk well before it's ever sent.
+  function compressImage(file, onDone, onFail){
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var maxDim = 1280;
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) { onFail(); return; }
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      var quality = 0.82;
+      var dataUri = canvas.toDataURL('image/jpeg', quality);
+      while (dataUri.length > 1500000 && quality > 0.3) {
+        quality -= 0.15;
+        dataUri = canvas.toDataURL('image/jpeg', quality);
+      }
+      if (dataUri.length > 1900000) { onFail(); return; }
+      onDone(dataUri);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); onFail(); };
+    img.src = url;
+  }
+
+  if (attachBtn && imageInput) {
+    attachBtn.addEventListener('click', function(){
+      if (attachBtn.disabled) return;
+      imageInput.click();
+    });
+    imageInput.addEventListener('change', function(){
+      var file = imageInput.files && imageInput.files[0];
+      imageInput.value = '';
+      if (!file) return;
+      if (!file.type || file.type.indexOf('image/') !== 0) {
+        showAttachError('Please choose an image file.');
+        return;
+      }
+      compressImage(file, stageImage, function(){
+        showAttachError('Could not use that image — please try a smaller one.');
+      });
+    });
+    if (attachRemove) attachRemove.addEventListener('click', clearStagedImage);
   }
 
   // ---- voice typing (dictate into the input box) ----
@@ -497,7 +649,10 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         state.currentConversationId = id;
         col.innerHTML = '';
         emptyState = null;
-        data.messages.forEach(function(m){ renderRow(m.role, m.content); });
+        data.messages.forEach(function(m){
+          var label = (m.model_key && m.model_key !== 'ultra') ? MODEL_LABELS[m.model_key] : null;
+          renderRow(m.role, m.content, { image: m.image_data || null, modelLabel: label });
+        });
         renderConvList();
         closeSidebarMobile();
         scrollToBottom();
@@ -632,16 +787,19 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   function send(promptText){
     if (state.gated) { showGate(); return; }
     var text = (typeof promptText === 'string' ? promptText : input.value).trim();
-    if (!text || state.streaming) return;
+    var imageToSend = stagedImage;
+    if ((!text && !imageToSend) || state.streaming) return;
 
     stopVoiceTyping();
-    renderRow('user', text);
+    renderRow('user', text, { image: imageToSend });
     var userRow = col.lastElementChild;
     input.value = '';
     autoResize();
+    clearStagedImage();
     setStreaming(true);
 
     var assistantText = '';
+    var answeredModelKey = null;
     var bubble = renderRow('assistant', '', { typing: true });
     var wasNewConversation = !state.currentConversationId;
 
@@ -649,7 +807,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
-      body: JSON.stringify({ conversation_id: state.currentConversationId, message: text })
+      body: JSON.stringify({ conversation_id: state.currentConversationId, message: text, model: currentModel, image: imageToSend })
     }).then(function(resp){
       if (resp.status === 403) {
         return resp.json().then(function(body){
@@ -670,6 +828,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       }
       var newConvId = resp.headers.get('X-Conversation-Id');
       if (newConvId) state.currentConversationId = parseInt(newConvId, 10);
+      answeredModelKey = resp.headers.get('X-Model-Key');
       if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
 
       if (!resp.body || !resp.body.getReader){
@@ -694,7 +853,9 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       return pump();
     }).then(function(result){
       if (result === null) return; // gated — bubble already removed
-      bubble.innerHTML = formatMd(assistantText) || '<i>No response — please try again.</i>';
+      var label = (answeredModelKey && answeredModelKey !== 'ultra') ? MODEL_LABELS[answeredModelKey] : null;
+      var tagHtml = label ? '<div class="msg-model-tag">' + escHtml(label) + '</div>' : '';
+      bubble.innerHTML = tagHtml + (formatMd(assistantText) || '<i>No response — please try again.</i>');
       setStreaming(false);
       scrollToBottom();
       input.focus();

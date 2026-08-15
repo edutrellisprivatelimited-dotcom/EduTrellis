@@ -1,7 +1,6 @@
 from django.conf import settings
 from openai import OpenAI
 
-MODEL = 'nvidia/nemotron-3-ultra-550b-a55b'
 MAX_TOKENS = 1024
 TEMPERATURE = 1.0
 TOP_P = 0.95
@@ -16,9 +15,11 @@ SYSTEM_PROMPT = (
     "you can only talk.\n\n"
     "If asked your name, who made you, who built you, or what model/company "
     "is behind you, always answer that you are EduTrellis AI, built for "
-    "EduTrellis by Rudra Narayan Tiwari — never mention Nemotron, NVIDIA, or "
-    "any other underlying model/vendor name, even if directly asked to "
-    "reveal it.\n\n"
+    "EduTrellis by Rudra Narayan Tiwari — never mention Nemotron, NVIDIA, "
+    "Llama, Meta, or any other underlying model/vendor name, even if "
+    "directly asked to reveal it. If the user is chatting with one of your "
+    "specialized modes (Quick, Code, Vision), refer to it by its EduTrellis "
+    "name only.\n\n"
     "Background knowledge about EduTrellis, for when it's relevant to the "
     "conversation (don't recite this unprompted):\n"
     "- EduTrellis is a website development and digital growth company based "
@@ -44,6 +45,52 @@ SYSTEM_PROMPT = (
     "226028."
 )
 
+CODE_SYSTEM_SUFFIX = (
+    "\n\nYou are currently in EduTrellis Code mode: prioritize correct, "
+    "working code over long explanations. Use fenced code blocks (```) for "
+    "any code, name the language, and keep prose commentary brief unless "
+    "asked to elaborate."
+)
+
+# Every model here is verified directly against the live NVIDIA API key this
+# app uses — being listed in NVIDIA's catalog doesn't mean a given account
+# actually has invoke access to it, and several plausible choices (dedicated
+# "coder" checkpoints, nvidia/vila, mistral-large) 404'd for this account.
+# 'reasoning' models emit hidden chain-of-thought unless explicitly told not
+# to (chat_template_kwargs.enable_thinking=False) — without that flag they
+# dump raw "Let me think..." text into the reply instead of a clean answer.
+MODELS = {
+    'ultra': {
+        'id': 'nvidia/nemotron-3-ultra-550b-a55b',
+        'label': 'EduTrellis Ultra',
+        'description': 'Most capable — best for detailed or complex questions.',
+        'reasoning': True,
+        'vision': False,
+    },
+    'quick': {
+        'id': 'nvidia/nemotron-3-nano-30b-a3b',
+        'label': 'EduTrellis Quick',
+        'description': 'Fast and lightweight — best for short, simple questions.',
+        'reasoning': True,
+        'vision': False,
+    },
+    'code': {
+        'id': 'meta/llama-3.1-70b-instruct',
+        'label': 'EduTrellis Code',
+        'description': 'Tuned for coding, debugging, and technical questions.',
+        'reasoning': False,
+        'vision': False,
+    },
+    'vision': {
+        'id': 'nvidia/nemotron-nano-12b-v2-vl',
+        'label': 'EduTrellis Vision',
+        'description': 'Understands images — used automatically when you attach one.',
+        'reasoning': False,
+        'vision': True,
+    },
+}
+DEFAULT_MODEL_KEY = 'ultra'
+
 _client = None
 
 
@@ -54,23 +101,33 @@ def _get_client():
     return _client
 
 
-def stream_chat(messages):
-    """messages: [{role: 'user'|'assistant', content: str}, ...] — the
-    caller's conversation so far, already trimmed/sanitized. Yields text
-    chunks as they arrive from the model. Thinking/reasoning is disabled
-    (enable_thinking: False) so replies on a public page stay fast and cheap
-    instead of spending tokens on a hidden reasoning trace for every message."""
+def stream_chat(messages, model_key=DEFAULT_MODEL_KEY):
+    """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
+    caller's conversation so far, already trimmed/sanitized. 'content' is a
+    plain string for text-only turns, or a list of OpenAI-style content
+    blocks ({'type': 'text', ...} / {'type': 'image_url', ...}) for a turn
+    that included an image. Yields text chunks as they arrive from the
+    model."""
+    cfg = MODELS.get(model_key) or MODELS[DEFAULT_MODEL_KEY]
     client = _get_client()
-    full_messages = [{'role': 'system', 'content': SYSTEM_PROMPT}] + messages
-    stream = client.chat.completions.create(
-        model=MODEL,
+
+    system_prompt = SYSTEM_PROMPT + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
+    full_messages = [{'role': 'system', 'content': system_prompt}] + messages
+
+    kwargs = dict(
+        model=cfg['id'],
         messages=full_messages,
         temperature=TEMPERATURE,
         top_p=TOP_P,
         max_tokens=MAX_TOKENS,
         stream=True,
-        extra_body={'chat_template_kwargs': {'enable_thinking': False, 'force_nonempty_content': True}},
     )
+    if cfg['reasoning']:
+        # Disabled so replies on a public page stay fast and cheap instead of
+        # spending tokens (and screen space) on a hidden reasoning trace.
+        kwargs['extra_body'] = {'chat_template_kwargs': {'enable_thinking': False, 'force_nonempty_content': True}}
+
+    stream = client.chat.completions.create(**kwargs)
     for chunk in stream:
         if not chunk.choices:
             continue

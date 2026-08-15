@@ -706,6 +706,8 @@ class AIMessage(models.Model):
     conversation = models.ForeignKey(AIConversation, on_delete=models.CASCADE, related_name='messages')
     role         = models.CharField(max_length=10, choices=ROLE_CHOICES)
     content      = models.TextField()
+    image_data   = models.TextField(blank=True)  # data: URI of an attached image, if any (user turns only)
+    model_key    = models.CharField(max_length=20, blank=True)  # which EduTrellis model answered (assistant turns only)
     created_at   = models.DateTimeField(auto_now_add=True)
 
     class Meta:

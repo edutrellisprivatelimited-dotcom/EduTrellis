@@ -1619,6 +1619,11 @@ AI_CHAT_MAX_MESSAGE_CHARS = 4000
 AI_CHAT_MAX_HISTORY = 20          # most recent saved messages sent to the model as context
 AI_CONVERSATION_TITLE_CHARS = 60
 AI_GUEST_MESSAGE_LIMIT = 6        # free messages before a guest must log in/sign up
+# ~1.5MB of raw image data as a base64 data: URI (~2M chars) — well under
+# Django's default 2.5MB DATA_UPLOAD_MAX_MEMORY_SIZE for the whole request
+# body, so an oversized image gets our own clean error instead of Django's
+# generic one. The client also resizes/compresses before ever uploading.
+AI_IMAGE_MAX_DATA_URI_CHARS = 2_000_000
 
 
 def _ai_owner_filter(request):
@@ -1646,12 +1651,20 @@ def ai_page(request):
     )
     for c in conversations:
         c['updated_at'] = timezone.localtime(c['updated_at']).isoformat()
+    models = [
+        {'key': key, 'label': cfg['label'], 'description': cfg['description']}
+        for key, cfg in ai_chat.MODELS.items() if key != 'vision'
+    ]
+    model_labels = {key: cfg['label'] for key, cfg in ai_chat.MODELS.items()}
     return render(request, 'ai.html', {
         'ai_authenticated': request.user.is_authenticated,
         'ai_user': _user_payload(request.user) if request.user.is_authenticated else None,
         'ai_conversations': conversations,
         'ai_guest_limit': AI_GUEST_MESSAGE_LIMIT,
         'ai_guest_used': 0 if request.user.is_authenticated else request.session.get('ai_guest_msg_count', 0),
+        'ai_models': models,
+        'ai_default_model': ai_chat.DEFAULT_MODEL_KEY,
+        'ai_model_labels': model_labels,
     })
 
 
@@ -1688,8 +1701,25 @@ def ai_chat_send(request):
     if not isinstance(payload, dict):
         return JsonResponse({'status': 'error', 'detail': 'Invalid request body.'}, status=400)
     message = str(payload.get('message', ''))[:AI_CHAT_MAX_MESSAGE_CHARS].strip()
-    if not message:
+
+    image_data = payload.get('image')
+    if not isinstance(image_data, str) or not image_data.startswith('data:image/'):
+        image_data = ''
+    if image_data and len(image_data) > AI_IMAGE_MAX_DATA_URI_CHARS:
+        return JsonResponse({'status': 'error', 'detail': 'That image is too large — please use a smaller one.'}, status=400)
+
+    if not message and not image_data:
         return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
+
+    # An attached image can only be understood by the vision model —
+    # whatever the user had selected, this specific turn is auto-routed
+    # there. Otherwise use their chosen model, falling back to the default
+    # for anything unrecognized (stale client, tampered value, etc.).
+    if image_data:
+        model_key = 'vision'
+    else:
+        requested_model_key = payload.get('model')
+        model_key = requested_model_key if requested_model_key in ai_chat.MODELS else ai_chat.DEFAULT_MODEL_KEY
 
     if not request.user.is_authenticated:
         if not request.session.session_key:
@@ -1709,27 +1739,44 @@ def ai_chat_send(request):
         if not conversation:
             return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     if conversation is None:
-        title = message[:AI_CONVERSATION_TITLE_CHARS]
+        title = message[:AI_CONVERSATION_TITLE_CHARS] if message else 'Image'
         if request.user.is_authenticated:
             conversation = AIConversation.objects.create(user=request.user, title=title)
         else:
             conversation = AIConversation.objects.create(session_key=request.session.session_key, title=title)
 
-    AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_USER, content=message)
+    AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_USER, content=message, image_data=image_data)
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
 
     if not request.user.is_authenticated:
         request.session['ai_guest_msg_count'] = request.session.get('ai_guest_msg_count', 0) + 1
 
-    recent = list(conversation.messages.order_by('-created_at').values('role', 'content')[:AI_CHAT_MAX_HISTORY])
+    model_cfg = ai_chat.MODELS[model_key]
+    recent = list(
+        conversation.messages.order_by('-created_at').values('role', 'content', 'image_data')[:AI_CHAT_MAX_HISTORY]
+    )
     recent.reverse()
-    clean_history = [{'role': m['role'], 'content': m['content']} for m in recent]
+    clean_history = []
+    for m in recent:
+        if m['image_data'] and model_cfg['vision']:
+            content = [
+                {'type': 'text', 'text': m['content'] or 'Describe this image.'},
+                {'type': 'image_url', 'image_url': {'url': m['image_data']}},
+            ]
+        elif m['image_data']:
+            # Model can't see images (a different mode is now selected) —
+            # degrade to a plain-text note instead of sending it multimodal
+            # content it can't parse.
+            content = (m['content'] + ' [image attached]').strip()
+        else:
+            content = m['content']
+        clean_history.append({'role': m['role'], 'content': content})
 
     def event_stream():
         full_reply = ''
         try:
-            for chunk in ai_chat.stream_chat(clean_history):
+            for chunk in ai_chat.stream_chat(clean_history, model_key=model_key):
                 full_reply += chunk
                 yield chunk
         except Exception as e:
@@ -1743,7 +1790,10 @@ def ai_chat_send(request):
             if full_reply.strip():
                 try:
                     if AIConversation.objects.filter(pk=conversation.pk).exists():
-                        AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_ASSISTANT, content=full_reply)
+                        AIMessage.objects.create(
+                            conversation=conversation, role=AIMessage.ROLE_ASSISTANT,
+                            content=full_reply, model_key=model_key,
+                        )
                 except Exception:
                     logger.exception("Failed to save AI assistant reply for conversation %s", conversation.pk)
 
@@ -1751,6 +1801,7 @@ def ai_chat_send(request):
     response['Cache-Control'] = 'no-cache'
     response['X-Accel-Buffering'] = 'no'
     response['X-Conversation-Id'] = str(conversation.id)
+    response['X-Model-Key'] = model_key
     return response
 
 
@@ -1768,7 +1819,7 @@ def ai_conversation_messages(request, conversation_id):
     conversation = AIConversation.objects.filter(_ai_owner_filter(request), pk=conversation_id).first()
     if not conversation:
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
-    messages_qs = list(conversation.messages.order_by('created_at').values('role', 'content'))
+    messages_qs = list(conversation.messages.order_by('created_at').values('role', 'content', 'image_data', 'model_key'))
     return JsonResponse({'status': 'ok', 'title': conversation.title, 'messages': messages_qs})
 
 
