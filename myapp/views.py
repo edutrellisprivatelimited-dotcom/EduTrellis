@@ -1,9 +1,13 @@
 import json
 import logging
 import os
+import secrets
 import threading
 from decimal import Decimal, InvalidOperation
 from functools import wraps
+from urllib.parse import urlencode
+
+import requests
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -11,6 +15,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, F
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve, Resolver404
+from django.templatetags.static import static as static_url
 from django.http import JsonResponse, StreamingHttpResponse
 from django.core.mail import send_mail, BadHeaderError
 from django.core.cache import cache
@@ -1690,6 +1695,28 @@ def _ai_owner_filter(request):
     return Q(user__isnull=True, session_key=session_key)
 
 
+def ai_manifest(request):
+    # Uses the same favicon as the rest of edutrellis.in (not the separate
+    # store PWA icon from PWASettings) — installing "EduTrellis AI" should
+    # look like the same brand as the site it's embedded in.
+    icon_url = request.build_absolute_uri(static_url('favicon.ico'))
+    manifest = {
+        'name': 'EduTrellis AI',
+        'short_name': 'EduTrellis AI',
+        'description': 'Chat with EduTrellis AI about our services, your store account, and more.',
+        'start_url': '/AI/',
+        'scope': '/AI/',
+        'display': 'standalone',
+        'background_color': '#ffffff',
+        'theme_color': '#e8001e',
+        'icons': [
+            {'src': icon_url, 'sizes': '192x192', 'type': 'image/x-icon'},
+            {'src': icon_url, 'sizes': '512x512', 'type': 'image/x-icon'},
+        ],
+    }
+    return JsonResponse(manifest, content_type='application/manifest+json')
+
+
 def ai_page(request):
     conversations = list(
         AIConversation.objects.filter(_ai_owner_filter(request))
@@ -1712,6 +1739,7 @@ def ai_page(request):
         'ai_default_model': ai_chat.DEFAULT_MODEL_KEY,
         'ai_default_model_label': model_labels[ai_chat.DEFAULT_MODEL_KEY],
         'ai_model_labels': model_labels,
+        'ai_github_oauth_available': bool(settings.GITHUB_OAUTH_CLIENT_ID),
     })
 
 
@@ -1910,6 +1938,75 @@ def github_status(request):
         'status': 'ok', 'connected': True, 'github_username': conn.github_username,
         'repo': conn.repo_full_name, 'branch': conn.default_branch,
     })
+
+
+def _github_oauth_redirect_uri(request):
+    return request.build_absolute_uri('/AI/api/github/oauth/callback/')
+
+
+def github_oauth_start(request):
+    # A redirect, not a JSON endpoint — the browser navigates here directly
+    # (window.location.href), so an unauthorized visit bounces to the
+    # storefront instead of showing a raw 403 JSON body.
+    if not _github_guard(request):
+        return redirect('estore')
+    if not settings.GITHUB_OAUTH_CLIENT_ID:
+        return redirect('/AI/?github_error=not_configured')
+    state = secrets.token_urlsafe(24)
+    request.session['github_oauth_state'] = state
+    params = {
+        'client_id': settings.GITHUB_OAUTH_CLIENT_ID,
+        'redirect_uri': _github_oauth_redirect_uri(request),
+        # 'repo' grants full read/write on both private and public repos —
+        # the closest standard GitHub OAuth scope to "all permission on the
+        # repo", without also requesting unrelated org/user-admin scopes.
+        'scope': 'repo',
+        'state': state,
+    }
+    return redirect('https://github.com/login/oauth/authorize?' + urlencode(params))
+
+
+def github_oauth_callback(request):
+    if not _github_guard(request):
+        return redirect('estore')
+    expected_state = request.session.pop('github_oauth_state', None)
+    state = request.GET.get('state')
+    if not state or not expected_state or not secrets.compare_digest(state, expected_state):
+        return redirect('/AI/?github_error=state')
+    code = request.GET.get('code')
+    if not code:
+        return redirect('/AI/?github_error=denied')
+    try:
+        token_resp = requests.post(
+            'https://github.com/login/oauth/access_token',
+            data={
+                'client_id': settings.GITHUB_OAUTH_CLIENT_ID,
+                'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET,
+                'code': code,
+                'redirect_uri': _github_oauth_redirect_uri(request),
+            },
+            headers={'Accept': 'application/json'},
+            timeout=20,
+        )
+        token = token_resp.json().get('access_token')
+        if not token:
+            return redirect('/AI/?github_error=token')
+        gh_user = github_ops.get_authenticated_user(token)
+        repos = github_ops.list_user_repos(token)
+    except Exception:
+        logger.exception("GitHub OAuth callback failed")
+        return redirect('/AI/?github_error=1')
+
+    conn, _created = GitHubConnection.objects.update_or_create(
+        user=request.user,
+        defaults={'access_token': token, 'github_username': gh_user.get('login', '')},
+    )
+    if not conn.repo_full_name and repos:
+        preferred = next((r for r in repos if 'edutrellis' in r['full_name'].lower()), repos[0])
+        conn.repo_full_name = preferred['full_name']
+        conn.default_branch = preferred['default_branch']
+        conn.save(update_fields=['repo_full_name', 'default_branch'])
+    return redirect('/AI/?github_connected=1')
 
 
 def github_connect(request):

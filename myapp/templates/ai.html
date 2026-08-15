@@ -7,6 +7,7 @@
 <title>EduTrellis AI</title>
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+<link rel="manifest" href="{% url 'ai_manifest' %}">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -39,6 +40,20 @@ a{color:var(--red);text-decoration:none}
 
 header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:.85rem 1.25rem;flex:none;z-index:20}
 .hd-wrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+
+/* ---- install-as-app banner ---- */
+.install-banner{align-items:center;gap:.6rem;background:#fff1f3;border-bottom:1px solid #f7c9ce;padding:.55rem 1rem;font-size:.82rem;color:var(--head);flex:none}
+.install-banner:not([hidden]){display:flex}
+.install-banner-icon{width:22px;height:22px;border-radius:6px;flex-shrink:0}
+.install-banner-text{flex:1;font-weight:600}
+.install-banner-btn{background:var(--red);color:#fff;border:none;font-weight:700;font-size:.78rem;padding:.4rem .9rem;border-radius:8px;cursor:pointer;flex-shrink:0}
+.install-banner-btn:hover{background:var(--red-dark)}
+.install-banner-close{border:none;background:none;color:#9aa3b0;cursor:pointer;padding:.3rem;flex-shrink:0;font-size:.85rem}
+.install-banner-close:hover{color:var(--red)}
+@media (max-width:480px){
+  .install-banner{padding:.5rem .7rem;font-size:.76rem}
+  .install-banner-text{font-size:.76rem}
+}
 .hd-left{display:flex;align-items:center;gap:.7rem;min-width:0}
 .sidebar-toggle{border:1.5px solid var(--line);background:#fff;color:var(--head);width:36px;height:36px;border-radius:10px;cursor:pointer;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;display:none}
 .hd-right{display:flex;align-items:center;gap:.8rem;min-width:0}
@@ -153,9 +168,10 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 .github-panel-label{display:block;font-size:.7rem;font-weight:700;color:#9aa3b0;text-transform:uppercase;letter-spacing:.03em;margin:.5rem 0 .3rem}
 #githubTokenInput,#githubRepoSelect{width:100%;font-size:.82rem;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;color:var(--head);background:var(--bg-alt)}
 #githubTokenInput:focus,#githubRepoSelect:focus{outline:none;border-color:var(--dark)}
-.github-action-btn{width:100%;margin-top:.55rem;background:var(--dark);color:#fff;border:none;font-weight:700;font-size:.8rem;padding:.55rem;border-radius:9px;cursor:pointer}
-.github-action-btn:hover{opacity:.9}
-.github-action-btn.ghost{background:none;color:var(--red);border:1.5px solid var(--line)}
+.github-action-btn{display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;margin-top:.55rem;background:var(--dark);color:#fff;border:none;font-weight:700;font-size:.8rem;padding:.55rem;border-radius:9px;cursor:pointer;text-decoration:none}
+.github-action-btn:hover{opacity:.9;text-decoration:none}
+.github-action-btn.ghost{background:none;color:var(--head);border:1.5px solid var(--line)}
+.github-panel-divider{text-align:center;margin:.5rem 0 0}
 .github-panel-error{font-size:.72rem;color:var(--red);margin-top:.4rem}
 .github-toggle{display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:var(--head);margin-top:.65rem;cursor:pointer}
 .github-toggle input{width:16px;height:16px;accent-color:var(--dark);cursor:pointer}
@@ -293,6 +309,13 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   </div>
 </header>
 
+<div class="install-banner" id="installBanner" hidden>
+  <img src="{% static 'favicon.ico' %}" alt="" class="install-banner-icon">
+  <span class="install-banner-text">Install EduTrellis AI as an app for quicker access.</span>
+  <button type="button" class="install-banner-btn" id="installBannerBtn">Install</button>
+  <button type="button" class="install-banner-close" id="installBannerClose" aria-label="Dismiss"><i class="fas fa-xmark"></i></button>
+</div>
+
 <div class="body-row">
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <aside class="sidebar" id="sidebar">
@@ -349,9 +372,13 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
           <div class="github-panel" id="githubPanel" hidden>
             <div id="githubDisconnected">
               <p class="github-panel-title">Connect GitHub</p>
-              <p class="github-panel-note">Paste a Personal Access Token (repo scope). Staff-only — lets the AI read, edit, and push commits to a repo you choose when you switch GitHub mode on.</p>
-              <input type="password" id="githubTokenInput" placeholder="ghp_…" autocomplete="off">
-              <button type="button" id="githubConnectBtn" class="github-action-btn">Connect</button>
+              <p class="github-panel-note">Staff-only — lets the AI read, edit, and push commits to a repo you choose when you switch GitHub mode on.</p>
+              {% if ai_github_oauth_available %}
+              <a href="/AI/api/github/oauth/start/" class="github-action-btn github-oauth-btn"><i class="fab fa-github"></i> Log in with GitHub</a>
+              <p class="github-panel-note github-panel-divider">or paste a token instead</p>
+              {% endif %}
+              <input type="password" id="githubTokenInput" placeholder="Personal access token (repo scope)" autocomplete="off">
+              <button type="button" id="githubConnectBtn" class="github-action-btn{% if ai_github_oauth_available %} ghost{% endif %}">Connect with token</button>
               <p class="github-panel-error" id="githubConnectError" hidden></p>
             </div>
             <div id="githubConnected" hidden>
@@ -709,6 +736,29 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
         renderGithubConnected();
       }).catch(function(){});
 
+    // Coming back from /AI/api/github/oauth/callback/ — the status fetch
+    // above already reflects whatever it did; this just surfaces the
+    // outcome and cleans the query string off the URL.
+    (function handleOauthReturn(){
+      var params = new URLSearchParams(window.location.search);
+      var connected = params.get('github_connected');
+      var error = params.get('github_error');
+      if (!connected && !error) return;
+      window.history.replaceState({}, '', window.location.pathname);
+      openGithubPanel();
+      if (connected) {
+        loadRepos();
+      } else if (githubConnectError) {
+        var messages = {
+          not_configured: 'GitHub login is not set up on this server yet — paste a token instead.',
+          state: 'That GitHub login attempt expired — please try again.',
+          denied: 'GitHub login was cancelled.',
+        };
+        githubConnectError.textContent = messages[error] || 'Could not connect to GitHub — please try again.';
+        githubConnectError.hidden = false;
+      }
+    })();
+
     githubBtn.addEventListener('click', function(e){
       e.stopPropagation();
       if (githubBtn.disabled) return;
@@ -796,6 +846,37 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
       }).catch(function(){});
     });
   }
+
+  // ---- install as an app ----
+  (function setupInstallPrompt(){
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/AI/sw.js', { scope: '/AI/' }).catch(function(){});
+    }
+    var banner = document.getElementById('installBanner');
+    var installBtn = document.getElementById('installBannerBtn');
+    var closeBtn = document.getElementById('installBannerClose');
+    if (!banner) return;
+    var deferredPrompt = null;
+    var dismissed = localStorage.getItem('ai_install_dismissed') === '1';
+    window.addEventListener('beforeinstallprompt', function(e){
+      e.preventDefault();
+      deferredPrompt = e;
+      if (!dismissed) banner.hidden = false;
+    });
+    window.addEventListener('appinstalled', function(){
+      deferredPrompt = null;
+      banner.hidden = true;
+    });
+    if (installBtn) installBtn.addEventListener('click', function(){
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(function(){ deferredPrompt = null; banner.hidden = true; });
+    });
+    if (closeBtn) closeBtn.addEventListener('click', function(){
+      banner.hidden = true;
+      localStorage.setItem('ai_install_dismissed', '1');
+    });
+  })();
 
   // ---- image attach ----
   var stagedImage = null;

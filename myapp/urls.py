@@ -67,12 +67,16 @@ urlpatterns = [
     path('contact/', views.contact_lead, name='contact_lead'),
 
     path('AI/', views.ai_page, name='ai_page'),
+    path('AI/manifest.json', views.ai_manifest, name='ai_manifest'),
+    path('AI/sw.js', views.pwa_service_worker, name='ai_service_worker'),
     path('AI/api/send/', views.ai_chat_send, name='ai_chat_send'),
     path('AI/api/conversations/', views.ai_conversations_list, name='ai_conversations_list'),
     path('AI/api/conversations/<int:conversation_id>/', views.ai_conversation_messages, name='ai_conversation_messages'),
     path('AI/api/conversations/<int:conversation_id>/delete/', views.ai_conversation_delete, name='ai_conversation_delete'),
 
     path('AI/api/github/status/', views.github_status, name='github_status'),
+    path('AI/api/github/oauth/start/', views.github_oauth_start, name='github_oauth_start'),
+    path('AI/api/github/oauth/callback/', views.github_oauth_callback, name='github_oauth_callback'),
     path('AI/api/github/connect/', views.github_connect, name='github_connect'),
     path('AI/api/github/repos/', views.github_repos, name='github_repos'),
     path('AI/api/github/repo/', views.github_set_repo, name='github_set_repo'),
