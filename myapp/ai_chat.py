@@ -125,6 +125,23 @@ MODELS = {
 }
 DEFAULT_MODEL_KEY = 'ultra'
 
+LANGUAGES = {
+    'en': 'English',
+    'hi': 'Hindi (हिंदी) — respond entirely in Hindi script, not transliterated',
+    'hinglish': (
+        "Hinglish — NOT plain English, and NOT formal Hindi. Casually mix "
+        "Hindi and English words in the same sentence, written in the "
+        "Latin/English alphabet (no Devanagari), the way people in North "
+        "India actually text each other day to day. For example, instead "
+        "of 'EduTrellis is a website development company', write something "
+        "like 'EduTrellis ek website development company hai jo aapke "
+        "business ko online grow karne mein help karti hai.' Every reply "
+        "in this mode should read like that — genuinely code-mixed, not "
+        "English with a couple of Hindi words sprinkled in."
+    ),
+}
+DEFAULT_LANGUAGE = 'en'
+
 # A private easter egg for Rudra's wife — the phrase is checked case- and
 # whitespace-insensitively against every message (see is_sumudrika_trigger),
 # and once it's appeared anywhere in a conversation, sumudrika_system_note()
@@ -183,7 +200,8 @@ def _get_client():
 
 
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
-                 retrieved_context=None, retrieved_source=None, sumudrika=False):
+                 retrieved_context=None, retrieved_source=None, sumudrika=False,
+                 language=DEFAULT_LANGUAGE):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -196,6 +214,8 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     a fresh web_search result — already retrieved and bounded by the caller.
     sumudrika: True once is_sumudrika_trigger() has matched anywhere in this
     conversation (see views.ai_chat_send) — see sumudrika_system_note().
+    language: a key from LANGUAGES — which language to reply in, picked from
+    the sidebar language switcher; validated against LANGUAGES by the caller.
     Yields text chunks as they arrive from the model."""
     cfg = MODELS.get(model_key) or MODELS[DEFAULT_MODEL_KEY]
     client = _get_client()
@@ -228,6 +248,16 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
         )
     if sumudrika:
         system_prompt += sumudrika_system_note()
+    if language and language != DEFAULT_LANGUAGE:
+        language_name = LANGUAGES.get(language, language)
+        system_prompt += (
+            f"\n\nIMPORTANT: reply in {language_name} for this entire message "
+            "— every part of it, not just a greeting or summary. Formatting "
+            "rules (bold, bullets, code blocks) still apply the same way. "
+            "If the user's own message is in a different language, still "
+            "reply in the language specified here unless they explicitly "
+            "ask you to switch."
+        )
     full_messages = [{'role': 'system', 'content': system_prompt}] + messages
 
     kwargs = dict(

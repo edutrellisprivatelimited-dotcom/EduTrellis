@@ -1816,6 +1816,9 @@ def ai_chat_send(request):
     if not message and not image_data and not document_text:
         return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
 
+    requested_language = payload.get('language')
+    language = requested_language if requested_language in ai_chat.LANGUAGES else ai_chat.DEFAULT_LANGUAGE
+
     # An attached image can only be understood by the vision model —
     # whatever the user had selected, this specific turn is auto-routed
     # there. Otherwise use their chosen model, falling back to the default
@@ -1935,7 +1938,7 @@ def ai_chat_send(request):
             for chunk in ai_chat.stream_chat(
                 clean_history, model_key=model_key, account_context=account_context,
                 retrieved_context=retrieved_context, retrieved_source=retrieved_source,
-                sumudrika=is_sumudrika,
+                sumudrika=is_sumudrika, language=language,
             ):
                 full_reply += chunk
                 yield chunk
