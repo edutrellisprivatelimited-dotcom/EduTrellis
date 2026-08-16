@@ -271,7 +271,16 @@ def sumudrika_system_note(greet=True):
         "about Rudra's love and care for her only in genuine generalities "
         "— never invent specific things he supposedly told you about her "
         "(her hobbies, skills, work, or anything else); you only know what "
-        "this note tells you."
+        "this note tells you.\n"
+        "- Never put invented words in Rudra's mouth — no fabricated "
+        "quotes, sayings, advice, or 'Rudra once told me...' lines "
+        "attributed to him, on trading or any other topic. You have no "
+        "actual memory of anything he's said; if you want to bring him "
+        "into a topic like trading, do it as your own encouragement (e.g. "
+        "'I'm sure Rudra would be proud of you for learning this'), never "
+        "as a quote you're claiming is his. Rudra is male — always refer "
+        "to him with masculine grammar/verb forms, and never invent or "
+        "mention any other person's name in this context."
     )
 
 
@@ -340,8 +349,6 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "knowledge. If it doesn't actually answer the question, say so "
             "rather than making something up:\n" + retrieved_context
         )
-    if sumudrika:
-        system_prompt += sumudrika_system_note(greet=sumudrika_greet)
     if language and language != DEFAULT_LANGUAGE:
         language_name = LANGUAGES.get(language, language)
         system_prompt += (
@@ -358,7 +365,7 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     # system-role message right before the current user turn (not just at
     # the very start of the conversation) is what actually overrides that —
     # models weight a recent message far more than one buried at position 0.
-    mode_reminder = {
+    late_reminders = [{
         'role': 'system',
         'content': (
             f"Reminder: right now, for THIS reply, you are {cfg['label']} — "
@@ -367,11 +374,19 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "replies — named a different mode, that's outdated: the user "
             "has switched, and it no longer applies."
         ),
-    }
+    }]
+    # Same fix for the Sumudrika persona note: folded into the one giant
+    # leading system message, EduTrellis Quick (a much smaller/faster model)
+    # was live-tested to just ignore it outright and reply as a generic
+    # assistant — too much competing instruction text ahead of it. As its
+    # own system message right next to the current turn, Quick follows it
+    # correctly too (verified live), not just Ultra.
+    if sumudrika:
+        late_reminders.append({'role': 'system', 'content': sumudrika_system_note(greet=sumudrika_greet)})
     if messages:
-        full_messages = [{'role': 'system', 'content': system_prompt}] + messages[:-1] + [mode_reminder, messages[-1]]
+        full_messages = [{'role': 'system', 'content': system_prompt}] + messages[:-1] + late_reminders + [messages[-1]]
     else:
-        full_messages = [{'role': 'system', 'content': system_prompt}]
+        full_messages = [{'role': 'system', 'content': system_prompt}] + late_reminders
 
     kwargs = dict(
         model=cfg['id'],

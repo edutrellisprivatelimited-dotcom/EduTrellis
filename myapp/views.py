@@ -1970,6 +1970,18 @@ def ai_chat_send(request):
     is_sumudrika_greet = bool(recent) and recent[-1]['role'] == AIMessage.ROLE_USER \
         and ai_chat.is_sumudrika_trigger(recent[-1]['content'])
 
+    # The Sumudrika persona depends on subtle instruction-following (warm
+    # tone, correct pronouns, never fabricating a quote from Rudra) that
+    # live-testing showed the smaller/faster modes don't reliably deliver —
+    # EduTrellis Quick (the site default) was caught inventing fake quotes
+    # attributed to Rudra and misgendering him. This is a rare, low-volume,
+    # personally-important conversation, so correctness wins over speed/cost
+    # here: force EduTrellis Ultra once triggered, regardless of whatever
+    # mode was actually selected — except when an image is attached this
+    # turn, since Ultra has no vision capability and that has to win.
+    if is_sumudrika and model_key != 'vision':
+        model_key = 'ultra'
+
     # EduTrellis Light: check the saved knowledge base first (free, no
     # external call); only fall back to a live web search — rate-limited
     # separately since it's the one path here that costs real search-API
