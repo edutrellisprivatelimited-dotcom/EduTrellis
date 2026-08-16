@@ -6,21 +6,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EduTrellis AI</title>
 <meta name="robots" content="noindex, follow">
+<script>
+// Applied synchronously, before first paint, so a saved dark/light choice
+// takes effect immediately instead of flashing the other theme while the
+// rest of the page loads.
+(function(){
+  try {
+    var saved = localStorage.getItem('ai_theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
 <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 <link rel="manifest" href="{% url 'ai_manifest' %}">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root{--red:#e8001e;--red-dark:#c0001a;--dark:#1c2333;--text:#555f6d;--head:#111418;--line:#e7eaf0;--bg-alt:#f8f9fc;--bg:#fff;--surface:#fff;--tint:#fff1f3}
+:root{--red:#e8001e;--red-dark:#c0001a;--dark:#1c2333;--text:#555f6d;--head:#111418;--line:#e7eaf0;--bg-alt:#f8f9fc;--bg:#fff;--surface:#fff;--tint:#fff1f3;--header-bg:rgba(255,255,255,.94)}
 /* dark theme — an explicit toggle stamps data-theme on <html>; with no
    explicit choice yet, the system's own light/dark preference decides */
 @media (prefers-color-scheme:dark){
   /* deliberately darker/less saturated than --dark (#1c2333, the fixed
      brand-navy used for buttons/user bubbles in both themes) so those
      elements stay visibly distinct from the page instead of blending in */
-  :root:not([data-theme="light"]){--text:#a4acba;--head:#f2f4f8;--line:#262c3b;--bg-alt:#12161f;--bg:#0a0d13;--surface:#161b26;--tint:rgba(232,0,30,.16)}
+  :root:not([data-theme="light"]){--text:#a4acba;--head:#f2f4f8;--line:#262c3b;--bg-alt:#12161f;--bg:#0a0d13;--surface:#161b26;--tint:rgba(232,0,30,.16);--header-bg:rgba(10,13,19,.88)}
 }
-:root[data-theme="dark"]{--text:#a4acba;--head:#f2f4f8;--line:#262c3b;--bg-alt:#12161f;--bg:#0a0d13;--surface:#161b26;--tint:rgba(232,0,30,.16)}
+:root[data-theme="dark"]{--text:#a4acba;--head:#f2f4f8;--line:#262c3b;--bg-alt:#12161f;--bg:#0a0d13;--surface:#161b26;--tint:rgba(232,0,30,.16);--header-bg:rgba(10,13,19,.88)}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:var(--bg);display:flex;flex-direction:column;overflow:hidden;transition:background .2s ease,color .2s ease}
@@ -29,10 +40,10 @@ a{color:var(--red);text-decoration:none}
 /* ---- boot loader (matches the EduTrellis Store loader) ---- */
 #loader{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem;transition:opacity .6s ease,visibility .6s ease}
 #loader.done{opacity:0;visibility:hidden}
-.loader-logo{font-family:'Sora',sans-serif;font-size:clamp(1.7rem,5vw,2.4rem);font-weight:900;letter-spacing:-.03em}
+.loader-logo{font-family:'Sora',sans-serif;font-size:clamp(1.7rem,5vw,2.4rem);font-weight:900;letter-spacing:-.03em;color:var(--head)}
 .loader-logo span{color:var(--red)}
 .loader-tag{font-size:.72rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--text);margin-top:-.7rem}
-.loader-progress{width:min(260px,62vw);height:5px;border-radius:99px;background:#eef0f5;overflow:hidden}
+.loader-progress{width:min(260px,62vw);height:5px;border-radius:99px;background:var(--line);overflow:hidden}
 .loader-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--red),var(--red-dark));transition:width .18s linear}
 .loader-pct{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--red)}
 
@@ -47,7 +58,7 @@ a{color:var(--red);text-decoration:none}
 .brand-mark .logo-txt{font-size:1.7rem}
 .brand-mark .logo-sub{font-size:.68rem}
 
-header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:.85rem 1.25rem;flex:none;z-index:20}
+header{background:var(--header-bg);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:.85rem 1.25rem;flex:none;z-index:20}
 .hd-wrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
 
 /* ---- install-as-app banner ---- */
@@ -90,7 +101,11 @@ header{background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:
 .new-chat-btn:hover{border-color:var(--red);color:var(--red)}
 .conv-list{flex:1;overflow-y:auto;padding:.3rem .6rem 1rem}
 .conv-empty{font-size:.78rem;color:#9aa3b0;padding:.8rem .6rem;text-align:center}
-.conv-item{display:flex;align-items:center;gap:.5rem;padding:.6rem .65rem;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--head);margin-bottom:.15rem;transition:background .12s}
+.conv-group-label{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9aa3b0;padding:.9rem .65rem .35rem}
+.conv-group-label:first-child{padding-top:.4rem}
+.conv-item{display:flex;align-items:center;gap:.55rem;padding:.6rem .65rem;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--head);margin-bottom:.15rem;transition:background .12s}
+.conv-icon{font-size:.72rem;color:#9aa3b0;flex-shrink:0}
+.conv-item.active .conv-icon{color:var(--red)}
 .conv-item:hover{background:var(--line)}
 .conv-item.active{background:var(--surface);box-shadow:0 1px 3px rgba(17,20,24,.08)}
 .conv-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1194,27 +1209,53 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     });
   })();
 
+  var CONV_GROUP_ORDER = ['Today', 'Yesterday', 'Previous 7 Days', 'Older'];
+  function convGroupLabel(dateStr){
+    var d = new Date(dateStr);
+    var now = new Date();
+    var startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var startOfYesterday = new Date(startOfToday); startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+    var startOfWeek = new Date(startOfToday); startOfWeek.setDate(startOfWeek.getDate() - 7);
+    if (d >= startOfToday) return 'Today';
+    if (d >= startOfYesterday) return 'Yesterday';
+    if (d >= startOfWeek) return 'Previous 7 Days';
+    return 'Older';
+  }
+
   function renderConvList(){
     if (!state.conversations.length) {
       convList.innerHTML = '<div class="conv-empty">No conversations yet</div>';
       return;
     }
     convList.innerHTML = '';
-    state.conversations.forEach(function(c){
-      var item = document.createElement('div');
-      item.className = 'conv-item' + (c.id === state.currentConversationId ? ' active' : '');
-      item.setAttribute('data-id', c.id);
-      var title = document.createElement('span');
-      title.className = 'conv-title';
-      title.textContent = c.title || 'New chat';
-      var del = document.createElement('button');
-      del.type = 'button';
-      del.className = 'conv-del';
-      del.setAttribute('data-del', c.id);
-      del.innerHTML = '<i class="fas fa-trash"></i>';
-      item.appendChild(title);
-      item.appendChild(del);
-      convList.appendChild(item);
+    var groups = { 'Today': [], 'Yesterday': [], 'Previous 7 Days': [], 'Older': [] };
+    state.conversations.forEach(function(c){ groups[convGroupLabel(c.updated_at)].push(c); });
+    CONV_GROUP_ORDER.forEach(function(label){
+      var list = groups[label];
+      if (!list.length) return;
+      var heading = document.createElement('div');
+      heading.className = 'conv-group-label';
+      heading.textContent = label;
+      convList.appendChild(heading);
+      list.forEach(function(c){
+        var item = document.createElement('div');
+        item.className = 'conv-item' + (c.id === state.currentConversationId ? ' active' : '');
+        item.setAttribute('data-id', c.id);
+        var icon = document.createElement('i');
+        icon.className = 'fas fa-message conv-icon';
+        var title = document.createElement('span');
+        title.className = 'conv-title';
+        title.textContent = c.title || 'New chat';
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'conv-del';
+        del.setAttribute('data-del', c.id);
+        del.innerHTML = '<i class="fas fa-trash"></i>';
+        item.appendChild(icon);
+        item.appendChild(title);
+        item.appendChild(del);
+        convList.appendChild(item);
+      });
     });
   }
   renderConvList();
