@@ -39,6 +39,7 @@ from myapp import dropbox_backup
 from myapp import ai_chat
 from myapp import github_ops
 from myapp import doc_extract
+from myapp import light_mode
 from myapp.emailing import send_store_email, get_notify_email
 from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
@@ -1642,6 +1643,7 @@ AI_GUEST_MESSAGE_LIMIT = 6        # free messages before a guest must log in/sig
 AI_IMAGE_MAX_DATA_URI_CHARS = 2_000_000
 AI_ACCOUNT_CART_ITEM_LIMIT = 10
 AI_ACCOUNT_ORDER_LIMIT = 5
+AI_LIGHT_SEARCH_RATE_LIMIT = 20   # live web searches per IP per AI_CHAT_RATE_WINDOW — the paid/metered part of Light mode
 
 
 def _ai_account_context(user):
@@ -1891,10 +1893,30 @@ def ai_chat_send(request):
 
     account_context = _ai_account_context(request.user) if request.user.is_authenticated else None
 
+    # EduTrellis Light: check the saved knowledge base first (free, no
+    # external call); only fall back to a live web search — rate-limited
+    # separately since it's the one path here that costs real search-API
+    # quota — when nothing relevant is already saved.
+    retrieved_context = retrieved_source = None
+    if model_key == 'light' and message:
+        kb_entries = light_mode.search_knowledge_base(message)
+        if kb_entries:
+            retrieved_context = light_mode.context_from_entries(kb_entries)
+            retrieved_source = 'knowledge_base'
+        else:
+            search_cache_key = f'ai_light_search_rate:{ip}'
+            search_count = cache.get(search_cache_key, 0)
+            if search_count < AI_LIGHT_SEARCH_RATE_LIMIT:
+                cache.set(search_cache_key, search_count + 1, AI_CHAT_RATE_WINDOW)
+                retrieved_context, retrieved_source = light_mode.web_search_and_save(message)
+
     def event_stream():
         full_reply = ''
         try:
-            for chunk in ai_chat.stream_chat(clean_history, model_key=model_key, account_context=account_context):
+            for chunk in ai_chat.stream_chat(
+                clean_history, model_key=model_key, account_context=account_context,
+                retrieved_context=retrieved_context, retrieved_source=retrieved_source,
+            ):
                 full_reply += chunk
                 yield chunk
         except Exception as e:

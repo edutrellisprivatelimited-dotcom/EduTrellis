@@ -7,6 +7,7 @@ from .models import (
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
     EmailSettings, EmailVerification, AIConversation, AIMessage, GitHubConnection,
+    KnowledgeEntry,
 )
 
 
@@ -145,6 +146,13 @@ class AIMessageAdmin(admin.ModelAdmin):
     list_display = ('conversation', 'role', 'model_key', 'created_at')
     list_filter = ('role', 'model_key')
     search_fields = ('content', 'conversation__title')
+
+
+@admin.register(KnowledgeEntry)
+class KnowledgeEntryAdmin(admin.ModelAdmin):
+    list_display = ('topic', 'source', 'updated_at')
+    list_filter = ('source',)
+    search_fields = ('topic', 'content')
 
 
 @admin.register(GitHubConnection)

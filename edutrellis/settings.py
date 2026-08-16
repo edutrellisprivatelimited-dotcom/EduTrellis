@@ -162,6 +162,11 @@ TWO_FACTOR_API_KEY = '12feb4c9-9636-11f1-9cb1-0200cd936042'
 # needs to change.
 NVIDIA_API_KEY = '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'
 
+# Powers EduTrellis Light's web-search fallback (myapp/web_search.py) when
+# the saved knowledge base has nothing relevant — same hardcoding choice and
+# same caveat as NVIDIA_API_KEY above. Rotate at app.tavily.com if needed.
+TAVILY_API_KEY = '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'
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 

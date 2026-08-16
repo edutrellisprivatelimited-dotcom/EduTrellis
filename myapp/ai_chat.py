@@ -95,6 +95,13 @@ MODELS = {
         'reasoning': True,
         'vision': False,
     },
+    'light': {
+        'id': 'nvidia/nemotron-3-nano-30b-a3b',
+        'label': 'EduTrellis Light',
+        'description': "Fastest — answers from EduTrellis's saved knowledge first, and searches the web if it isn't there.",
+        'reasoning': True,
+        'vision': False,
+    },
     'code': {
         'id': 'meta/llama-3.1-70b-instruct',
         'label': 'EduTrellis Code',
@@ -122,7 +129,8 @@ def _get_client():
     return _client
 
 
-def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None):
+def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
+                 retrieved_context=None, retrieved_source=None):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -130,6 +138,9 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None):
     that included an image. account_context, when given, is a short summary
     of the logged-in user's own cart/orders (already scoped to that user by
     the caller) — never fetched or trusted from anywhere but the server side.
+    retrieved_context/retrieved_source (EduTrellis Light only) is whatever
+    myapp.light_mode found for this turn — either a knowledge_base match or
+    a fresh web_search result — already retrieved and bounded by the caller.
     Yields text chunks as they arrive from the model."""
     cfg = MODELS.get(model_key) or MODELS[DEFAULT_MODEL_KEY]
     client = _get_client()
@@ -150,6 +161,15 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None):
             "about their cart, orders, wallet, or account; don't recite it "
             "unprompted, and never state a cart/order detail that isn't listed "
             "here:\n" + account_context
+        )
+    if retrieved_context:
+        source_label = "EduTrellis's saved knowledge base" if retrieved_source == 'knowledge_base' else 'a live web search'
+        system_prompt += (
+            f"\n\nFor this reply, here is relevant information retrieved from "
+            f"{source_label} — use it as your primary source for factual "
+            "claims in this answer instead of guessing from general "
+            "knowledge. If it doesn't actually answer the question, say so "
+            "rather than making something up:\n" + retrieved_context
         )
     full_messages = [{'role': 'system', 'content': system_prompt}] + messages
 

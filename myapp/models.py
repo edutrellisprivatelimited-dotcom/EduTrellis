@@ -718,6 +718,32 @@ class GitHubConnection(models.Model):
         return f"{self.github_username or self.user.username} → {self.repo_full_name or '(no repo set)'}"
 
 
+class KnowledgeEntry(models.Model):
+    """A saved fact/answer EduTrellis Light checks before anything else.
+    Seeded manually from the admin, and grown automatically — when Light
+    mode has to fall back to a live web search, the top result gets saved
+    here so the same question is a fast, free knowledge-base hit next
+    time instead of another paid search."""
+    SOURCE_MANUAL = 'manual'
+    SOURCE_WEB = 'web_search'
+    SOURCE_CHOICES = [(SOURCE_MANUAL, 'Manual'), (SOURCE_WEB, 'Web search')]
+
+    topic      = models.CharField(max_length=200, help_text="Short label/question this answers, e.g. 'refund policy' or 'GST registration steps'.")
+    content    = models.TextField(help_text='The saved text EduTrellis Light will answer from.')
+    source     = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_MANUAL)
+    source_url = models.URLField(blank=True, help_text='Where this was found, if saved from a web search.')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'Knowledge Entry'
+        verbose_name_plural = 'Knowledge Entries (EduTrellis Light)'
+
+    def __str__(self):
+        return self.topic
+
+
 class AIMessage(models.Model):
     ROLE_USER = 'user'
     ROLE_ASSISTANT = 'assistant'
