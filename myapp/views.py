@@ -1708,10 +1708,15 @@ def _ai_owner_filter(request):
 
 
 def ai_manifest(request):
-    # Uses the same favicon as the rest of edutrellis.in (not the separate
-    # store PWA icon from PWASettings) — installing "EduTrellis AI" should
-    # look like the same brand as the site it's embedded in.
-    icon_url = request.build_absolute_uri(static_url('favicon.ico'))
+    # Same brand red as the rest of edutrellis.in's favicon, but as real
+    # 192x192/512x512 PNGs rather than the site's actual favicon.ico (which
+    # is only 48x48). Android Chrome checks the real pixel dimensions of a
+    # manifest icon against its declared size before it'll consider the app
+    # installable — a declared-but-not-actual 192/512 icon is why the
+    # install prompt was never firing on Android at all (desktop Chrome is
+    # more lenient about it, which is why it could look fine there).
+    icon_192 = request.build_absolute_uri(static_url('ai-icon-192.png'))
+    icon_512 = request.build_absolute_uri(static_url('ai-icon-512.png'))
     manifest = {
         'name': 'EduTrellis AI',
         'short_name': 'EduTrellis AI',
@@ -1722,8 +1727,9 @@ def ai_manifest(request):
         'background_color': '#ffffff',
         'theme_color': '#e8001e',
         'icons': [
-            {'src': icon_url, 'sizes': '192x192', 'type': 'image/x-icon'},
-            {'src': icon_url, 'sizes': '512x512', 'type': 'image/x-icon'},
+            {'src': icon_192, 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
+            {'src': icon_512, 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any'},
+            {'src': icon_512, 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'},
         ],
     }
     return JsonResponse(manifest, content_type='application/manifest+json')
@@ -1893,6 +1899,14 @@ def ai_chat_send(request):
 
     account_context = _ai_account_context(request.user) if request.user.is_authenticated else None
 
+    # Once the secret phrase has appeared anywhere in this conversation, the
+    # warm/personal tone stays on for the rest of it rather than resetting
+    # every message.
+    is_sumudrika = any(
+        m['role'] == AIMessage.ROLE_USER and ai_chat.is_sumudrika_trigger(m['content'])
+        for m in recent
+    )
+
     # EduTrellis Light: check the saved knowledge base first (free, no
     # external call); only fall back to a live web search — rate-limited
     # separately since it's the one path here that costs real search-API
@@ -1916,6 +1930,7 @@ def ai_chat_send(request):
             for chunk in ai_chat.stream_chat(
                 clean_history, model_key=model_key, account_context=account_context,
                 retrieved_context=retrieved_context, retrieved_source=retrieved_source,
+                sumudrika=is_sumudrika,
             ):
                 full_reply += chunk
                 yield chunk
@@ -1941,13 +1956,17 @@ def ai_chat_send(request):
                 # (guest or logged in) — feeds EduTrellis Light's shared
                 # knowledge base, not just Light's own conversations. Never
                 # blocks or fails the actual chat reply if this errors.
-                try:
-                    light_mode.save_from_chat(
-                        message, full_reply, account_context=account_context,
-                        had_attachment=bool(image_data or document_text),
-                    )
-                except Exception:
-                    logger.exception("Failed to save chat turn to the Light knowledge base")
+                # Skipped for the sumudrika easter egg — that reply is warm,
+                # personal content about Rudra and his wife, never something
+                # a stranger's Light-mode question should be able to surface.
+                if not is_sumudrika:
+                    try:
+                        light_mode.save_from_chat(
+                            message, full_reply, account_context=account_context,
+                            had_attachment=bool(image_data or document_text),
+                        )
+                    except Exception:
+                        logger.exception("Failed to save chat turn to the Light knowledge base")
 
     response = StreamingHttpResponse(event_stream(), content_type='text/plain; charset=utf-8')
     response['Cache-Control'] = 'no-cache'

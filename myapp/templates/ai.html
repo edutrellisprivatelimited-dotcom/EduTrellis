@@ -157,10 +157,14 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 
 /* ---- GitHub mode (staff-only) ---- */
 .github-wrap{position:relative;flex-shrink:0;align-self:center}
-.github-btn{display:flex;align-items:center;gap:.35rem;height:32px;font-size:.74rem;font-weight:700;color:var(--head);background:#fff;border:1.5px solid var(--line);padding:0 .65rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s;white-space:nowrap}
-.github-btn:hover:not(:disabled){border-color:var(--dark);color:var(--dark)}
-.github-btn:disabled{opacity:.5;cursor:default}
-.github-btn.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* icon-only, sized to match the other composer controls (mic/attach/camera)
+   so it lines up cleanly in the row on every screen size instead of needing
+   its own mobile-only width/label overrides */
+.github-btn{border:none;cursor:pointer;background:none;color:#9aa3b0;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;transition:color .15s,background .15s}
+.github-btn span{display:none}
+.github-btn:hover:not(:disabled){color:var(--red);background:#fff}
+.github-btn:disabled{opacity:.4;cursor:default}
+.github-btn.active{color:#fff;background:var(--dark)}
 .github-panel{position:absolute;bottom:calc(100% + .6rem);left:0;width:260px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.85rem;z-index:30}
 .github-panel-title{font-size:.82rem;font-weight:700;color:var(--head);margin-bottom:.35rem}
 .github-panel-title span{color:var(--red)}
@@ -231,6 +235,11 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   footer{padding:.75rem 1rem .9rem}
   .input-wrap{padding:.45rem .55rem .45rem .75rem}
   .foot-note,.guest-meter{font-size:.68rem}
+  /* mobile only — the arrow-only "back to site" link (its text is already
+     hidden at 880px) is dropped entirely here, which naturally pushes the
+     account chip / login button to the header's true right edge since it's
+     the last flex child left in .hd-right. */
+  .hd-back{display:none}
 }
 @media (max-width:480px){
   .model-picker-btn{padding:0 .5rem 0 .6rem}
@@ -242,9 +251,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
      plus the textarea now share the composer row — tighten spacing so the
      input itself keeps enough room on narrow phones. */
   .input-wrap{gap:.3rem}
-  .mic-btn{width:30px;height:30px;font-size:.85rem}
-  .github-btn{padding:0 .5rem}
-  .github-btn span{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mic-btn,.github-btn{width:30px;height:30px;font-size:.85rem}
   /* centered instead of left-anchored — github-btn can sit mid-row, so a
      fixed-width panel anchored to its left edge could run off either side */
   .github-panel{left:50%;right:auto;transform:translateX(-50%);width:min(88vw,280px)}
@@ -253,8 +260,6 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
   .model-picker-btn span{display:none}
   .model-picker-btn{padding:0 .45rem}
   .model-dropdown{min-width:190px}
-  .github-btn span{display:none}
-  .github-btn{padding:0 .45rem}
 }
 @media (max-width:420px){
   .logo-txt{font-size:1.05rem}
@@ -315,7 +320,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
 </header>
 
 <div class="install-banner" id="installBanner" hidden>
-  <img src="{% static 'favicon.ico' %}" alt="" class="install-banner-icon">
+  <img src="{% static 'ai-icon-192.png' %}" alt="" class="install-banner-icon">
   <span class="install-banner-text">Install EduTrellis AI as an app for quicker access.</span>
   <button type="button" class="install-banner-btn" id="installBannerBtn">Install</button>
   <button type="button" class="install-banner-close" id="installBannerClose" aria-label="Dismiss"><i class="fas fa-xmark"></i></button>

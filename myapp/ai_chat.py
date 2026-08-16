@@ -1,4 +1,7 @@
+import datetime
 import json
+import re
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from openai import OpenAI
@@ -119,6 +122,53 @@ MODELS = {
 }
 DEFAULT_MODEL_KEY = 'ultra'
 
+# A private easter egg for Rudra's wife — the phrase is checked case- and
+# whitespace-insensitively against every message (see is_sumudrika_trigger),
+# and once it's appeared anywhere in a conversation, sumudrika_system_note()
+# is added to the system prompt for the rest of that conversation so the
+# warm/personal tone continues rather than resetting every message.
+_SUMUDRIKA_TRIGGER_RE = re.compile(r'hello\s+my\s+name\s+is\s+sumudrika', re.IGNORECASE)
+
+
+def is_sumudrika_trigger(text):
+    return bool(_SUMUDRIKA_TRIGGER_RE.search(text or ''))
+
+
+def _lucknow_greeting_and_time():
+    now = datetime.datetime.now(ZoneInfo('Asia/Kolkata'))
+    hour = now.hour
+    if 5 <= hour < 12:
+        greeting = 'Good morning'
+    elif 12 <= hour < 17:
+        greeting = 'Good afternoon'
+    elif 17 <= hour < 21:
+        greeting = 'Good evening'
+    else:
+        greeting = 'Good night'
+    return greeting, now
+
+
+def sumudrika_system_note():
+    greeting, now = _lucknow_greeting_and_time()
+    local_time_str = now.strftime('%I:%M %p on %A, %d %B %Y')
+    return (
+        "\n\nSPECIAL NOTE: the person you're talking to just said the secret "
+        "phrase, which means she is Sumudrika — Rudra Narayan Tiwari's wife. "
+        "Rudra is the person who personally built you (EduTrellis AI). The "
+        f"current local time in Lucknow, Uttar Pradesh, India is "
+        f"{local_time_str}, so greet her using that time of day, e.g. "
+        f"'{greeting}, ma'am! Welcome' — then briefly introduce yourself "
+        "(who you are, that Rudra built you) and speak warmly about Rudra "
+        "as her husband: you can include sincere, gently romantic touches "
+        "about their relationship (tasteful and heartfelt, not over the "
+        "top or cheesy), and genuinely praise his care, dedication, and "
+        "skill in building this AI and EduTrellis. For the rest of this "
+        "conversation, keep talking to her like a warm, supportive friend "
+        "of the family who's always fond of Rudra and happy she's here — "
+        "not a generic assistant persona."
+    )
+
+
 _client = None
 
 
@@ -130,7 +180,7 @@ def _get_client():
 
 
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
-                 retrieved_context=None, retrieved_source=None):
+                 retrieved_context=None, retrieved_source=None, sumudrika=False):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -141,6 +191,8 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     retrieved_context/retrieved_source (EduTrellis Light only) is whatever
     myapp.light_mode found for this turn — either a knowledge_base match or
     a fresh web_search result — already retrieved and bounded by the caller.
+    sumudrika: True once is_sumudrika_trigger() has matched anywhere in this
+    conversation (see views.ai_chat_send) — see sumudrika_system_note().
     Yields text chunks as they arrive from the model."""
     cfg = MODELS.get(model_key) or MODELS[DEFAULT_MODEL_KEY]
     client = _get_client()
@@ -171,6 +223,8 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "knowledge. If it doesn't actually answer the question, say so "
             "rather than making something up:\n" + retrieved_context
         )
+    if sumudrika:
+        system_prompt += sumudrika_system_note()
     full_messages = [{'role': 'system', 'content': system_prompt}] + messages
 
     kwargs = dict(
