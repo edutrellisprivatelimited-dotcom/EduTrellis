@@ -164,11 +164,8 @@ main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem;background:radial-gradie
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .msg-bubble.md th{background:rgba(255,255,255,.06)}}
 .msg-cursor{display:inline-block;width:.5em;height:1em;background:var(--head);vertical-align:text-bottom;animation:blink 1s step-start infinite;margin-left:1px}
 @keyframes blink{50%{opacity:0}}
-.typing-dots{display:inline-flex;gap:.25rem;padding:.15rem 0}
-.typing-dots span{width:6px;height:6px;border-radius:50%;background:#b3bac4;animation:bounce 1.2s infinite ease-in-out}
-.typing-dots span:nth-child(2){animation-delay:.15s}
-.typing-dots span:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+.typing-status{display:inline-block;font-size:.88rem;font-weight:600;color:var(--text);animation:typingPulse 1.4s ease-in-out infinite}
+@keyframes typingPulse{0%,100%{opacity:.5}50%{opacity:1}}
 
 footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padding:.9rem 1.25rem 1.1rem}
 .input-wrap{max-width:780px;margin:0 auto;display:flex;align-items:flex-end;gap:.6rem;background:var(--bg-alt);border:1.5px solid var(--line);border-radius:16px;padding:.5rem .6rem .5rem 1rem;transition:border-color .2s,box-shadow .2s}
@@ -812,7 +809,39 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   }
   updateGuestMeter();
 
-  var TYPING_HTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+  // Rotating status text instead of plain bouncing dots — cheap to build
+  // (no real progress events come from the server, especially for the
+  // single blocking GitHub-mode response) but far more informative than
+  // dots alone about roughly what's happening while you wait.
+  var STATUS_PHRASES = {
+    default: ['Thinking', 'Generating answer'],
+    light: ['Searching', 'Checking knowledge base', 'Generating answer'],
+    vision: ['Looking at your image', 'Generating answer'],
+    code: ['Reading your code', 'Generating answer'],
+    github: ['Checking repository', 'Planning changes', 'Applying changes'],
+  };
+  var STATUS_ROTATE_MS = 1500;
+
+  function startTypingStatus(bubble, statusKey){
+    var phrases = STATUS_PHRASES[statusKey] || STATUS_PHRASES.default;
+    var span = document.createElement('span');
+    span.className = 'typing-status';
+    var i = 0;
+    span.textContent = phrases[0] + '…';
+    bubble.innerHTML = '';
+    bubble.appendChild(span);
+    var timer = setInterval(function(){
+      i = (i + 1) % phrases.length;
+      span.textContent = phrases[i] + '…';
+    }, STATUS_ROTATE_MS);
+    bubble._stopTyping = function(){
+      clearInterval(timer);
+      bubble._stopTyping = null;
+    };
+  }
+  function stopBubbleTyping(bubble){
+    if (bubble && bubble._stopTyping) bubble._stopTyping();
+  }
 
   // X-Products carries the real, DB-resolved product matches for this
   // reply (see ai_chat_send) — base64'd JSON so unicode in a product name
@@ -916,7 +945,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var bubble = document.createElement('div');
     bubble.className = 'msg-bubble' + (opts.error ? ' error' : '') + (role === 'assistant' ? ' md' : '');
     if (opts.typing) {
-      bubble.innerHTML = TYPING_HTML;
+      startTypingStatus(bubble, opts.statusKey);
     } else {
       var textHtml = role === 'assistant'
         ? formatMd(text) + (opts.streaming ? '<span class="msg-cursor"></span>' : '')
@@ -985,7 +1014,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     if (attachBtn) attachBtn.disabled = on || state.gated;
     if (cameraBtn) cameraBtn.disabled = on || state.gated;
     if (modelPickerBtn) modelPickerBtn.disabled = on || state.gated;
-    if (githubBtn) githubBtn.disabled = on || state.gated;
+    applyGithubAvailability();
   }
 
   // ---- theme (light/dark) ----
@@ -1050,6 +1079,30 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     });
   }
 
+  // GitHub mode always answers using EduTrellis Code server-side regardless
+  // of the picker (see GITHUB_MODEL_KEY in ai_chat.py), but pairing it with
+  // EduTrellis Light doesn't make sense at the concept level — Light is
+  // about answering from the saved knowledge base / a web search, not
+  // editing a codebase, so offering "connect GitHub" there is just
+  // confusing. Disabled (and force-closed/turned off if it was already on)
+  // whenever Light is the active mode; every other mode keeps it available.
+  var GITHUB_DISABLED_MODELS = ['light'];
+  function applyGithubAvailability(){
+    if (!githubBtn) return;
+    var incompatible = GITHUB_DISABLED_MODELS.indexOf(currentModel) !== -1;
+    githubBtn.disabled = incompatible || state.streaming || state.gated;
+    githubBtn.title = incompatible ? "Not available in EduTrellis Light mode — switch modes first" : 'GitHub';
+    if (!incompatible) return;
+    if (githubPanel) { githubPanel.hidden = true; }
+    githubBtn.setAttribute('aria-expanded', 'false');
+    if (state.githubMode) {
+      state.githubMode = false;
+      githubBtn.classList.remove('active');
+      input.placeholder = 'Message AI';
+      if (githubModeToggle) githubModeToggle.checked = false;
+    }
+  }
+
   // ---- model picker (dropdown) ----
   var currentModel = AI_DEFAULT_MODEL;
   if (modelPickerBtn && modelDropdown && modelPickerLabel) {
@@ -1068,12 +1121,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         void modelPickerBtn.offsetWidth; // restart the animation if clicked again quickly
         modelPickerBtn.classList.add('switched');
       }
+      applyGithubAvailability();
     };
 
     var savedModel = localStorage.getItem('ai_model');
     if (savedModel && modelDropdown.querySelector('[data-model="' + savedModel + '"]')) {
       applyModelSelection(savedModel);
     }
+    applyGithubAvailability();
 
     function openDropdown(){
       modelDropdown.hidden = false;
@@ -1787,7 +1842,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     input.value = '';
     autoResize();
     setStreaming(true);
-    var bubble = renderRow('assistant', '', { typing: true });
+    var bubble = renderRow('assistant', '', { typing: true, statusKey: 'github' });
 
     var abortController = new AbortController();
     activeAbort = abortController;
@@ -1806,6 +1861,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         throw new Error(res.body.detail || 'Something went wrong — please try again.');
       }
       if (res.body.conversation_id) setCurrentConversationId(res.body.conversation_id);
+      stopBubbleTyping(bubble);
       var tagHtml = '<div class="msg-model-tag">EduTrellis GitHub</div>';
       bubble.innerHTML = tagHtml + (formatMd(res.body.reply) || '<i>No response — please try again.</i>');
       setStreaming(false);
@@ -1814,6 +1870,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       refreshConversations();
     }).catch(function(err){
       activeAbort = null;
+      stopBubbleTyping(bubble);
       if (err && err.name === 'AbortError') {
         bubble.className = 'msg-bubble error';
         bubble.textContent = 'Stopped.';
@@ -1847,13 +1904,18 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var assistantText = '';
     var answeredModelKey = null;
     var matchedProducts = [];
-    var bubble = renderRow('assistant', '', { typing: true });
+    // An attached image always gets auto-routed to Vision server-side
+    // regardless of the picker (see views.ai_chat_send), so that takes
+    // priority over whatever mode is currently selected.
+    var statusKey = imageToSend ? 'vision' : (STATUS_PHRASES[currentModel] ? currentModel : 'default');
+    var bubble = renderRow('assistant', '', { typing: true, statusKey: statusKey });
     var wasNewConversation = !state.currentConversationId;
 
     var abortController = new AbortController();
     activeAbort = abortController;
 
     function finalizeBubble(){
+      stopBubbleTyping(bubble);
       var label = answeredModelKey ? MODEL_LABELS[answeredModelKey] : null;
       var tagHtml = label ? '<div class="msg-model-tag">' + escHtml(label) + '</div>' : '';
       bubble.innerHTML = tagHtml + (formatMd(assistantText) || '<i>No response — please try again.</i>');
@@ -1875,6 +1937,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       if (resp.status === 403) {
         return resp.json().then(function(body){
           if (body.status === 'login_required') {
+            stopBubbleTyping(bubble);
             bubble.parentElement.remove();
             if (userRow) userRow.remove();
             setStreaming(false);
@@ -1897,6 +1960,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
       if (!resp.body || !resp.body.getReader){
         return resp.text().then(function(text){
+          stopBubbleTyping(bubble);
           assistantText = text;
           bubble.innerHTML = formatMd(assistantText);
         });
@@ -1908,6 +1972,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
           if (result.done) return;
           var chunk = decoder.decode(result.value, { stream: true });
           if (!chunk) return pump();
+          stopBubbleTyping(bubble);
           assistantText += chunk;
           bubble.innerHTML = formatMd(assistantText) + '<span class="msg-cursor"></span>';
           scrollToBottom();
@@ -1935,6 +2000,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         refreshConversations();
         return;
       }
+      stopBubbleTyping(bubble);
       bubble.className = 'msg-bubble error';
       bubble.textContent = err.message || 'Something went wrong — please try again.';
       setStreaming(false);
