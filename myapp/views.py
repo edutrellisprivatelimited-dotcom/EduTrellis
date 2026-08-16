@@ -1911,7 +1911,7 @@ def ai_chat_send(request):
 
     AIMessage.objects.create(
         conversation=conversation, role=AIMessage.ROLE_USER, content=message,
-        image_data=image_data, document_name=document_name,
+        image_data=image_data, document_name=document_name, document_text=document_text,
     )
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
@@ -1919,12 +1919,25 @@ def ai_chat_send(request):
     if not request.user.is_authenticated:
         request.session['ai_guest_msg_count'] = request.session.get('ai_guest_msg_count', 0) + 1
 
-    model_cfg = ai_chat.MODELS[model_key]
     recent = list(
         conversation.messages.order_by('-created_at')
-        .values('role', 'content', 'image_data', 'document_name')[:AI_CHAT_MAX_HISTORY]
+        .values('role', 'content', 'image_data', 'document_name', 'document_text')[:AI_CHAT_MAX_HISTORY]
     )
     recent.reverse()
+
+    # If an earlier turn still within the replayed history window attached
+    # an image, keep answering with EduTrellis Vision for follow-ups too —
+    # even though this specific turn has no new image — otherwise that
+    # image gets degraded to a text placeholder below and the model wrongly
+    # denies ever having seen one (e.g. "can you tell me more about the
+    # image" right after an image reply, with a different mode selected).
+    # Sticky in the same spirit as the Sumudrika override, and
+    # self-limiting: once the image scrolls out of the AI_CHAT_MAX_HISTORY
+    # window, this stops applying and normal mode selection resumes.
+    if model_key != 'vision' and any(m['image_data'] for m in recent):
+        model_key = 'vision'
+    model_cfg = ai_chat.MODELS[model_key]
+
     clean_history = []
     for m in recent:
         if m['image_data'] and model_cfg['vision']:
@@ -1937,24 +1950,22 @@ def ai_chat_send(request):
             # degrade to a plain-text note instead of sending it multimodal
             # content it can't parse.
             content = (m['content'] + ' [image attached]').strip()
+        elif m['document_name'] and m['document_text']:
+            # Persisted in full (capped by doc_extract.MAX_CHARS) so a
+            # follow-up question about this document works without
+            # re-uploading it, for as long as it stays within the replayed
+            # AI_CHAT_MAX_HISTORY window.
+            content = (
+                f"[Attached document: {m['document_name']}]\n{m['document_text']}\n\n---\n"
+                f"{m['content'] or 'Please review the attached document.'}"
+            )
         elif m['document_name']:
-            # Only the filename was kept for older turns — the extracted
-            # text itself is never persisted, so re-sending history doesn't
-            # re-transmit a whole document on every follow-up message. The
-            # full text for THIS turn gets spliced in below instead.
+            # Older row from before document_text was persisted — degrade
+            # to a plain filename note instead of silently having nothing.
             content = (m['content'] + f" [Attached document: {m['document_name']}]").strip()
         else:
             content = m['content']
         clean_history.append({'role': m['role'], 'content': content})
-
-    # Splice the freshly-extracted full document text into this turn only —
-    # the placeholder above (from the DB) is what gets replayed on future
-    # turns instead, keeping per-message token cost bounded.
-    if document_text and clean_history and clean_history[-1]['role'] == AIMessage.ROLE_USER:
-        clean_history[-1]['content'] = (
-            f"[Attached document: {document_name}]\n{document_text}\n\n---\n"
-            f"{message or 'Please review the attached document.'}"
-        )
 
     account_context = _ai_account_context(request.user) if request.user.is_authenticated else None
 

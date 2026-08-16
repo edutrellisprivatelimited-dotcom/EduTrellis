@@ -762,11 +762,12 @@ class AIMessage(models.Model):
     role         = models.CharField(max_length=10, choices=ROLE_CHOICES)
     content      = models.TextField()
     image_data   = models.TextField(blank=True)  # data: URI of an attached image, if any (user turns only)
-    # Only the filename is kept — the extracted text itself is never
-    # persisted (it's injected into the model call for that one turn only,
-    # by the view, then discarded), so history replay doesn't re-send a
-    # whole document's text on every follow-up message.
     document_name = models.CharField(max_length=255, blank=True)
+    # Extracted text (capped by doc_extract.MAX_CHARS), persisted so
+    # follow-up questions about the same document work without re-uploading
+    # it — replayed on every turn within AI_CHAT_MAX_HISTORY, same tradeoff
+    # as replaying an attached image.
+    document_text = models.TextField(blank=True)
     model_key    = models.CharField(max_length=20, blank=True)  # which EduTrellis model answered (assistant turns only)
     # Comma-separated slugs of real EduTrellis Store products shown as cards
     # under this reply (assistant turns only) — see myapp.product_search.
