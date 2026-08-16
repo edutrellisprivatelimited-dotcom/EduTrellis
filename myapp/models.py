@@ -768,6 +768,12 @@ class AIMessage(models.Model):
     # whole document's text on every follow-up message.
     document_name = models.CharField(max_length=255, blank=True)
     model_key    = models.CharField(max_length=20, blank=True)  # which EduTrellis model answered (assistant turns only)
+    # Comma-separated slugs of real EduTrellis Store products shown as cards
+    # under this reply (assistant turns only) — see myapp.product_search.
+    # Never AI-generated text; always resolved from the real Product table
+    # so history replay shows the same real cards, not anything the model
+    # claimed.
+    product_slugs = models.CharField(max_length=250, blank=True)
     created_at   = models.DateTimeField(auto_now_add=True)
 
     class Meta:

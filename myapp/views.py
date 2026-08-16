@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -40,6 +41,7 @@ from myapp import ai_chat
 from myapp import github_ops
 from myapp import doc_extract
 from myapp import light_mode
+from myapp import product_search
 from myapp.emailing import send_store_email, get_notify_email
 from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
@@ -253,6 +255,28 @@ def _product_payload(p):
         'flag': p.flag,
         'stock': p.stock_status,
         'tags': p.tag_list,
+        'rating': p.review_stats[0],
+        'reviews': p.review_stats[1],
+    }
+
+
+def _ai_product_card_payload(p):
+    """A deliberately slim product payload for the AI chat's product cards —
+    unlike _product_payload (full gallery/colors/specs/long description, for
+    the store's own product page), this only carries what a small chat card
+    actually renders. Kept light because the live-streaming version of this
+    travels in a response header (see ai_chat_send), which has a real size
+    ceiling; up to MAX_PRODUCTS of these comfortably fits well under it."""
+    return {
+        'id': p.slug,
+        'brand': p.brand,
+        'name': p.name,
+        'desc': p.short_description,
+        'price': float(p.price),
+        'mrp': float(p.mrp),
+        'icon': p.icon,
+        'grad': p.gradient,
+        'image': p.image.url if p.image else None,
         'rating': p.review_stats[0],
         'reviews': p.review_stats[1],
     }
@@ -1944,6 +1968,15 @@ def ai_chat_send(request):
                 cache.set(search_cache_key, search_count + 1, AI_CHAT_RATE_WINDOW)
                 retrieved_context, retrieved_source = light_mode.web_search_and_save(message)
 
+    # Real EduTrellis Store products matching this message — resolved
+    # deterministically from the database, never from anything the model
+    # says, so what's shown (photo/price/link) is always real. Computed
+    # once up front rather than inside event_stream() so it's ready before
+    # any AI call/streaming starts, and the same list is used both for the
+    # header the browser reads immediately and for what gets saved below.
+    matched_products = product_search.search_products(message) if message else []
+    product_payloads = [_ai_product_card_payload(p) for p in matched_products]
+
     def event_stream():
         full_reply = ''
         had_error = False
@@ -1976,6 +2009,7 @@ def ai_chat_send(request):
                         AIMessage.objects.create(
                             conversation=conversation, role=AIMessage.ROLE_ASSISTANT,
                             content=full_reply, model_key=model_key,
+                            product_slugs=','.join(p.slug for p in matched_products),
                         )
                 except Exception:
                     logger.exception("Failed to save AI assistant reply for conversation %s", conversation.pk)
@@ -2006,6 +2040,11 @@ def ai_chat_send(request):
     response['X-Accel-Buffering'] = 'no'
     response['X-Conversation-Id'] = str(conversation.id)
     response['X-Model-Key'] = model_key
+    # Base64'd so the header is always plain ASCII regardless of unicode in
+    # a product name/brand — WSGI headers aren't guaranteed to survive raw
+    # UTF-8. Empty string (not omitted) when there's nothing to show, so the
+    # browser doesn't have to special-case a missing header.
+    response['X-Products'] = base64.b64encode(json.dumps(product_payloads).encode('utf-8')).decode('ascii') if product_payloads else ''
     return response
 
 
@@ -2062,7 +2101,23 @@ def ai_conversation_messages(request, conversation_id):
     conversation = AIConversation.objects.filter(_ai_owner_filter(request), pk=conversation_id).first()
     if not conversation:
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
-    messages_qs = list(conversation.messages.order_by('created_at').values('role', 'content', 'image_data', 'document_name', 'model_key'))
+    messages_qs = list(
+        conversation.messages.order_by('created_at')
+        .values('role', 'content', 'image_data', 'document_name', 'model_key', 'product_slugs')
+    )
+
+    # One query for every product referenced anywhere in this conversation,
+    # rather than one per message — a product could since have been made
+    # inactive/deleted, so a stale slug just quietly drops instead of erroring.
+    all_slugs = {s for m in messages_qs for s in (m['product_slugs'] or '').split(',') if s}
+    products_by_slug = {}
+    if all_slugs:
+        for p in Product.objects.filter(slug__in=all_slugs, is_active=True).select_related('category'):
+            products_by_slug[p.slug] = _ai_product_card_payload(p)
+    for m in messages_qs:
+        slugs = [s for s in m.pop('product_slugs').split(',') if s]
+        m['products'] = [products_by_slug[s] for s in slugs if s in products_by_slug]
+
     return JsonResponse({'status': 'ok', 'title': conversation.title, 'messages': messages_qs})
 
 

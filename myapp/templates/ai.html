@@ -162,6 +162,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 #sendBtn{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s,transform .1s}
 #sendBtn:hover:not(:disabled){transform:scale(1.06)}
 #sendBtn:disabled{opacity:.45;cursor:default}
+/* generating — a stop icon inside a pulsing ring, click to abort */
+#sendBtn.stop-mode i{font-size:.7rem}
+#sendBtn.stop-mode{animation:sendPulse 1.4s ease-in-out infinite}
+@keyframes sendPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,0,30,.35)}50%{box-shadow:0 0 0 7px rgba(232,0,30,0)}}
 .mic-btn{border:none;cursor:pointer;background:none;color:#9aa3b0;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;transition:color .15s,background .15s}
 .mic-btn:hover:not(:disabled){color:var(--red);background:var(--surface)}
 .mic-btn:disabled{opacity:.4;cursor:default}
@@ -233,6 +237,22 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 .msg-img{max-width:220px;max-height:220px;border-radius:12px;display:block;margin-bottom:.45rem;object-fit:cover}
 .msg-doc-chip{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.15);border-radius:8px;padding:.35rem .6rem;font-size:.78rem;font-weight:600;margin-bottom:.45rem}
 .msg-row.assistant .msg-doc-chip{background:var(--tint);color:var(--red)}
+
+/* ---- real EduTrellis Store products, shown as cards under a reply ---- */
+.chat-product-row{display:flex;gap:.6rem;overflow-x:auto;margin-top:.65rem;padding:.15rem .05rem .3rem;-webkit-overflow-scrolling:touch}
+.chat-product-card{flex:0 0 138px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;display:block;transition:transform .15s,box-shadow .15s}
+.chat-product-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(17,20,24,.14);text-decoration:none}
+.cpc-media{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--bg-alt);overflow:hidden}
+.cpc-media img{width:100%;height:100%;object-fit:cover}
+.cpc-media i{font-size:1.6rem;color:#fff}
+.cpc-body{padding:.55rem .6rem .65rem}
+.cpc-brand{font-size:.62rem;font-weight:700;color:#9aa3b0;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.1rem}
+.cpc-name{font-size:.76rem;font-weight:700;color:var(--head);line-height:1.3;max-height:2.6em;overflow:hidden;margin-bottom:.35rem}
+.cpc-price{display:flex;align-items:baseline;gap:.35rem;flex-wrap:wrap;margin-bottom:.2rem}
+.cpc-price-now{font-size:.82rem;font-weight:800;color:var(--red)}
+.cpc-price-mrp{font-size:.68rem;color:#9aa3b0;text-decoration:line-through}
+.cpc-rating{font-size:.68rem;color:#9aa3b0}
+.cpc-rating i{color:#f5a623;margin-right:.15rem}
 .foot-note{max-width:780px;margin:.6rem auto 0;font-size:.7rem;color:#9aa3b0;text-align:center}
 .guest-meter{max-width:780px;margin:.5rem auto 0;font-size:.75rem;color:var(--text);text-align:center;font-weight:600}
 .guest-meter a{font-weight:700}
@@ -498,6 +518,13 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     guestUsed: AI_GUEST_USED,
     gated: false,
   };
+  // The AbortController for whichever request is currently in flight (plain
+  // chat or GitHub mode) — the send button doubles as Stop while streaming
+  // and just aborts this.
+  var activeAbort = null;
+  function stopGenerating(){
+    if (activeAbort) activeAbort.abort();
+  }
 
   var main = document.getElementById('chatMain');
   var col = document.getElementById('chatCol');
@@ -566,8 +593,31 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // lines with block-element margins was what produced the misaligned,
   // over-spaced replies (and models sometimes use decorative bullets like
   // ◆/●/▪ instead of '-', which used to fall through as unstyled plain text).
+  // Markdown links [label](url) and bare https:// URLs are pulled out into
+  // placeholder tokens before any other transform runs, and restored as the
+  // very last step. That keeps a URL from ever being re-processed by the
+  // bold/italic/list regexes below, and stops a bare URL from getting
+  // linked twice after already being consumed by the markdown-link pass.
+  // Only http(s) URLs are ever linked — never javascript:/data:/anything
+  // else — since this text ultimately comes from the model, not from us.
+  function linkifyStash(text, links){
+    function stash(html){
+      links.push(html);
+      return '\u0001L' + (links.length - 1) + '\u0001';
+    }
+    text = text.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s()]+)\)/g, function(_, label, url){
+      return stash('<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + label + '</a>');
+    });
+    text = text.replace(/\bhttps?:\/\/[^\s<>"']+[^\s<>"'.,!?)\]]/g, function(url){
+      return stash('<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>');
+    });
+    return text;
+  }
+
   function formatMd(raw){
     var text = escHtml(raw);
+    var links = [];
+    text = linkifyStash(text, links);
     text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
     text = text.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
@@ -603,7 +653,11 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     });
     closeList();
     flushPara();
-    return out.join('');
+    var result = out.join('');
+    if (links.length) {
+      result = result.replace(/L(\d+)/g, function(_, i){ return links[Number(i)]; });
+    }
+    return result;
   }
 
   function autoResize(){
@@ -626,6 +680,95 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   updateGuestMeter();
 
   var TYPING_HTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+
+  // X-Products carries the real, DB-resolved product matches for this
+  // reply (see ai_chat_send) — base64'd JSON so unicode in a product name
+  // survives as a plain-ASCII HTTP header either way.
+  function decodeProductsHeader(b64){
+    if (!b64) return [];
+    try {
+      var bin = atob(b64);
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      var parsed = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function inr(n){
+    return '₹' + Math.round(n).toLocaleString('en-IN');
+  }
+
+  function buildProductCards(products){
+    var wrap = document.createElement('div');
+    wrap.className = 'chat-product-row';
+    products.forEach(function(p){
+      var card = document.createElement('a');
+      card.className = 'chat-product-card';
+      card.href = '/store/product/' + encodeURIComponent(p.id) + '/';
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+
+      var media = document.createElement('div');
+      media.className = 'cpc-media';
+      if (p.image) {
+        var img = document.createElement('img');
+        img.src = p.image;
+        img.alt = p.name || '';
+        img.loading = 'lazy';
+        media.appendChild(img);
+      } else {
+        media.style.background = p.grad || 'linear-gradient(135deg,#e8001e,#c0001a)';
+        var icon = document.createElement('i');
+        icon.className = 'fas ' + (p.icon || 'fa-box');
+        media.appendChild(icon);
+      }
+      card.appendChild(media);
+
+      var body = document.createElement('div');
+      body.className = 'cpc-body';
+
+      if (p.brand) {
+        var brand = document.createElement('div');
+        brand.className = 'cpc-brand';
+        brand.textContent = p.brand;
+        body.appendChild(brand);
+      }
+
+      var name = document.createElement('div');
+      name.className = 'cpc-name';
+      name.textContent = p.name || '';
+      body.appendChild(name);
+
+      var priceRow = document.createElement('div');
+      priceRow.className = 'cpc-price';
+      var priceNow = document.createElement('span');
+      priceNow.className = 'cpc-price-now';
+      priceNow.textContent = inr(p.price);
+      priceRow.appendChild(priceNow);
+      if (p.mrp && p.mrp > p.price) {
+        var priceMrp = document.createElement('span');
+        priceMrp.className = 'cpc-price-mrp';
+        priceMrp.textContent = inr(p.mrp);
+        priceRow.appendChild(priceMrp);
+      }
+      body.appendChild(priceRow);
+
+      if (p.rating) {
+        var rating = document.createElement('div');
+        rating.className = 'cpc-rating';
+        rating.innerHTML = '<i class="fas fa-star"></i>';
+        rating.appendChild(document.createTextNode(' ' + p.rating + (p.reviews ? ' (' + p.reviews + ')' : '')));
+        body.appendChild(rating);
+      }
+
+      card.appendChild(body);
+      wrap.appendChild(card);
+    });
+    return wrap;
+  }
 
   function renderRow(role, text, opts){
     opts = opts || {};
@@ -666,6 +809,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         docChip.appendChild(document.createTextNode(opts.documentName));
         bubble.insertBefore(docChip, bubble.firstChild);
       }
+      if (opts.products && opts.products.length) {
+        bubble.appendChild(buildProductCards(opts.products));
+      }
     }
     row.appendChild(avatar);
     row.appendChild(bubble);
@@ -694,7 +840,13 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   function setStreaming(on){
     state.streaming = on;
-    sendBtn.disabled = on || state.gated;
+    // sendBtn stays enabled while generating — it becomes the Stop button,
+    // not a disabled Send button, so there's actually something to click.
+    sendBtn.disabled = on ? false : state.gated;
+    sendBtn.classList.toggle('stop-mode', on);
+    sendBtn.setAttribute('aria-label', on ? 'Stop generating' : 'Send');
+    var sendIcon = sendBtn.querySelector('i');
+    if (sendIcon) sendIcon.className = on ? 'fas fa-stop' : 'fas fa-arrow-up';
     input.disabled = on || state.gated;
     if (micBtn) micBtn.disabled = on || state.gated;
     if (attachBtn) attachBtn.disabled = on || state.gated;
@@ -1288,7 +1440,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         emptyState = null;
         data.messages.forEach(function(m){
           var label = m.model_key === 'github' ? 'EduTrellis GitHub' : (m.model_key ? MODEL_LABELS[m.model_key] : null);
-          renderRow(m.role, m.content, { image: m.image_data || null, documentName: m.document_name || null, modelLabel: label });
+          renderRow(m.role, m.content, { image: m.image_data || null, documentName: m.document_name || null, modelLabel: label, products: m.products || null });
         });
         renderConvList();
         closeSidebarMobile();
@@ -1432,14 +1584,19 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     setStreaming(true);
     var bubble = renderRow('assistant', '', { typing: true });
 
+    var abortController = new AbortController();
+    activeAbort = abortController;
+
     fetch('/AI/api/github/send/', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+      signal: abortController.signal,
       body: JSON.stringify({ conversation_id: state.currentConversationId, message: text }),
     }).then(function(resp){
       return resp.json().then(function(body){ return { ok: resp.ok, body: body }; });
     }).then(function(res){
+      activeAbort = null;
       if (!res.ok || res.body.status !== 'ok') {
         throw new Error(res.body.detail || 'Something went wrong — please try again.');
       }
@@ -1451,6 +1608,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       input.focus();
       refreshConversations();
     }).catch(function(err){
+      activeAbort = null;
+      if (err && err.name === 'AbortError') {
+        bubble.className = 'msg-bubble error';
+        bubble.textContent = 'Stopped.';
+        setStreaming(false);
+        input.focus();
+        return;
+      }
       bubble.className = 'msg-bubble error';
       bubble.textContent = err.message || 'Something went wrong — please try again.';
       setStreaming(false);
@@ -1476,13 +1641,25 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
     var assistantText = '';
     var answeredModelKey = null;
+    var matchedProducts = [];
     var bubble = renderRow('assistant', '', { typing: true });
     var wasNewConversation = !state.currentConversationId;
+
+    var abortController = new AbortController();
+    activeAbort = abortController;
+
+    function finalizeBubble(){
+      var label = answeredModelKey ? MODEL_LABELS[answeredModelKey] : null;
+      var tagHtml = label ? '<div class="msg-model-tag">' + escHtml(label) + '</div>' : '';
+      bubble.innerHTML = tagHtml + (formatMd(assistantText) || '<i>No response — please try again.</i>');
+      if (matchedProducts.length) bubble.appendChild(buildProductCards(matchedProducts));
+    }
 
     fetch('/AI/api/send/', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+      signal: abortController.signal,
       body: JSON.stringify({
         conversation_id: state.currentConversationId, message: text, model: currentModel, image: imageToSend,
         document_text: documentToSend ? documentToSend.text : undefined,
@@ -1510,6 +1687,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       var newConvId = resp.headers.get('X-Conversation-Id');
       if (newConvId) state.currentConversationId = parseInt(newConvId, 10);
       answeredModelKey = resp.headers.get('X-Model-Key');
+      matchedProducts = decodeProductsHeader(resp.headers.get('X-Products'));
       if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
 
       if (!resp.body || !resp.body.getReader){
@@ -1534,14 +1712,24 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       return pump();
     }).then(function(result){
       if (result === null) return; // gated — bubble already removed
-      var label = answeredModelKey ? MODEL_LABELS[answeredModelKey] : null;
-      var tagHtml = label ? '<div class="msg-model-tag">' + escHtml(label) + '</div>' : '';
-      bubble.innerHTML = tagHtml + (formatMd(assistantText) || '<i>No response — please try again.</i>');
+      finalizeBubble();
+      activeAbort = null;
       setStreaming(false);
       scrollToBottom();
       input.focus();
       refreshConversations();
     }).catch(function(err){
+      activeAbort = null;
+      if (err && err.name === 'AbortError') {
+        // user clicked Stop — keep whatever streamed so far, same as a
+        // normal finish, not an error state.
+        finalizeBubble();
+        setStreaming(false);
+        scrollToBottom();
+        input.focus();
+        refreshConversations();
+        return;
+      }
       bubble.className = 'msg-bubble error';
       bubble.textContent = err.message || 'Something went wrong — please try again.';
       setStreaming(false);
@@ -1550,7 +1738,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     });
   }
 
-  sendBtn.addEventListener('click', function(){ send(); });
+  sendBtn.addEventListener('click', function(){
+    if (state.streaming) { stopGenerating(); return; }
+    send();
+  });
   input.addEventListener('keydown', function(e){
     if (e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();
