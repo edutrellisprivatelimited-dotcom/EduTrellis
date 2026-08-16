@@ -4,6 +4,7 @@ import logging
 import os
 import secrets
 import threading
+import time
 from decimal import Decimal, InvalidOperation
 from functools import wraps
 from urllib.parse import urlencode
@@ -1654,7 +1655,7 @@ def dashboard_logout(request):
 
 # ── AI Chat (/AI/, uses the same store account as /store/) ─────────────────
 
-AI_CHAT_RATE_LIMIT = 20           # messages
+AI_CHAT_RATE_LIMIT = 30           # messages
 AI_CHAT_RATE_WINDOW = 10 * 60     # per 10 minutes, per IP
 AI_CHAT_MAX_MESSAGE_CHARS = 4000
 AI_CHAT_MAX_HISTORY = 20          # most recent saved messages sent to the model as context
@@ -1790,6 +1791,17 @@ def _client_ip(request):
     return forwarded.split(',')[0].strip() if forwarded else request.META.get('REMOTE_ADDR', 'unknown')
 
 
+def _format_wait_time(seconds):
+    """'42 seconds' under a minute, otherwise '3 minutes' rounded up to the
+    next whole minute — so the number shown is never an underestimate of
+    how long is actually left."""
+    seconds = max(1, int(seconds))
+    if seconds < 60:
+        return f"{seconds} second{'s' if seconds != 1 else ''}"
+    minutes = (seconds + 59) // 60
+    return f"{minutes} minute{'s' if minutes != 1 else ''}"
+
+
 def ai_chat_send(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
@@ -1800,19 +1812,30 @@ def ai_chat_send(request):
     # single-process dev server is exact; under multiple gunicorn workers
     # each worker has its own count, so the effective ceiling is
     # (limit × worker count) — a soft brake, not a hard guarantee.
+    #
+    # A fixed window with its own stored reset_at (rather than just an
+    # integer whose cache TTL gets renewed on every message) so the exact
+    # wait time can be told to whoever's blocked, instead of a vague "wait a
+    # bit" — and so someone sending at a slow, steady trickle isn't kept
+    # perpetually blocked by their own TTL renewing before it ever expires.
     ip = _client_ip(request)
     cache_key = f'ai_chat_rate:{ip}'
-    count = cache.get(cache_key, 0)
-    if count >= AI_CHAT_RATE_LIMIT:
+    now = time.time()
+    window = cache.get(cache_key)
+    if not window or now >= window['reset_at']:
+        window = {'count': 0, 'reset_at': now + AI_CHAT_RATE_WINDOW}
+    if window['count'] >= AI_CHAT_RATE_LIMIT:
+        wait_for = _format_wait_time(window['reset_at'] - now)
         return JsonResponse(
-            {'status': 'error', 'detail': "You're sending messages too quickly — please wait a bit and try again."},
+            {'status': 'error', 'detail': f"You're sending messages too quickly — please try again in {wait_for}."},
             status=429,
         )
     # Counted immediately, before any further validation — a request that
     # gets rejected downstream (bad payload, guest cap, etc.) still cost a
     # request and should still count against the brake, otherwise a blocked
     # guest can hit this endpoint an unlimited number of times for free.
-    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
+    window['count'] += 1
+    cache.set(cache_key, window, AI_CHAT_RATE_WINDOW)
 
     payload = _parse_json_body(request)
     if not isinstance(payload, dict):
