@@ -13,6 +13,47 @@ TOP_P = 0.95
 STREAM_RETRY_ATTEMPTS = 2          # extra attempts beyond the first
 STREAM_RETRY_BACKOFF_SECONDS = 1.5
 
+# EduTrellis Vision was live-tested to randomly (~1 in 3 tries, reproducible
+# across many prompt-wording variants and even at temperature 0) open with a
+# flat denial that any image was attached, despite one actually being there
+# — an unreliability in the underlying vision model itself, not something
+# prompt-wording alone fixes. This catches that specific opening so
+# stream_chat can silently retry with a fresh generation before anything
+# reaches the user, instead of them seeing a wrong "I can't see an image".
+#
+# Deliberately broad — the model phrases this denial many different ways
+# ("please upload the image", "I don't have the capability", "as an AI...",
+# "there might be a misunderstanding" — see git history for the ~17 real
+# variants this was validated against with zero false positives against
+# real successful descriptions), and missing a variant is far worse
+# (a wrong answer reaches the user) than an occasional unnecessary retry.
+_VISION_NO_IMAGE_RE = re.compile(
+    r"(I(?:'m| am) unable to|"
+    r"I can'?t (?:\w+ )?(?:see|view|read|analyze|access|assist)|"
+    r"I cannot (?:\w+ )?(?:see|view|read|analyze|access)|"
+    r"I don'?t have (?:the |any )?(?:capability|ability|access)|"
+    r"I do not have (?:the |any )?(?:capability|ability|access)|"
+    r"as an AI[, ]|"
+    r"please (?:upload|provide|share|describe)\b[^.!?]{0,25}\bimage|"
+    r"(?:have not|haven'?t) provided (?:an |the )?image|"
+    r"(?:no|don'?t see any|do not see any) image (?:was )?(?:attached|provided|uploaded)?|"
+    r"not (?:possible|capable)[^.!?]{0,40}text-?based|"
+    r"rely on textual descriptions?|"
+    r"there (?:might|may) (?:be|have been) (?:some )?(?:confusion|misunderstanding))",
+    re.IGNORECASE,
+)
+# How much of the reply to hold back before deciding it's clean — long
+# enough that every observed failure phrasing shows up well within it (one
+# live-tested case buried its denial after ~190 characters of preamble, past
+# the original 200-char threshold — this was widened in response), short
+# enough that a legitimate reply isn't noticeably delayed.
+VISION_CHECK_BUFFER_CHARS = 380
+
+
+class _VisionNoImageDetected(Exception):
+    """Raised internally to route a caught-bad-opening vision reply through
+    the same retry path as a real API failure — see stream_chat below."""
+
 SYSTEM_PROMPT = (
     "You are EduTrellis AI, a friendly assistant embedded on the EduTrellis "
     "website (edutrellis.in). Keep answers clear and reasonably concise, and "
@@ -331,6 +372,22 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
         "starting with this reply, so always answer based on this current "
         "instruction, never a stale identity from earlier in the chat."
     )
+    if cfg['vision']:
+        # Live-testing found this mode randomly claiming "I don't see an
+        # image" roughly a third of the time on messages that DID have one
+        # attached — reproducible even at temperature=0, and it went away
+        # once this contradiction was spelled out. Best guess: the earlier
+        # "you have no access to any files" line in SYSTEM_PROMPT was
+        # sometimes winning out over the image actually being there,
+        # without an explicit note that this is the stated exception to it.
+        current_mode_line += (
+            " This message includes an attached image as part of the user "
+            "content — you CAN and DO see it directly; that's the one "
+            "specific exception to the earlier 'no access to any files' "
+            "statement, not a contradiction of it. Never claim you can't "
+            "see or weren't given an image when one is attached to the "
+            "current message."
+        )
     system_prompt = SYSTEM_PROMPT + current_mode_line + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
     if account_context:
         system_prompt += (
@@ -409,18 +466,48 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     # caller yet in this attempt — once real content is already on its way
     # to the browser, restarting from scratch would duplicate/garble it, so
     # a mid-stream failure just stops here instead.
+    check_vision_opening = cfg['vision']
     for attempt in range(STREAM_RETRY_ATTEMPTS + 1):
         yielded_any = False
+        buffer = ''
         try:
             stream = client.chat.completions.create(**kwargs)
             for chunk in stream:
                 if not chunk.choices:
                     continue
                 content = getattr(chunk.choices[0].delta, 'content', None)
-                if content:
+                if not content:
+                    continue
+                if check_vision_opening:
+                    # Hold back the opening until it's long enough (or the
+                    # reply is already shorter than that) to judge — nothing
+                    # reaches the browser yet, so a bad opening here is still
+                    # freely retryable, same as a hard API failure below.
+                    buffer += content
+                    if len(buffer) < VISION_CHECK_BUFFER_CHARS:
+                        continue
+                    if _VISION_NO_IMAGE_RE.search(buffer):
+                        raise _VisionNoImageDetected()
+                    check_vision_opening = False
                     yielded_any = True
-                    yield content
+                    yield buffer
+                    continue
+                yielded_any = True
+                yield content
+            if check_vision_opening and buffer:
+                # Reply ended before hitting the buffer threshold — judge
+                # whatever it did say rather than discarding it.
+                if _VISION_NO_IMAGE_RE.search(buffer):
+                    raise _VisionNoImageDetected()
+                yield buffer
             return
+        except _VisionNoImageDetected:
+            if attempt >= STREAM_RETRY_ATTEMPTS:
+                # Retries exhausted — this is still a better answer than
+                # nothing, so surface it rather than erroring out entirely.
+                yield buffer
+                return
+            time.sleep(STREAM_RETRY_BACKOFF_SECONDS * (attempt + 1))
         except Exception:
             if yielded_any or attempt >= STREAM_RETRY_ATTEMPTS:
                 raise
