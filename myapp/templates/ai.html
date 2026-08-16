@@ -145,6 +145,23 @@ main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem;background:radial-gradie
 .msg-bubble.md p{margin:.5rem 0}
 .msg-bubble.md p:first-child,.msg-bubble.md .msg-model-tag:first-child + p{margin-top:0}
 .msg-bubble.md >:last-child{margin-bottom:0}
+.msg-bubble.md .code-block{margin:.5rem 0;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.msg-bubble.md .code-block-head{display:flex;align-items:center;justify-content:space-between;padding:.35rem .7rem;background:rgba(17,20,24,.08);font-size:.72rem;font-weight:700;color:var(--text)}
+:root[data-theme="dark"] .msg-bubble.md .code-block-head{background:rgba(255,255,255,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .msg-bubble.md .code-block-head{background:rgba(255,255,255,.08)}}
+.code-copy-btn{border:none;background:none;color:inherit;font-size:.72rem;font-weight:700;cursor:pointer;padding:.15rem .45rem;border-radius:6px}
+.code-copy-btn:hover{background:rgba(232,0,30,.12);color:var(--red)}
+.msg-bubble.md .code-block pre{margin:0;border-radius:0;background:rgba(17,20,24,.03);padding:.75rem .9rem;overflow-x:auto;font-size:.82rem;line-height:1.5}
+:root[data-theme="dark"] .msg-bubble.md .code-block pre{background:rgba(255,255,255,.03)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .msg-bubble.md .code-block pre{background:rgba(255,255,255,.03)}}
+.msg-bubble.md .code-block pre code{background:none;padding:0;font-size:1em;white-space:pre;color:inherit}
+.msg-bubble.md hr{border:none;border-top:1px solid var(--line);margin:.7rem 0}
+.msg-table-wrap{overflow-x:auto;margin:.5rem 0}
+.msg-bubble.md table{border-collapse:collapse;width:100%;font-size:.85rem}
+.msg-bubble.md th,.msg-bubble.md td{border:1px solid var(--line);padding:.4rem .6rem;text-align:left;vertical-align:top}
+.msg-bubble.md th{background:rgba(17,20,24,.04);font-weight:700;color:var(--head)}
+:root[data-theme="dark"] .msg-bubble.md th{background:rgba(255,255,255,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .msg-bubble.md th{background:rgba(255,255,255,.06)}}
 .msg-cursor{display:inline-block;width:.5em;height:1em;background:var(--head);vertical-align:text-bottom;animation:blink 1s step-start infinite;margin-left:1px}
 @keyframes blink{50%{opacity:0}}
 .typing-dots{display:inline-flex;gap:.25rem;padding:.15rem 0}
@@ -528,6 +545,18 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   var main = document.getElementById('chatMain');
   var col = document.getElementById('chatCol');
+  col.addEventListener('click', function(e){
+    var btn = e.target.closest('.code-copy-btn');
+    if (!btn) return;
+    var block = btn.closest('.code-block');
+    var codeEl = block && block.querySelector('code');
+    if (!codeEl || !navigator.clipboard) return;
+    navigator.clipboard.writeText(codeEl.textContent).then(function(){
+      var original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(function(){ btn.textContent = original; }, 1500);
+    }).catch(function(){});
+  });
   var emptyState = document.getElementById('emptyState');
   var input = document.getElementById('chatInput');
   var inputWrap = document.getElementById('inputWrap');
@@ -614,14 +643,72 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     return text;
   }
 
+  // Fenced ```code``` blocks are pulled out before anything else runs, so
+  // backtick/asterisk characters inside code are never touched by the
+  // bold/italic/list transforms below (an unescaped `**` in real code would
+  // otherwise get bolded, an `_` italicized). Each block becomes a CB{i}
+  // placeholder, restored as the very last step — same stash-and-restore
+  // approach already used for links via linkifyStash.
+  function extractCodeBlocks(raw, blocks){
+    return String(raw || '').replace(/```([\w+-]*)[ \t]*\r?\n?([\s\S]*?)```/g, function(_, lang, code){
+      code = code.replace(/\n$/, '');
+      var label = lang ? escHtml(lang) : 'code';
+      var head = '<div class="code-block-head"><span>' + label + '</span><button type="button" class="code-copy-btn">Copy</button></div>';
+      var html = '<div class="code-block">' + head + '<pre><code>' + escHtml(code) + '</code></pre></div>';
+      blocks.push(html);
+      return 'CB' + (blocks.length - 1) + '';
+    });
+  }
+
+  function isTableRowLine(t){ return t.indexOf('|') !== -1; }
+  function isTableSepLine(t){ return /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$/.test(t); }
+  function parseTableRow(t){
+    var s = t.trim();
+    if (s.charAt(0) === '|') s = s.slice(1);
+    if (s.charAt(s.length - 1) === '|') s = s.slice(0, -1);
+    return s.split('|').map(function(c){ return c.trim(); });
+  }
+  // Markdown tables (a `|...|` header, a `|---|---|` separator, then 1+
+  // `|...|` body rows) are collapsed into real HTML up front, in one
+  // lookahead pass over the split lines — simpler than threading table
+  // state through the line-by-line block loop below, which then only has
+  // to recognize the resulting <div class="msg-table-wrap">... line and
+  // emit it as-is.
+  function extractTables(lines){
+    var i = 0;
+    while (i < lines.length) {
+      var headerLine = lines[i].trim();
+      var sepLine = lines[i + 1] ? lines[i + 1].trim() : '';
+      if (isTableRowLine(headerLine) && isTableSepLine(sepLine)) {
+        var header = parseTableRow(headerLine);
+        var body = [];
+        var j = i + 2;
+        while (j < lines.length && isTableRowLine(lines[j].trim()) && !isTableSepLine(lines[j].trim())) {
+          body.push(parseTableRow(lines[j].trim()));
+          j++;
+        }
+        var html = '<div class="msg-table-wrap"><table><thead><tr>' +
+          header.map(function(c){ return '<th>' + c + '</th>'; }).join('') +
+          '</tr></thead><tbody>' +
+          body.map(function(r){ return '<tr>' + r.map(function(c){ return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') +
+          '</tbody></table></div>';
+        lines.splice(i, j - i, html);
+      }
+      i++;
+    }
+    return lines;
+  }
+
   function formatMd(raw){
-    var text = escHtml(raw);
+    var codeBlocks = [];
+    var text = extractCodeBlocks(raw, codeBlocks);
+    text = escHtml(text);
     var links = [];
     text = linkifyStash(text, links);
     text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
     text = text.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
-    var lines = text.split('\n');
+    var lines = extractTables(text.split('\n'));
     var out = [];
     var listType = null;
     var para = [];
@@ -629,9 +716,19 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     function flushPara(){ if (para.length) { out.push('<p>' + para.join('<br>') + '</p>'); para = []; } }
     lines.forEach(function(line){
       var trimmed = line.trim();
+      if (/^CB\d+$/.test(trimmed) || trimmed.indexOf('<div class="msg-table-wrap">') === 0) {
+        closeList(); flushPara();
+        out.push(trimmed);
+        return;
+      }
       var ul = /^[-*•◆●▪‣➤»]\s+(.+)$/.exec(trimmed);
       var ol = /^\d+[.)]\s+(.+)$/.exec(trimmed);
       var heading = /^#{1,6}\s+(.+)$/.exec(trimmed);
+      // A bare line of 3+ =/-/*/_ is decorative: '===' is a Setext heading
+      // underline artifact (drop it silently — the heading text itself was
+      // already emitted as its own paragraph line), while -/*/_ dividers
+      // become a real <hr> instead of showing up as literal dashes.
+      var rule = /^([=\-*_])\1{2,}$/.exec(trimmed);
       if (ul) {
         flushPara();
         if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
@@ -643,6 +740,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       } else if (heading) {
         closeList(); flushPara();
         out.push('<p><strong>' + heading[1] + '</strong></p>');
+      } else if (rule) {
+        closeList(); flushPara();
+        if (rule[1] !== '=') out.push('<hr>');
       } else if (trimmed === '') {
         closeList();
         flushPara();
@@ -656,6 +756,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var result = out.join('');
     if (links.length) {
       result = result.replace(/L(\d+)/g, function(_, i){ return links[Number(i)]; });
+    }
+    if (codeBlocks.length) {
+      result = result.replace(/CB(\d+)/g, function(_, i){ return codeBlocks[Number(i)]; });
     }
     return result;
   }

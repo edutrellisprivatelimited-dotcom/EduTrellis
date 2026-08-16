@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from openai import OpenAI
 
-MAX_TOKENS = 1024
+MAX_TOKENS = 2048          # was 1024 — long detailed replies (Ultra especially) were getting cut off mid-sentence
 TEMPERATURE = 1.0
 TOP_P = 0.95
 STREAM_RETRY_ATTEMPTS = 2          # extra attempts beyond the first
