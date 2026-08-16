@@ -174,7 +174,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 .input-wrap{max-width:780px;margin:0 auto;display:flex;align-items:flex-end;gap:.6rem;background:var(--bg-alt);border:1.5px solid var(--line);border-radius:16px;padding:.5rem .6rem .5rem 1rem;transition:border-color .2s,box-shadow .2s}
 .input-wrap:focus-within{border-color:var(--red);box-shadow:0 0 0 3px rgba(232,0,30,.08)}
 .input-wrap.disabled{opacity:.6}
-#chatInput{flex:1;border:none;background:none;resize:none;font-family:inherit;font-size:.92rem;color:var(--head);max-height:140px;line-height:1.5;padding:.4rem 0}
+#chatInput{flex:1;border:none;background:none;resize:none;font-family:inherit;font-size:.92rem;color:var(--head);max-height:140px;line-height:1.5;padding:.4rem 0;transition:height .12s ease}
 #chatInput:focus{outline:none}
 #sendBtn{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s,transform .1s}
 #sendBtn:hover:not(:disabled){transform:scale(1.06)}
@@ -222,7 +222,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 .github-btn:hover:not(:disabled){color:var(--red);background:var(--surface)}
 .github-btn:disabled{opacity:.4;cursor:default}
 .github-btn.active{color:#fff;background:var(--dark)}
-.github-panel{position:absolute;bottom:calc(100% + .6rem);left:0;width:260px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.85rem;z-index:30}
+/* Centered + viewport-relative at every width, not just a mobile
+   breakpoint — anchoring it to the button's left edge instead let it run
+   off the right side of the screen on mid-width phones where github-btn
+   sits mid-row (behind the full-text model picker), which is what was
+   getting reported as the token form "getting cut off" on mobile.
+   max-height + scroll keeps the whole form reachable even on short
+   viewports (landscape phones, or with the on-screen keyboard open). */
+.github-panel{position:absolute;bottom:calc(100% + .6rem);left:50%;transform:translateX(-50%);width:min(90vw,280px);max-height:min(70vh,420px);overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.85rem;z-index:30}
 .github-panel-title{font-size:.82rem;font-weight:700;color:var(--head);margin-bottom:.35rem}
 .github-panel-title span{color:var(--red)}
 .github-panel-note{font-size:.72rem;color:#9aa3b0;line-height:1.4;margin-bottom:.55rem}
@@ -330,9 +337,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   .model-dropdown{left:0;right:auto;min-width:210px}
   .input-wrap{gap:.3rem}
   .mic-btn,.github-btn{width:30px;height:30px;font-size:.85rem}
-  /* centered instead of left-anchored — github-btn can sit mid-row, so a
-     fixed-width panel anchored to its left edge could run off either side */
-  .github-panel{left:50%;right:auto;transform:translateX(-50%);width:min(88vw,280px)}
+  /* a lower cap than desktop's 140px — on a short phone screen, letting the
+     composer grow that tall ate too much of the visible chat area and felt
+     like the bar was taking over the screen as you typed */
+  #chatInput{max-height:96px}
 }
 @media (max-width:360px){
   .model-picker-btn{padding:0 .4rem}
@@ -765,7 +773,11 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   function autoResize(){
     input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+    // Reads the CSS max-height (lower on mobile — see the 480px media
+    // query) instead of a hardcoded value, so the same function respects
+    // whatever cap the current screen size actually wants.
+    var max = parseInt(getComputedStyle(input).maxHeight, 10) || 140;
+    input.style.height = Math.min(input.scrollHeight, max) + 'px';
   }
   input.addEventListener('input', autoResize);
 
@@ -1080,7 +1092,29 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   if (githubBtn && githubPanel) {
     var githubState = { connected: false, username: '', repo: '', branch: 'main', reposLoaded: false };
 
-    function openGithubPanel(){ githubPanel.hidden = false; githubBtn.setAttribute('aria-expanded', 'true'); }
+    // The CSS default centers the panel on the button itself (left:50% +
+    // translateX(-50%) relative to .github-wrap) — fine on desktop, but
+    // github-btn sits mid-composer-row (after the model picker), so on a
+    // narrow phone that center point can be close enough to the left edge
+    // that a 280px panel still runs off-screen. Clamping in JS against the
+    // actual viewport width, not just the button's position, is what
+    // guarantees it stays fully reachable at any screen size.
+    function positionGithubPanel(){
+      var margin = 10;
+      var wrapRect = githubPanel.offsetParent.getBoundingClientRect();
+      var btnRect = githubBtn.getBoundingClientRect();
+      var panelWidth = githubPanel.offsetWidth;
+      var idealLeft = btnRect.left + btnRect.width / 2 - panelWidth / 2;
+      var maxLeft = window.innerWidth - panelWidth - margin;
+      var clampedLeft = Math.max(margin, Math.min(idealLeft, maxLeft));
+      githubPanel.style.transform = 'none';
+      githubPanel.style.left = (clampedLeft - wrapRect.left) + 'px';
+    }
+    function openGithubPanel(){
+      githubPanel.hidden = false;
+      githubBtn.setAttribute('aria-expanded', 'true');
+      positionGithubPanel();
+    }
     function closeGithubPanel(){ githubPanel.hidden = true; githubBtn.setAttribute('aria-expanded', 'false'); }
 
     function renderGithubConnected(){
@@ -1230,7 +1264,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       githubBtn.classList.toggle('active', state.githubMode);
       input.placeholder = state.githubMode
         ? 'Tell the AI what to change in ' + (githubState.repo || 'the repo') + '…'
-        : 'Message EduTrellis AI…';
+        : 'Message AI';
     });
 
     githubDisconnectBtn.addEventListener('click', function(){
