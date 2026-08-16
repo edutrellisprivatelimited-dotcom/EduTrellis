@@ -1431,7 +1431,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   function loadConversation(id){
     if (state.streaming) return;
-    fetch('/AI/api/conversations/' + id + '/', { credentials: 'same-origin' })
+    return fetch('/AI/api/conversations/' + id + '/', { credentials: 'same-origin' })
       .then(function(r){ return r.json(); })
       .then(function(data){
         if (data.status !== 'ok') return;
@@ -1534,8 +1534,31 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       });
   }
 
-  function showGate(){
+  // If login/signup happens through the inline gate, the page does a full
+  // reload afterwards (see submitGateForm) — anything only held in JS
+  // memory (the conversation you had open, a question you'd typed, an
+  // image/file you'd attached) would otherwise vanish. Stashing it here
+  // and restoring it in resumePendingMessage() below (right after reload)
+  // is what makes "log in mid-chat" feel continuous instead of a reset.
+  var PENDING_KEY = 'aiPendingMessage';
+  function stashPendingMessage(pending){
+    if (!pending || (!pending.text && !pending.image && !pending.document)) return;
+    try {
+      sessionStorage.setItem(PENDING_KEY, JSON.stringify({
+        conversationId: state.currentConversationId,
+        text: pending.text || '',
+        image: pending.image || null,
+        documentName: pending.document ? pending.document.name : null,
+        documentText: pending.document ? pending.document.text : null,
+        documentTruncated: pending.document ? !!pending.document.truncated : false,
+        ts: Date.now(),
+      }));
+    } catch (e) {}
+  }
+
+  function showGate(pending){
     if (state.gated) return;
+    stashPendingMessage(pending);
     state.gated = true;
     setStreaming(state.streaming);
     var wrap = document.createElement('div');
@@ -1571,7 +1594,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     });
   }
 
-  if (headerLoginBtn) headerLoginBtn.addEventListener('click', showGate);
+  if (headerLoginBtn) headerLoginBtn.addEventListener('click', function(){
+    showGate({ text: input.value.trim(), image: stagedImage, document: stagedDocument });
+  });
 
   function sendGithub(promptText){
     var text = (typeof promptText === 'string' ? promptText : input.value).trim();
@@ -1673,7 +1698,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
             bubble.parentElement.remove();
             if (userRow) userRow.remove();
             setStreaming(false);
-            showGate();
+            showGate({ text: text, image: imageToSend, document: documentToSend });
             return null;
           }
           throw new Error(body.detail || 'Something went wrong — please try again.');
@@ -1748,6 +1773,32 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       send();
     }
   });
+
+  // Resume across a login/signup-triggered reload: if stashPendingMessage()
+  // stored a question/image/document (from hitting the guest limit or
+  // clicking "Log In" mid-chat), reopen the right conversation and send it,
+  // so logging in continues the chat instead of dropping what was typed.
+  // Left untouched (not cleared) if we're not actually authenticated yet —
+  // e.g. a plain page refresh while still gated shouldn't burn the stash.
+  (function resumePendingMessage(){
+    var raw;
+    try { raw = sessionStorage.getItem(PENDING_KEY); } catch (e) { return; }
+    if (!raw || !AI_AUTHENTICATED) return;
+    try { sessionStorage.removeItem(PENDING_KEY); } catch (e) {}
+    var pending;
+    try { pending = JSON.parse(raw); } catch (e) { return; }
+    if (!pending || Date.now() - (pending.ts || 0) > 30 * 60 * 1000) return; // stale — ignore
+
+    function restoreAndSend(){
+      if (pending.image) stageImage(pending.image);
+      else if (pending.documentName) stageDocument(pending.documentName, pending.documentText || '', pending.documentTruncated);
+      send(pending.text || '');
+    }
+    var convId = pending.conversationId;
+    var found = convId && state.conversations.some(function(c){ return c.id === convId; });
+    if (found) { loadConversation(convId).then(restoreAndSend); return; }
+    restoreAndSend();
+  })();
 
   input.focus();
 })();
