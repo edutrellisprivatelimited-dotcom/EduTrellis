@@ -75,6 +75,7 @@ urlpatterns = [
     path('AI/manifest.json', views.ai_manifest, name='ai_manifest'),
     path('AI/sw.js', views.pwa_service_worker, name='ai_service_worker'),
     path('AI/api/send/', views.ai_chat_send, name='ai_chat_send'),
+    path('AI/api/extract/', views.ai_extract_document, name='ai_extract_document'),
     path('AI/api/conversations/', views.ai_conversations_list, name='ai_conversations_list'),
     path('AI/api/conversations/<int:conversation_id>/', views.ai_conversation_messages, name='ai_conversation_messages'),
     path('AI/api/conversations/<int:conversation_id>/delete/', views.ai_conversation_delete, name='ai_conversation_delete'),

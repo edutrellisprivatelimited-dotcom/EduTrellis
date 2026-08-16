@@ -727,6 +727,11 @@ class AIMessage(models.Model):
     role         = models.CharField(max_length=10, choices=ROLE_CHOICES)
     content      = models.TextField()
     image_data   = models.TextField(blank=True)  # data: URI of an attached image, if any (user turns only)
+    # Only the filename is kept — the extracted text itself is never
+    # persisted (it's injected into the model call for that one turn only,
+    # by the view, then discarded), so history replay doesn't re-send a
+    # whole document's text on every follow-up message.
+    document_name = models.CharField(max_length=255, blank=True)
     model_key    = models.CharField(max_length=20, blank=True)  # which EduTrellis model answered (assistant turns only)
     created_at   = models.DateTimeField(auto_now_add=True)
 

@@ -38,6 +38,7 @@ from myapp.models import (
 from myapp import dropbox_backup
 from myapp import ai_chat
 from myapp import github_ops
+from myapp import doc_extract
 from myapp.emailing import send_store_email, get_notify_email
 from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
@@ -1792,7 +1793,19 @@ def ai_chat_send(request):
     if image_data and len(image_data) > AI_IMAGE_MAX_DATA_URI_CHARS:
         return JsonResponse({'status': 'error', 'detail': 'That image is too large — please use a smaller one.'}, status=400)
 
-    if not message and not image_data:
+    # document_text/document_name come from a prior call to /AI/api/extract/
+    # (the raw file itself is never sent here) — re-capped defensively since
+    # the client is untrusted, even though it already capped it once too.
+    document_text = payload.get('document_text')
+    document_name = payload.get('document_name')
+    if isinstance(document_text, str) and document_text.strip() and isinstance(document_name, str) and document_name.strip():
+        document_text = document_text.strip()[:doc_extract.MAX_CHARS]
+        document_name = document_name.strip()[:255]
+    else:
+        document_text = ''
+        document_name = ''
+
+    if not message and not image_data and not document_text:
         return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
 
     # An attached image can only be understood by the vision model —
@@ -1823,13 +1836,16 @@ def ai_chat_send(request):
         if not conversation:
             return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     if conversation is None:
-        title = message[:AI_CONVERSATION_TITLE_CHARS] if message else 'Image'
+        title = message[:AI_CONVERSATION_TITLE_CHARS] if message else (document_name or 'Image')
         if request.user.is_authenticated:
             conversation = AIConversation.objects.create(user=request.user, title=title)
         else:
             conversation = AIConversation.objects.create(session_key=request.session.session_key, title=title)
 
-    AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_USER, content=message, image_data=image_data)
+    AIMessage.objects.create(
+        conversation=conversation, role=AIMessage.ROLE_USER, content=message,
+        image_data=image_data, document_name=document_name,
+    )
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
 
@@ -1838,7 +1854,8 @@ def ai_chat_send(request):
 
     model_cfg = ai_chat.MODELS[model_key]
     recent = list(
-        conversation.messages.order_by('-created_at').values('role', 'content', 'image_data')[:AI_CHAT_MAX_HISTORY]
+        conversation.messages.order_by('-created_at')
+        .values('role', 'content', 'image_data', 'document_name')[:AI_CHAT_MAX_HISTORY]
     )
     recent.reverse()
     clean_history = []
@@ -1853,9 +1870,24 @@ def ai_chat_send(request):
             # degrade to a plain-text note instead of sending it multimodal
             # content it can't parse.
             content = (m['content'] + ' [image attached]').strip()
+        elif m['document_name']:
+            # Only the filename was kept for older turns — the extracted
+            # text itself is never persisted, so re-sending history doesn't
+            # re-transmit a whole document on every follow-up message. The
+            # full text for THIS turn gets spliced in below instead.
+            content = (m['content'] + f" [Attached document: {m['document_name']}]").strip()
         else:
             content = m['content']
         clean_history.append({'role': m['role'], 'content': content})
+
+    # Splice the freshly-extracted full document text into this turn only —
+    # the placeholder above (from the DB) is what gets replayed on future
+    # turns instead, keeping per-message token cost bounded.
+    if document_text and clean_history and clean_history[-1]['role'] == AIMessage.ROLE_USER:
+        clean_history[-1]['content'] = (
+            f"[Attached document: {document_name}]\n{document_text}\n\n---\n"
+            f"{message or 'Please review the attached document.'}"
+        )
 
     account_context = _ai_account_context(request.user) if request.user.is_authenticated else None
 
@@ -1891,6 +1923,45 @@ def ai_chat_send(request):
     return response
 
 
+AI_DOC_RATE_LIMIT = 15
+AI_DOC_MAX_UPLOAD_BYTES = 8 * 1024 * 1024  # raw file cap, before extraction
+
+
+def ai_extract_document(request):
+    """Extracts text from an uploaded PDF/DOCX/CSV and hands it back to the
+    browser — the raw file is never stored or forwarded anywhere else, and
+    the caller sends the returned text back in the next /AI/api/send/ call
+    (see ai_chat_send's document_text/document_name handling)."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+
+    ip = _client_ip(request)
+    cache_key = f'ai_doc_rate:{ip}'
+    count = cache.get(cache_key, 0)
+    if count >= AI_DOC_RATE_LIMIT:
+        return JsonResponse(
+            {'status': 'error', 'detail': "You're uploading files too quickly — please wait a bit and try again."},
+            status=429,
+        )
+    cache.set(cache_key, count + 1, AI_CHAT_RATE_WINDOW)
+
+    f = request.FILES.get('file')
+    if not f:
+        return JsonResponse({'status': 'error', 'detail': 'No file provided.'}, status=400)
+    if f.size > AI_DOC_MAX_UPLOAD_BYTES:
+        return JsonResponse({'status': 'error', 'detail': 'That file is too large — please use one under 8MB.'}, status=400)
+
+    try:
+        text, truncated = doc_extract.extract(f.name, f.read())
+    except doc_extract.ExtractError as e:
+        return JsonResponse({'status': 'error', 'detail': str(e)}, status=400)
+    except Exception:
+        logger.exception("Document extraction failed for %s", f.name)
+        return JsonResponse({'status': 'error', 'detail': "Couldn't read that file — please try a different one."}, status=400)
+
+    return JsonResponse({'status': 'ok', 'filename': f.name, 'text': text, 'truncated': truncated})
+
+
 def ai_conversations_list(request):
     conversations = list(
         AIConversation.objects.filter(_ai_owner_filter(request))
@@ -1905,7 +1976,7 @@ def ai_conversation_messages(request, conversation_id):
     conversation = AIConversation.objects.filter(_ai_owner_filter(request), pk=conversation_id).first()
     if not conversation:
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
-    messages_qs = list(conversation.messages.order_by('created_at').values('role', 'content', 'image_data', 'model_key'))
+    messages_qs = list(conversation.messages.order_by('created_at').values('role', 'content', 'image_data', 'document_name', 'model_key'))
     return JsonResponse({'status': 'ok', 'title': conversation.title, 'messages': messages_qs})
 
 
