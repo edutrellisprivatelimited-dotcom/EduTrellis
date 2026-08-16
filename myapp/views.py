@@ -1904,11 +1904,15 @@ def ai_chat_send(request):
 
     # Once the secret phrase has appeared anywhere in this conversation, the
     # warm/personal tone stays on for the rest of it rather than resetting
-    # every message.
+    # every message. The greeting/introduction itself, though, should only
+    # happen on the message where she actually said the phrase — not be
+    # repeated on every later message just because the tone stays on.
     is_sumudrika = any(
         m['role'] == AIMessage.ROLE_USER and ai_chat.is_sumudrika_trigger(m['content'])
         for m in recent
     )
+    is_sumudrika_greet = bool(recent) and recent[-1]['role'] == AIMessage.ROLE_USER \
+        and ai_chat.is_sumudrika_trigger(recent[-1]['content'])
 
     # EduTrellis Light: check the saved knowledge base first (free, no
     # external call); only fall back to a live web search — rate-limited
@@ -1938,7 +1942,7 @@ def ai_chat_send(request):
             for chunk in ai_chat.stream_chat(
                 clean_history, model_key=model_key, account_context=account_context,
                 retrieved_context=retrieved_context, retrieved_source=retrieved_source,
-                sumudrika=is_sumudrika, language=language,
+                sumudrika=is_sumudrika, sumudrika_greet=is_sumudrika_greet, language=language,
             ):
                 full_reply += chunk
                 yield chunk

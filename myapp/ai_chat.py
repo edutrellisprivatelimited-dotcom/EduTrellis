@@ -129,7 +129,7 @@ MODELS = {
         'vision': True,
     },
 }
-DEFAULT_MODEL_KEY = 'ultra'
+DEFAULT_MODEL_KEY = 'quick'
 
 LANGUAGES = {
     'en': 'English',
@@ -174,25 +174,45 @@ def _lucknow_greeting_and_time():
     return greeting, now
 
 
-def sumudrika_system_note():
-    greeting, now = _lucknow_greeting_and_time()
-    local_time_str = now.strftime('%I:%M %p on %A, %d %B %Y')
+def sumudrika_system_note(greet=True):
+    """greet: True only on the message where the secret phrase was actually
+    said (see views.ai_chat_send) — she should be welcomed once, not
+    re-greeted/re-introduced on every later message in the same
+    conversation just because the warm tone stays on for the rest of it."""
+    intro = (
+        "\n\nSPECIAL NOTE: you're talking to Sumudrika — Rudra Narayan "
+        "Tiwari's wife. Rudra is the person who personally built you "
+        "(EduTrellis AI)."
+    )
+    if greet:
+        greeting, now = _lucknow_greeting_and_time()
+        local_time_str = now.strftime('%I:%M %p on %A, %d %B %Y')
+        intro += (
+            " She just said the secret phrase that reveals who she is. The "
+            f"current local time in Lucknow, Uttar Pradesh, India is "
+            f"{local_time_str}, so greet her using that time of day, e.g. "
+            f"'{greeting}, ma'am! Welcome' — then briefly introduce yourself "
+            "(who you are, that Rudra built you) and speak warmly about Rudra "
+            "as her husband: you can include sincere, gently romantic touches "
+            "about their relationship (tasteful and heartfelt, not over the "
+            "top or cheesy), and genuinely praise his care, dedication, and "
+            "skill in building this AI and EduTrellis. For the rest of this "
+            "conversation, keep talking to her like a warm, supportive friend "
+            "of the family who's always fond of Rudra and happy she's here — "
+            "not a generic assistant persona."
+        )
+    else:
+        intro += (
+            " You already greeted and introduced yourself to her earlier in "
+            "this conversation — do NOT greet her again, re-introduce "
+            "yourself, or repeat any welcome message. Just continue this "
+            "reply naturally, picking up the conversation like a warm, "
+            "supportive friend of the family who's always fond of Rudra — "
+            "not a generic assistant persona, and not restarting the chat."
+        )
     return (
-        "\n\nSPECIAL NOTE: the person you're talking to just said the secret "
-        "phrase, which means she is Sumudrika — Rudra Narayan Tiwari's wife. "
-        "Rudra is the person who personally built you (EduTrellis AI). The "
-        f"current local time in Lucknow, Uttar Pradesh, India is "
-        f"{local_time_str}, so greet her using that time of day, e.g. "
-        f"'{greeting}, ma'am! Welcome' — then briefly introduce yourself "
-        "(who you are, that Rudra built you) and speak warmly about Rudra "
-        "as her husband: you can include sincere, gently romantic touches "
-        "about their relationship (tasteful and heartfelt, not over the "
-        "top or cheesy), and genuinely praise his care, dedication, and "
-        "skill in building this AI and EduTrellis. For the rest of this "
-        "conversation, keep talking to her like a warm, supportive friend "
-        "of the family who's always fond of Rudra and happy she's here — "
-        "not a generic assistant persona. Always reply to her sweetly and "
-        "gently, no matter what she says or asks.\n\n"
+        intro + " Always reply to her sweetly and gently, no matter what she "
+        "says or asks.\n\n"
         "Weave these caring habits into the conversation naturally where "
         "they fit — don't turn them into a rigid checklist you run through "
         "every single message:\n"
@@ -246,7 +266,7 @@ def _get_client():
 
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                  retrieved_context=None, retrieved_source=None, sumudrika=False,
-                 language=DEFAULT_LANGUAGE):
+                 sumudrika_greet=True, language=DEFAULT_LANGUAGE):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -259,6 +279,9 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     a fresh web_search result — already retrieved and bounded by the caller.
     sumudrika: True once is_sumudrika_trigger() has matched anywhere in this
     conversation (see views.ai_chat_send) — see sumudrika_system_note().
+    sumudrika_greet: True only for the specific message where the trigger
+    phrase was said — controls whether she gets greeted/introduced, vs. the
+    warm tone just continuing on later messages without repeating it.
     language: a key from LANGUAGES — which language to reply in, picked from
     the sidebar language switcher; validated against LANGUAGES by the caller.
     Yields text chunks as they arrive from the model."""
@@ -271,7 +294,12 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     current_mode_line = (
         f"\n\nYou are currently running as {cfg['label']} ({cfg['description']}). "
         "If asked which model, mode, or version you are, answer with this name "
-        "and description — not any other mode's name."
+        "and description — not any other mode's name. The user may have "
+        "switched modes partway through this conversation, so if any earlier "
+        "message — including one of your own past replies — named a "
+        f"different mode, ignore it: you are {cfg['label']} right now, "
+        "starting with this reply, so always answer based on this current "
+        "instruction, never a stale identity from earlier in the chat."
     )
     system_prompt = SYSTEM_PROMPT + current_mode_line + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
     if account_context:
@@ -292,7 +320,7 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "rather than making something up:\n" + retrieved_context
         )
     if sumudrika:
-        system_prompt += sumudrika_system_note()
+        system_prompt += sumudrika_system_note(greet=sumudrika_greet)
     if language and language != DEFAULT_LANGUAGE:
         language_name = LANGUAGES.get(language, language)
         system_prompt += (
@@ -303,7 +331,26 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "reply in the language specified here unless they explicitly "
             "ask you to switch."
         )
-    full_messages = [{'role': 'system', 'content': system_prompt}] + messages
+    # A mode switch reminder folded into the leading system message alone
+    # isn't enough — live-testing showed the model still echoing a stale
+    # mode name from its own earlier reply in the history. Inserting a fresh
+    # system-role message right before the current user turn (not just at
+    # the very start of the conversation) is what actually overrides that —
+    # models weight a recent message far more than one buried at position 0.
+    mode_reminder = {
+        'role': 'system',
+        'content': (
+            f"Reminder: right now, for THIS reply, you are {cfg['label']} — "
+            "not whatever mode may have answered earlier turns in this chat. "
+            "If an earlier message here — including one of your own past "
+            "replies — named a different mode, that's outdated: the user "
+            "has switched, and it no longer applies."
+        ),
+    }
+    if messages:
+        full_messages = [{'role': 'system', 'content': system_prompt}] + messages[:-1] + [mode_reminder, messages[-1]]
+    else:
+        full_messages = [{'role': 'system', 'content': system_prompt}]
 
     kwargs = dict(
         model=cfg['id'],
