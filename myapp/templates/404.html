@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Page Not Found — EduTrellis</title>
 <meta name="robots" content="noindex, follow">
 <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
@@ -49,5 +49,19 @@ footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
   </div>
 </main>
 <footer>&copy; 2026 EduTrellis Private Limited. All rights reserved.</footer>
+<script>
+// Casual deterrent only, not real protection — anyone determined can still
+// reach DevTools (browser menu, other shortcuts, an extension), so nothing
+// sensitive should ever depend on this. Right-click and the common
+// inspect/view-source shortcuts are blocked to raise the bar for casual
+// copying; F12/Ctrl+Shift+I/J/C/Ctrl+U are the ones actually worth catching.
+document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+document.addEventListener('keydown', function(e){
+  var k = e.key;
+  if (k === 'F12') { e.preventDefault(); return; }
+  if (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'i' || k === 'J' || k === 'j' || k === 'C' || k === 'c')) { e.preventDefault(); return; }
+  if (e.ctrlKey && (k === 'U' || k === 'u')) { e.preventDefault(); }
+});
+</script>
 </body>
 </html>

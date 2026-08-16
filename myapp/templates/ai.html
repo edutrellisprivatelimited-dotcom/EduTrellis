@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>EduTrellis AI</title>
 <meta name="robots" content="noindex, follow">
 <script>
@@ -1905,6 +1905,20 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   input.focus();
 })();
+</script>
+<script>
+// Casual deterrent only, not real protection — anyone determined can still
+// reach DevTools (browser menu, other shortcuts, an extension), so nothing
+// sensitive should ever depend on this. Right-click and the common
+// inspect/view-source shortcuts are blocked to raise the bar for casual
+// copying; F12/Ctrl+Shift+I/J/C/Ctrl+U are the ones actually worth catching.
+document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+document.addEventListener('keydown', function(e){
+  var k = e.key;
+  if (k === 'F12') { e.preventDefault(); return; }
+  if (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'i' || k === 'J' || k === 'j' || k === 'C' || k === 'c')) { e.preventDefault(); return; }
+  if (e.ctrlKey && (k === 'U' || k === 'u')) { e.preventDefault(); }
+});
 </script>
 </body>
 </html>
