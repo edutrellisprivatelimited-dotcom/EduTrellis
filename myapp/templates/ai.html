@@ -174,7 +174,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 .model-picker-btn:hover:not(:disabled){border-color:var(--red);color:var(--red)}
 .model-picker-btn:disabled{opacity:.5;cursor:default}
 .model-picker-btn i{font-size:.6rem;color:#9aa3b0;transition:transform .18s}
-.model-picker-btn.open i{transform:rotate(180deg)}
+.model-picker-btn.open .model-picker-caret{transform:rotate(180deg)}
+/* icon-only stand-in for the label, swapped in on narrow screens (see the
+   480px breakpoint below) — hidden here so desktop keeps the full text */
+.model-picker-icon{display:none}
 /* immediate confirmation that the switch registered, independent of
    waiting for the next reply to come back */
 .model-picker-btn.switched{border-color:var(--red);color:var(--red);animation:modelSwitchFlash .5s ease}
@@ -275,14 +278,19 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   .hd-back{display:none}
 }
 @media (max-width:480px){
-  .model-picker-btn{padding:0 .5rem 0 .6rem}
-  .model-picker-btn span{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* up to six controls (model picker, github, attach, camera, mic, send)
+     plus the textarea share the composer row on a phone — the model picker
+     was the widest of them (a full text label in a pill), so it collapses
+     to a small icon + caret here, matching the row's other icon buttons,
+     and gives that space back to the textarea. Full model names still show
+     the moment the dropdown itself opens. */
+  .model-picker-btn{height:30px;padding:0 .5rem;gap:.25rem;border-radius:50px}
+  .model-picker-icon{display:inline-flex;font-size:.78rem;color:var(--head)}
+  .model-picker-btn #modelPickerLabel{display:none}
+  .model-picker-caret{font-size:.55rem}
   /* anchored left, not right — the button sits at the left edge of the
      composer, so the dropdown must grow rightward to stay on-screen */
   .model-dropdown{left:0;right:auto;min-width:210px}
-  /* up to six controls (model picker, github, attach, camera, mic, send)
-     plus the textarea now share the composer row — tighten spacing so the
-     input itself keeps enough room on narrow phones. */
   .input-wrap{gap:.3rem}
   .mic-btn,.github-btn{width:30px;height:30px;font-size:.85rem}
   /* centered instead of left-anchored — github-btn can sit mid-row, so a
@@ -290,8 +298,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   .github-panel{left:50%;right:auto;transform:translateX(-50%);width:min(88vw,280px)}
 }
 @media (max-width:360px){
-  .model-picker-btn span{display:none}
-  .model-picker-btn{padding:0 .45rem}
+  .model-picker-btn{padding:0 .4rem}
   .model-dropdown{min-width:190px}
 }
 @media (max-width:420px){
@@ -409,9 +416,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       </div>
       <div class="input-wrap" id="inputWrap">
         <div class="model-picker-wrap">
-          <button type="button" class="model-picker-btn" id="modelPickerBtn" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="model-picker-btn" id="modelPickerBtn" aria-haspopup="true" aria-expanded="false" aria-label="Choose AI model">
+            <i class="fas fa-microchip model-picker-icon"></i>
             <span id="modelPickerLabel">{{ ai_default_model_label }}</span>
-            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-down model-picker-caret"></i>
           </button>
           <div class="model-dropdown" id="modelDropdown" hidden>
             {% for m in ai_models %}
