@@ -1,7 +1,7 @@
-"""Extracts plain text from an uploaded PDF/DOCX/CSV so it can be fed to the
-AI chat as normal text — no OCR, no external service, just the document's
-own text layer. Scanned/image-only PDFs have no text layer to extract and
-will raise ExtractError rather than return nothing useful.
+"""Extracts plain text from an uploaded PDF/DOCX/CSV/TXT so it can be fed to
+the AI chat as normal text — no OCR, no external service, just the
+document's own text layer. Scanned/image-only PDFs have no text layer to
+extract and will raise ExtractError rather than return nothing useful.
 """
 import csv
 import io
@@ -79,10 +79,21 @@ def extract_csv(file_bytes):
     return '\n'.join(lines)
 
 
+def extract_txt(file_bytes):
+    try:
+        text = file_bytes.decode('utf-8-sig', errors='replace')
+    except Exception as e:
+        raise ExtractError(f"Could not read that file: {e}")
+    if not text.strip():
+        raise ExtractError('That file appears to be empty.')
+    return text
+
+
 _EXTRACTORS = {
     '.pdf': extract_pdf,
     '.docx': extract_docx,
     '.csv': extract_csv,
+    '.txt': extract_txt,
 }
 
 SUPPORTED_EXTENSIONS = tuple(_EXTRACTORS.keys())
@@ -94,7 +105,7 @@ def extract(filename, file_bytes):
     extractor = _EXTRACTORS.get(ext)
     if not extractor:
         raise ExtractError(
-            f"Unsupported file type '{ext or filename}'. Supported: PDF, DOCX, CSV."
+            f"Unsupported file type '{ext or filename}'. Supported: PDF, DOCX, CSV, TXT."
         )
     text = extractor(file_bytes)
     truncated = len(text) > MAX_CHARS

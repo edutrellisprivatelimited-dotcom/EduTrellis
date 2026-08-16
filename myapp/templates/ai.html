@@ -405,8 +405,8 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
           </div>
         </div>
         {% endif %}
-        <button type="button" id="attachBtn" class="mic-btn" aria-label="Attach a file" title="Attach an image, PDF, DOCX, or CSV"><i class="fas fa-paperclip"></i></button>
-        <input type="file" id="imageInput" accept="image/*,.pdf,.docx,.csv" hidden>
+        <button type="button" id="attachBtn" class="mic-btn" aria-label="Attach a file" title="Attach an image, PDF, DOCX, CSV, or TXT"><i class="fas fa-paperclip"></i></button>
+        <input type="file" id="imageInput" accept="image/*,.pdf,.docx,.csv,.txt" hidden>
         <button type="button" id="cameraBtn" class="mic-btn" aria-label="Take a photo" title="Take a photo"><i class="fas fa-camera"></i></button>
         <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
         <button type="button" id="micBtn" class="mic-btn" aria-label="Voice typing" title="Speak your message"><i class="fas fa-microphone"></i></button>
@@ -974,7 +974,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     img.src = url;
   }
 
-  var DOCUMENT_EXTENSIONS = ['.pdf', '.docx', '.csv'];
+  var DOCUMENT_EXTENSIONS = ['.pdf', '.docx', '.csv', '.txt'];
 
   function uploadDocument(file){
     var gen = ++attachGen;
@@ -1018,7 +1018,7 @@ footer{flex:none;border-top:1px solid var(--line);background:#fff;padding:.9rem 
     }
     var ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
     if (DOCUMENT_EXTENSIONS.indexOf(ext) === -1) {
-      showAttachError('Please choose an image, PDF, DOCX, or CSV file.');
+      showAttachError('Please choose an image, PDF, DOCX, CSV, or TXT file.');
       return;
     }
     uploadDocument(file);
