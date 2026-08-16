@@ -112,16 +112,34 @@ CHAT_SAVE_CONTENT_MAX_CHARS = 6000
 
 
 def _account_context_leaked(account_context, reply_text):
-    """True if the reply echoes a token unique to this user's own account
-    snapshot (an order number or an exact currency amount) — the sign that
-    this answer is specific to them, not a generally reusable fact, and
-    must never end up in the shared knowledge base where a different
-    user's Light-mode question could retrieve someone else's order/wallet
-    details."""
+    """True if the reply echoes something unique to this user's own account
+    snapshot (an order number, an exact currency amount, a cart/order item
+    name, or their own name) — the sign that this answer is specific to
+    them, not a generally reusable fact, and must never end up in the
+    shared knowledge base where a different user's Light-mode question
+    could retrieve someone else's cart, order, wallet, or identity details.
+    Deliberately broad/over-inclusive: a false positive here just means one
+    extra entry stays private instead of shared (harmless); a false
+    negative means a stranger's real account data leaks into a shared
+    answer (not harmless), so every token worth catching is worth catching."""
     if not account_context or not reply_text:
         return False
     tokens = set(re.findall(r'#\d+', account_context)) | set(re.findall(r'Rs [\d,]+\.\d{2}', account_context))
-    return any(tok in reply_text for tok in tokens)
+    # Cart line: "- {product_name} x{quantity} — Rs {subtotal}"
+    tokens.update(m.group(1).strip() for m in re.finditer(r'-\s+(.+?)\s+x\d+\s+—', account_context))
+    # Order line: "...Items: {name} x{qty}, {name} x{qty}, ..."
+    items_match = re.search(r'Items:\s*(.+)', account_context)
+    if items_match:
+        for part in items_match.group(1).split(','):
+            name = re.sub(r'\s*x\d+\s*$', '', part.strip())
+            if name:
+                tokens.add(name)
+    # "Logged in as: {name}."
+    name_match = re.search(r'Logged in as:\s*(.+?)\.', account_context)
+    if name_match:
+        tokens.add(name_match.group(1).strip())
+    reply_lower = reply_text.lower()
+    return any(tok and len(tok) >= 3 and tok.lower() in reply_lower for tok in tokens)
 
 
 def save_from_chat(question, answer, account_context=None, had_attachment=False,

@@ -1843,6 +1843,15 @@ def ai_chat_send(request):
     conversation_id = payload.get('conversation_id')
     conversation = None
     if conversation_id:
+        # payload is untrusted JSON — conversation_id could be a string, a
+        # float, a list/dict, etc. Casting explicitly here means a malformed
+        # value is just "not found" instead of an unhandled TypeError from
+        # the ORM's pk lookup (which, with DEBUG on, would otherwise hand
+        # back a full stack trace to whoever sent it).
+        try:
+            conversation_id = int(conversation_id)
+        except (TypeError, ValueError):
+            return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
         conversation = AIConversation.objects.filter(owner_filter, pk=conversation_id).first()
         if not conversation:
             return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
