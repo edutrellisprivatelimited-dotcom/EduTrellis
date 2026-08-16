@@ -94,3 +94,45 @@ def web_search_and_save(query):
         source_url=top['url'][:200],
     )
     return '\n\n'.join(blocks), 'web_search'
+
+
+CHAT_SAVE_MIN_MESSAGE_CHARS = 4     # skip near-empty prompts ("hi", "ok")
+CHAT_SAVE_TOPIC_MAX_CHARS = 200
+CHAT_SAVE_CONTENT_MAX_CHARS = 6000
+
+
+def _account_context_leaked(account_context, reply_text):
+    """True if the reply echoes a token unique to this user's own account
+    snapshot (an order number or an exact currency amount) — the sign that
+    this answer is specific to them, not a generally reusable fact, and
+    must never end up in the shared knowledge base where a different
+    user's Light-mode question could retrieve someone else's order/wallet
+    details."""
+    if not account_context or not reply_text:
+        return False
+    tokens = set(re.findall(r'#\d+', account_context)) | set(re.findall(r'Rs [\d,]+\.\d{2}', account_context))
+    return any(tok in reply_text for tok in tokens)
+
+
+def save_from_chat(question, answer, account_context=None, had_attachment=False):
+    """Saves a real question+answer pair from ANY model's chat (not just
+    Light) into the shared knowledge base, so the whole site's conversation
+    history feeds Light over time. Skips: near-empty questions, turns with
+    an attached image/document (often private/proprietary, and not a
+    generally reusable text fact), and any answer that leaked this specific
+    user's own account details (see _account_context_leaked). Silently a
+    no-op if the save isn't appropriate — callers don't need to branch on
+    this themselves."""
+    question = (question or '').strip()
+    answer = (answer or '').strip()
+    if len(question) < CHAT_SAVE_MIN_MESSAGE_CHARS or not answer:
+        return
+    if had_attachment:
+        return
+    if _account_context_leaked(account_context, answer):
+        return
+    KnowledgeEntry.objects.create(
+        topic=question[:CHAT_SAVE_TOPIC_MAX_CHARS],
+        content=answer[:CHAT_SAVE_CONTENT_MAX_CHARS],
+        source=KnowledgeEntry.SOURCE_CHAT,
+    )

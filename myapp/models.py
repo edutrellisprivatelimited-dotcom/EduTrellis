@@ -720,13 +720,17 @@ class GitHubConnection(models.Model):
 
 class KnowledgeEntry(models.Model):
     """A saved fact/answer EduTrellis Light checks before anything else.
-    Seeded manually from the admin, and grown automatically — when Light
-    mode has to fall back to a live web search, the top result gets saved
-    here so the same question is a fast, free knowledge-base hit next
-    time instead of another paid search."""
+    Seeded manually from the admin, and grown automatically two ways: when
+    Light mode falls back to a live web search, the top result is saved
+    here; and every real question+answer from ANY model's chat (see
+    views.ai_chat_send) is saved here too, so the whole site's conversation
+    history becomes Light's knowledge base over time — guarded against
+    saving a logged-in user's account-specific answer (see
+    light_mode.save_from_chat) so it can never leak to another user."""
     SOURCE_MANUAL = 'manual'
     SOURCE_WEB = 'web_search'
-    SOURCE_CHOICES = [(SOURCE_MANUAL, 'Manual'), (SOURCE_WEB, 'Web search')]
+    SOURCE_CHAT = 'chat'
+    SOURCE_CHOICES = [(SOURCE_MANUAL, 'Manual'), (SOURCE_WEB, 'Web search'), (SOURCE_CHAT, 'Chat')]
 
     topic      = models.CharField(max_length=200, help_text="Short label/question this answers, e.g. 'refund policy' or 'GST registration steps'.")
     content    = models.TextField(help_text='The saved text EduTrellis Light will answer from.')

@@ -1937,6 +1937,18 @@ def ai_chat_send(request):
                 except Exception:
                     logger.exception("Failed to save AI assistant reply for conversation %s", conversation.pk)
 
+                # Every real question+answer, from any model, from any user
+                # (guest or logged in) — feeds EduTrellis Light's shared
+                # knowledge base, not just Light's own conversations. Never
+                # blocks or fails the actual chat reply if this errors.
+                try:
+                    light_mode.save_from_chat(
+                        message, full_reply, account_context=account_context,
+                        had_attachment=bool(image_data or document_text),
+                    )
+                except Exception:
+                    logger.exception("Failed to save chat turn to the Light knowledge base")
+
     response = StreamingHttpResponse(event_stream(), content_type='text/plain; charset=utf-8')
     response['Cache-Control'] = 'no-cache'
     response['X-Accel-Buffering'] = 'no'
