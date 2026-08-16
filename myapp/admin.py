@@ -129,30 +129,68 @@ class StoreProfileAdmin(admin.ModelAdmin):
 class AIMessageInline(admin.TabularInline):
     model = AIMessage
     extra = 0
-    readonly_fields = ('role', 'content', 'image_data', 'model_key', 'created_at')
+    readonly_fields = ('role', 'content', 'image_data', 'document_name', 'model_key', 'created_at')
     can_delete = False
 
 
 @admin.register(AIConversation)
 class AIConversationAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'user', 'session_key', 'created_at', 'updated_at')
+    # who_asked makes it obvious at a glance whether a conversation belongs
+    # to a real account or an anonymous guest, without opening each row.
+    list_display = ('__str__', 'who_asked', 'created_at', 'updated_at')
     search_fields = ('title', 'user__username', 'user__email', 'session_key')
     list_filter = ('created_at',)
     inlines = [AIMessageInline]
 
+    def who_asked(self, obj):
+        if obj.user:
+            return obj.user.get_full_name() or obj.user.username
+        return f'Guest ({obj.session_key[:10]}…)' if obj.session_key else 'Guest'
+    who_asked.short_description = 'Asked by'
+
 
 @admin.register(AIMessage)
 class AIMessageAdmin(admin.ModelAdmin):
-    list_display = ('conversation', 'role', 'model_key', 'created_at')
+    list_display = ('conversation', 'who_asked', 'role', 'attachment', 'model_key', 'created_at')
+    list_select_related = ('conversation', 'conversation__user')
     list_filter = ('role', 'model_key')
-    search_fields = ('content', 'conversation__title')
+    search_fields = ('content', 'document_name', 'conversation__title', 'conversation__user__username', 'conversation__user__email', 'conversation__session_key')
+
+    def who_asked(self, obj):
+        user = obj.conversation.user
+        if user:
+            return user.get_full_name() or user.username
+        session_key = obj.conversation.session_key
+        return f'Guest ({session_key[:10]}…)' if session_key else 'Guest'
+    who_asked.short_description = 'Asked by'
+
+    def attachment(self, obj):
+        if obj.document_name:
+            return f'📄 {obj.document_name}'
+        if obj.image_data:
+            return '🖼️ image'
+        return ''
+    attachment.short_description = 'Attachment'
 
 
 @admin.register(KnowledgeEntry)
 class KnowledgeEntryAdmin(admin.ModelAdmin):
-    list_display = ('topic', 'source', 'updated_at')
+    # visible_to makes it obvious whether an entry is shared with everyone
+    # or private to one person (from a file/image upload, or their own
+    # account details) — see KnowledgeEntry's docstring and
+    # light_mode.save_from_chat for how that's decided.
+    list_display = ('topic', 'source', 'visible_to', 'updated_at')
+    list_select_related = ('user',)
     list_filter = ('source',)
-    search_fields = ('topic', 'content')
+    search_fields = ('topic', 'content', 'user__username', 'user__email', 'session_key')
+
+    def visible_to(self, obj):
+        if obj.user:
+            return obj.user.get_full_name() or obj.user.username
+        if obj.session_key:
+            return f'Guest ({obj.session_key[:10]}…)'
+        return 'Everyone'
+    visible_to.short_description = 'Visible to'
 
 
 @admin.register(GitHubConnection)

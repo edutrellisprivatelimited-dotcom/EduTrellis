@@ -720,22 +720,27 @@ class GitHubConnection(models.Model):
 
 class KnowledgeEntry(models.Model):
     """A saved fact/answer EduTrellis Light checks before anything else.
-    Seeded manually from the admin, and grown automatically two ways: when
-    Light mode falls back to a live web search, the top result is saved
-    here; and every real question+answer from ANY model's chat (see
-    views.ai_chat_send) is saved here too, so the whole site's conversation
-    history becomes Light's knowledge base over time — guarded against
-    saving a logged-in user's account-specific answer (see
-    light_mode.save_from_chat) so it can never leak to another user."""
+    Seeded manually from the admin, and grown automatically three ways: a
+    live web search fallback saves its top result; every real chat Q&A
+    (any model) saves the pair; and a Q&A that involved an uploaded file/
+    image, or a logged-in user's own account details, is saved too — but
+    scoped private to that one user/guest session (see user/session_key
+    below) instead of shared, since that content can be personal or
+    proprietary. A blank user AND blank session_key means shared with
+    everyone; either one set means only that person's own future Light
+    questions can retrieve it. See light_mode.save_from_chat/
+    search_knowledge_base for exactly how this is decided and enforced."""
     SOURCE_MANUAL = 'manual'
     SOURCE_WEB = 'web_search'
     SOURCE_CHAT = 'chat'
     SOURCE_CHOICES = [(SOURCE_MANUAL, 'Manual'), (SOURCE_WEB, 'Web search'), (SOURCE_CHAT, 'Chat')]
 
-    topic      = models.CharField(max_length=200, help_text="Short label/question this answers, e.g. 'refund policy' or 'GST registration steps'.")
-    content    = models.TextField(help_text='The saved text EduTrellis Light will answer from.')
-    source     = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_MANUAL)
-    source_url = models.URLField(blank=True, help_text='Where this was found, if saved from a web search.')
+    topic       = models.CharField(max_length=200, help_text="Short label/question this answers, e.g. 'refund policy' or 'GST registration steps'.")
+    content     = models.TextField(help_text='The saved text EduTrellis Light will answer from.')
+    source      = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_MANUAL)
+    source_url  = models.URLField(blank=True, help_text='Where this was found, if saved from a web search.')
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='knowledge_entries', help_text='Set only for an entry private to one logged-in person (from a file/image upload, or their own account details). Blank = visible to everyone.')
+    session_key = models.CharField(max_length=40, blank=True, db_index=True, help_text='Same idea as user, for a private entry saved from a guest (not logged in) session.')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

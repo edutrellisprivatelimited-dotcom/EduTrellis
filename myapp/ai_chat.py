@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+import time
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
@@ -9,6 +10,8 @@ from openai import OpenAI
 MAX_TOKENS = 1024
 TEMPERATURE = 1.0
 TOP_P = 0.95
+STREAM_RETRY_ATTEMPTS = 2          # extra attempts beyond the first
+STREAM_RETRY_BACKOFF_SECONDS = 1.5
 
 SYSTEM_PROMPT = (
     "You are EduTrellis AI, a friendly assistant embedded on the EduTrellis "
@@ -240,13 +243,30 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
         # spending tokens (and screen space) on a hidden reasoning trace.
         kwargs['extra_body'] = {'chat_template_kwargs': {'enable_thinking': False, 'force_nonempty_content': True}}
 
-    stream = client.chat.completions.create(**kwargs)
-    for chunk in stream:
-        if not chunk.choices:
-            continue
-        content = getattr(chunk.choices[0].delta, 'content', None)
-        if content:
-            yield content
+    # Transient failures (a busy worker, a dropped connection, a momentary
+    # rate limit like NVIDIA's "Worker local total request limit reached")
+    # are retried automatically here, silently, rather than surfacing an
+    # error to the user for something that usually succeeds a moment later.
+    # Only safe to retry a fresh attempt if nothing has been streamed to the
+    # caller yet in this attempt — once real content is already on its way
+    # to the browser, restarting from scratch would duplicate/garble it, so
+    # a mid-stream failure just stops here instead.
+    for attempt in range(STREAM_RETRY_ATTEMPTS + 1):
+        yielded_any = False
+        try:
+            stream = client.chat.completions.create(**kwargs)
+            for chunk in stream:
+                if not chunk.choices:
+                    continue
+                content = getattr(chunk.choices[0].delta, 'content', None)
+                if content:
+                    yielded_any = True
+                    yield content
+            return
+        except Exception:
+            if yielded_any or attempt >= STREAM_RETRY_ATTEMPTS:
+                raise
+            time.sleep(STREAM_RETRY_BACKOFF_SECONDS * (attempt + 1))
 
 
 # ── GitHub mode: repo-aware code changes, driven by a plain-English prompt ──

@@ -28,7 +28,7 @@ def _keywords(text):
     return [w for w in words if len(w) >= MIN_KEYWORD_LEN and w not in _STOPWORDS]
 
 
-def search_knowledge_base(query):
+def search_knowledge_base(query, user=None, session_key=''):
     """Simple substring/keyword match, ranked by how many query keywords
     appear in topic+content — not embeddings, which would be overkill for a
     small, mostly hand-curated table and would work against being 'fast'.
@@ -36,14 +36,24 @@ def search_knowledge_base(query):
     keywords to match — a single incidental shared word (e.g. a year like
     '2026' appearing in both an unrelated saved entry and a brand-new
     question) isn't enough, or a completely unrelated topic can hijack an
-    otherwise-uncovered question instead of triggering a fresh search."""
+    otherwise-uncovered question instead of triggering a fresh search.
+
+    Only searches entries that are either shared (no owner) or private to
+    THIS caller (matching user, or matching session_key for a guest) — a
+    private entry from a file upload or someone's own account details is
+    never visible to anyone else's search."""
     keywords = _keywords(query)
     if not keywords:
         return []
     q = Q()
     for kw in keywords:
         q |= Q(topic__icontains=kw) | Q(content__icontains=kw)
-    candidates = list(KnowledgeEntry.objects.filter(q)[:50])
+    owner_q = Q(user__isnull=True, session_key='')
+    if user is not None and getattr(user, 'is_authenticated', False):
+        owner_q |= Q(user=user)
+    elif session_key:
+        owner_q |= Q(session_key=session_key)
+    candidates = list(KnowledgeEntry.objects.filter(q).filter(owner_q)[:50])
 
     def score(entry):
         haystack = (entry.topic + ' ' + entry.content).lower()
@@ -114,25 +124,42 @@ def _account_context_leaked(account_context, reply_text):
     return any(tok in reply_text for tok in tokens)
 
 
-def save_from_chat(question, answer, account_context=None, had_attachment=False):
+def save_from_chat(question, answer, account_context=None, had_attachment=False,
+                    user=None, session_key=''):
     """Saves a real question+answer pair from ANY model's chat (not just
-    Light) into the shared knowledge base, so the whole site's conversation
-    history feeds Light over time. Skips: near-empty questions, turns with
-    an attached image/document (often private/proprietary, and not a
-    generally reusable text fact), and any answer that leaked this specific
-    user's own account details (see _account_context_leaked). Silently a
-    no-op if the save isn't appropriate — callers don't need to branch on
-    this themselves."""
+    Light) so the whole site's conversation history feeds Light over time.
+    Skips near-empty questions entirely. A turn that had a file/image
+    attached, or whose answer leaked this specific user's own account
+    details (see _account_context_leaked), is still saved — just scoped
+    private to that one user (or guest session, via session_key) instead of
+    shared, since uploaded content or personal account data has no business
+    being retrievable by anyone else's Light-mode question. Silently a
+    no-op if there's genuinely nowhere safe to save it — callers don't need
+    to branch on this themselves."""
     question = (question or '').strip()
     answer = (answer or '').strip()
     if len(question) < CHAT_SAVE_MIN_MESSAGE_CHARS or not answer:
         return
-    if had_attachment:
-        return
-    if _account_context_leaked(account_context, answer):
-        return
+
+    is_authenticated = user is not None and getattr(user, 'is_authenticated', False)
+    private = had_attachment or _account_context_leaked(account_context, answer)
+
+    entry_user = None
+    entry_session_key = ''
+    if private:
+        if is_authenticated:
+            entry_user = user
+        elif session_key:
+            entry_session_key = session_key
+        else:
+            # Nothing to scope a private entry to — safer to drop it than
+            # accidentally save it shared.
+            return
+
     KnowledgeEntry.objects.create(
         topic=question[:CHAT_SAVE_TOPIC_MAX_CHARS],
         content=answer[:CHAT_SAVE_CONTENT_MAX_CHARS],
         source=KnowledgeEntry.SOURCE_CHAT,
+        user=entry_user,
+        session_key=entry_session_key,
     )

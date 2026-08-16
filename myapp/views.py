@@ -1913,7 +1913,11 @@ def ai_chat_send(request):
     # quota — when nothing relevant is already saved.
     retrieved_context = retrieved_source = None
     if model_key == 'light' and message:
-        kb_entries = light_mode.search_knowledge_base(message)
+        kb_entries = light_mode.search_knowledge_base(
+            message,
+            user=request.user if request.user.is_authenticated else None,
+            session_key=request.session.session_key or '',
+        )
         if kb_entries:
             retrieved_context = light_mode.context_from_entries(kb_entries)
             retrieved_source = 'knowledge_base'
@@ -1926,6 +1930,7 @@ def ai_chat_send(request):
 
     def event_stream():
         full_reply = ''
+        had_error = False
         try:
             for chunk in ai_chat.stream_chat(
                 clean_history, model_key=model_key, account_context=account_context,
@@ -1935,14 +1940,21 @@ def ai_chat_send(request):
                 full_reply += chunk
                 yield chunk
         except Exception as e:
-            logger.exception("AI chat stream failed: %s", e)
+            # ai_chat.stream_chat already retries transient failures on its
+            # own before ever raising here — reaching this point means every
+            # retry failed (or a real answer had already started streaming
+            # when it broke, so a clean retry wasn't possible). Either way,
+            # what's in full_reply (if anything) is not a complete, trustworthy
+            # answer, so it must never be saved as one.
+            logger.exception("AI chat stream failed after retries: %s", e)
+            had_error = True
             yield "\n\n[Something went wrong on our end — please try again.]"
         finally:
             # The conversation can have been deleted (by this same user, in
             # another tab, or via the sidebar delete button) while this reply
             # was still streaming — check it still exists before trying to
             # attach a message to it, instead of letting that blow up here.
-            if full_reply.strip():
+            if full_reply.strip() and not had_error:
                 try:
                     if AIConversation.objects.filter(pk=conversation.pk).exists():
                         AIMessage.objects.create(
@@ -1953,17 +1965,22 @@ def ai_chat_send(request):
                     logger.exception("Failed to save AI assistant reply for conversation %s", conversation.pk)
 
                 # Every real question+answer, from any model, from any user
-                # (guest or logged in) — feeds EduTrellis Light's shared
-                # knowledge base, not just Light's own conversations. Never
-                # blocks or fails the actual chat reply if this errors.
+                # (guest or logged in) — feeds EduTrellis Light's knowledge
+                # base, not just Light's own conversations. A turn with a
+                # file/image attached, or whose answer touched this user's
+                # own account details, is still saved — just scoped private
+                # to them (see light_mode.save_from_chat) instead of shared.
                 # Skipped for the sumudrika easter egg — that reply is warm,
                 # personal content about Rudra and his wife, never something
-                # a stranger's Light-mode question should be able to surface.
+                # worth remembering as a reusable "fact". Never blocks or
+                # fails the actual chat reply if this errors.
                 if not is_sumudrika:
                     try:
                         light_mode.save_from_chat(
                             message, full_reply, account_context=account_context,
                             had_attachment=bool(image_data or document_text),
+                            user=request.user if request.user.is_authenticated else None,
+                            session_key=request.session.session_key or '',
                         )
                     except Exception:
                         logger.exception("Failed to save chat turn to the Light knowledge base")
