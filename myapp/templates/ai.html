@@ -543,6 +543,24 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     guestUsed: AI_GUEST_USED,
     gated: false,
   };
+  // Persisted across page loads (not just the current tab, unlike
+  // sessionStorage) so a refresh reopens whatever conversation was showing
+  // instead of always landing on a blank new chat. Every place that changes
+  // state.currentConversationId should go through this setter rather than
+  // assigning it directly, so the two never drift out of sync.
+  var CURRENT_CONV_STORAGE_KEY = 'ai_current_conversation_id';
+  // Used by stashPendingMessage/resumePendingMessage further down (the
+  // login/signup gate flow) — declared here, ahead of both, since
+  // resumeConversationOnLoad below also needs to check it before those
+  // function bodies have run.
+  var PENDING_KEY = 'aiPendingMessage';
+  function setCurrentConversationId(id){
+    state.currentConversationId = id;
+    try {
+      if (id) localStorage.setItem(CURRENT_CONV_STORAGE_KEY, String(id));
+      else localStorage.removeItem(CURRENT_CONV_STORAGE_KEY);
+    } catch (e) {}
+  }
   // The AbortController for whichever request is currently in flight (plain
   // chat or GitHub mode) — the send button doubles as Stop while streaming
   // and just aborts this.
@@ -1557,6 +1575,32 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   }
   renderConvList();
 
+  // A plain page refresh (or reopening the installed PWA) used to always
+  // land on a blank new chat, even mid-conversation — jarring, and not
+  // what a refresh should do. Reopens whichever conversation was last
+  // active, as long as it's still in this identity's list (a guest's
+  // remembered id won't match after a different guest session or account
+  // takes over the same browser, so it's safe to just skip in that case).
+  // Skipped when a gate-triggered login/signup resume is about to run
+  // (see resumePendingMessage far below) — that one already knows exactly
+  // which conversation to reopen, so this would otherwise race it.
+  (function resumeConversationOnLoad(){
+    var pendingRaw;
+    try { pendingRaw = sessionStorage.getItem(PENDING_KEY); } catch (e) { pendingRaw = null; }
+    if (pendingRaw) return;
+    var savedId;
+    try { savedId = localStorage.getItem(CURRENT_CONV_STORAGE_KEY); } catch (e) { return; }
+    if (!savedId) return;
+    var id = parseInt(savedId, 10);
+    if (!id) return;
+    var found = state.conversations.some(function(c){ return c.id === id; });
+    if (found) {
+      loadConversation(id);
+    } else {
+      try { localStorage.removeItem(CURRENT_CONV_STORAGE_KEY); } catch (e) {}
+    }
+  })();
+
   function refreshConversations(){
     return fetch('/AI/api/conversations/', { credentials: 'same-origin' })
       .then(function(r){ return r.json(); })
@@ -1572,7 +1616,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       .then(function(r){ return r.json(); })
       .then(function(data){
         if (data.status !== 'ok') return;
-        state.currentConversationId = id;
+        setCurrentConversationId(id);
         col.innerHTML = '';
         emptyState = null;
         data.messages.forEach(function(m){
@@ -1592,7 +1636,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       state.conversations = state.conversations.filter(function(c){ return c.id !== id; });
       renderConvList();
       if (state.currentConversationId === id) {
-        state.currentConversationId = null;
+        setCurrentConversationId(null);
         showEmptyState();
       }
     });
@@ -1607,7 +1651,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   newChatBtn.addEventListener('click', function(){
     if (state.streaming) return;
-    state.currentConversationId = null;
+    setCurrentConversationId(null);
     showEmptyState();
     renderConvList();
     closeSidebarMobile();
@@ -1677,7 +1721,6 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // image/file you'd attached) would otherwise vanish. Stashing it here
   // and restoring it in resumePendingMessage() below (right after reload)
   // is what makes "log in mid-chat" feel continuous instead of a reset.
-  var PENDING_KEY = 'aiPendingMessage';
   function stashPendingMessage(pending){
     if (!pending || (!pending.text && !pending.image && !pending.document)) return;
     try {
@@ -1762,7 +1805,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       if (!res.ok || res.body.status !== 'ok') {
         throw new Error(res.body.detail || 'Something went wrong — please try again.');
       }
-      if (res.body.conversation_id) state.currentConversationId = res.body.conversation_id;
+      if (res.body.conversation_id) setCurrentConversationId(res.body.conversation_id);
       var tagHtml = '<div class="msg-model-tag">EduTrellis GitHub</div>';
       bubble.innerHTML = tagHtml + (formatMd(res.body.reply) || '<i>No response — please try again.</i>');
       setStreaming(false);
@@ -1847,7 +1890,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         });
       }
       var newConvId = resp.headers.get('X-Conversation-Id');
-      if (newConvId) state.currentConversationId = parseInt(newConvId, 10);
+      if (newConvId) setCurrentConversationId(parseInt(newConvId, 10));
       answeredModelKey = resp.headers.get('X-Model-Key');
       matchedProducts = decodeProductsHeader(resp.headers.get('X-Products'));
       if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
