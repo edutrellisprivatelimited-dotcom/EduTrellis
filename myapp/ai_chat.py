@@ -158,14 +158,14 @@ MODELS = {
     'ultra': {
         'id': 'nvidia/nemotron-3-ultra-550b-a55b',
         'label': 'EduTrellis Ultra',
-        'description': 'Most capable — best for detailed or complex questions.',
+        'description': 'Most capable — best for complex reasoning, multi-step problems, and detailed answers.',
         'reasoning': True,
         'vision': False,
     },
     'quick': {
         'id': 'nvidia/nemotron-3-nano-30b-a3b',
         'label': 'EduTrellis Quick',
-        'description': 'Fast and lightweight — best for short, simple questions.',
+        'description': 'Fast and lightweight — best for everyday questions and general help.',
         'reasoning': True,
         'vision': False,
     },
@@ -184,9 +184,16 @@ MODELS = {
         'vision': False,
     },
     'vision': {
-        'id': 'nvidia/nemotron-nano-12b-v2-vl',
+        # nemotron-3-nano-omni is NVIDIA's recommended model for general
+        # image+text understanding (photos, product shots, etc) — swapped
+        # in after nemotron-nano-12b-v2-vl (meant for document/OCR Q&A, not
+        # general photos) was measured denying it had been given an image
+        # on ~30-50% of identical real requests. Omni measured 0/10 denials
+        # on the same test. See VISION_CHECK_BUFFER_CHARS retry below for
+        # the safety net that remains regardless of which model is used.
+        'id': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning',
         'label': 'EduTrellis Vision',
-        'description': 'Understands images — used automatically when you attach one.',
+        'description': 'Understands images — used automatically when you attach a photo.',
         'reasoning': False,
         'vision': True,
     },
