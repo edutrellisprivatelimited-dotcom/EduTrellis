@@ -200,7 +200,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
    waiting for the next reply to come back */
 .model-picker-btn.switched{border-color:var(--red);color:var(--red);animation:modelSwitchFlash .5s ease}
 @keyframes modelSwitchFlash{0%{background:var(--tint)}100%{background:var(--surface)}}
-.model-dropdown{position:absolute;bottom:calc(100% + .6rem);left:0;min-width:230px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.4rem;z-index:30}
+/* max-height + scroll — same fix as .github-panel below: with 8 modes
+   now instead of 4, a tall dropdown opening upward from the composer can
+   otherwise run off the top of a short mobile viewport. */
+.model-dropdown{position:absolute;bottom:calc(100% + .6rem);left:0;min-width:230px;max-height:min(70vh,420px);overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(17,20,24,.16);padding:.4rem;z-index:30}
 .model-option{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;width:100%;text-align:left;border:none;background:none;padding:.55rem .65rem;border-radius:10px;cursor:pointer}
 .model-option:hover{background:var(--bg-alt)}
 .model-option.active{background:var(--tint)}

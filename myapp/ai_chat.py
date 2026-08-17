@@ -188,6 +188,51 @@ MODELS = {
         'reasoning': True,
         'vision': False,
     },
+    'pro': {
+        # z-ai/glm-5.2 — verified live against this account (several other
+        # catalog-listed candidates, e.g. moonshotai/kimi-k2.6 and
+        # mistralai/mistral-large-2-instruct, 404'd despite being listed).
+        # Tops SWE-bench Pro among open-weight models — for harder coding/
+        # debugging than EduTrellis Code is meant for.
+        'id': 'z-ai/glm-5.2',
+        'label': 'EduTrellis Pro',
+        'description': 'Sharper at hard coding, debugging, and bigger programming problems than EduTrellis Code.',
+        'reasoning': False,
+        'vision': False,
+    },
+    'reasoning': {
+        # nvidia/nemotron-3-super-120b-a12b — NVIDIA's own recommended model
+        # for complex reasoning/agents. Needs 'reasoning': True same as
+        # Ultra/Quick/Light/Code — without it, it dumps a hidden "Let me
+        # think..." trace straight into the reply.
+        'id': 'nvidia/nemotron-3-super-120b-a12b',
+        'label': 'EduTrellis Reasoning',
+        'description': 'Excellent at complex, multi-step reasoning and planning — faster than Ultra, still very capable.',
+        'reasoning': True,
+        'vision': False,
+    },
+    'flash': {
+        # deepseek-ai/deepseek-v4-flash-0731 — speed-optimized; verified it
+        # doesn't leak a reasoning trace into the reply even without the
+        # enable_thinking flag, so 'reasoning' stays False here.
+        'id': 'deepseek-ai/deepseek-v4-flash-0731',
+        'label': 'EduTrellis Flash',
+        'description': 'The fastest option here — for quick answers when speed matters more than depth.',
+        'reasoning': False,
+        'vision': False,
+    },
+    'insight': {
+        # openai/gpt-oss-120b — a non-Nemotron flagship for a different
+        # "opinion". Its reasoning trace already comes back in a separate
+        # reasoning_content field on its own, even without the
+        # Nemotron-specific enable_thinking flag (which may not even apply
+        # to this model family) — so 'reasoning' stays False here too.
+        'id': 'openai/gpt-oss-120b',
+        'label': 'EduTrellis Insight',
+        'description': 'A different flagship model for a fresh perspective — good for a second opinion on tricky questions.',
+        'reasoning': False,
+        'vision': False,
+    },
     'vision': {
         # nemotron-3-nano-omni is NVIDIA's recommended model for general
         # image+text understanding (photos, product shots, etc) — swapped
