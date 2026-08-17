@@ -511,7 +511,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         <button type="button" id="cameraBtn" class="mic-btn" aria-label="Take a photo" title="Take a photo"><i class="fas fa-camera"></i></button>
         <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
         <button type="button" id="micBtn" class="mic-btn" aria-label="Voice typing" title="Speak your message"><i class="fas fa-microphone"></i></button>
-        <textarea id="chatInput" rows="1" placeholder="Message AI" maxlength="4000"></textarea>
+        <textarea id="chatInput" rows="1" placeholder="Message AI" maxlength="16000"></textarea>
         <button type="button" id="sendBtn" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
       </div>
       <p class="attach-error" id="attachError" hidden></p>
@@ -1564,7 +1564,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         for (var i = e.resultIndex; i < e.results.length; i++) {
           transcript += e.results[i][0].transcript;
         }
-        input.value = (baseText + transcript).slice(0, 4000);
+        input.value = (baseText + transcript).slice(0, 16000);
         autoResize();
       };
       recognition.onerror = function(){ stopListening(); };
