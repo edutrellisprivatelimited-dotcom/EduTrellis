@@ -20,7 +20,17 @@ SECRET_KEY = os.environ.get(
     'django-insecure-2!^^*c(t)whrn^4w3xkoqx!1p85e5s!-xh0w+xai7&q*80tt@@'
 )
 
-DEBUG = True
+# Defaults to OFF (production-safe) — with DEBUG on, any uncaught exception
+# anywhere on the site (not just /AI/) renders Django's full debug page:
+# source code, local variables, request data, and settings (Django's own
+# SafeExceptionReporterFilter redacts variables named like *KEY*/*SECRET*/
+# *PASSWORD*/*TOKEN*, but everything else — file paths, SQL, other users'
+# request data — is shown in full). SECURE_SSL_REDIRECT/SESSION_COOKIE_SECURE/
+# CSRF_COOKIE_SECURE below are already wired off 'not DEBUG', so fixing this
+# one flag also fixes those for free. For local development, set
+# DJANGO_DEBUG=True in the environment (or a .env file) rather than editing
+# this default back.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').strip().lower() in ('1', 'true', 'yes', 'on')
 
 ALLOWED_HOSTS = ['*']
 
@@ -166,6 +176,31 @@ NVIDIA_API_KEY = 'nvapi-UwogLPvykjZv-rp7w1e1OU7IwJj9NnyHKnWqPvb6YUgXBt8lfsUVCRhc
 # the saved knowledge base has nothing relevant — same hardcoding choice and
 # same caveat as NVIDIA_API_KEY above. Rotate at app.tavily.com if needed.
 TAVILY_API_KEY = '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'
+
+# Without this, Django's default logging config only surfaces uncaught
+# request exceptions via email (to ADMINS, which isn't set here) once
+# DEBUG=False — meaning the logger.exception(...) calls already used
+# throughout myapp/views.py and myapp/ai_chat.py would otherwise go
+# nowhere an operator can see them. A plain console handler is enough:
+# Railway (and most hosts/containers) captures stdout/stderr as the log
+# stream automatically, no file path or external service needed. Never
+# put request bodies, API keys, or tokens into a log call — this only
+# configures where logs go, not what individual call sites choose to log.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '{levelname} {asctime} {name}: {message}', 'style': '{'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+    },
+    'root': {'handlers': ['console'], 'level': 'WARNING'},
+    'loggers': {
+        'django.request': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+        'myapp': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
