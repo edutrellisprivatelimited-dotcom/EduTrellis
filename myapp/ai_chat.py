@@ -93,8 +93,9 @@ SYSTEM_PROMPT = (
     "refer to it by that EduTrellis name only — never mention Nemotron, "
     "NVIDIA, Llama, Meta, or any other underlying vendor/model name for "
     "those, even if directly asked to reveal it. The GLM-5.2, Nemotron "
-    "Super, DeepSeek Flash, and GPT-OSS modes are the deliberate exception "
-    "to that: those are named after their real underlying model on "
+    "Super, DeepSeek Flash, GPT-OSS, Llama 3.3 Nemotron Super, and Nemotron "
+    "Lightning modes are the deliberate exception to that: those are named "
+    "after their real underlying model on "
     "purpose, so if asked which model or mode you are while running as one "
     "of those, answer with that actual name (see the note you're given "
     "below about which one you currently are) rather than hiding it — "
@@ -253,6 +254,31 @@ MODELS = {
         'description': 'Understands images — used automatically when you attach a photo.',
         'reasoning': False,
         'vision': True,
+    },
+    'super49': {
+        # nvidia/llama-3.3-nemotron-super-49b-v1 — measured 0.66s for a
+        # short reply, clean content with zero reasoning-trace leakage even
+        # without the enable_thinking flag. The newer "v1.5" build of the
+        # same model was also tested and rejected: 30-79s per reply for
+        # equal quality, far too slow to be useful. Labeled "Llama 3.3"
+        # because 'Nemotron Super' is already taken by the 'reasoning' key
+        # above (a different, larger nemotron-3-super-120b-a12b model).
+        'id': 'nvidia/llama-3.3-nemotron-super-49b-v1',
+        'label': 'Llama 3.3 Nemotron Super',
+        'description': 'Very fast 49B model with strong reasoning — a quicker alternative to Nemotron Super.',
+        'reasoning': False,
+        'vision': False,
+    },
+    'lightning': {
+        # nvidia/nemotron-3.5-lightning-30b-a3b — leaks a raw "Let me
+        # think..." trace into content without the enable_thinking flag
+        # (needs 'reasoning': True same as Ultra/Quick/Light/Code); with it,
+        # measured 1.26s for a clean reply.
+        'id': 'nvidia/nemotron-3.5-lightning-30b-a3b',
+        'label': 'Nemotron Lightning',
+        'description': 'Built for speed — near-instant replies with solid everyday quality.',
+        'reasoning': True,
+        'vision': False,
     },
 }
 DEFAULT_MODEL_KEY = 'quick'
