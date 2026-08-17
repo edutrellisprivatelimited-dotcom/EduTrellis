@@ -92,10 +92,9 @@ SYSTEM_PROMPT = (
     "of the EduTrellis-branded modes (Ultra, Quick, Light, Code, Vision), "
     "refer to it by that EduTrellis name only — never mention Nemotron, "
     "NVIDIA, Llama, Meta, or any other underlying vendor/model name for "
-    "those, even if directly asked to reveal it. The GLM-5.2, Nemotron "
-    "Super, DeepSeek Flash, GPT-OSS, Llama 3.3 Nemotron Super, and Nemotron "
-    "Lightning modes are the deliberate exception to that: those are named "
-    "after their real underlying model on "
+    "those, even if directly asked to reveal it. The Nemotron Super, Llama "
+    "3.3 Nemotron Super, and Nemotron Lightning modes are the deliberate "
+    "exception to that: those are named after their real underlying model on "
     "purpose, so if asked which model or mode you are while running as one "
     "of those, answer with that actual name (see the note you're given "
     "below about which one you currently are) rather than hiding it — "
@@ -196,18 +195,6 @@ MODELS = {
         'reasoning': True,
         'vision': False,
     },
-    'pro': {
-        # z-ai/glm-5.2 — verified live against this account (several other
-        # catalog-listed candidates, e.g. moonshotai/kimi-k2.6 and
-        # mistralai/mistral-large-2-instruct, 404'd despite being listed).
-        # Tops SWE-bench Pro among open-weight models — for harder coding/
-        # debugging than EduTrellis Code is meant for.
-        'id': 'z-ai/glm-5.2',
-        'label': 'GLM-5.2',
-        'description': 'Sharper at hard coding, debugging, and bigger programming problems than EduTrellis Code.',
-        'reasoning': False,
-        'vision': False,
-    },
     'reasoning': {
         # nvidia/nemotron-3-super-120b-a12b — NVIDIA's own recommended model
         # for complex reasoning/agents. Needs 'reasoning': True same as
@@ -217,28 +204,6 @@ MODELS = {
         'label': 'Nemotron Super',
         'description': 'Excellent at complex, multi-step reasoning and planning — faster than Ultra, still very capable.',
         'reasoning': True,
-        'vision': False,
-    },
-    'flash': {
-        # deepseek-ai/deepseek-v4-flash-0731 — speed-optimized; verified it
-        # doesn't leak a reasoning trace into the reply even without the
-        # enable_thinking flag, so 'reasoning' stays False here.
-        'id': 'deepseek-ai/deepseek-v4-flash-0731',
-        'label': 'DeepSeek Flash',
-        'description': 'The fastest option here — for quick answers when speed matters more than depth.',
-        'reasoning': False,
-        'vision': False,
-    },
-    'insight': {
-        # openai/gpt-oss-120b — a non-Nemotron flagship for a different
-        # "opinion". Its reasoning trace already comes back in a separate
-        # reasoning_content field on its own, even without the
-        # Nemotron-specific enable_thinking flag (which may not even apply
-        # to this model family) — so 'reasoning' stays False here too.
-        'id': 'openai/gpt-oss-120b',
-        'label': 'GPT-OSS',
-        'description': 'A different flagship model for a fresh perspective — good for a second opinion on tricky questions.',
-        'reasoning': False,
         'vision': False,
     },
     'vision': {
