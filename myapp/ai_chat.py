@@ -177,10 +177,15 @@ MODELS = {
         'vision': False,
     },
     'code': {
-        'id': 'meta/llama-3.1-70b-instruct',
+        # Matches NVIDIA's own model-recommendation guidance for coding —
+        # the same nano model as Quick/Light, not a separate "coder"
+        # checkpoint (none were accessible for this account; see the note
+        # above MODELS). Previously meta/llama-3.1-70b-instruct, which
+        # worked fine but wasn't what NVIDIA itself points to for this.
+        'id': 'nvidia/nemotron-3-nano-30b-a3b',
         'label': 'EduTrellis Code',
         'description': 'Tuned for coding, debugging, and technical questions.',
-        'reasoning': False,
+        'reasoning': True,
         'vision': False,
     },
     'vision': {
@@ -535,7 +540,7 @@ GITHUB_SELECT_FILE_CAP = 8   # files the model may ask to read per request
 
 
 def _github_llm_json(client, model_id, system, user_content):
-    resp = client.chat.completions.create(
+    kwargs = dict(
         model=model_id,
         messages=[{'role': 'system', 'content': system}, {'role': 'user', 'content': user_content}],
         temperature=0.2,
@@ -543,6 +548,13 @@ def _github_llm_json(client, model_id, system, user_content):
         max_tokens=4096,
         stream=False,
     )
+    if MODELS[GITHUB_MODEL_KEY]['reasoning']:
+        # Same reason as stream_chat(): a reasoning-capable Nemotron model
+        # dumps a hidden "Let me think..." preamble ahead of the actual
+        # reply unless this is set — which would otherwise break the
+        # strict json.loads() below, since that preamble isn't valid JSON.
+        kwargs['extra_body'] = {'chat_template_kwargs': {'enable_thinking': False, 'force_nonempty_content': True}}
+    resp = client.chat.completions.create(**kwargs)
     text = (resp.choices[0].message.content or '').strip()
     if text.startswith('```'):
         text = text.split('```', 2)[1]
