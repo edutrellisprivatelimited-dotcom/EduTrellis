@@ -14,7 +14,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from myapp.models import Order, OrderItem, Payment, Product, Review, StoreProfile
+from myapp.models import AI_SUBSCRIPTION_PRODUCT_SLUG, Order, OrderItem, Payment, Product, Review, StoreProfile
 
 DEMO_PASSWORD = '123456'
 
@@ -110,6 +110,33 @@ RC_PLANE_REVIEW_TEMPLATES = [
 ]
 
 
+AI_REVIEW_TEMPLATES = [
+    (5, "Been using this daily for debugging Python and JS — it catches mistakes I'd have spent an hour hunting down myself. Genuinely worth the Rs 99."),
+    (5, "Switched from a free chatbot to this mainly for the coding mode and it's been a massive upgrade. Explains errors clearly instead of just dumping a fix."),
+    (4, "Good for regular office work too — drafting emails, summarizing long documents, planning my week. Not just for developers."),
+    (5, "I write a lot of SQL queries for reports and this has saved me so much time. Rarely gets stuck on syntax issues."),
+    (5, "Unlimited messages is the real selling point — I was hitting the free limit every single day before subscribing."),
+    (4, "Solid for day-to-day coding help. Occasionally needs a follow-up question to get exactly what I want, but overall very reliable."),
+    (5, "Uploaded a screenshot of a broken layout and it spotted the CSS issue instantly. Vision mode is surprisingly accurate."),
+    (5, "Using it for both work and personal coding projects — from fixing bugs to explaining unfamiliar codebases. Worth subscribing."),
+    (3, "Decent for regular tasks but sometimes takes a couple of tries to get complex code right. Still better than most free tools I've tried."),
+    (5, "My go-to for regular work now — meeting notes, quick calculations, drafting messages. Feels like having an assistant on call."),
+    (5, "As a student learning to code, this has been incredibly patient explaining concepts step by step instead of just giving me the answer."),
+    (4, "Handles routine office tasks well — spreadsheet formulas, email drafts, quick research. Good value for the price."),
+    (5, "Debugged a tricky React state issue for me in minutes that I'd been stuck on for an hour. Subscribing was worth it just for that."),
+    (5, "I use it for everything from writing scripts to organizing my daily task list. The unlimited access makes it actually usable for work."),
+    (4, "Good coding assistant overall. Sometimes I have to double check the output but it gets me 90% of the way there quickly."),
+    (5, "Freelance developer here — this has basically become part of my workflow for reviewing code and writing documentation."),
+    (5, "Cheaper than other AI subscriptions I've tried and handles both my coding questions and regular admin work equally well."),
+    (5, "Great for quick regular work stuff — summarizing PDFs, replying to emails, planning my schedule — not just coding."),
+    (3, "Works well most of the time for coding help, with the occasional hiccup on very niche libraries, but support for common languages is solid."),
+    (5, "Been using EduTrellis Code mode for backend work — it remembers context from earlier in the conversation which saves a lot of re-explaining."),
+    (5, "Genuinely useful day to day — from debugging to writing quick reports for work. The subscription pays for itself within a week of regular use."),
+    (4, "Reliable for everyday coding and office tasks. Response time is quick even during work hours which matters when you're on a deadline."),
+    (5, "Best Rs 99 I spend every month. Between coding help and regular work tasks I probably send 50+ messages a day now without worrying about limits."),
+]
+
+
 def _spread_datetime(base_now, max_days_back=150):
     """A realistic, non-sequential timestamp somewhere in the last
     `max_days_back` days, at a random hour/minute — so a batch of reviews
@@ -133,7 +160,12 @@ def seed_product_reviews(product_id, count=56):
 
     count = min(count, len(REVIEWERS))
     reviewers = REVIEWERS[:count]
-    templates = RC_PLANE_REVIEW_TEMPLATES if 'plane' in product.name.lower() else REVIEW_TEMPLATES
+    if product.slug == AI_SUBSCRIPTION_PRODUCT_SLUG:
+        templates = AI_REVIEW_TEMPLATES
+    elif 'plane' in product.name.lower():
+        templates = RC_PLANE_REVIEW_TEMPLATES
+    else:
+        templates = REVIEW_TEMPLATES
     shuffled_templates = templates[:]
     random.shuffle(shuffled_templates)
 
