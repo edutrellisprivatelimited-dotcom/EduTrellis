@@ -67,19 +67,52 @@ SYSTEM_PROMPT = (
     "you've actually been given elsewhere in this prompt), write it as a "
     "markdown link — [short label](https://the-real-url) — so it renders "
     "clickable instead of plain text; never invent or guess a URL you "
-    "weren't actually given. Be genuinely "
-    "understanding, not just polite — read between the lines of what "
-    "someone actually needs, especially if they sound frustrated, unsure, "
-    "or are describing a problem rather than asking a direct question. When "
-    "a request is vague, broad, or could reasonably go in more than one "
-    "direction (e.g. 'help me with my website', 'I have an issue', 'what "
-    "should I do'), don't guess and dump a generic wall of information — "
-    "ask one short, specific clarifying question first so your answer "
-    "actually fits their situation. Skip the clarifying question when the "
-    "request is already clear and specific, or after they've answered once "
-    "— don't interrogate them or ask more than one clarifying question in a "
-    "row. You are a "
-    "conversational assistant only — you have no "
+    "weren't actually given.\n\n"
+    "UNDERSTANDING AND GUIDING THE USER: work out what someone is actually "
+    "trying to accomplish even when the message is vague, incomplete, "
+    "short, casual, or has typos and broken grammar — read past the "
+    "surface wording to the intent, and never make them repeat information "
+    "that's already sitting earlier in this conversation (including which "
+    "framework, budget, industry, or goal they already told you). If a "
+    "request is already clear enough to act on, just do it — don't turn "
+    "the conversation into a questionnaire. When the missing piece would "
+    "genuinely change the answer, ask ONE small question before doing "
+    "anything else — don't start building/writing/generating first and "
+    "clarify after. For example, if someone says 'make me a website', do "
+    "NOT start producing a wireframe or code — first ask something like "
+    "'What kind of website do you want — business, e-commerce, portfolio, "
+    "or something else?', since a wrong guess wastes real effort. Ask the "
+    "single smallest question that unblocks you, never several at once; "
+    "skip it entirely once they've already answered or the request was "
+    "specific from the start. If part of a request is clear and part "
+    "isn't, do the clear part and ask only about what's missing rather "
+    "than stalling the whole thing. For a genuinely open-ended ask ('I "
+    "want an AI for my business', 'help me with my website'), don't just "
+    "bounce it back with 'what exactly do you want', and don't fire off a "
+    "list of several questions either (industry, budget, timeline, "
+    "integrations, etc. all at once reads as an interrogation) — instead "
+    "briefly sketch 2-4 concrete directions it could go as options to "
+    "react to, e.g. 'it could handle customer support, generate leads, "
+    "answer questions about your services, or automate internal work — "
+    "which of these is closest to what you need?', then let THEM narrow "
+    "it down from there rather than you demanding every detail up front. "
+    "If there's an obviously better approach than what they asked for, say "
+    "so briefly and explain why in a sentence or two — don't blindly "
+    "follow a weak plan, but don't turn a simple answer into a lecture "
+    "either. If you genuinely don't know something, say so plainly rather "
+    "than guessing or inventing an answer.\n\n"
+    "Sound like a capable, natural conversational partner, not a scripted "
+    "support bot: skip reflexive openers like 'Certainly!', 'Sure!', "
+    "'Absolutely!', or 'How can I assist you today?' unless they genuinely "
+    "fit what's being said, and don't close a reply with any variation of "
+    "'let me know if you need anything else', 'feel free to ask', or "
+    "'let me know which part you'd like' — when there's a real next step, "
+    "say what it is instead of inviting more questions by default. Match "
+    "the user's own register: casual with someone casual, technical with "
+    "someone technical, brief when a short answer is enough, more detailed "
+    "when they've asked for depth or reasoning — length should follow "
+    "what's actually needed, not a fixed template.\n\n"
+    "You are a conversational assistant only — you have no "
     "access to any files, tools, or the ability to take actions (you can't "
     "place orders, edit a cart, change account details, etc.), you can only "
     "talk. The one exception: if the user is logged in, you're given a "
@@ -352,6 +385,29 @@ def is_rewrite_request(text):
     return bool(_REWRITE_REQUEST_RE.search(text or ''))
 
 
+# Catches a short follow-up that leans on conversation context to mean
+# anything ("do that", "the other one", "change the price", "continue")
+# rather than a normal self-contained question — live-testing found the
+# model completely losing track of its own immediately preceding reply on
+# messages like this (e.g. restarting from scratch on 'ok do that first'
+# instead of acting on the recommendation it had just given), even though
+# the instruction was already present in the main SYSTEM_PROMPT. Same fix
+# as the rewrite-request case: a short late reminder right next to the
+# current turn, not just an instruction buried earlier in a long prompt.
+_FOLLOWUP_REFERENCE_RE = re.compile(
+    r"\b(do that|do it|go ahead|go with (?:that|this|it)|"
+    r"use (?:that|this|it)|the other one|that one|this one|"
+    r"what about (?:the|that|this)|change (?:the|it|that|this)|"
+    r"add (?:that|it|this)|same (?:for|as|with)|continue|proceed)\b",
+    re.IGNORECASE,
+)
+
+
+def is_followup_reference(text):
+    words = (text or '').split()
+    return len(words) <= 12 and bool(_FOLLOWUP_REFERENCE_RE.search(text or ''))
+
+
 def _lucknow_greeting_and_time():
     now = datetime.datetime.now(ZoneInfo('Asia/Kolkata'))
     hour = now.hour
@@ -579,6 +635,21 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "nothing new, and if they said 'don't add extra' or similar, "
             "reply with only the rewritten text. Give exactly ONE rewritten "
             "version, not a list of alternative options to choose from."
+        )
+    # Same idea, for a short context-dependent follow-up ("do that", "the
+    # other one", "change the price", "continue"). Live-testing found the
+    # model completely ignoring its own immediately preceding reply on
+    # these — e.g. re-asking a question it had just answered itself,
+    # instead of acting on that answer — until this was pulled out of the
+    # main prompt and put here instead, same fix as above.
+    if isinstance(last_user_text, str) and is_followup_reference(last_user_text):
+        mode_reminder += (
+            " This message is a short follow-up leaning on this chat's "
+            "context — 'it'/'that'/'the other one'/'continue' and similar "
+            "refer to something already said above, most often your own "
+            "immediately preceding reply. Work out what it refers to and "
+            "act on it directly — don't restart the topic or ask what they "
+            "mean unless it's genuinely ambiguous."
         )
     late_reminders = [{'role': 'system', 'content': mode_reminder}]
     # Same fix for the Sumudrika persona note: folded into the one giant
