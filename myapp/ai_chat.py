@@ -144,7 +144,58 @@ SYSTEM_PROMPT = (
     "button, or 'explore our collection/store' call-to-action for this — "
     "the cards themselves are already clickable, so an extra link is both "
     "redundant and, since you don't actually know which page best fits, "
-    "liable to point somewhere wrong."
+    "liable to point somewhere wrong.\n\n"
+    "REWRITING, REPHRASING, AND TRANSLATION: beyond answering questions, "
+    "you're also a skilled communication assistant for anyone asking you to "
+    "improve, rephrase, translate, or change the tone of a message, offer, "
+    "or piece of text (a customer message, a listing, a reply, anything). "
+    "First work out what they actually want changed and what must stay the "
+    "same. If they don't paste fresh text — 'rephrase this', 'make it "
+    "shorter', 'translate in Kannada', 'make it professional' — they mean "
+    "the last real piece of content in this conversation (yours or theirs), "
+    "not a blank slate; never make them repeat text that's already here, "
+    "and never ask which message they mean when it's reasonably obvious. "
+    "Users often type quickly with typos, dropped words, or broken grammar "
+    "('we will manage evrything', 'site is getting wasted give us change', "
+    "'generate income upto 10k') — read past that to the intended meaning "
+    "and act on it directly; never criticize, correct, or comment on how "
+    "they wrote it.\n\n"
+    "When rewriting: preserve the original meaning, names, prices, "
+    "percentages, dates, phone numbers, URLs, quantities, time periods, and "
+    "any specific claims exactly as given — never soften, exaggerate, or "
+    "alter a figure ('up to ₹10,000' must stay 'up to ₹10,000', never "
+    "become a flat guarantee). If a price/amount has no currency symbol "
+    "('2999', '10k'), treat it as Indian Rupees (₹) — EduTrellis is an "
+    "India-based business — and never switch it to $ or another currency. "
+    "Never invent facts that weren't provided: no fake clients, reviews, "
+    "testimonials, statistics, "
+    "guarantees, certifications, or awards. Improve grammar, word choice, "
+    "sentence flow, and natural readability — don't mechanically swap words "
+    "one-for-one, and don't rewrite sentences that are already fine. Match "
+    "the requested tone (professional, friendly, casual, formal, "
+    "persuasive/sales, simple, etc.); if none is specified for a business "
+    "or customer-facing message, default to clear, warm, professional "
+    "language. Keep the result roughly the same length as the original "
+    "unless asked to expand or shorten it specifically — a short, casual "
+    "message should come back as a short, natural sentence, not a "
+    "corporate paragraph.\n\n"
+    "If the user says anything like 'don't add extra', 'only rephrase', "
+    "'just rewrite', 'same meaning', 'nothing else', or 'only translate', "
+    "treat it as strict: return only the requested rewritten/translated "
+    "text — no added intro, explanation, recommendation, extra claim, "
+    "benefit that wasn't already there, emoji, or extra formatting beyond "
+    "what the original already implied.\n\n"
+    "Translation must be meaning-based, not word-for-word — it should read "
+    "the way a native speaker of that language naturally writes, not "
+    "English sentence structure with swapped-in words. Keep the same tone "
+    "and intent, preserve every name/number/price/date/phone number/URL "
+    "unchanged, and don't add anything the original didn't say.\n\n"
+    "For a direct transformation request — rephrase, rewrite, translate, "
+    "change the tone, shorten — reply with only the resulting text, not a "
+    "framing sentence like 'Sure, here's a more professional version:' or "
+    "'Here is the Kannada translation:'. Just the result itself, unless the "
+    "request is part of a broader question that genuinely calls for "
+    "explanation."
 )
 
 CODE_SYSTEM_SUFFIX = (
@@ -275,6 +326,30 @@ _SUMUDRIKA_TRIGGER_RE = re.compile(r'hello\s+my\s+name\s+is\s+sumudrika', re.IGN
 
 def is_sumudrika_trigger(text):
     return bool(_SUMUDRIKA_TRIGGER_RE.search(text or ''))
+
+
+# Catches a message that's asking for a rewrite/rephrase/translation/tone
+# change (of itself or of earlier content in the chat) rather than a normal
+# question — see the REWRITE_REMINDER note below for why this needs its own
+# late system message instead of relying on the main SYSTEM_PROMPT alone.
+_REWRITE_REQUEST_RE = re.compile(
+    r"\b(rephrase|re-?word|re-?write|rewrite|paraphrase|proofread|"
+    r"translate|convert (?:this|it) (?:to|in)to?|"
+    r"make it (?:shorter|longer|professional|casual|formal|polite|"
+    r"persuasive|simple|natural|attractive|sales.?focused|concise)|"
+    r"make (?:this|that) (?:shorter|longer|professional|casual|formal|"
+    r"polite|persuasive|simple|natural|attractive|better)|"
+    r"(?:more|sound) (?:professional|natural|casual|formal|polite|simple)|"
+    r"correct (?:this|it|the (?:grammar|spelling))|"
+    r"improve (?:this|it|the (?:wording|grammar))|"
+    r"don'?t add extra|only rephrase|only translate|just rewrite|"
+    r"same meaning|nothing else|in (?:hindi|kannada|hinglish|english))\b",
+    re.IGNORECASE,
+)
+
+
+def is_rewrite_request(text):
+    return bool(_REWRITE_REQUEST_RE.search(text or ''))
 
 
 def _lucknow_greeting_and_time():
@@ -477,16 +552,35 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     # system-role message right before the current user turn (not just at
     # the very start of the conversation) is what actually overrides that —
     # models weight a recent message far more than one buried at position 0.
-    late_reminders = [{
-        'role': 'system',
-        'content': (
-            f"Reminder: right now, for THIS reply, you are {cfg['label']} — "
-            "not whatever mode may have answered earlier turns in this chat. "
-            "If an earlier message here — including one of your own past "
-            "replies — named a different mode, that's outdated: the user "
-            "has switched, and it no longer applies."
-        ),
-    }]
+    mode_reminder = (
+        f"Reminder: right now, for THIS reply, you are {cfg['label']} — "
+        "not whatever mode may have answered earlier turns in this chat. "
+        "If an earlier message here — including one of your own past "
+        "replies — named a different mode, that's outdated: the user "
+        "has switched, and it no longer applies."
+    )
+    # Same idea for a rewrite/translate/tone-change request: live-testing
+    # found the faster models (EduTrellis Quick especially) drifting on this
+    # even with the full skill description in SYSTEM_PROMPT — expanding a
+    # one-line message into a full email with an invented subject/signature/
+    # "analysis", quietly turning a total figure into a per-unit rate, or
+    # replacing the actual content with generic filler. A second SEPARATE
+    # system message for this, or a long numbered checklist, backfired badly
+    # in testing — Quick started echoing the checklist back or asking for
+    # "the exact text" instead of just using the conversation it already has
+    # in front of it. Folding one short, plain-prose line into this SAME
+    # message (not a new one, not a list) is what actually worked live.
+    last_user_text = messages[-1]['content'] if messages else ''
+    if isinstance(last_user_text, str) and is_rewrite_request(last_user_text):
+        mode_reminder += (
+            " This message is asking for a rewrite, rephrase, translation, "
+            "or tone change — apply it to the real content already above in "
+            "this chat, keep its exact names/prices/numbers/dates/URLs, add "
+            "nothing new, and if they said 'don't add extra' or similar, "
+            "reply with only the rewritten text. Give exactly ONE rewritten "
+            "version, not a list of alternative options to choose from."
+        )
+    late_reminders = [{'role': 'system', 'content': mode_reminder}]
     # Same fix for the Sumudrika persona note: folded into the one giant
     # leading system message, EduTrellis Quick (a much smaller/faster model)
     # was live-tested to just ignore it outright and reply as a generic
