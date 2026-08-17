@@ -35,7 +35,7 @@ from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
-    AIConversation, AIMessage, GitHubConnection,
+    AIConversation, AIMessage, GitHubConnection, AI_SUBSCRIPTION_PRODUCT_SLUG,
 )
 from myapp import dropbox_backup
 from myapp import ai_chat
@@ -950,6 +950,8 @@ def store_checkout(request):
         Payment.objects.create(order=order, method=Payment.METHOD_COD, status=pay_status, amount=total)
         payment_method = Payment.METHOD_COD
         _send_order_confirmation_email_async(order, payment_method, paid=(total <= 0))
+        if pay_status == Payment.STATUS_PAID:
+            order.maybe_grant_ai_subscription()
 
     return JsonResponse({
         'status': 'ok',
@@ -1000,6 +1002,7 @@ def store_razorpay_verify(request):
     payment.razorpay_payment_id = payload.get('razorpay_payment_id', '')
     payment.razorpay_signature = payload.get('razorpay_signature', '')
     payment.save(update_fields=['status', 'razorpay_payment_id', 'razorpay_signature'])
+    payment.order.maybe_grant_ai_subscription()
     _send_order_confirmation_email_async(payment.order, Payment.METHOD_RAZORPAY, paid=True)
     return JsonResponse({'status': 'ok'})
 
@@ -1403,6 +1406,7 @@ def dashboard_order_status_update(request, pk):
         if form.is_valid():
             form.save()
             order.maybe_credit_wallet()
+            order.maybe_grant_ai_subscription()
     return redirect('dashboard_orders')
 
 
@@ -1661,6 +1665,7 @@ AI_CHAT_MAX_MESSAGE_CHARS = 16000
 AI_CHAT_MAX_HISTORY = 50          # most recent saved messages sent to the model as context
 AI_CONVERSATION_TITLE_CHARS = 60
 AI_GUEST_MESSAGE_LIMIT = 6        # free messages before a guest must log in/sign up
+AI_FREE_MESSAGE_LIMIT = 20        # free messages for a logged-in, non-staff, unsubscribed account before EduTrellis AI requires the paid plan
 # ~1.5MB of raw image data as a base64 data: URI (~2M chars) — well under
 # Django's default 2.5MB DATA_UPLOAD_MAX_MEMORY_SIZE for the whole request
 # body, so an oversized image gets our own clean error instead of Django's
@@ -1772,12 +1777,26 @@ def ai_page(request):
         for key, cfg in ai_chat.MODELS.items() if key != 'vision'
     ]
     model_labels = {key: cfg['label'] for key, cfg in ai_chat.MODELS.items()}
+
+    ai_is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+    ai_subscribed = False
+    ai_free_used = 0
+    if request.user.is_authenticated and not ai_is_staff:
+        profile, _ = StoreProfile.objects.get_or_create(user=request.user)
+        ai_subscribed = profile.is_ai_subscribed
+        ai_free_used = profile.ai_free_messages_used
+
     return render(request, 'ai.html', {
         'ai_authenticated': request.user.is_authenticated,
         'ai_user': _user_payload(request.user) if request.user.is_authenticated else None,
         'ai_conversations': conversations,
         'ai_guest_limit': AI_GUEST_MESSAGE_LIMIT,
         'ai_guest_used': 0 if request.user.is_authenticated else request.session.get('ai_guest_msg_count', 0),
+        'ai_is_staff': ai_is_staff,
+        'ai_subscribed': ai_subscribed,
+        'ai_free_limit': AI_FREE_MESSAGE_LIMIT,
+        'ai_free_used': ai_free_used,
+        'ai_purchase_url': _ai_purchase_url(),
         'ai_models': models,
         'ai_default_model': ai_chat.DEFAULT_MODEL_KEY,
         'ai_default_model_label': model_labels[ai_chat.DEFAULT_MODEL_KEY],
@@ -1800,6 +1819,35 @@ def _format_wait_time(seconds):
         return f"{seconds} second{'s' if seconds != 1 else ''}"
     minutes = (seconds + 59) // 60
     return f"{minutes} minute{'s' if minutes != 1 else ''}"
+
+
+def _ai_purchase_url():
+    return f'/store/product/{AI_SUBSCRIPTION_PRODUCT_SLUG}/'
+
+
+def _ai_profile_gate(user):
+    """Returns None if `user` (already known to be authenticated) has
+    unrestricted EduTrellis AI access — staff, or an active paid
+    subscription — else the 403 JSON payload to send back once they've used
+    their free allotment. Staff never even touch the StoreProfile row here,
+    which is what gives every staff account (including admin@gmail.com)
+    unlimited messages and every model with no separate per-account
+    allowlist to maintain."""
+    if user.is_staff:
+        return None
+    profile, _ = StoreProfile.objects.get_or_create(user=user)
+    if profile.is_ai_subscribed:
+        return None
+    if profile.ai_free_messages_used >= AI_FREE_MESSAGE_LIMIT:
+        return {
+            'status': 'subscription_required',
+            'detail': (
+                f"You've used all {AI_FREE_MESSAGE_LIMIT} free EduTrellis AI messages. "
+                "Subscribe for Rs 99/month for unlimited messages on every model."
+            ),
+            'purchase_url': _ai_purchase_url(),
+        }
+    return None
 
 
 def ai_chat_send(request):
@@ -1885,6 +1933,10 @@ def ai_chat_send(request):
                 'status': 'login_required',
                 'detail': "You've reached the free message limit — log in or sign up to keep chatting. Your conversation is saved and will carry over.",
             }, status=403)
+    else:
+        gate = _ai_profile_gate(request.user)
+        if gate:
+            return JsonResponse(gate, status=403)
 
     owner_filter = _ai_owner_filter(request)
     conversation_id = payload.get('conversation_id')
@@ -1918,6 +1970,13 @@ def ai_chat_send(request):
 
     if not request.user.is_authenticated:
         request.session['ai_guest_msg_count'] = request.session.get('ai_guest_msg_count', 0) + 1
+    elif not request.user.is_staff:
+        # Only counts against the free-tier cap while unsubscribed — a
+        # subscribed account's messages shouldn't erode the free allotment
+        # that's waiting for them once the subscription lapses.
+        StoreProfile.objects.filter(user=request.user).exclude(
+            ai_subscription_until__gt=timezone.now(),
+        ).update(ai_free_messages_used=F('ai_free_messages_used') + 1)
 
     recent = list(
         conversation.messages.order_by('-created_at')

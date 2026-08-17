@@ -537,7 +537,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         <button type="button" id="sendBtn" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
       </div>
       <p class="attach-error" id="attachError" hidden></p>
-      {% if ai_authenticated %}
+      {% if ai_is_staff or ai_subscribed %}
       <p class="foot-note">Responses are AI-generated and may be inaccurate. Don't share sensitive personal information.</p>
       {% else %}
       <p class="guest-meter" id="guestMeter"></p>
@@ -554,6 +554,11 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   var AI_AUTHENTICATED = {% if ai_authenticated %}true{% else %}false{% endif %};
   var AI_GUEST_LIMIT = {{ ai_guest_limit|default:6 }};
   var AI_GUEST_USED = {{ ai_guest_used|default:0 }};
+  var AI_IS_STAFF = {% if ai_is_staff %}true{% else %}false{% endif %};
+  var AI_SUBSCRIBED = {% if ai_subscribed %}true{% else %}false{% endif %};
+  var AI_FREE_LIMIT = {{ ai_free_limit|default:20 }};
+  var AI_FREE_USED = {{ ai_free_used|default:0 }};
+  var AI_PURCHASE_URL = '{{ ai_purchase_url|default:"/store/" }}';
   var AI_DEFAULT_MODEL = '{{ ai_default_model|default:"ultra" }}';
   var MODEL_LABELS = JSON.parse(document.getElementById('boot-model-labels').textContent || '{}');
 
@@ -563,6 +568,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     conversations: JSON.parse(document.getElementById('boot-conversations').textContent || '[]'),
     streaming: false,
     guestUsed: AI_GUEST_USED,
+    freeUsed: AI_FREE_USED,
     gated: false,
   };
   // Persisted across page loads (not just the current tab, unlike
@@ -849,11 +855,19 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   }
 
   function updateGuestMeter(){
-    if (AI_AUTHENTICATED || !guestMeter) return;
-    var left = Math.max(0, AI_GUEST_LIMIT - state.guestUsed);
-    guestMeter.innerHTML = left + ' of ' + AI_GUEST_LIMIT + ' free messages left — <a href="#" id="guestMeterLogin">log in</a> to chat without limits and keep your history.';
-    var link = document.getElementById('guestMeterLogin');
-    if (link) link.addEventListener('click', function(e){ e.preventDefault(); showGate(); });
+    if (!guestMeter) return;
+    if (!AI_AUTHENTICATED) {
+      var left = Math.max(0, AI_GUEST_LIMIT - state.guestUsed);
+      guestMeter.innerHTML = left + ' of ' + AI_GUEST_LIMIT + ' free messages left — <a href="#" id="guestMeterLogin">log in</a> to chat without limits and keep your history.';
+      var link = document.getElementById('guestMeterLogin');
+      if (link) link.addEventListener('click', function(e){ e.preventDefault(); showGate(); });
+      return;
+    }
+    // Reached for a logged-in account that's neither staff nor subscribed
+    // (see footer conditional in ai.html) — staff/subscribed accounts get
+    // the plain foot-note instead and never see this element at all.
+    var freeLeft = Math.max(0, AI_FREE_LIMIT - state.freeUsed);
+    guestMeter.innerHTML = freeLeft + ' of ' + AI_FREE_LIMIT + ' free EduTrellis AI messages left — <a href="' + AI_PURCHASE_URL + '">subscribe for Rs 99/month</a> for unlimited access.';
   }
   updateGuestMeter();
 
@@ -1902,6 +1916,22 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     showGate({ text: input.value.trim(), image: stagedImage, document: stagedDocument });
   });
 
+  // ---- inline "subscribe to keep chatting" gate (free-tier cap hit) ----
+  function showPurchaseGate(detail){
+    if (state.gated) return;
+    state.gated = true;
+    setStreaming(state.streaming);
+    var wrap = document.createElement('div');
+    wrap.innerHTML = (
+      '<div class="gate-card" id="gateCard">' +
+        '<p>' + escHtml(detail || ('You\'ve used all ' + AI_FREE_LIMIT + ' free EduTrellis AI messages.')) + '</p>' +
+        '<a href="' + AI_PURCHASE_URL + '" class="auth-submit" style="display:block;text-decoration:none">Purchase Plan — Rs 99/month</a>' +
+      '</div>'
+    );
+    col.appendChild(wrap.firstChild);
+    scrollToBottom();
+  }
+
   function sendGithub(promptText){
     var text = (typeof promptText === 'string' ? promptText : input.value).trim();
     if (!text || state.streaming) return;
@@ -2013,6 +2043,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
             if (userRow) userRow.remove();
             setStreaming(false);
             showGate({ text: text, image: imageToSend, document: documentToSend });
+            return null;
+          }
+          if (body.status === 'subscription_required') {
+            stopBubbleTyping(bubble);
+            bubble.parentElement.remove();
+            if (userRow) userRow.remove();
+            setStreaming(false);
+            showPurchaseGate(body.detail);
             return null;
           }
           throw new Error(body.detail || 'Something went wrong — please try again.');

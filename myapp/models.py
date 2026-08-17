@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F
@@ -45,12 +47,24 @@ class StoreProfile(models.Model):
     email_verified = models.BooleanField(default=False)  # unused — verification moved to phone/SMS, see phone_verified
     phone_verified = models.BooleanField(default=False)
 
+    # EduTrellis AI subscription — buying the AI plan product (see
+    # AI_SUBSCRIPTION_PRODUCT_SLUG below) extends this instead of granting
+    # a boolean flag, so back-to-back renewals stack cleanly. Staff accounts
+    # bypass both the cap and this field entirely (see views._ai_profile_gate)
+    # rather than being modeled as a permanent subscription here.
+    ai_subscription_until = models.DateTimeField(null=True, blank=True, help_text="EduTrellis AI access is unlimited until this time. Blank/past = free tier.")
+    ai_free_messages_used = models.PositiveIntegerField(default=0, help_text="Free-tier EduTrellis AI messages sent so far (resets on each new subscription purchase).")
+
     class Meta:
         verbose_name = 'Store Customer Profile'
         verbose_name_plural = 'Store Customer Profiles'
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} ({self.phone})"
+
+    @property
+    def is_ai_subscribed(self):
+        return bool(self.ai_subscription_until and self.ai_subscription_until > timezone.now())
 
 
 class Category(models.Model):
@@ -370,6 +384,13 @@ class CartItem(models.Model):
 WALLET_OFFER_PRODUCT_ID = 'aud-metal'
 WALLET_OFFER_CREDIT = 100
 
+# Product id (matches Product.slug) for the EduTrellis AI monthly plan —
+# seeded automatically by migration 0034_seed_ai_subscription_product.
+# Buying it (see Order.maybe_grant_ai_subscription) extends the buyer's
+# StoreProfile.ai_subscription_until by this many days.
+AI_SUBSCRIPTION_PRODUCT_SLUG = 'edutrellis-ai-monthly'
+AI_SUBSCRIPTION_DAYS = 30
+
 
 class Order(models.Model):
     """A placed order, created from the cart at checkout. Product data is
@@ -396,6 +417,7 @@ class Order(models.Model):
     handling_fee           = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total                  = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     wallet_credit_applied  = models.BooleanField(default=False)
+    ai_subscription_granted = models.BooleanField(default=False)
 
     # Delivery address — snapshotted at checkout the same way OrderItem
     # snapshots product data, so a later profile edit never changes where an
@@ -465,6 +487,40 @@ class Order(models.Model):
         has_offer_product = self.items.filter(product_id=WALLET_OFFER_PRODUCT_ID).exists()
         if is_first_order and has_offer_product:
             StoreProfile.objects.filter(user=self.user).update(wallet_balance=F('wallet_balance') + WALLET_OFFER_CREDIT)
+
+    def maybe_grant_ai_subscription(self):
+        """Extends the buyer's EduTrellis AI subscription once this order's
+        AI-plan item (AI_SUBSCRIPTION_PRODUCT_SLUG) is actually paid for —
+        either an online payment that's cleared, or a COD order the admin
+        has marked Delivered (COD's own "paid" signal elsewhere in this
+        codebase, e.g. maybe_credit_wallet above). Extends from whichever is
+        later, now or the current expiry, so renewing early stacks instead
+        of wasting remaining days. Idempotent the same way as
+        maybe_credit_wallet — an atomic compare-and-swap on
+        ai_subscription_granted means a re-saved order status or a repeated
+        webhook call can't extend the subscription twice for one order."""
+        if self.ai_subscription_granted:
+            return
+        if not self.items.filter(product_id=AI_SUBSCRIPTION_PRODUCT_SLUG).exists():
+            return
+        payment = self.latest_payment
+        if not payment:
+            return
+        paid = payment.status == Payment.STATUS_PAID or (
+            payment.method == Payment.METHOD_COD and self.status == self.STATUS_DELIVERED
+        )
+        if not paid:
+            return
+        claimed = Order.objects.filter(pk=self.pk, ai_subscription_granted=False).update(ai_subscription_granted=True)
+        if not claimed:
+            return
+        self.ai_subscription_granted = True
+        profile, _ = StoreProfile.objects.get_or_create(user=self.user)
+        now = timezone.now()
+        base = profile.ai_subscription_until if profile.ai_subscription_until and profile.ai_subscription_until > now else now
+        profile.ai_subscription_until = base + timedelta(days=AI_SUBSCRIPTION_DAYS)
+        profile.ai_free_messages_used = 0
+        profile.save(update_fields=['ai_subscription_until', 'ai_free_messages_used'])
 
 
 class OrderItem(models.Model):
