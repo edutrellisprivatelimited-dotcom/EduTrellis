@@ -328,14 +328,28 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
      account chip / login button to the header's true right edge since it's
      the last flex child left in .hd-right. */
   .hd-back{display:none}
+  /* Stacked composer: on desktop the model/github/attach/camera/mic/send
+     controls share one row with the textarea, and as that row runs out of
+     width the controls get squeezed and wrap unevenly (model+github riding
+     up against the text, send button dropping to its own line) — reported
+     as "search is not responsive when adding more text". Forcing the
+     textarea onto its own full-width row (order:-1 + flex-basis:100% pins
+     it first and makes it the only thing that fits on that line, so
+     wrap:wrap pushes every other control onto a clean second row) and
+     letting the rest wrap together below reads much better on a phone:
+     type up top, controls in a toolbar underneath. */
+  .input-wrap{flex-wrap:wrap;align-items:center}
+  #chatInput{order:-1;flex:1 1 100%;width:100%;padding-bottom:.35rem}
+  #sendBtn{margin-left:auto}
 }
 @media (max-width:480px){
   /* up to six controls (model picker, github, attach, camera, mic, send)
-     plus the textarea share the composer row on a phone — the model picker
-     was the widest of them (a full text label in a pill), so it collapses
-     to a small icon + caret here, matching the row's other icon buttons,
-     and gives that space back to the textarea. Full model names still show
-     the moment the dropdown itself opens. */
+     share their own toolbar row below the textarea on a phone (see the
+     640px stacked-composer rule above) — the model picker is still the
+     widest of them (a full text label in a pill), so it collapses to a
+     small icon + caret here, matching the row's other icon buttons, so all
+     six fit on one line instead of wrapping to a third row. Full model
+     names still show the moment the dropdown itself opens. */
   .model-picker-btn{height:30px;padding:0 .5rem;gap:.25rem;border-radius:50px}
   .model-picker-icon{display:inline-flex;font-size:.78rem;color:var(--head)}
   .model-picker-btn #modelPickerLabel{display:none}
