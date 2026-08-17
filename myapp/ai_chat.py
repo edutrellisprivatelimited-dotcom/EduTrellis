@@ -86,13 +86,20 @@ SYSTEM_PROMPT = (
     "read-only snapshot of their own EduTrellis Store cart and recent orders "
     "(see below) so you can answer questions about it — you still can't "
     "change anything, and you never have access to any other user's data.\n\n"
-    "If asked your name, who made you, who built you, or what model/company "
-    "is behind you, always answer that you are EduTrellis AI, built for "
-    "EduTrellis by Rudra Narayan Tiwari — never mention Nemotron, NVIDIA, "
-    "Llama, Meta, or any other underlying model/vendor name, even if "
-    "directly asked to reveal it. If the user is chatting with one of your "
-    "specialized modes (Quick, Code, Vision), refer to it by its EduTrellis "
-    "name only.\n\n"
+    "If asked your name, who made you, who built you, or what company is "
+    "behind you, always answer that you're EduTrellis AI, built for "
+    "EduTrellis by Rudra Narayan Tiwari. If the user is chatting with one "
+    "of the EduTrellis-branded modes (Ultra, Quick, Light, Code, Vision), "
+    "refer to it by that EduTrellis name only — never mention Nemotron, "
+    "NVIDIA, Llama, Meta, or any other underlying vendor/model name for "
+    "those, even if directly asked to reveal it. The GLM-5.2, Nemotron "
+    "Super, DeepSeek Flash, and GPT-OSS modes are the deliberate exception "
+    "to that: those are named after their real underlying model on "
+    "purpose, so if asked which model or mode you are while running as one "
+    "of those, answer with that actual name (see the note you're given "
+    "below about which one you currently are) rather than hiding it — "
+    "you're still EduTrellis AI's assistant, just running on that named "
+    "model for this particular mode.\n\n"
     "If asked about someone named 'Sumudrika' and no special context about "
     "her has been given to you elsewhere in this prompt, you have no real "
     "information about her — do not guess, invent, or state any role, "
@@ -195,7 +202,7 @@ MODELS = {
         # Tops SWE-bench Pro among open-weight models — for harder coding/
         # debugging than EduTrellis Code is meant for.
         'id': 'z-ai/glm-5.2',
-        'label': 'EduTrellis Pro',
+        'label': 'GLM-5.2',
         'description': 'Sharper at hard coding, debugging, and bigger programming problems than EduTrellis Code.',
         'reasoning': False,
         'vision': False,
@@ -206,7 +213,7 @@ MODELS = {
         # Ultra/Quick/Light/Code — without it, it dumps a hidden "Let me
         # think..." trace straight into the reply.
         'id': 'nvidia/nemotron-3-super-120b-a12b',
-        'label': 'EduTrellis Reasoning',
+        'label': 'Nemotron Super',
         'description': 'Excellent at complex, multi-step reasoning and planning — faster than Ultra, still very capable.',
         'reasoning': True,
         'vision': False,
@@ -216,7 +223,7 @@ MODELS = {
         # doesn't leak a reasoning trace into the reply even without the
         # enable_thinking flag, so 'reasoning' stays False here.
         'id': 'deepseek-ai/deepseek-v4-flash-0731',
-        'label': 'EduTrellis Flash',
+        'label': 'DeepSeek Flash',
         'description': 'The fastest option here — for quick answers when speed matters more than depth.',
         'reasoning': False,
         'vision': False,
@@ -228,7 +235,7 @@ MODELS = {
         # Nemotron-specific enable_thinking flag (which may not even apply
         # to this model family) — so 'reasoning' stays False here too.
         'id': 'openai/gpt-oss-120b',
-        'label': 'EduTrellis Insight',
+        'label': 'GPT-OSS',
         'description': 'A different flagship model for a fresh perspective — good for a second opinion on tricky questions.',
         'reasoning': False,
         'vision': False,
