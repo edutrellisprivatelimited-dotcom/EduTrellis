@@ -8,7 +8,7 @@ catalog-style queries ("headphones", "bluetooth speaker under 2000").
 """
 from django.db.models import Q
 
-from myapp.light_mode import _keywords
+from myapp.light_mode import MAX_KEYWORDS_FOR_QUERY, _keywords
 from myapp.models import Product
 
 MAX_PRODUCTS = 4
@@ -43,7 +43,7 @@ def search_products(query, limit=MAX_PRODUCTS):
     landing in any of them (once the store's own name is filtered out
     above) is already a meaningful signal for a catalog-style query like
     "show me a speaker"."""
-    keywords = [kw for kw in _keywords(query) if kw not in _IGNORE_KEYWORDS]
+    keywords = [kw for kw in _keywords(query) if kw not in _IGNORE_KEYWORDS][:MAX_KEYWORDS_FOR_QUERY]
     if not keywords:
         return []
     variants_by_kw = {kw: _keyword_variants(kw) for kw in keywords}

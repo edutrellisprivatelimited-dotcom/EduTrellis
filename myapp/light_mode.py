@@ -12,6 +12,14 @@ from myapp import web_search
 from myapp.models import KnowledgeEntry
 
 MIN_KEYWORD_LEN = 3
+# A pasted code block or long document can yield hundreds of "keywords"
+# (every CSS class, JS identifier, etc), and each one adds branches to the
+# OR'd Q() built below — enough of them overflows SQLite's hard-coded
+# expression-tree depth limit (1000) and the query raises OperationalError.
+# Capping the keyword count keeps every real query's Q() tree small while
+# losing nothing in practice: a genuine question rarely has more than a
+# couple dozen meaningful keywords anyway.
+MAX_KEYWORDS_FOR_QUERY = 40
 KB_MAX_ENTRIES = 3
 KB_CONTEXT_MAX_CHARS = 4000
 WEB_CONTEXT_MAX_CHARS = 4000
@@ -42,7 +50,7 @@ def search_knowledge_base(query, user=None, session_key=''):
     THIS caller (matching user, or matching session_key for a guest) — a
     private entry from a file upload or someone's own account details is
     never visible to anyone else's search."""
-    keywords = _keywords(query)
+    keywords = _keywords(query)[:MAX_KEYWORDS_FOR_QUERY]
     if not keywords:
         return []
     q = Q()
