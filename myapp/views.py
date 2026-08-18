@@ -2214,6 +2214,8 @@ def ai_chat_send(request):
     # any AI call/streaming starts, and the same list is used both for the
     # header the browser reads immediately and for what gets saved below.
     matched_products = product_search.search_products(message) if message else []
+    if not matched_products and message and product_search.is_general_browse_request(message):
+        matched_products = product_search.browse_products()
     product_payloads = [_ai_product_card_payload(p) for p in matched_products]
 
     def event_stream():

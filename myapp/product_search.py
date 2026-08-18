@@ -6,6 +6,8 @@ doesn't exist). Same keyword-overlap idea as light_mode's knowledge-base
 search, just applied to the Product catalogue and tuned for shorter,
 catalog-style queries ("headphones", "bluetooth speaker under 2000").
 """
+import re
+
 from django.db.models import Q
 
 from myapp.light_mode import MAX_KEYWORDS_FOR_QUERY, _keywords
@@ -66,3 +68,31 @@ def search_products(query, limit=MAX_PRODUCTS):
 
     scored.sort(key=lambda pair: pair[1], reverse=True)
     return [p for p, _ in scored][:limit]
+
+
+# A generic "show me your products"/"what do you sell" ask has no specific
+# keyword to match against name/brand/description/tags/category, so
+# search_products() above correctly returns nothing for it — but the user
+# still asked to browse, and the assistant was live-tested telling them to
+# "take a look at the options below" with literally nothing rendered below.
+# This catches that specific shape of request so the caller can fall back
+# to a general product selection instead of an empty result.
+_GENERAL_BROWSE_RE = re.compile(
+    r"\b(show|see|list|browse)\b[^.!?]{0,25}\b(product|item|option|thing|"
+    r"catalog(?:ue)?)s?\b|"
+    r"\bwhat (?:do you (?:have|sell)|products? (?:do you have|(?:do )?you sell))\b|"
+    r"\b(all|your|the) products?\b|\bproduct listing\b|\bwhat'?s available\b|"
+    r"\b(e-?store|store) products\b",
+    re.IGNORECASE,
+)
+
+
+def is_general_browse_request(text):
+    return bool(_GENERAL_BROWSE_RE.search(text or ''))
+
+
+def browse_products(limit=MAX_PRODUCTS):
+    """Fallback for is_general_browse_request() — no keyword to rank by, so
+    just the store's normal display order (same one the estore page itself
+    uses)."""
+    return list(Product.objects.filter(is_active=True).select_related('category')[:limit])
