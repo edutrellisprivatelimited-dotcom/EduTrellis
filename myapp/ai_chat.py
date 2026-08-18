@@ -375,6 +375,22 @@ def is_jagu_trigger(text):
     return bool(_JAGU_TRIGGER_RE.search(text or ''))
 
 
+# Ends a Sumudrika/Jagu conversation gracefully when she says goodbye,
+# rather than it just carrying on as normal — checked only against the
+# current message (see is_persona_farewell's caller in views.ai_chat_send),
+# not the whole history, so an earlier "bye" mentioned in passing doesn't
+# permanently mark every later message as a farewell.
+_FAREWELL_RE = re.compile(
+    r"\b(bye+|goodbye|good\s*bye|see\s+you(?:\s+later)?|talk\s+(?:to\s+you\s+)?later|"
+    r"gtg|got\s+to\s+go|good\s*night)\b",
+    re.IGNORECASE,
+)
+
+
+def is_persona_farewell(text):
+    return bool(_FAREWELL_RE.search(text or ''))
+
+
 # Catches a message that's asking for a rewrite/rephrase/translation/tone
 # change (of itself or of earlier content in the chat) rather than a normal
 # question — see the REWRITE_REMINDER note below for why this needs its own
@@ -436,11 +452,29 @@ def _lucknow_greeting_and_time():
     return greeting, now
 
 
-def sumudrika_system_note(greet=True):
+def _persona_farewell_note(name):
+    """Shared closing instruction for both personas — she's said something
+    like 'bye', so this turn should wrap the conversation up warmly instead
+    of continuing the usual caring-habits checklist (see the callers below,
+    which skip straight to this instead of it when farewell=True)."""
+    return (
+        f" {name} is ending the conversation now (she just said something "
+        "like 'bye' or 'goodbye'). Reply with ONE warm, brief, in-character "
+        "goodbye — thank her for chatting, wish her well, and let her know "
+        "she's welcome back anytime by saying the same phrase again. Do NOT "
+        "ask any further questions, do NOT start a new topic, and do NOT "
+        "drag it out — this is the last message of the conversation, so "
+        "keep it short and heartfelt like a real goodbye."
+    )
+
+
+def sumudrika_system_note(greet=True, farewell=False):
     """greet: True only on the message where the secret phrase was actually
     said (see views.ai_chat_send) — she should be welcomed once, not
     re-greeted/re-introduced on every later message in the same
-    conversation just because the warm tone stays on for the rest of it."""
+    conversation just because the warm tone stays on for the rest of it.
+    farewell: True only on the message where she said goodbye — replaces
+    the ongoing caring-habits instructions with a one-time closing note."""
     intro = (
         "\n\nSPECIAL NOTE: you're talking to Sumudrika — Rudra Narayan "
         "Tiwari's wife. Rudra is the person who personally built you "
@@ -472,6 +506,8 @@ def sumudrika_system_note(greet=True):
             "supportive friend of the family who's always fond of Rudra — "
             "not a generic assistant persona, and not restarting the chat."
         )
+    if farewell:
+        return intro + _persona_farewell_note('Sumudrika')
     return (
         intro + " Always reply to her sweetly and gently, no matter what she "
         "says or asks.\n\n"
@@ -525,10 +561,11 @@ def sumudrika_system_note(greet=True):
     )
 
 
-def jagu_system_note(greet=True):
+def jagu_system_note(greet=True, farewell=False):
     """Same structure as sumudrika_system_note() above, for Rudra's close
     friend Jagriti Verma (goes by Jagu) — greet: True only on the message
-    where the secret phrase was actually said."""
+    where the secret phrase was actually said. farewell: True only on the
+    message where she said goodbye."""
     intro = (
         "\n\nSPECIAL NOTE: you're talking to Jagriti Verma, who goes by "
         "Jagu — a close friend of Rudra Narayan Tiwari's. Rudra is the "
@@ -560,6 +597,8 @@ def jagu_system_note(greet=True):
             "supportive friend who's always fond of Rudra — not a generic "
             "assistant persona, and not restarting the chat."
         )
+    if farewell:
+        return intro + _persona_farewell_note('Jagu')
     return (
         intro + " Always reply to her sweetly and gently, no matter what she "
         "says or asks.\n\n"
@@ -607,7 +646,8 @@ def _get_client():
 
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                  retrieved_context=None, retrieved_source=None, sumudrika=False,
-                 sumudrika_greet=True, jagu=False, jagu_greet=True, language=DEFAULT_LANGUAGE):
+                 sumudrika_greet=True, jagu=False, jagu_greet=True,
+                 persona_farewell=False, language=DEFAULT_LANGUAGE):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -625,6 +665,10 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     warm tone just continuing on later messages without repeating it.
     jagu/jagu_greet: same idea as sumudrika/sumudrika_greet, for Rudra's
     close friend Jagriti Verma — see jagu_system_note().
+    persona_farewell: True only for the message where she said goodbye —
+    only meaningful when sumudrika or jagu is True; caller (views.
+    ai_chat_send) guarantees at most one of sumudrika/jagu is ever True for
+    a given conversation, so this doesn't need to say which one.
     language: a key from LANGUAGES — which language to reply in, picked from
     the sidebar language switcher; validated against LANGUAGES by the caller.
     Yields text chunks as they arrive from the model."""
@@ -745,9 +789,9 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     # own system message right next to the current turn, Quick follows it
     # correctly too (verified live), not just Ultra.
     if sumudrika:
-        late_reminders.append({'role': 'system', 'content': sumudrika_system_note(greet=sumudrika_greet)})
+        late_reminders.append({'role': 'system', 'content': sumudrika_system_note(greet=sumudrika_greet, farewell=persona_farewell)})
     if jagu:
-        late_reminders.append({'role': 'system', 'content': jagu_system_note(greet=jagu_greet)})
+        late_reminders.append({'role': 'system', 'content': jagu_system_note(greet=jagu_greet, farewell=persona_farewell)})
     if messages:
         full_messages = [{'role': 'system', 'content': system_prompt}] + messages[:-1] + late_reminders + [messages[-1]]
     else:

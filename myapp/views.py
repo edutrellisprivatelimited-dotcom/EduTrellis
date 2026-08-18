@@ -2050,21 +2050,35 @@ def ai_chat_send(request):
     # every message. The greeting/introduction itself, though, should only
     # happen on the message where she actually said the phrase — not be
     # repeated on every later message just because the tone stays on.
-    is_sumudrika = any(
-        m['role'] == AIMessage.ROLE_USER and ai_chat.is_sumudrika_trigger(m['content'])
-        for m in recent
+    #
+    # Sumudrika and Jagu are deliberately mutually exclusive within one
+    # conversation — whichever trigger phrase appears EARLIEST wins and
+    # locks in for the rest of it, so a later "my name is jagu" mentioned
+    # mid-Sumudrika-conversation (or vice versa) can't make the model try
+    # to address two different people as the same "her" and get confused.
+    sumudrika_idx = next(
+        (i for i, m in enumerate(recent) if m['role'] == AIMessage.ROLE_USER and ai_chat.is_sumudrika_trigger(m['content'])),
+        None,
     )
-    is_sumudrika_greet = bool(recent) and recent[-1]['role'] == AIMessage.ROLE_USER \
-        and ai_chat.is_sumudrika_trigger(recent[-1]['content'])
+    jagu_idx = next(
+        (i for i, m in enumerate(recent) if m['role'] == AIMessage.ROLE_USER and ai_chat.is_jagu_trigger(m['content'])),
+        None,
+    )
+    if sumudrika_idx is not None and (jagu_idx is None or sumudrika_idx <= jagu_idx):
+        is_sumudrika, is_jagu = True, False
+    elif jagu_idx is not None:
+        is_sumudrika, is_jagu = False, True
+    else:
+        is_sumudrika, is_jagu = False, False
 
-    # Same easter egg mechanism, for Rudra's close friend Jagriti Verma
-    # ("Jagu") — see ai_chat.jagu_system_note().
-    is_jagu = any(
-        m['role'] == AIMessage.ROLE_USER and ai_chat.is_jagu_trigger(m['content'])
-        for m in recent
-    )
-    is_jagu_greet = bool(recent) and recent[-1]['role'] == AIMessage.ROLE_USER \
+    is_sumudrika_greet = is_sumudrika and recent[-1]['role'] == AIMessage.ROLE_USER \
+        and ai_chat.is_sumudrika_trigger(recent[-1]['content'])
+    is_jagu_greet = is_jagu and recent[-1]['role'] == AIMessage.ROLE_USER \
         and ai_chat.is_jagu_trigger(recent[-1]['content'])
+    # Checked only against the current message, not the whole history — see
+    # ai_chat.is_persona_farewell.
+    is_persona_farewell = (is_sumudrika or is_jagu) and bool(recent) \
+        and recent[-1]['role'] == AIMessage.ROLE_USER and ai_chat.is_persona_farewell(recent[-1]['content'])
 
     # The Sumudrika/Jagu personas depend on subtle instruction-following
     # (warm tone, correct pronouns, never fabricating a quote from Rudra)
@@ -2117,7 +2131,8 @@ def ai_chat_send(request):
                 clean_history, model_key=model_key, account_context=account_context,
                 retrieved_context=retrieved_context, retrieved_source=retrieved_source,
                 sumudrika=is_sumudrika, sumudrika_greet=is_sumudrika_greet,
-                jagu=is_jagu, jagu_greet=is_jagu_greet, language=language,
+                jagu=is_jagu, jagu_greet=is_jagu_greet,
+                persona_farewell=is_persona_farewell, language=language,
             ):
                 full_reply += chunk
                 yield chunk
@@ -2180,6 +2195,10 @@ def ai_chat_send(request):
     # is_sumudrika/is_jagu above, not just the one turn that said it).
     response['X-Sumudrika'] = '1' if is_sumudrika else ''
     response['X-Jagu'] = '1' if is_jagu else ''
+    # Tells the frontend this was her goodbye reply — lock the composer
+    # instead of showing the usual follow-up chips (see is_persona_farewell
+    # above; ai_chat.stream_chat was told to make this a closing message).
+    response['X-Persona-End'] = '1' if is_persona_farewell else ''
     # Base64'd so the header is always plain ASCII regardless of unicode in
     # a product name/brand — WSGI headers aren't guaranteed to survive raw
     # UTF-8. Empty string (not omitted) when there's nothing to show, so the

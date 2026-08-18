@@ -304,6 +304,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 .auth-error{font-size:.78rem;color:var(--red);min-height:1em;font-weight:600}
 .auth-submit{border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-weight:700;font-size:.88rem;padding:.75rem 0;border-radius:11px;margin-top:.2rem;transition:opacity .15s}
 .auth-submit:disabled{opacity:.55;cursor:default}
+/* .gate-card's own children (.auth-tabs/.auth-form) are flex, which is
+   what normally stretches .auth-submit to full width — the persona-end
+   card has no such wrapper, so it needs that spelled out explicitly. */
+.persona-end-card .auth-submit{display:block;width:100%;padding:.75rem 1rem}
 
 @media (max-width:880px){
   .sidebar-toggle{display:flex}
@@ -573,6 +577,8 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     guestUsed: AI_GUEST_USED,
     freeUsed: AI_FREE_USED,
     gated: false,
+    personaActive: false,
+    conversationEnded: false,
   };
   // Persisted across page loads (not just the current tab, unlike
   // sessionStorage) so a refresh reopens whatever conversation was showing
@@ -1093,7 +1099,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // rather than routing through the global col click-delegation, since
   // #suggestRow already owns .suggest-chip clicks there and this needs its
   // own row without double-binding either one.
-  var PERSONA_SUGGESTIONS = ['Who are you?', 'What does Rudra think of you?', 'I had a fight with Rudra.', 'I had a bad day.'];
+  var PERSONA_SUGGESTIONS = ['Who are you?', 'Do you know me?', 'What does Rudra think of me?', 'What is the relationship between Rudra and me?'];
   function renderPersonaSuggestions(){
     var wrap = document.createElement('div');
     wrap.className = 'suggest-row persona-suggest-row';
@@ -1109,6 +1115,48 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     scrollToBottom();
   }
 
+  // ---- ending a Sumudrika/Jagu conversation — she says goodbye (see
+  // X-Persona-End in send() below), or the chat goes quiet for a while ----
+  var PERSONA_INACTIVITY_MS = 5 * 60 * 1000;
+  var personaInactivityTimer = null;
+  function clearPersonaInactivityTimer(){
+    if (personaInactivityTimer) { clearTimeout(personaInactivityTimer); personaInactivityTimer = null; }
+  }
+  function armPersonaInactivityTimer(){
+    clearPersonaInactivityTimer();
+    personaInactivityTimer = setTimeout(function(){
+      if (!state.personaActive || state.conversationEnded || state.streaming) return;
+      endPersonaConversation("This conversation closed after 5 minutes without a reply.");
+    }, PERSONA_INACTIVITY_MS);
+  }
+  function endPersonaConversation(message){
+    if (state.conversationEnded) return;
+    state.conversationEnded = true;
+    state.personaActive = false;
+    clearPersonaInactivityTimer();
+    var wrap = document.createElement('div');
+    wrap.className = 'gate-card persona-end-card';
+    wrap.innerHTML = '<p>' + escHtml(message) + '</p>' +
+      '<button type="button" class="auth-submit persona-end-newchat">Start a new chat</button>';
+    wrap.querySelector('.persona-end-newchat').addEventListener('click', startNewChat);
+    col.appendChild(wrap);
+    scrollToBottom();
+    setStreaming(state.streaming);
+  }
+  function startNewChat(){
+    if (state.streaming) return;
+    stopSpeaking();
+    state.conversationEnded = false;
+    state.personaActive = false;
+    clearPersonaInactivityTimer();
+    setCurrentConversationId(null);
+    showEmptyState();
+    renderConvList();
+    closeSidebarMobile();
+    input.focus();
+    setStreaming(state.streaming);
+  }
+
   function showEmptyState(){
     col.innerHTML = EMPTY_STATE_HTML;
     emptyState = document.getElementById('emptyState');
@@ -1118,18 +1166,23 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   function setStreaming(on){
     state.streaming = on;
+    // Locked the same way a login/subscription gate locks it — see
+    // endPersonaConversation() below (Sumudrika/Jagu saying goodbye, or 5
+    // minutes of inactivity, ends the conversation the same way a guest
+    // hitting the free-message cap does).
+    var locked = state.gated || state.conversationEnded;
     // sendBtn stays enabled while generating — it becomes the Stop button,
     // not a disabled Send button, so there's actually something to click.
-    sendBtn.disabled = on ? false : state.gated;
+    sendBtn.disabled = on ? false : locked;
     sendBtn.classList.toggle('stop-mode', on);
     sendBtn.setAttribute('aria-label', on ? 'Stop generating' : 'Send');
     var sendIcon = sendBtn.querySelector('i');
     if (sendIcon) sendIcon.className = on ? 'fas fa-stop' : 'fas fa-arrow-up';
-    input.disabled = on || state.gated;
-    if (micBtn) micBtn.disabled = on || state.gated;
-    if (attachBtn) attachBtn.disabled = on || state.gated;
-    if (cameraBtn) cameraBtn.disabled = on || state.gated;
-    if (modelPickerBtn) modelPickerBtn.disabled = on || state.gated;
+    input.disabled = on || locked;
+    if (micBtn) micBtn.disabled = on || locked;
+    if (attachBtn) attachBtn.disabled = on || locked;
+    if (cameraBtn) cameraBtn.disabled = on || locked;
+    if (modelPickerBtn) modelPickerBtn.disabled = on || locked;
     applyGithubAvailability();
   }
 
@@ -1206,7 +1259,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   function applyGithubAvailability(){
     if (!githubBtn) return;
     var incompatible = GITHUB_DISABLED_MODELS.indexOf(currentModel) !== -1;
-    githubBtn.disabled = incompatible || state.streaming || state.gated;
+    githubBtn.disabled = incompatible || state.streaming || state.gated || state.conversationEnded;
     githubBtn.title = incompatible ? "Not available in EduTrellis Light mode — switch modes first" : 'GitHub';
     if (!incompatible) return;
     if (githubPanel) { githubPanel.hidden = true; }
@@ -1869,6 +1922,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   function loadConversation(id){
     if (state.streaming) return;
     stopSpeaking();
+    state.conversationEnded = false;
+    state.personaActive = false;
+    clearPersonaInactivityTimer();
     return fetch('/AI/api/conversations/' + id + '/', { credentials: 'same-origin' })
       .then(function(r){ return r.json(); })
       .then(function(data){
@@ -1883,6 +1939,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         renderConvList();
         closeSidebarMobile();
         scrollToBottom();
+        setStreaming(state.streaming);
       });
   }
 
@@ -1906,15 +1963,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     if (item) loadConversation(parseInt(item.getAttribute('data-id'), 10));
   });
 
-  newChatBtn.addEventListener('click', function(){
-    if (state.streaming) return;
-    stopSpeaking();
-    setCurrentConversationId(null);
-    showEmptyState();
-    renderConvList();
-    closeSidebarMobile();
-    input.focus();
-  });
+  newChatBtn.addEventListener('click', startNewChat);
 
   function openSidebarMobile(){ sidebar.classList.add('open'); sidebarBackdrop.classList.add('open'); }
   function closeSidebarMobile(){ sidebar.classList.remove('open'); sidebarBackdrop.classList.remove('open'); }
@@ -2108,6 +2157,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
   function send(promptText){
     if (state.gated) { showGate(); return; }
+    if (state.conversationEnded) return;
     if (state.githubMode) { sendGithub(promptText); return; }
     var text = (typeof promptText === 'string' ? promptText : input.value).trim();
     var imageToSend = stagedImage;
@@ -2128,6 +2178,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var matchedProducts = [];
     var isSumudrika = false;
     var isJagu = false;
+    var isPersonaEnd = false;
     // An attached image always gets auto-routed to Vision server-side
     // regardless of the picker (see views.ai_chat_send), so that takes
     // priority over whatever mode is currently selected.
@@ -2195,6 +2246,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       matchedProducts = decodeProductsHeader(resp.headers.get('X-Products'));
       isSumudrika = resp.headers.get('X-Sumudrika') === '1';
       isJagu = resp.headers.get('X-Jagu') === '1';
+      isPersonaEnd = resp.headers.get('X-Persona-End') === '1';
       if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
 
       if (!resp.body || !resp.body.getReader){
@@ -2234,7 +2286,16 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       if (isSumudrika || isJagu) {
         var speakBtn = bubble.querySelector('.msg-speak-btn');
         if (speakBtn) toggleSpeak(speakBtn, assistantText, true);
-        renderPersonaSuggestions();
+        if (isPersonaEnd) {
+          // She just said goodbye (see is_persona_farewell server-side) —
+          // her actual goodbye is the reply above; this just locks the
+          // composer instead of also showing follow-up chips.
+          endPersonaConversation('This conversation has ended.');
+        } else {
+          state.personaActive = true;
+          armPersonaInactivityTimer();
+          renderPersonaSuggestions();
+        }
       }
     }).catch(function(err){
       activeAbort = null;
