@@ -743,6 +743,12 @@ class AIConversation(models.Model):
     user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ai_conversations', null=True, blank=True)
     session_key = models.CharField(max_length=40, blank=True, db_index=True)
     title       = models.CharField(max_length=80, blank=True)
+    # Captured once at creation from the same IP-detection the chat rate
+    # limiter already uses — lets staff (see dashboard AI Activity) spot a
+    # repeat spammer across guest sessions/accounts sharing one connection,
+    # not just within one rate-limit window. Null when the request's IP
+    # couldn't be determined at all (never set to the literal 'unknown').
+    ip_address  = models.GenericIPAddressField(null=True, blank=True, db_index=True)
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now_add=True)
 
@@ -753,6 +759,36 @@ class AIConversation(models.Model):
 
     def __str__(self):
         return self.title or f"Conversation #{self.pk}"
+
+
+class AIBlock(models.Model):
+    """Staff-issued block against a repeat spammer on /AI/, checked on every
+    ai_chat_send call before anything else runs. Blocks by IP (works
+    against a guest, and stops a logged-out spammer from just signing up
+    again from the same connection) and/or by account (still works if their
+    IP changes) — either or both can be set; see dashboard AI Activity for
+    where these get created."""
+    ip_address = models.GenericIPAddressField(null=True, blank=True, db_index=True)
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='ai_blocks')
+    reason     = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'AI Block'
+        verbose_name_plural = 'AI Blocks'
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(ip_address__isnull=False) | models.Q(user__isnull=False),
+                name='aiblock_ip_or_user_required',
+            ),
+        ]
+
+    def __str__(self):
+        if self.user_id:
+            return f'Blocked account: {self.user.email or self.user.username}'
+        return f'Blocked IP: {self.ip_address}'
 
 
 class GitHubConnection(models.Model):

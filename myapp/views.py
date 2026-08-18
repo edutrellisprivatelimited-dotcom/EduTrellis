@@ -14,7 +14,7 @@ import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
-from django.db.models import Q, F
+from django.db.models import Q, F, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve, Resolver404
 from django.templatetags.static import static as static_url
@@ -35,7 +35,7 @@ from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
-    AIConversation, AIMessage, GitHubConnection, AI_SUBSCRIPTION_PRODUCT_SLUG,
+    AIConversation, AIMessage, AIBlock, GitHubConnection, AI_SUBSCRIPTION_PRODUCT_SLUG,
 )
 from myapp import dropbox_backup
 from myapp import ai_chat
@@ -1410,6 +1410,98 @@ def dashboard_ai_revoke(request, pk):
     return redirect('dashboard_ai_management')
 
 
+def _ai_activity_redirect(conversation_id):
+    if conversation_id:
+        try:
+            return redirect('dashboard_ai_activity_detail', pk=int(conversation_id))
+        except (TypeError, ValueError):
+            pass
+    return redirect('dashboard_ai_activity')
+
+
+@dashboard_staff_required
+def dashboard_ai_activity(request):
+    """Every AI conversation — who sent it (account or guest IP) and how
+    many messages — so staff can actually see a spam pattern (same IP or
+    account hammering the chat) instead of it sitting invisibly behind the
+    live rate limiter. See AIBlock / dashboard_ai_block for the
+    accompanying block tools."""
+    q = request.GET.get('q', '').strip()
+    conversations = (
+        AIConversation.objects.select_related('user')
+        .annotate(message_count=Count('messages'))
+        .order_by('-updated_at')
+    )
+    if q:
+        conversations = conversations.filter(
+            Q(user__email__icontains=q) | Q(user__username__icontains=q) |
+            Q(ip_address__icontains=q) | Q(title__icontains=q)
+        )
+    blocked_ips = set(AIBlock.objects.exclude(ip_address__isnull=True).values_list('ip_address', flat=True))
+    blocked_user_ids = set(AIBlock.objects.exclude(user__isnull=True).values_list('user_id', flat=True))
+    context = {
+        'active': 'ai_activity',
+        'conversations': conversations[:200],
+        'q': q,
+        'blocks': AIBlock.objects.select_related('user', 'created_by').order_by('-created_at'),
+        'blocked_ips': blocked_ips,
+        'blocked_user_ids': blocked_user_ids,
+    }
+    return render(request, 'dashboard/ai_activity.html', context)
+
+
+@dashboard_staff_required
+def dashboard_ai_activity_detail(request, pk):
+    conversation = get_object_or_404(AIConversation.objects.select_related('user'), pk=pk)
+    context = {
+        'active': 'ai_activity',
+        'conversation': conversation,
+        'ai_messages': conversation.messages.order_by('created_at'),
+        'is_ip_blocked': bool(conversation.ip_address) and AIBlock.objects.filter(ip_address=conversation.ip_address).exists(),
+        'is_user_blocked': bool(conversation.user_id) and AIBlock.objects.filter(user_id=conversation.user_id).exists(),
+    }
+    return render(request, 'dashboard/ai_activity_detail.html', context)
+
+
+@dashboard_staff_required
+def dashboard_ai_block(request):
+    if request.method == 'POST':
+        ip_address = request.POST.get('ip_address', '').strip()
+        user_id = request.POST.get('user_id', '').strip()
+        conversation_id = request.POST.get('conversation_id', '').strip()
+        reason = request.POST.get('reason', '').strip()
+        target_user = None
+        if user_id:
+            target_user = get_object_or_404(User, pk=user_id)
+            if target_user.is_staff or target_user.is_superuser:
+                messages.error(request, "Staff/admin accounts can't be blocked from here.")
+                return _ai_activity_redirect(conversation_id)
+        if not ip_address and not target_user:
+            messages.error(request, 'Nothing to block — no IP or account given.')
+        else:
+            block, created = AIBlock.objects.get_or_create(
+                ip_address=ip_address or None, user=target_user,
+                defaults={'reason': reason, 'created_by': request.user},
+            )
+            label = (target_user.email or target_user.username) if target_user else ip_address
+            if created:
+                messages.success(request, f'Blocked {label} from EduTrellis AI.')
+            else:
+                messages.error(request, f'{label} is already blocked.')
+        return _ai_activity_redirect(conversation_id)
+    return redirect('dashboard_ai_activity')
+
+
+@dashboard_staff_required
+def dashboard_ai_unblock(request, pk):
+    if request.method == 'POST':
+        block = get_object_or_404(AIBlock, pk=pk)
+        label = (block.user.email or block.user.username) if block.user_id else block.ip_address
+        block.delete()
+        messages.success(request, f'Unblocked {label}.')
+    return _ai_activity_redirect(request.POST.get('conversation_id', '').strip())
+
+
 @dashboard_staff_required
 def dashboard_contacts(request):
     q = request.GET.get('q', '').strip()
@@ -1977,6 +2069,19 @@ def ai_chat_send(request):
     # bit" — and so someone sending at a slow, steady trickle isn't kept
     # perpetually blocked by their own TTL renewing before it ever expires.
     ip = _client_ip(request)
+    # Staff-issued blocks (see dashboard AI Activity) — checked before the
+    # rate limiter below since a blocked spammer shouldn't even get to
+    # accrue against it. Staff are never checked, so a mistaken block can
+    # never accidentally lock out someone who can undo it.
+    if not (request.user.is_authenticated and request.user.is_staff):
+        block_filter = Q(ip_address=ip) if ip and ip != 'unknown' else Q(pk__isnull=True)
+        if request.user.is_authenticated:
+            block_filter |= Q(user=request.user)
+        if AIBlock.objects.filter(block_filter).exists():
+            return JsonResponse(
+                {'status': 'error', 'detail': "Your access to EduTrellis AI has been restricted. Contact support if you think this is a mistake."},
+                status=403,
+            )
     cache_key = f'ai_chat_rate:{ip}'
     now = time.time()
     window = cache.get(cache_key)
@@ -2066,10 +2171,11 @@ def ai_chat_send(request):
             return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     if conversation is None:
         title = message[:AI_CONVERSATION_TITLE_CHARS] if message else (document_name or 'Image')
+        conv_ip = ip if ip and ip != 'unknown' else None
         if request.user.is_authenticated:
-            conversation = AIConversation.objects.create(user=request.user, title=title)
+            conversation = AIConversation.objects.create(user=request.user, title=title, ip_address=conv_ip)
         else:
-            conversation = AIConversation.objects.create(session_key=request.session.session_key, title=title)
+            conversation = AIConversation.objects.create(session_key=request.session.session_key, title=title, ip_address=conv_ip)
 
     AIMessage.objects.create(
         conversation=conversation, role=AIMessage.ROLE_USER, content=message,
