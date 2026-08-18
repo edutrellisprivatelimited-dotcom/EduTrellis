@@ -121,6 +121,7 @@ main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem;background:radial-gradie
 .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:.6rem;padding:2rem 1rem;color:var(--text)}
 .empty-state p{font-size:.9rem;max-width:26rem}
 .suggest-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-top:.6rem;max-width:34rem}
+.sumudrika-suggest-row{margin:.2rem auto 0}
 .suggest-chip{font-size:.8rem;font-weight:600;color:var(--head);background:var(--bg-alt);border:1px solid var(--line);padding:.5rem .9rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s,transform .1s}
 .suggest-chip:hover{border-color:var(--red);color:var(--red)}
 .suggest-chip:active{transform:scale(.97)}
@@ -1086,6 +1087,27 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     }
   }
 
+  // Follow-up chips shown once, right after the Sumudrika easter egg
+  // replies — a fresh listener bound at creation time (like showGate's
+  // gate-card) rather than routing through the global col click-delegation,
+  // since #suggestRow already owns .suggest-chip clicks there and this
+  // needs its own row without double-binding either one.
+  var SUMUDRIKA_SUGGESTIONS = ['Who are you?', 'What does Rudra think of you?', 'I had a fight with Rudra.', 'I had a bad day.'];
+  function renderSumudrikaSuggestions(){
+    var wrap = document.createElement('div');
+    wrap.className = 'suggest-row sumudrika-suggest-row';
+    wrap.innerHTML = SUMUDRIKA_SUGGESTIONS.map(function(q){
+      return '<button type="button" class="suggest-chip" data-prompt="' + escHtml(q) + '">' + escHtml(q) + '</button>';
+    }).join('');
+    wrap.addEventListener('click', function(e){
+      var chip = e.target.closest('.suggest-chip');
+      if (!chip || state.streaming) return;
+      send(chip.getAttribute('data-prompt'));
+    });
+    col.appendChild(wrap);
+    scrollToBottom();
+  }
+
   function showEmptyState(){
     col.innerHTML = EMPTY_STATE_HTML;
     emptyState = document.getElementById('emptyState');
@@ -1679,6 +1701,26 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // browsers without it.
   var SPEECH_SYNTH_SUPPORTED = !!window.speechSynthesis;
   var SPEECH_LANG_MAP = { en: 'en-IN', hi: 'hi-IN', hinglish: 'en-IN' };
+  // Emoji + pictograph/symbol ranges (incl. skin-tone/ZWJ/variation-selector
+  // parts of multi-codepoint emoji) — read literally by most TTS voices as
+  // "grinning face" or similar, which is worse than just skipping them.
+  var EMOJI_RE = /[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu;
+  function sanitizeForSpeech(text){
+    return (text || '')
+      .replace(EMOJI_RE, '')
+      .replace(/```[\s\S]*?```/g, ' ')          // code blocks — not useful read aloud
+      .replace(/`([^`]+)`/g, '$1')               // inline code — keep the text, drop backticks
+      .replace(/^\s{0,3}#{1,6}\s+/gm, '')         // heading markers
+      .replace(/^\s*[-*•]\s+/gm, '')              // bullet markers
+      .replace(/^\s*\d+[.)]\s+/gm, '')            // numbered-list markers
+      .replace(/\*\*([^*]+)\*\*/g, '$1')          // **bold**
+      .replace(/__([^_]+)__/g, '$1')              // __bold__
+      .replace(/\*([^*]+)\*/g, '$1')              // *italic*
+      .replace(/~~([^~]+)~~/g, '$1')              // ~~strikethrough~~
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')    // [text](url) — read the label, not the URL
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
   var speakingBtn = null;
   function stopSpeaking(){
     if (SPEECH_SYNTH_SUPPORTED) window.speechSynthesis.cancel();
@@ -1689,7 +1731,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var wasSpeaking = btn === speakingBtn;
     stopSpeaking();
     if (wasSpeaking) return;
-    var utterance = new SpeechSynthesisUtterance(text);
+    var utterance = new SpeechSynthesisUtterance(sanitizeForSpeech(text));
     utterance.lang = SPEECH_LANG_MAP[currentLanguage] || 'en-IN';
     utterance.onend = function(){ if (speakingBtn === btn) stopSpeaking(); };
     utterance.onerror = function(){ if (speakingBtn === btn) stopSpeaking(); };
@@ -2045,6 +2087,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var assistantText = '';
     var answeredModelKey = null;
     var matchedProducts = [];
+    var isSumudrikaGreet = false;
     // An attached image always gets auto-routed to Vision server-side
     // regardless of the picker (see views.ai_chat_send), so that takes
     // priority over whatever mode is currently selected.
@@ -2106,6 +2149,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       if (newConvId) setCurrentConversationId(parseInt(newConvId, 10));
       answeredModelKey = resp.headers.get('X-Model-Key');
       matchedProducts = decodeProductsHeader(resp.headers.get('X-Products'));
+      isSumudrikaGreet = resp.headers.get('X-Sumudrika-Greet') === '1';
       if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
 
       if (!resp.body || !resp.body.getReader){
@@ -2138,6 +2182,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       scrollToBottom();
       input.focus();
       refreshConversations();
+      // Only on the exact turn where the trigger phrase was used — never
+      // for a normal reply, and not repeated on later turns of the same
+      // conversation (see is_sumudrika_greet in views.ai_chat_send).
+      if (isSumudrikaGreet) {
+        var speakBtn = bubble.querySelector('.msg-speak-btn');
+        if (speakBtn) toggleSpeak(speakBtn, assistantText);
+        renderSumudrikaSuggestions();
+      }
     }).catch(function(err){
       activeAbort = null;
       if (err && err.name === 'AbortError') {
