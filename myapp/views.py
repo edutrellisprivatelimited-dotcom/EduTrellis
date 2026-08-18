@@ -2226,6 +2226,7 @@ def ai_chat_send(request):
                 sumudrika=is_sumudrika, sumudrika_greet=is_sumudrika_greet,
                 jagu=is_jagu, jagu_greet=is_jagu_greet,
                 persona_farewell=is_persona_farewell, language=language,
+                has_product_matches=bool(matched_products),
             ):
                 full_reply += chunk
                 yield chunk

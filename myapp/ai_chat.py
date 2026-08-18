@@ -443,6 +443,26 @@ def is_followup_reference(text):
     return len(words) <= 12 and bool(_FOLLOWUP_REFERENCE_RE.search(text or ''))
 
 
+# Live-tested failure: EduTrellis Quick (and to a lesser extent other
+# models) sometimes treats "check the store"/"do you have X"/"is this
+# available" as a request to browse an external website and flatly refuses
+# ("I'm not able to access edutrellis.in or any other external store"),
+# even though SYSTEM_PROMPT already explains the Store catalogue search is
+# automatic, real-time, and part of this SAME site — that instruction just
+# sits too far from the current turn to reliably win out on a small/fast
+# model. Same late-system-message fix as the mode/rewrite/followup
+# reminders above.
+_STORE_CHECK_RE = re.compile(
+    r"\b(store|e-?store|shop|catalog(?:ue)?|in\s*stock|stock\b|available|"
+    r"do you (?:have|sell|stock)|price of|buy|purchase|product|order)\b",
+    re.IGNORECASE,
+)
+
+
+def is_store_check_request(text):
+    return bool(_STORE_CHECK_RE.search(text or ''))
+
+
 def _lucknow_greeting_and_time():
     now = datetime.datetime.now(ZoneInfo('Asia/Kolkata'))
     hour = now.hour
@@ -652,7 +672,8 @@ def _get_client():
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                  retrieved_context=None, retrieved_source=None, sumudrika=False,
                  sumudrika_greet=True, jagu=False, jagu_greet=True,
-                 persona_farewell=False, language=DEFAULT_LANGUAGE):
+                 persona_farewell=False, language=DEFAULT_LANGUAGE,
+                 has_product_matches=False):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -785,6 +806,32 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "immediately preceding reply. Work out what it refers to and "
             "act on it directly — don't restart the topic or ask what they "
             "mean unless it's genuinely ambiguous."
+        )
+    # Same idea for the "I can't access the store" failure mode described
+    # above is_store_check_request — fires either on the message text
+    # itself, or whenever the server already found real product matches for
+    # it (has_product_matches), since either way the model must not claim
+    # it can't reach the store.
+    if has_product_matches or (isinstance(last_user_text, str) and is_store_check_request(last_user_text)):
+        mode_reminder += (
+            " This message is about the EduTrellis Store's products or "
+            "catalogue. edutrellis.in/store is part of this SAME website "
+            "you're embedded in, not an external site or a different store "
+            "— you are NOT being asked to browse the internet. You already "
+            "have automatic, real-time access to its real product data (see "
+            "the SYSTEM_PROMPT instruction on this above): the system "
+            "searches the catalogue for what they described and shows any "
+            "real matches as clickable cards under your reply. Never say "
+            "you can't access edutrellis.in, the store, or any external "
+            "site/link. Just as important: you still don't see those cards "
+            "yourself or know exactly what matched, so do NOT list out "
+            "specific product names, prices, specs, or links in your own "
+            "reply text — even though you're being told a match was found, "
+            "naming your own guessed products/prices here would very likely "
+            "be wrong or duplicate the real cards. Talk about their need "
+            "naturally and close with something like 'take a look at the "
+            "options below' — the cards themselves show the real photo, "
+            "price, and link."
         )
     late_reminders = [{'role': 'system', 'content': mode_reminder}]
     # Same fix for the Sumudrika persona note: folded into the one giant
