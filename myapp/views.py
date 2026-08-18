@@ -29,7 +29,7 @@ from myapp.forms import (
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
-    FeeSettingsForm, GrantAISubscriptionForm,
+    FeeSettingsForm, GrantAISubscriptionForm, AddUserForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
@@ -1279,7 +1279,39 @@ def dashboard_signups(request):
             Q(first_name__icontains=q) | Q(last_name__icontains=q) |
             Q(store_profile__phone__icontains=q)
         )
-    return render(request, 'dashboard/signups.html', {'active': 'signups', 'users': users, 'q': q})
+    return render(request, 'dashboard/signups.html', {'active': 'signups', 'users': users, 'q': q, 'add_user_form': AddUserForm()})
+
+
+@dashboard_staff_required
+def dashboard_user_add(request):
+    """Manually create a customer account from the dashboard — used by both
+    the Signups page and AI Management (so staff can create someone to
+    grant AI premium to without them self-registering first)."""
+    next_url = request.POST.get('next', '')
+    if next_url not in ('dashboard_signups', 'dashboard_ai_management'):
+        next_url = 'dashboard_signups'
+    if request.method == 'POST':
+        form = AddUserForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['phone']
+            password = form.cleaned_data['password'] or secrets.token_urlsafe(9)
+            first_name, _, last_name = name.partition(' ')
+            user = User.objects.create_user(
+                username=email, email=email, password=password,
+                first_name=first_name, last_name=last_name,
+            )
+            StoreProfile.objects.create(user=user, phone=phone)
+            if form.cleaned_data['password']:
+                messages.success(request, f'Created account for {email}.')
+            else:
+                messages.success(request, f'Created account for {email} — temporary password: {password}')
+        else:
+            for errs in form.errors.values():
+                for error in errs:
+                    messages.error(request, error)
+    return redirect(next_url)
 
 
 @dashboard_staff_required
@@ -1339,6 +1371,7 @@ def dashboard_ai_management(request):
         'admins': admins,
         'now': now,
         'grant_form': GrantAISubscriptionForm(),
+        'add_user_form': AddUserForm(),
     }
     return render(request, 'dashboard/ai_management.html', context)
 

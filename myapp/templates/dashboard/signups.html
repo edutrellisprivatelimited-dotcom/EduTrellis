@@ -15,6 +15,42 @@
   <div class="flash {{ message.tags }}"><i class="fas {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i> {{ message }}</div>
 {% endfor %}
 
+<details class="panel add-user-panel">
+  <summary><i class="fas fa-user-plus"></i> Add user manually <i class="fas fa-chevron-down chevron"></i></summary>
+  <form method="post" action="{% url 'dashboard_user_add' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="dashboard_signups">
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label for="{{ add_user_form.name.id_for_label }}">Full name</label>
+        {{ add_user_form.name }}
+        {{ add_user_form.name.errors }}
+      </div>
+      <div class="form-group">
+        <label for="{{ add_user_form.email.id_for_label }}">Email</label>
+        {{ add_user_form.email }}
+        {{ add_user_form.email.errors }}
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label for="{{ add_user_form.phone.id_for_label }}">Phone</label>
+        {{ add_user_form.phone }}
+        {{ add_user_form.phone.errors }}
+      </div>
+      <div class="form-group">
+        <label for="{{ add_user_form.password.id_for_label }}">Password</label>
+        {{ add_user_form.password }}
+        <div class="help">{{ add_user_form.password.help_text }}</div>
+        {{ add_user_form.password.errors }}
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Create account</button>
+    </div>
+  </form>
+</details>
+
 <div class="panel">
   <div class="panel-head">
     <h3>{{ users|length }} customer{{ users|length|pluralize }}</h3>

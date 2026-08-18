@@ -32,6 +32,58 @@ class GrantAISubscriptionForm(forms.Form):
         return identifier
 
 
+class AddUserForm(forms.Form):
+    """Dashboard tool (used from both Signups and AI Management) for staff
+    to manually create a customer account — e.g. someone who signed up over
+    phone/WhatsApp, or so AI Management has an account to grant premium
+    access to without the customer self-registering first."""
+    name = forms.CharField(
+        max_length=120, required=True,
+        error_messages={'required': "Enter the customer's full name."},
+        widget=forms.TextInput(attrs={'placeholder': 'Full name'}),
+    )
+    email = forms.EmailField(
+        required=True,
+        error_messages={'required': 'Enter an email address.', 'invalid': 'Enter a valid email address.'},
+        widget=forms.EmailInput(attrs={'placeholder': 'customer@example.com'}),
+    )
+    phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={'placeholder': 'Optional'}))
+    password = forms.CharField(
+        max_length=128, required=False,
+        error_messages={'min_length': 'Password must be at least 6 characters.'},
+        widget=forms.TextInput(attrs={'placeholder': 'Leave blank to auto-generate'}),
+        help_text='Leave blank to auto-generate a random password.',
+    )
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        if len(name) < 2:
+            raise forms.ValidationError("Enter the customer's full name.")
+        return name
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone'].strip()
+        if phone:
+            digits = ''.join(ch for ch in phone if ch.isdigit())
+            if len(digits) < 10:
+                raise forms.ValidationError('Enter a valid phone number.')
+            if StoreProfile.objects.filter(phone=phone).exists():
+                raise forms.ValidationError('An account with this phone number already exists.')
+        return phone
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password', '')
+        if password and len(password) < 6:
+            raise forms.ValidationError('Password must be at least 6 characters.')
+        return password
+
+
 class ContactLeadForm(forms.Form):
     name = forms.CharField(
         max_length=120,

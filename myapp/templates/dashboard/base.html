@@ -64,6 +64,11 @@ a{color:inherit;text-decoration:none}
 .panel-search input{height:38px;border:1.5px solid var(--line);border-radius:50px;padding:0 1rem 0 2.4rem;font-family:inherit;font-size:.85rem;background:var(--bg-alt);width:220px}
 .panel-search input:focus{outline:none;border-color:var(--red)}
 .panel-search i{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:#9aa3b0;font-size:.85rem}
+.add-user-panel>summary{padding:1.1rem 1.4rem;cursor:pointer;list-style:none;font-weight:800;font-size:1rem;color:var(--head);display:flex;align-items:center;gap:.6rem}
+.add-user-panel>summary::-webkit-details-marker{display:none}
+.add-user-panel>summary .chevron{margin-left:auto;color:#9aa3b0;font-size:.8rem;transition:transform .2s}
+.add-user-panel[open]>summary .chevron{transform:rotate(180deg)}
+.add-user-panel>form{padding:0 1.4rem 1.4rem}
 
 .table-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
