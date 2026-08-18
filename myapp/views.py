@@ -248,6 +248,7 @@ def _product_payload(p):
         'icon': p.icon,
         'grad': p.gradient,
         'image': p.image.url if p.image else None,
+        'digital': p.is_digital,
         'gallery': gallery,
         'colors': [
             {'name': c.name, 'hex': c.hex_code, 'image': c.image.url if c.image else None}
@@ -875,11 +876,22 @@ def store_checkout(request):
     if not items:
         return JsonResponse({'status': 'error', 'detail': 'Your cart is empty.'}, status=400)
 
+    # A digital item (e.g. the EduTrellis AI subscription) has nothing to
+    # physically deliver, so Cash on Delivery — collected by a courier at
+    # the door — makes no sense for it. Blocks it outright rather than
+    # silently swapping to Razorpay, so the shopper knows why.
+    has_digital_item = Product.objects.filter(slug__in=[i.product_id for i in items], is_digital=True).exists()
+
     payload = _parse_json_body(request)
     use_wallet = bool(payload.get('use_wallet'))
     payment_method = payload.get('payment_method') or Payment.METHOD_COD
     if payment_method not in (Payment.METHOD_COD, Payment.METHOD_RAZORPAY):
         payment_method = Payment.METHOD_COD
+    if has_digital_item and payment_method == Payment.METHOD_COD:
+        return JsonResponse({
+            'status': 'error',
+            'detail': "Cash on Delivery isn't available for digital items in your cart — please pay online.",
+        }, status=400)
 
     address_form = CheckoutAddressForm(payload)
     if not address_form.is_valid():
@@ -901,6 +913,11 @@ def store_checkout(request):
     if payment_method == Payment.METHOD_RAZORPAY:
         razorpay_client, payment_settings = _razorpay_client()
         if razorpay_client is None:
+            if has_digital_item:
+                return JsonResponse({
+                    'status': 'error',
+                    'detail': "Online payment isn't available right now — please try again shortly.",
+                }, status=400)
             payment_method = Payment.METHOD_COD  # gateway not configured — fall back silently
 
     order = Order.objects.create(

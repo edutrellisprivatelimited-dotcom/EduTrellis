@@ -413,7 +413,8 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .x-btn:hover{border-color:var(--red);color:var(--red)}
 .cd-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem}
 .ci-row{display:flex;gap:.9rem;padding:.95rem 0;border-bottom:1px solid var(--line)}
-.ci-thumb{flex:none;width:60px;height:60px;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:1.15rem}
+.ci-thumb{flex:none;width:60px;height:60px;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:1.15rem;overflow:hidden}
+.ci-thumb img{width:100%;height:100%;object-fit:cover}
 .ci-mid{flex:1;min-width:0}
 .ci-mid h4{font-size:.88rem;font-weight:700;line-height:1.35}
 .ci-mid .u{font-size:.78rem;color:var(--text)}
@@ -2161,7 +2162,9 @@ function renderCart(){
   } else {
     $('#cartBody').innerHTML = lines.map(l => '' +
       '<div class="ci-row">' +
-        '<div class="ci-thumb" style="background:' + l.p.grad + '"><i class="fas ' + l.p.icon + '"></i></div>' +
+        '<div class="ci-thumb" style="background:' + l.p.grad + '">' +
+          (l.p.image ? '<img src="' + l.p.image + '" alt="' + l.p.name + '">' : '<i class="fas ' + l.p.icon + '"></i>') +
+        '</div>' +
         '<div class="ci-mid">' +
           '<h4>' + l.p.name + '</h4>' +
           '<div class="u">' + inr(l.p.price) + ' · ' + l.p.brand + '</div>' +
@@ -2194,13 +2197,20 @@ function renderCart(){
   else if (sub === 0)         hint.textContent = inr(state.wallet) + ' available for your next order';
   else if (state.useWallet)   hint.textContent = inr(disc) + ' applied to this order';
   else                        hint.textContent = 'Saved for later — switch on to use it';
+
+  renderPayMethods();
 }
 
 /* ---------- 8b. PAYMENT METHOD ---------- */
 function renderPayMethods(){
   const opts = [];
+  // A digital item (e.g. the EduTrellis AI subscription) has nothing to
+  // physically deliver, so Cash on Delivery — collected by a courier at
+  // the door — isn't a valid choice for it (see store_checkout's matching
+  // server-side check, which rejects COD for these carts either way).
+  const cartHasDigital = cartLines().some(l => l.p.digital);
   if (BOOT.payments && BOOT.payments.razorpay_enabled) opts.push(['razorpay', 'Pay online', 'fa-bolt']);
-  if (!BOOT.payments || BOOT.payments.cod_enabled || !opts.length) opts.push(['cod', 'Cash on delivery', 'fa-money-bill-wave']);
+  if (!cartHasDigital && (!BOOT.payments || BOOT.payments.cod_enabled || !opts.length)) opts.push(['cod', 'Cash on delivery', 'fa-money-bill-wave']);
   if (!opts.find(o => o[0] === state.paymentMethod)) state.paymentMethod = opts[0][0];
   $('#payMethods').innerHTML = opts.map(([val, label, icon]) =>
     '<label class="' + (state.paymentMethod === val ? 'on' : '') + '">' +
