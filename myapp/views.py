@@ -29,7 +29,7 @@ from myapp.forms import (
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
-    FeeSettingsForm,
+    FeeSettingsForm, GrantAISubscriptionForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
@@ -1315,6 +1315,66 @@ def dashboard_signup_delete(request, pk):
             target.delete()
             messages.success(request, 'Customer account deleted.')
     return redirect('dashboard_signups')
+
+
+@dashboard_staff_required
+def dashboard_ai_management(request):
+    """Lets staff see who has EduTrellis AI access and for how long, and
+    manually grant a customer premium access (see GrantAISubscriptionForm)
+    without them having to actually buy the plan — e.g. a comped account.
+    Deliberately separate from the Django-admin/dashboard-staff tier: this
+    only ever touches StoreProfile.ai_subscription_until, never
+    is_staff/is_superuser, so granting someone AI premium here can never
+    accidentally hand them dashboard or Django-admin access."""
+    now = timezone.now()
+    subscribers = (
+        StoreProfile.objects.filter(ai_subscription_until__isnull=False)
+        .select_related('user').order_by('-ai_subscription_until')
+    )
+    admins = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True)).select_related('store_profile').order_by('-date_joined')
+    context = {
+        'active': 'ai_management',
+        'subscribers': subscribers,
+        'active_subscriber_count': subscribers.filter(ai_subscription_until__gt=now).count(),
+        'admins': admins,
+        'now': now,
+        'grant_form': GrantAISubscriptionForm(),
+    }
+    return render(request, 'dashboard/ai_management.html', context)
+
+
+@dashboard_staff_required
+def dashboard_ai_grant(request):
+    if request.method == 'POST':
+        form = GrantAISubscriptionForm(request.POST)
+        if form.is_valid():
+            target_user = form.matched_user
+            days = form.cleaned_data['days']
+            profile, _ = StoreProfile.objects.get_or_create(user=target_user)
+            profile.ai_subscription_until = timezone.now() + timedelta(days=days)
+            profile.ai_free_messages_used = 0
+            profile.save(update_fields=['ai_subscription_until', 'ai_free_messages_used'])
+            messages.success(
+                request,
+                f"Granted {target_user.email or target_user.username} EduTrellis AI premium access "
+                f"until {timezone.localtime(profile.ai_subscription_until):%d %b %Y}.",
+            )
+        else:
+            for error in form.errors.get('identifier', []):
+                messages.error(request, error)
+            for error in form.errors.get('days', []):
+                messages.error(request, error)
+    return redirect('dashboard_ai_management')
+
+
+@dashboard_staff_required
+def dashboard_ai_revoke(request, pk):
+    if request.method == 'POST':
+        profile = get_object_or_404(StoreProfile, pk=pk)
+        profile.ai_subscription_until = None
+        profile.save(update_fields=['ai_subscription_until'])
+        messages.success(request, f'Revoked EduTrellis AI premium access for {profile.user.email or profile.user.username}.')
+    return redirect('dashboard_ai_management')
 
 
 @dashboard_staff_required

@@ -1,11 +1,35 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils.text import slugify
 
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor, StoreProfile,
     AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings, FeeSettings,
 )
+
+
+class GrantAISubscriptionForm(forms.Form):
+    """Dashboard tool (AI Management) for staff to manually grant a
+    customer EduTrellis AI premium access — the same ai_subscription_until
+    field a real Order.maybe_grant_ai_subscription() purchase sets, just
+    driven by an admin instead of a payment. Looked up by email/username
+    rather than a dropdown since the store can have dozens of accounts."""
+    identifier = forms.CharField(
+        max_length=254, label='Customer email or username',
+        widget=forms.TextInput(attrs={'placeholder': 'e.g. customer@example.com'}),
+    )
+    days = forms.IntegerField(
+        label='Access duration (days)', min_value=1, max_value=3650, initial=365,
+        help_text='365 = 1 year, 30 = 1 month.',
+    )
+
+    def clean_identifier(self):
+        identifier = self.cleaned_data['identifier'].strip()
+        self.matched_user = User.objects.filter(Q(email__iexact=identifier) | Q(username__iexact=identifier)).first()
+        if not self.matched_user:
+            raise forms.ValidationError(f'No account found for "{identifier}".')
+        return identifier
 
 
 class ContactLeadForm(forms.Form):
