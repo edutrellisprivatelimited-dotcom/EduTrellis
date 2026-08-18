@@ -121,7 +121,7 @@ main{flex:1;overflow-y:auto;padding:1.5rem 1.25rem 1rem;background:radial-gradie
 .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:.6rem;padding:2rem 1rem;color:var(--text)}
 .empty-state p{font-size:.9rem;max-width:26rem}
 .suggest-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-top:.6rem;max-width:34rem}
-.sumudrika-suggest-row{margin:.2rem auto 0}
+.persona-suggest-row{margin:.2rem auto 0}
 .suggest-chip{font-size:.8rem;font-weight:600;color:var(--head);background:var(--bg-alt);border:1px solid var(--line);padding:.5rem .9rem;border-radius:50px;cursor:pointer;transition:border-color .15s,color .15s,transform .1s}
 .suggest-chip:hover{border-color:var(--red);color:var(--red)}
 .suggest-chip:active{transform:scale(.97)}
@@ -634,7 +634,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     if (speakBtn) {
       var speakBubble = speakBtn.closest('.msg-bubble');
       var speakText = speakBubble && speakBubble.dataset.rawText;
-      if (speakText) toggleSpeak(speakBtn, speakText, speakBubble.dataset.sumudrika === '1');
+      if (speakText) toggleSpeak(speakBtn, speakText, speakBubble.dataset.persona === '1');
     }
   });
   var emptyState = document.getElementById('emptyState');
@@ -1087,16 +1087,17 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     }
   }
 
-  // Follow-up chips shown once, right after the Sumudrika easter egg
-  // replies — a fresh listener bound at creation time (like showGate's
-  // gate-card) rather than routing through the global col click-delegation,
-  // since #suggestRow already owns .suggest-chip clicks there and this
-  // needs its own row without double-binding either one.
-  var SUMUDRIKA_SUGGESTIONS = ['Who are you?', 'What does Rudra think of you?', 'I had a fight with Rudra.', 'I had a bad day.'];
-  function renderSumudrikaSuggestions(){
+  // Follow-up chips shown after every reply from either personal easter
+  // egg (Sumudrika or Jagu, see isSumudrika/isJagu in send() below) — a
+  // fresh listener bound at creation time (like showGate's gate-card)
+  // rather than routing through the global col click-delegation, since
+  // #suggestRow already owns .suggest-chip clicks there and this needs its
+  // own row without double-binding either one.
+  var PERSONA_SUGGESTIONS = ['Who are you?', 'What does Rudra think of you?', 'I had a fight with Rudra.', 'I had a bad day.'];
+  function renderPersonaSuggestions(){
     var wrap = document.createElement('div');
-    wrap.className = 'suggest-row sumudrika-suggest-row';
-    wrap.innerHTML = SUMUDRIKA_SUGGESTIONS.map(function(q){
+    wrap.className = 'suggest-row persona-suggest-row';
+    wrap.innerHTML = PERSONA_SUGGESTIONS.map(function(q){
       return '<button type="button" class="suggest-chip" data-prompt="' + escHtml(q) + '">' + escHtml(q) + '</button>';
     }).join('');
     wrap.addEventListener('click', function(e){
@@ -2126,6 +2127,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var answeredModelKey = null;
     var matchedProducts = [];
     var isSumudrika = false;
+    var isJagu = false;
     // An attached image always gets auto-routed to Vision server-side
     // regardless of the picker (see views.ai_chat_send), so that takes
     // priority over whatever mode is currently selected.
@@ -2146,7 +2148,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       // Remembered on the bubble itself so a manual replay via Listen later
       // (not just the auto-play right after this reply) still picks the
       // Indian-female voice — see the .msg-speak-btn click handler above.
-      if (isSumudrika) bubble.dataset.sumudrika = '1';
+      if (isSumudrika || isJagu) bubble.dataset.persona = '1';
     }
 
     fetch('/AI/api/send/', {
@@ -2192,6 +2194,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       answeredModelKey = resp.headers.get('X-Model-Key');
       matchedProducts = decodeProductsHeader(resp.headers.get('X-Products'));
       isSumudrika = resp.headers.get('X-Sumudrika') === '1';
+      isJagu = resp.headers.get('X-Jagu') === '1';
       if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
 
       if (!resp.body || !resp.body.getReader){
@@ -2224,13 +2227,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       scrollToBottom();
       input.focus();
       refreshConversations();
-      // Every reply once the trigger phrase has appeared anywhere in this
-      // conversation — never for a normal reply (see is_sumudrika in
-      // views.ai_chat_send, which drives the X-Sumudrika header).
-      if (isSumudrika) {
+      // Every reply once either trigger phrase has appeared anywhere in
+      // this conversation — never for a normal reply (see is_sumudrika/
+      // is_jagu in views.ai_chat_send, which drive the X-Sumudrika/X-Jagu
+      // headers).
+      if (isSumudrika || isJagu) {
         var speakBtn = bubble.querySelector('.msg-speak-btn');
         if (speakBtn) toggleSpeak(speakBtn, assistantText, true);
-        renderSumudrikaSuggestions();
+        renderPersonaSuggestions();
       }
     }).catch(function(err){
       activeAbort = null;

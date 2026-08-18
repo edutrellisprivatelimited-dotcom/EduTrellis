@@ -2057,16 +2057,26 @@ def ai_chat_send(request):
     is_sumudrika_greet = bool(recent) and recent[-1]['role'] == AIMessage.ROLE_USER \
         and ai_chat.is_sumudrika_trigger(recent[-1]['content'])
 
-    # The Sumudrika persona depends on subtle instruction-following (warm
-    # tone, correct pronouns, never fabricating a quote from Rudra) that
-    # live-testing showed the smaller/faster modes don't reliably deliver —
-    # EduTrellis Quick (the site default) was caught inventing fake quotes
-    # attributed to Rudra and misgendering him. This is a rare, low-volume,
-    # personally-important conversation, so correctness wins over speed/cost
-    # here: force EduTrellis Ultra once triggered, regardless of whatever
-    # mode was actually selected — except when an image is attached this
-    # turn, since Ultra has no vision capability and that has to win.
-    if is_sumudrika and model_key != 'vision':
+    # Same easter egg mechanism, for Rudra's close friend Jagriti Verma
+    # ("Jagu") — see ai_chat.jagu_system_note().
+    is_jagu = any(
+        m['role'] == AIMessage.ROLE_USER and ai_chat.is_jagu_trigger(m['content'])
+        for m in recent
+    )
+    is_jagu_greet = bool(recent) and recent[-1]['role'] == AIMessage.ROLE_USER \
+        and ai_chat.is_jagu_trigger(recent[-1]['content'])
+
+    # The Sumudrika/Jagu personas depend on subtle instruction-following
+    # (warm tone, correct pronouns, never fabricating a quote from Rudra)
+    # that live-testing showed the smaller/faster modes don't reliably
+    # deliver — EduTrellis Quick (the site default) was caught inventing
+    # fake quotes attributed to Rudra and misgendering him. These are rare,
+    # low-volume, personally-important conversations, so correctness wins
+    # over speed/cost here: force EduTrellis Ultra once triggered,
+    # regardless of whatever mode was actually selected — except when an
+    # image is attached this turn, since Ultra has no vision capability and
+    # that has to win.
+    if (is_sumudrika or is_jagu) and model_key != 'vision':
         model_key = 'ultra'
 
     # EduTrellis Light: check the saved knowledge base first (free, no
@@ -2106,7 +2116,8 @@ def ai_chat_send(request):
             for chunk in ai_chat.stream_chat(
                 clean_history, model_key=model_key, account_context=account_context,
                 retrieved_context=retrieved_context, retrieved_source=retrieved_source,
-                sumudrika=is_sumudrika, sumudrika_greet=is_sumudrika_greet, language=language,
+                sumudrika=is_sumudrika, sumudrika_greet=is_sumudrika_greet,
+                jagu=is_jagu, jagu_greet=is_jagu_greet, language=language,
             ):
                 full_reply += chunk
                 yield chunk
@@ -2142,11 +2153,12 @@ def ai_chat_send(request):
                 # file/image attached, or whose answer touched this user's
                 # own account details, is still saved — just scoped private
                 # to them (see light_mode.save_from_chat) instead of shared.
-                # Skipped for the sumudrika easter egg — that reply is warm,
-                # personal content about Rudra and his wife, never something
-                # worth remembering as a reusable "fact". Never blocks or
-                # fails the actual chat reply if this errors.
-                if not is_sumudrika:
+                # Skipped for the sumudrika/jagu easter eggs — those replies
+                # are warm, personal content about Rudra and the people
+                # close to him, never something worth remembering as a
+                # reusable "fact". Never blocks or fails the actual chat
+                # reply if this errors.
+                if not is_sumudrika and not is_jagu:
                     try:
                         light_mode.save_from_chat(
                             message, full_reply, account_context=account_context,
@@ -2162,11 +2174,12 @@ def ai_chat_send(request):
     response['X-Accel-Buffering'] = 'no'
     response['X-Conversation-Id'] = str(conversation.id)
     response['X-Model-Key'] = model_key
-    # Tells the frontend to auto-play this reply and show the
-    # Sumudrika-specific follow-up chips — true for every turn once the
-    # trigger phrase has appeared anywhere in the conversation (same scope
-    # as is_sumudrika above, not just the one turn that said it).
+    # Tells the frontend to auto-play this reply and show the persona
+    # follow-up chips — true for every turn once the matching trigger
+    # phrase has appeared anywhere in the conversation (same scope as
+    # is_sumudrika/is_jagu above, not just the one turn that said it).
     response['X-Sumudrika'] = '1' if is_sumudrika else ''
+    response['X-Jagu'] = '1' if is_jagu else ''
     # Base64'd so the header is always plain ASCII regardless of unicode in
     # a product name/brand — WSGI headers aren't guaranteed to survive raw
     # UTF-8. Empty string (not omitted) when there's nothing to show, so the

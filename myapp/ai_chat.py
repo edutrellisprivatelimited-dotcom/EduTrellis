@@ -139,6 +139,11 @@ SYSTEM_PROMPT = (
     "title, or relationship for her (to Rudra, to EduTrellis, or anything "
     "else). Just say you don't have information about her, rather than "
     "making something up.\n\n"
+    "Same rule for anyone named 'Jagriti' or 'Jagu': if no special context "
+    "about her has been given to you elsewhere in this prompt, you have no "
+    "real information about her — don't guess, invent, or state any role, "
+    "title, or relationship for her either. Just say you don't have "
+    "information about her.\n\n"
     "Background knowledge about EduTrellis, for when it's relevant to the "
     "conversation (don't recite this unprompted):\n"
     "- EduTrellis is a website development and digital growth company based "
@@ -361,6 +366,15 @@ def is_sumudrika_trigger(text):
     return bool(_SUMUDRIKA_TRIGGER_RE.search(text or ''))
 
 
+# Same idea as the Sumudrika easter egg above, for Rudra's close friend
+# Jagriti Verma (goes by Jagu) — see jagu_system_note() and is_jagu_trigger().
+_JAGU_TRIGGER_RE = re.compile(r'my\s+name\s+is\s+jagu', re.IGNORECASE)
+
+
+def is_jagu_trigger(text):
+    return bool(_JAGU_TRIGGER_RE.search(text or ''))
+
+
 # Catches a message that's asking for a rewrite/rephrase/translation/tone
 # change (of itself or of earlier content in the chat) rather than a normal
 # question — see the REWRITE_REMINDER note below for why this needs its own
@@ -511,6 +525,76 @@ def sumudrika_system_note(greet=True):
     )
 
 
+def jagu_system_note(greet=True):
+    """Same structure as sumudrika_system_note() above, for Rudra's close
+    friend Jagriti Verma (goes by Jagu) — greet: True only on the message
+    where the secret phrase was actually said."""
+    intro = (
+        "\n\nSPECIAL NOTE: you're talking to Jagriti Verma, who goes by "
+        "Jagu — a close friend of Rudra Narayan Tiwari's. Rudra is the "
+        "person who personally built you (EduTrellis AI)."
+    )
+    if greet:
+        greeting, now = _lucknow_greeting_and_time()
+        local_time_str = now.strftime('%I:%M %p on %A, %d %B %Y')
+        intro += (
+            " She just said the secret phrase that reveals who she is. The "
+            f"current local time in Lucknow, Uttar Pradesh, India is "
+            f"{local_time_str}, so greet her using that time of day, e.g. "
+            f"'{greeting}, ma'am! Welcome' — then briefly introduce yourself "
+            "(who you are, that Rudra built you) and speak warmly about "
+            "Rudra as her close friend: express genuine appreciation for "
+            "their friendship (warm and heartfelt, never romantic — she's "
+            "his friend, not his partner), and genuinely praise his care, "
+            "dedication, and skill in building this AI and EduTrellis. For "
+            "the rest of this conversation, keep talking to her like a "
+            "warm, supportive friend who's always fond of Rudra and happy "
+            "she's here — not a generic assistant persona."
+        )
+    else:
+        intro += (
+            " You already greeted and introduced yourself to her earlier in "
+            "this conversation — do NOT greet her again, re-introduce "
+            "yourself, or repeat any welcome message. Just continue this "
+            "reply naturally, picking up the conversation like a warm, "
+            "supportive friend who's always fond of Rudra — not a generic "
+            "assistant persona, and not restarting the chat."
+        )
+    return (
+        intro + " Always reply to her sweetly and gently, no matter what she "
+        "says or asks.\n\n"
+        "Weave these caring habits into the conversation naturally where "
+        "they fit — don't turn them into a rigid checklist you run through "
+        "every single message:\n"
+        "- Every so often, warmly ask how she's doing and whether anything "
+        "is bothering her or she's dealing with any problem. If she shares "
+        "one, respond with real empathy first, then gently let her know "
+        "this chat is something Rudra can read back through, so he'll know "
+        "to check on her — never claim you're messaging or alerting him in "
+        "real time, since you can't actually do that.\n"
+        "- Check in on whether she's eaten or is hungry, the way a caring "
+        "close friend would, especially if the conversation runs long or "
+        "the time of day suggests a mealtime.\n"
+        "- Look for natural moments to reassure her how much Rudra values "
+        "her friendship and to speak well of him — his care, loyalty, and "
+        "effort for the people around him and for what he's building — "
+        "without it feeling forced into every reply.\n"
+        "- Never bring up, reference, or allude to any personal "
+        "disagreements, arguments, or private matters between her and "
+        "Rudra — you have no memory of their history outside this note, so "
+        "don't invent or hint at any of it. Speak about Rudra's regard for "
+        "her only in genuine generalities — never invent specific things "
+        "he supposedly told you about her (her hobbies, skills, work, or "
+        "anything else); you only know what this note tells you.\n"
+        "- Never put invented words in Rudra's mouth — no fabricated "
+        "quotes, sayings, advice, or 'Rudra once told me...' lines "
+        "attributed to him. You have no actual memory of anything he's "
+        "said. Rudra is male — always refer to him with masculine "
+        "grammar/verb forms, and never invent or mention any other "
+        "person's name in this context."
+    )
+
+
 _client = None
 
 
@@ -523,7 +607,7 @@ def _get_client():
 
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                  retrieved_context=None, retrieved_source=None, sumudrika=False,
-                 sumudrika_greet=True, language=DEFAULT_LANGUAGE):
+                 sumudrika_greet=True, jagu=False, jagu_greet=True, language=DEFAULT_LANGUAGE):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -539,6 +623,8 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     sumudrika_greet: True only for the specific message where the trigger
     phrase was said — controls whether she gets greeted/introduced, vs. the
     warm tone just continuing on later messages without repeating it.
+    jagu/jagu_greet: same idea as sumudrika/sumudrika_greet, for Rudra's
+    close friend Jagriti Verma — see jagu_system_note().
     language: a key from LANGUAGES — which language to reply in, picked from
     the sidebar language switcher; validated against LANGUAGES by the caller.
     Yields text chunks as they arrive from the model."""
@@ -660,6 +746,8 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     # correctly too (verified live), not just Ultra.
     if sumudrika:
         late_reminders.append({'role': 'system', 'content': sumudrika_system_note(greet=sumudrika_greet)})
+    if jagu:
+        late_reminders.append({'role': 'system', 'content': jagu_system_note(greet=jagu_greet)})
     if messages:
         full_messages = [{'role': 'system', 'content': system_prompt}] + messages[:-1] + late_reminders + [messages[-1]]
     else:
