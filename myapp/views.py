@@ -1993,7 +1993,10 @@ def ai_page(request):
         'ai_user': _user_payload(request.user) if request.user.is_authenticated else None,
         'ai_conversations': conversations,
         'ai_guest_limit': AI_GUEST_MESSAGE_LIMIT,
-        'ai_guest_used': 0 if request.user.is_authenticated else request.session.get('ai_guest_msg_count', 0),
+        'ai_guest_used': 0 if request.user.is_authenticated else min(
+            AI_GUEST_MESSAGE_LIMIT,
+            max(request.session.get('ai_guest_msg_count', 0), _ip_free_messages_used(_client_ip(request))),
+        ),
         'ai_is_staff': ai_is_staff,
         'ai_subscribed': ai_subscribed,
         'ai_free_limit': AI_FREE_MESSAGE_LIMIT,
@@ -2027,7 +2030,25 @@ def _ai_purchase_url():
     return f'/store/product/{AI_SUBSCRIPTION_PRODUCT_SLUG}/'
 
 
-def _ai_profile_gate(user):
+def _ip_free_messages_used(ip):
+    """Total free (guest + signed-in-but-unsubscribed) EduTrellis AI
+    messages ever sent from this IP, across every guest session and every
+    account that's ever chatted from it. Session/account counters alone
+    (request.session['ai_guest_msg_count'], StoreProfile.ai_free_messages_
+    used) reset the moment someone opens an incognito window or signs up a
+    throwaway second account — this is what actually survives that, since
+    it's derived from the saved messages themselves, not a counter. Deliber-
+    ately counts every non-staff message tied to this IP regardless of
+    whether the sender was subscribed at the time — an over-count is the
+    safe direction for an anti-abuse cap."""
+    if not ip or ip == 'unknown':
+        return 0
+    return AIMessage.objects.filter(
+        role=AIMessage.ROLE_USER, conversation__ip_address=ip,
+    ).exclude(conversation__user__is_staff=True).count()
+
+
+def _ai_profile_gate(user, ip=None):
     """Returns None if `user` (already known to be authenticated) has
     unrestricted EduTrellis AI access — staff, or an active paid
     subscription — else the 403 JSON payload to send back once they've used
@@ -2040,7 +2061,8 @@ def _ai_profile_gate(user):
     profile, _ = StoreProfile.objects.get_or_create(user=user)
     if profile.is_ai_subscribed:
         return None
-    if profile.ai_free_messages_used >= AI_FREE_MESSAGE_LIMIT:
+    ip_capped = bool(ip) and _ip_free_messages_used(ip) >= (AI_GUEST_MESSAGE_LIMIT + AI_FREE_MESSAGE_LIMIT)
+    if profile.ai_free_messages_used >= AI_FREE_MESSAGE_LIMIT or ip_capped:
         return {
             'status': 'subscription_required',
             'detail': (
@@ -2142,14 +2164,19 @@ def ai_chat_send(request):
     if not request.user.is_authenticated:
         if not request.session.session_key:
             request.session.create()
-        guest_count = request.session.get('ai_guest_msg_count', 0)
+        # IP-derived rather than the session counter alone — the session
+        # counter still gets tracked below for the on-page meter, but an
+        # incognito window (or just clearing cookies) gets a fresh session
+        # for free, so it can't be what actually gates access. Falls back to
+        # the session counter only if the IP genuinely couldn't be read.
+        guest_count = _ip_free_messages_used(ip) if ip and ip != 'unknown' else request.session.get('ai_guest_msg_count', 0)
         if guest_count >= AI_GUEST_MESSAGE_LIMIT:
             return JsonResponse({
                 'status': 'login_required',
                 'detail': "You've reached the free message limit — log in or sign up to keep chatting. Your conversation is saved and will carry over.",
             }, status=403)
     else:
-        gate = _ai_profile_gate(request.user)
+        gate = _ai_profile_gate(request.user, ip)
         if gate:
             return JsonResponse(gate, status=403)
 
