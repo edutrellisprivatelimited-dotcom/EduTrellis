@@ -2162,10 +2162,11 @@ def ai_chat_send(request):
     response['X-Accel-Buffering'] = 'no'
     response['X-Conversation-Id'] = str(conversation.id)
     response['X-Model-Key'] = model_key
-    # Tells the frontend to auto-play this one reply and show the
-    # Sumudrika-specific follow-up chips — only true on the exact turn where
-    # the trigger phrase was used, same scope as is_sumudrika_greet above.
-    response['X-Sumudrika-Greet'] = '1' if is_sumudrika_greet else ''
+    # Tells the frontend to auto-play this reply and show the
+    # Sumudrika-specific follow-up chips — true for every turn once the
+    # trigger phrase has appeared anywhere in the conversation (same scope
+    # as is_sumudrika above, not just the one turn that said it).
+    response['X-Sumudrika'] = '1' if is_sumudrika else ''
     # Base64'd so the header is always plain ASCII regardless of unicode in
     # a product name/brand — WSGI headers aren't guaranteed to survive raw
     # UTF-8. Empty string (not omitted) when there's nothing to show, so the

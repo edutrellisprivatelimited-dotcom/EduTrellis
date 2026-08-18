@@ -634,7 +634,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     if (speakBtn) {
       var speakBubble = speakBtn.closest('.msg-bubble');
       var speakText = speakBubble && speakBubble.dataset.rawText;
-      if (speakText) toggleSpeak(speakBtn, speakText);
+      if (speakText) toggleSpeak(speakBtn, speakText, speakBubble.dataset.sumudrika === '1');
     }
   });
   var emptyState = document.getElementById('emptyState');
@@ -1705,8 +1705,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // parts of multi-codepoint emoji) — read literally by most TTS voices as
   // "grinning face" or similar, which is worse than just skipping them.
   var EMOJI_RE = /[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu;
+  // Respelled so the TTS engine actually says the word instead of stumbling
+  // on the apostrophe — add more [pattern, respelling] pairs here as other
+  // mispronunciations turn up.
+  var SPEECH_PRONUNCIATION_FIXES = [
+    [/\bma'am\b/gi, 'maaam'],
+  ];
   function sanitizeForSpeech(text){
-    return (text || '')
+    var out = (text || '')
       .replace(EMOJI_RE, '')
       .replace(/```[\s\S]*?```/g, ' ')          // code blocks — not useful read aloud
       .replace(/`([^`]+)`/g, '$1')               // inline code — keep the text, drop backticks
@@ -1720,6 +1726,8 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')    // [text](url) — read the label, not the URL
       .replace(/\s+/g, ' ')
       .trim();
+    SPEECH_PRONUNCIATION_FIXES.forEach(function(pair){ out = out.replace(pair[0], pair[1]); });
+    return out;
   }
   var speakingBtn = null;
   function stopSpeaking(){
@@ -1727,12 +1735,42 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     if (speakingBtn) { speakingBtn.classList.remove('speaking'); speakingBtn.innerHTML = '<i class="fas fa-volume-high"></i> Listen'; }
     speakingBtn = null;
   }
-  function toggleSpeak(btn, text){
+  // Voice list loads asynchronously in Chrome/Edge — calling getVoices()
+  // once up front and again on 'voiceschanged' means it's actually
+  // populated by the time someone hits Listen, instead of racing an empty
+  // list on the very first call after page load.
+  if (SPEECH_SYNTH_SUPPORTED) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener('voiceschanged', function(){});
+  }
+  // Best-effort — picks a female-sounding Indian voice for `lang` if the
+  // browser/OS shipped one, so Sumudrika doesn't default to whatever
+  // generic (often male, often US-accented) voice the system picks. Falls
+  // back gracefully: female voice for that exact lang > any voice for that
+  // lang > any Indian voice for the same language family > browser default
+  // (utterance.voice left unset).
+  function pickIndianFemaleVoice(lang){
+    if (!SPEECH_SYNTH_SUPPORTED) return null;
+    var voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+    var langPrefix = lang.split('-')[0].toLowerCase();
+    var pool = voices.filter(function(v){ return v.lang && v.lang.toLowerCase() === lang.toLowerCase(); });
+    if (!pool.length) pool = voices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf(langPrefix + '-in') === 0; });
+    if (!pool.length) pool = voices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf(langPrefix) === 0; });
+    if (!pool.length) return null;
+    var female = pool.find(function(v){ return /female|woman|girl|heera|priya|veena|lekha|kalpana|swara/i.test(v.name); });
+    return female || pool[0];
+  }
+  function toggleSpeak(btn, text, indianFemaleVoice){
     var wasSpeaking = btn === speakingBtn;
     stopSpeaking();
     if (wasSpeaking) return;
     var utterance = new SpeechSynthesisUtterance(sanitizeForSpeech(text));
     utterance.lang = SPEECH_LANG_MAP[currentLanguage] || 'en-IN';
+    if (indianFemaleVoice) {
+      var voice = pickIndianFemaleVoice(utterance.lang);
+      if (voice) utterance.voice = voice;
+    }
     utterance.onend = function(){ if (speakingBtn === btn) stopSpeaking(); };
     utterance.onerror = function(){ if (speakingBtn === btn) stopSpeaking(); };
     speakingBtn = btn;
@@ -2087,7 +2125,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var assistantText = '';
     var answeredModelKey = null;
     var matchedProducts = [];
-    var isSumudrikaGreet = false;
+    var isSumudrika = false;
     // An attached image always gets auto-routed to Vision server-side
     // regardless of the picker (see views.ai_chat_send), so that takes
     // priority over whatever mode is currently selected.
@@ -2105,6 +2143,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       bubble.innerHTML = tagHtml + (formatMd(assistantText) || '<i>No response — please try again.</i>');
       if (matchedProducts.length) bubble.appendChild(buildProductCards(matchedProducts));
       addMsgCopyAction(bubble, assistantText);
+      // Remembered on the bubble itself so a manual replay via Listen later
+      // (not just the auto-play right after this reply) still picks the
+      // Indian-female voice — see the .msg-speak-btn click handler above.
+      if (isSumudrika) bubble.dataset.sumudrika = '1';
     }
 
     fetch('/AI/api/send/', {
@@ -2149,7 +2191,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       if (newConvId) setCurrentConversationId(parseInt(newConvId, 10));
       answeredModelKey = resp.headers.get('X-Model-Key');
       matchedProducts = decodeProductsHeader(resp.headers.get('X-Products'));
-      isSumudrikaGreet = resp.headers.get('X-Sumudrika-Greet') === '1';
+      isSumudrika = resp.headers.get('X-Sumudrika') === '1';
       if (!AI_AUTHENTICATED) { state.guestUsed += 1; updateGuestMeter(); }
 
       if (!resp.body || !resp.body.getReader){
@@ -2182,12 +2224,12 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       scrollToBottom();
       input.focus();
       refreshConversations();
-      // Only on the exact turn where the trigger phrase was used — never
-      // for a normal reply, and not repeated on later turns of the same
-      // conversation (see is_sumudrika_greet in views.ai_chat_send).
-      if (isSumudrikaGreet) {
+      // Every reply once the trigger phrase has appeared anywhere in this
+      // conversation — never for a normal reply (see is_sumudrika in
+      // views.ai_chat_send, which drives the X-Sumudrika header).
+      if (isSumudrika) {
         var speakBtn = bubble.querySelector('.msg-speak-btn');
-        if (speakBtn) toggleSpeak(speakBtn, assistantText);
+        if (speakBtn) toggleSpeak(speakBtn, assistantText, true);
         renderSumudrikaSuggestions();
       }
     }).catch(function(err){
