@@ -7,7 +7,7 @@ import requests
 from django.conf import settings
 
 TAVILY_URL = 'https://api.tavily.com/search'
-_TIMEOUT = 15
+_TIMEOUT = 7
 
 
 class SearchError(Exception):

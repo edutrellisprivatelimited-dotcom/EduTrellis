@@ -1,4 +1,5 @@
 from datetime import timedelta
+import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -780,7 +781,7 @@ class AIBlock(models.Model):
         verbose_name_plural = 'AI Blocks'
         constraints = [
             models.CheckConstraint(
-                check=models.Q(ip_address__isnull=False) | models.Q(user__isnull=False),
+                condition=models.Q(ip_address__isnull=False) | models.Q(user__isnull=False),
                 name='aiblock_ip_or_user_required',
             ),
         ]
@@ -844,6 +845,33 @@ class KnowledgeEntry(models.Model):
 
     def __str__(self):
         return self.topic
+
+
+class YouTubeDownloadJob(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_WORKING = 'working'
+    STATUS_READY = 'ready'
+    STATUS_FAILED = 'failed'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'), (STATUS_WORKING, 'Working'),
+        (STATUS_READY, 'Ready'), (STATUS_FAILED, 'Failed'),
+    ]
+
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='youtube_downloads')
+    source_url = models.URLField(max_length=500)
+    quality = models.CharField(max_length=10, default='1080')
+    title = models.CharField(max_length=300, blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    progress = models.PositiveSmallIntegerField(default=0)
+    video_path = models.CharField(max_length=500, blank=True)
+    audio_path = models.CharField(max_length=500, blank=True)
+    error = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ['-created_at']
 
 
 class AIMessage(models.Model):

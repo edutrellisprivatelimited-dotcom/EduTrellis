@@ -1,10 +1,12 @@
 import base64
 import json
 import logging
+import mimetypes
 import os
 import secrets
 import threading
 import time
+from pathlib import Path
 from decimal import Decimal, InvalidOperation
 from functools import wraps
 from urllib.parse import urlencode
@@ -18,7 +20,7 @@ from django.db.models import Q, F, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve, Resolver404
 from django.templatetags.static import static as static_url
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, FileResponse
 from django.core.mail import send_mail, BadHeaderError
 from django.core.cache import cache
 from django.conf import settings
@@ -35,7 +37,7 @@ from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
-    AIConversation, AIMessage, AIBlock, GitHubConnection, AI_SUBSCRIPTION_PRODUCT_SLUG,
+    AIConversation, AIMessage, AIBlock, GitHubConnection, YouTubeDownloadJob, AI_SUBSCRIPTION_PRODUCT_SLUG,
 )
 from myapp import dropbox_backup
 from myapp import ai_chat
@@ -43,6 +45,11 @@ from myapp import github_ops
 from myapp import doc_extract
 from myapp import light_mode
 from myapp import product_search
+from myapp import image_ocr
+from myapp import privacy
+from myapp import request_router
+from myapp import audio_transcribe
+from myapp import youtube_download
 from myapp.emailing import send_store_email, get_notify_email
 from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
@@ -1864,8 +1871,9 @@ def dashboard_logout(request):
 AI_CHAT_RATE_LIMIT = 30           # messages
 AI_CHAT_RATE_WINDOW = 10 * 60     # per 10 minutes, per IP
 AI_CHAT_MAX_MESSAGE_CHARS = 16000
-AI_CHAT_MAX_HISTORY = 50          # most recent saved messages sent to the model as context
+AI_CHAT_MAX_HISTORY = 16          # bounded context keeps later turns responsive
 AI_CONVERSATION_TITLE_CHARS = 60
+AI_CURRENT_CONVERSATION_SESSION_KEY = 'ai_current_conversation_id'
 AI_GUEST_MESSAGE_LIMIT = 6        # free messages before a guest must log in/sign up
 AI_FREE_MESSAGE_LIMIT = 20        # free messages for a logged-in, non-staff, unsubscribed account before EduTrellis AI requires the paid plan
 # ~1.5MB of raw image data as a base64 data: URI (~2M chars) — well under
@@ -1875,7 +1883,34 @@ AI_FREE_MESSAGE_LIMIT = 20        # free messages for a logged-in, non-staff, un
 AI_IMAGE_MAX_DATA_URI_CHARS = 2_000_000
 AI_ACCOUNT_CART_ITEM_LIMIT = 10
 AI_ACCOUNT_ORDER_LIMIT = 5
+AI_DOCUMENT_MODES = {'coding', 'details'}
+AI_DOCUMENT_CODE_MAX_OUTPUT_TOKENS = 6000
 AI_LIGHT_SEARCH_RATE_LIMIT = 20   # live web searches per IP per AI_CHAT_RATE_WINDOW — the paid/metered part of Light mode
+
+
+def _ai_document_instruction(mode, filename, truncated=False):
+    """Return the server-controlled instruction for an attachment action."""
+    if mode == 'coding':
+        truncation_rule = (
+            " The supplied source was truncated, so clearly say that a complete safe rewrite is not possible "
+            "from this partial input; do not pretend omitted sections are unchanged."
+            if truncated else
+            " Return the COMPLETE updated file, including unchanged sections, in one fenced code block; "
+            "never return only a patch, diff, excerpt, or isolated snippet."
+        )
+        return (
+            f"The user selected Start coding for the attached file {filename!r}. Apply exactly the change "
+            f"requested in their current message.{truncation_rule} Keep explanation brief and put the full "
+            "updated file first. For a binary office file, return the complete revised textual content that "
+            "can be represented in chat and do not claim to have generated a downloadable binary file."
+        )
+    if mode == 'details':
+        return (
+            f"The user selected Show details for the attached file {filename!r}. Analyse and explain only: "
+            "summarise its content and structure and point out relevant findings. Do not rewrite the file, "
+            "do not output an updated version, and do not switch into coding unless the user asks in a later turn."
+        )
+    return None
 
 
 def _ai_account_context(user):
@@ -1974,6 +2009,19 @@ def ai_page(request):
     )
     for c in conversations:
         c['updated_at'] = timezone.localtime(c['updated_at']).isoformat()
+
+    # Browser storage can be unavailable or cleared. Remember the last chat
+    # the server actually opened/sent to as a safe refresh/login fallback.
+    # Always validate it against this request's owner before exposing it.
+    conversation_ids = {c['id'] for c in conversations}
+    try:
+        resume_conversation_id = int(request.session.get(AI_CURRENT_CONVERSATION_SESSION_KEY) or 0)
+    except (TypeError, ValueError):
+        resume_conversation_id = 0
+    if resume_conversation_id not in conversation_ids:
+        resume_conversation_id = conversations[0]['id'] if conversations else None
+    if resume_conversation_id:
+        request.session[AI_CURRENT_CONVERSATION_SESSION_KEY] = resume_conversation_id
     models = [
         {'key': key, 'label': cfg['label'], 'description': cfg['description']}
         for key, cfg in ai_chat.MODELS.items() if key != 'vision'
@@ -1992,6 +2040,7 @@ def ai_page(request):
         'ai_authenticated': request.user.is_authenticated,
         'ai_user': _user_payload(request.user) if request.user.is_authenticated else None,
         'ai_conversations': conversations,
+        'ai_resume_conversation_id': resume_conversation_id,
         'ai_guest_limit': AI_GUEST_MESSAGE_LIMIT,
         'ai_guest_used': 0 if request.user.is_authenticated else min(
             AI_GUEST_MESSAGE_LIMIT,
@@ -2075,6 +2124,7 @@ def _ai_profile_gate(user, ip=None):
 
 
 def ai_chat_send(request):
+    request_started = time.perf_counter()
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
 
@@ -2133,6 +2183,10 @@ def ai_chat_send(request):
     if image_data and len(image_data) > AI_IMAGE_MAX_DATA_URI_CHARS:
         return JsonResponse({'status': 'error', 'detail': 'That image is too large — please use a smaller one.'}, status=400)
 
+    # OCR supplements the multimodal model for screenshots and documents.
+    # Failure is harmless: the original image is still analysed by Vision.
+    image_ocr_text = image_ocr.extract_data_uri(image_data) if image_data else ''
+
     # document_text/document_name come from a prior call to /AI/api/extract/
     # (the raw file itself is never sent here) — re-capped defensively since
     # the client is untrusted, even though it already capped it once too.
@@ -2144,6 +2198,10 @@ def ai_chat_send(request):
     else:
         document_text = ''
         document_name = ''
+    requested_document_mode = payload.get('document_mode')
+    document_mode = requested_document_mode if document_text and requested_document_mode in AI_DOCUMENT_MODES else ''
+    document_truncated = bool(payload.get('document_truncated')) if document_text else False
+    document_instruction = _ai_document_instruction(document_mode, document_name, document_truncated)
 
     if not message and not image_data and not document_text:
         return JsonResponse({'status': 'error', 'detail': 'No message provided.'}, status=400)
@@ -2157,9 +2215,18 @@ def ai_chat_send(request):
     # for anything unrecognized (stale client, tampered value, etc.).
     if image_data:
         model_key = 'vision'
+    elif document_mode == 'coding':
+        # "Start coding" is an explicit mode choice, so use the code-tuned
+        # route even if the general model picker was previously on Light/etc.
+        model_key = 'code'
+        request_category = 'coding'
     else:
         requested_model_key = payload.get('model')
         model_key = requested_model_key if requested_model_key in ai_chat.MODELS else ai_chat.DEFAULT_MODEL_KEY
+        if model_key == ai_chat.DEFAULT_MODEL_KEY and payload.get('auto_route', True):
+            model_key, request_category = request_router.choose_model(message, model_key)
+        else:
+            request_category = request_router.classify(message)
 
     if not request.user.is_authenticated:
         if not request.session.session_key:
@@ -2206,10 +2273,12 @@ def ai_chat_send(request):
 
     AIMessage.objects.create(
         conversation=conversation, role=AIMessage.ROLE_USER, content=message,
-        image_data=image_data, document_name=document_name, document_text=document_text,
+        image_data=image_data, document_name=document_name,
+        document_text=document_text or image_ocr_text,
     )
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
+    request.session[AI_CURRENT_CONVERSATION_SESSION_KEY] = conversation.id
 
     if not request.user.is_authenticated:
         request.session['ai_guest_msg_count'] = request.session.get('ai_guest_msg_count', 0) + 1
@@ -2227,31 +2296,22 @@ def ai_chat_send(request):
     )
     recent.reverse()
 
-    # If an earlier turn still within the replayed history window attached
-    # an image, keep answering with EduTrellis Vision for follow-ups too —
-    # even though this specific turn has no new image — otherwise that
-    # image gets degraded to a text placeholder below and the model wrongly
-    # denies ever having seen one (e.g. "can you tell me more about the
-    # image" right after an image reply, with a different mode selected).
-    # Sticky in the same spirit as the Sumudrika override, and
-    # self-limiting: once the image scrolls out of the AI_CHAT_MAX_HISTORY
-    # window, this stops applying and normal mode selection resumes.
-    if model_key != 'vision' and any(m['image_data'] for m in recent):
-        model_key = 'vision'
     model_cfg = ai_chat.MODELS[model_key]
 
     clean_history = []
-    for m in recent:
-        if m['image_data'] and model_cfg['vision']:
+    for index, m in enumerate(recent):
+        is_current_image = bool(m['image_data']) and index == len(recent) - 1
+        if is_current_image and model_cfg['vision']:
+            ocr_note = f"\n\nLocally detected text:\n{m['document_text']}" if m['document_text'] else ''
             content = [
-                {'type': 'text', 'text': m['content'] or 'Describe this image.'},
+                {'type': 'text', 'text': (m['content'] or 'Describe and analyse this image.') + ocr_note},
                 {'type': 'image_url', 'image_url': {'url': m['image_data']}},
             ]
         elif m['image_data']:
-            # Model can't see images (a different mode is now selected) —
-            # degrade to a plain-text note instead of sending it multimodal
-            # content it can't parse.
-            content = (m['content'] + ' [image attached]').strip()
+            # Historical base64 image bytes are not resent. The earlier
+            # assistant analysis remains in history, with OCR as backup.
+            ocr_note = f" Earlier image OCR:\n{m['document_text']}" if m['document_text'] else ''
+            content = (m['content'] + ' [Earlier image was analysed.]' + ocr_note).strip()
         elif m['document_name'] and m['document_text']:
             # Persisted in full (capped by doc_extract.MAX_CHARS) so a
             # follow-up question about this document works without
@@ -2269,7 +2329,20 @@ def ai_chat_send(request):
             content = m['content']
         clean_history.append({'role': m['role'], 'content': content})
 
+    # Keep saved conversation text intact for the user, but redact common
+    # personal identifiers in the copy sent to the external model.
+    for history_message in clean_history:
+        content = history_message['content']
+        if isinstance(content, str):
+            history_message['content'] = privacy.redact(content)
+        elif isinstance(content, list):
+            for block in content:
+                if block.get('type') == 'text':
+                    block['text'] = privacy.redact(block.get('text', ''))
+
     account_context = _ai_account_context(request.user) if request.user.is_authenticated else None
+    if account_context:
+        account_context = privacy.redact(account_context)
 
     # Once the secret phrase has appeared anywhere in this conversation, the
     # warm/personal tone stays on for the rest of it rather than resetting
@@ -2325,6 +2398,7 @@ def ai_chat_send(request):
     # quota — when nothing relevant is already saved.
     retrieved_context = retrieved_source = None
     if model_key == 'light' and message:
+        search_started = time.perf_counter()
         kb_entries = light_mode.search_knowledge_base(
             message,
             user=request.user if request.user.is_authenticated else None,
@@ -2339,6 +2413,10 @@ def ai_chat_send(request):
             if search_count < AI_LIGHT_SEARCH_RATE_LIMIT:
                 cache.set(search_cache_key, search_count + 1, AI_CHAT_RATE_WINDOW)
                 retrieved_context, retrieved_source = light_mode.web_search_and_save(message)
+        logger.info(
+            "AI timing retrieval=%.3fs source=%s",
+            time.perf_counter() - search_started, retrieved_source,
+        )
 
     # Real EduTrellis Store products matching this message — resolved
     # deterministically from the database, never from anything the model
@@ -2350,6 +2428,11 @@ def ai_chat_send(request):
     if not matched_products and message and product_search.is_general_browse_request(message):
         matched_products = product_search.browse_products()
     product_payloads = [_ai_product_card_payload(p) for p in matched_products]
+    logger.info(
+        "AI timing preprocessing=%.3fs model=%s history=%d image=%s ocr_chars=%d",
+        time.perf_counter() - request_started, model_key, len(recent),
+        bool(image_data), len(image_ocr_text),
+    )
 
     def event_stream():
         full_reply = ''
@@ -2362,6 +2445,8 @@ def ai_chat_send(request):
                 jagu=is_jagu, jagu_greet=is_jagu_greet,
                 persona_farewell=is_persona_farewell, language=language,
                 has_product_matches=bool(matched_products),
+                document_instruction=document_instruction,
+                max_tokens=(AI_DOCUMENT_CODE_MAX_OUTPUT_TOKENS if document_mode == 'coding' else None),
             ):
                 full_reply += chunk
                 yield chunk
@@ -2418,6 +2503,7 @@ def ai_chat_send(request):
     response['X-Accel-Buffering'] = 'no'
     response['X-Conversation-Id'] = str(conversation.id)
     response['X-Model-Key'] = model_key
+    response['X-Request-Category'] = request_category if not image_data else 'image'
     # Tells the frontend to auto-play this reply and show the persona
     # follow-up chips — true for every turn once the matching trigger
     # phrase has appeared anywhere in the conversation (same scope as
@@ -2465,14 +2551,121 @@ def ai_extract_document(request):
         return JsonResponse({'status': 'error', 'detail': 'That file is too large — please use one under 8MB.'}, status=400)
 
     try:
-        text, truncated = doc_extract.extract(f.name, f.read())
+        file_bytes = f.read()
+        text, truncated = doc_extract.extract(f.name, file_bytes)
+        coding_text, coding_truncated = doc_extract.extract_editable_source(
+            f.name, file_bytes, text, extracted_truncated=truncated,
+        )
     except doc_extract.ExtractError as e:
         return JsonResponse({'status': 'error', 'detail': str(e)}, status=400)
     except Exception:
         logger.exception("Document extraction failed for %s", f.name)
         return JsonResponse({'status': 'error', 'detail': "Couldn't read that file — please try a different one."}, status=400)
 
-    return JsonResponse({'status': 'ok', 'filename': f.name, 'text': text, 'truncated': truncated})
+    return JsonResponse({
+        'status': 'ok', 'filename': f.name,
+        'text': text, 'truncated': truncated,
+        'coding_text': coding_text, 'coding_truncated': coding_truncated,
+    })
+
+
+def ai_transcribe_audio(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    uploaded = request.FILES.get('file')
+    if not uploaded:
+        return JsonResponse({'status': 'error', 'detail': 'No audio file provided.'}, status=400)
+    if uploaded.size > 12 * 1024 * 1024:
+        return JsonResponse({'status': 'error', 'detail': 'Audio must be under 12MB.'}, status=400)
+    try:
+        text = audio_transcribe.transcribe(uploaded.name, uploaded.read())
+    except RuntimeError as exc:
+        return JsonResponse({'status': 'error', 'detail': str(exc)}, status=400)
+    if not text:
+        return JsonResponse({'status': 'error', 'detail': 'No speech was detected.'}, status=400)
+    return JsonResponse({'status': 'ok', 'text': text})
+
+
+def _cleanup_youtube_downloads():
+    expired = list(YouTubeDownloadJob.objects.filter(expires_at__lt=timezone.now()))
+    media_root = Path(settings.MEDIA_ROOT).resolve()
+    for job in expired:
+        for relative in (job.video_path, job.audio_path):
+            if not relative:
+                continue
+            path = (media_root / relative).resolve()
+            if media_root in path.parents:
+                try:
+                    path.unlink(missing_ok=True)
+                except OSError:
+                    pass
+        job.delete()
+
+
+def ai_youtube_start(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'login_required', 'detail': 'Log in to prepare downloads.'}, status=403)
+    payload = _parse_json_body(request)
+    url = str(payload.get('url', '')).strip() if isinstance(payload, dict) else ''
+    quality = str(payload.get('quality', '1080')).strip() if isinstance(payload, dict) else '1080'
+    if not youtube_download.is_youtube_url(url):
+        return JsonResponse({'status': 'error', 'detail': 'Enter a valid YouTube video URL.'}, status=400)
+    if quality not in ('720', '1080', 'audio'):
+        return JsonResponse({'status': 'error', 'detail': 'Choose 720p, 1080p, or MP3.'}, status=400)
+    ip = _client_ip(request)
+    rate_key = f'ai_youtube_rate:{request.user.pk}:{ip}'
+    count = cache.get(rate_key, 0)
+    if count >= 3:
+        return JsonResponse({'status': 'error', 'detail': 'Download limit reached — try again in one hour.'}, status=429)
+    if YouTubeDownloadJob.objects.filter(user=request.user, status__in=['pending', 'working']).exists():
+        return JsonResponse({'status': 'error', 'detail': 'Another video is already being prepared.'}, status=409)
+    _cleanup_youtube_downloads()
+    job = YouTubeDownloadJob.objects.create(
+        user=request.user, source_url=url, quality=quality,
+        expires_at=timezone.now() + timedelta(hours=1),
+    )
+    cache.set(rate_key, count + 1, 60 * 60)
+    youtube_download.start(job.pk)
+    return JsonResponse({'status': 'ok', 'job': str(job.token)}, status=202)
+
+
+def _youtube_job_for_user(request, token):
+    if not request.user.is_authenticated:
+        return None
+    return YouTubeDownloadJob.objects.filter(user=request.user, token=token).first()
+
+
+def ai_youtube_status(request, token):
+    job = _youtube_job_for_user(request, token)
+    if not job:
+        return JsonResponse({'status': 'error', 'detail': 'Download not found.'}, status=404)
+    payload = {'status': job.status, 'progress': job.progress, 'title': job.title, 'error': job.error}
+    if job.status == YouTubeDownloadJob.STATUS_READY:
+        if job.video_path:
+            payload['video_url'] = f'/AI/api/youtube/{job.token}/file/video/'
+        if job.audio_path:
+            payload['audio_url'] = f'/AI/api/youtube/{job.token}/file/audio/'
+        payload['expires_at'] = timezone.localtime(job.expires_at).isoformat()
+    return JsonResponse(payload)
+
+
+def ai_youtube_file(request, token, file_kind):
+    job = _youtube_job_for_user(request, token)
+    if not job or job.status != YouTubeDownloadJob.STATUS_READY or job.expires_at <= timezone.now():
+        return JsonResponse({'status': 'error', 'detail': 'Download unavailable or expired.'}, status=404)
+    relative = job.video_path if file_kind == 'video' else job.audio_path if file_kind == 'audio' else ''
+    media_root = Path(settings.MEDIA_ROOT).resolve()
+    path = (media_root / relative).resolve() if relative else None
+    if not path or media_root not in path.parents or not path.is_file():
+        return JsonResponse({'status': 'error', 'detail': 'File not found.'}, status=404)
+    extension = path.suffix.lower()
+    content_type = 'audio/mpeg' if file_kind == 'audio' else (mimetypes.guess_type(path.name)[0] or 'application/octet-stream')
+    filename = f"{job.title or 'youtube-download'}{extension}"
+    response = FileResponse(open(path, 'rb'), content_type=content_type, as_attachment=True, filename=filename)
+    response['Cache-Control'] = 'private, no-store'
+    return response
 
 
 def ai_conversations_list(request):
@@ -2489,6 +2682,7 @@ def ai_conversation_messages(request, conversation_id):
     conversation = AIConversation.objects.filter(_ai_owner_filter(request), pk=conversation_id).first()
     if not conversation:
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
+    request.session[AI_CURRENT_CONVERSATION_SESSION_KEY] = conversation.id
     messages_qs = list(
         conversation.messages.order_by('created_at')
         .values('role', 'content', 'image_data', 'document_name', 'model_key', 'product_slugs')
@@ -2516,6 +2710,8 @@ def ai_conversation_delete(request, conversation_id):
     if not conversation:
         return JsonResponse({'status': 'error', 'detail': 'Conversation not found.'}, status=404)
     conversation.delete()
+    if request.session.get(AI_CURRENT_CONVERSATION_SESSION_KEY) == conversation_id:
+        request.session.pop(AI_CURRENT_CONVERSATION_SESSION_KEY, None)
     return JsonResponse({'status': 'ok'})
 
 
@@ -2725,6 +2921,7 @@ def ai_github_send(request):
     conversation = AIConversation.objects.filter(owner_filter, pk=conversation_id).first() if conversation_id else None
     if conversation is None:
         conversation = AIConversation.objects.create(user=request.user, title=message[:AI_CONVERSATION_TITLE_CHARS])
+    request.session[AI_CURRENT_CONVERSATION_SESSION_KEY] = conversation.id
     AIMessage.objects.create(conversation=conversation, role=AIMessage.ROLE_USER, content=message)
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])

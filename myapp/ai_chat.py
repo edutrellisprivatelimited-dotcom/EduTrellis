@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import re
 import time
 from zoneinfo import ZoneInfo
@@ -7,10 +8,12 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from openai import OpenAI
 
-MAX_TOKENS = 2048          # was 1024 — long detailed replies (Ultra especially) were getting cut off mid-sentence
+logger = logging.getLogger(__name__)
+
+MAX_TOKENS = 1200
 TEMPERATURE = 1.0
 TOP_P = 0.95
-STREAM_RETRY_ATTEMPTS = 2          # extra attempts beyond the first
+STREAM_RETRY_ATTEMPTS = 1          # one retry, and only for transient failures
 STREAM_RETRY_BACKOFF_SECONDS = 1.5
 
 # EduTrellis Vision was live-tested to randomly (~1 in 3 tries, reproducible
@@ -340,7 +343,7 @@ MODELS = {
         'vision': False,
     },
 }
-DEFAULT_MODEL_KEY = 'quick'
+DEFAULT_MODEL_KEY = 'lightning'
 
 LANGUAGES = {
     'en': 'English',
@@ -661,19 +664,68 @@ def jagu_system_note(greet=True, farewell=False):
 
 _client = None
 
+# The original prompt grew into a long collection of repeated edge-case
+# instructions. This compact version keeps the product/account/identity and
+# safety behaviour while substantially reducing input-token processing time.
+COMPACT_SYSTEM_PROMPT = (
+    "You are EduTrellis AI, developed for EduTrellis by Rudra Narayan Tiwari, "
+    "Team Leader of its Sales and Tech teams. Vijay Tiwari is the founder. "
+    "Respond like an excellent conversational assistant: lead with the answer, "
+    "infer intent from context, and be direct without sounding robotic. Avoid "
+    "generic openings such as 'Certainly' or 'As an AI', avoid repeating the "
+    "question, and do not end with a generic offer to help. Prefer a useful "
+    "answer over unnecessary clarification. Answer naturally, accurately, and "
+    "concisely; expand only when the task needs detail. Match the user's language "
+    "and technical level. Use plain Markdown with short paragraphs, **bold** labels, - "
+    "bullets, and fenced code blocks when useful. Do not invent facts, URLs, "
+    "prices, quotes, capabilities, or actions. Ask one brief question only "
+    "when missing information would materially change the answer. Preserve "
+    "all names, numbers, dates, prices and URLs in rewrite tasks. Use earlier "
+    "conversation context for follow-ups instead of asking the user to repeat it.\n\n"
+    "You can discuss EduTrellis services and can receive a read-only snapshot "
+    "of the logged-in user's own cart, wallet and recent orders. Never expose "
+    "another user's data and never claim you changed account or store state. "
+    "Real matching store products may be displayed as cards below the reply; "
+    "do not guess their names or prices. Say to review the options below. "
+    "When an image is attached, inspect the actual image for text, objects, "
+    "people, scenes, diagrams and other visual details. Locally detected OCR "
+    "text may also be supplied, but verify it against the image where possible. "
+    "Refer to modes only by their displayed EduTrellis label unless the label "
+    "itself names the underlying model."
+)
+
 
 def _get_client():
     global _client
     if _client is None:
-        _client = OpenAI(base_url='https://integrate.api.nvidia.com/v1', api_key=settings.NVIDIA_API_KEY)
+        _client = OpenAI(
+            base_url='https://integrate.api.nvidia.com/v1',
+            api_key=settings.NVIDIA_API_KEY,
+            timeout=25.0,
+            max_retries=0,
+        )
     return _client
+
+
+def _is_transient_error(exc):
+    """Retry only overloads, rate limits, timeouts and connection failures."""
+    status = getattr(exc, 'status_code', None)
+    if status in (408, 409, 429) or (isinstance(status, int) and status >= 500):
+        return True
+    name = exc.__class__.__name__.lower()
+    text = str(exc).lower()
+    return any(term in name or term in text for term in (
+        'timeout', 'connection', 'ratelimit', 'rate limit', 'temporar',
+        'overload', 'worker local total request limit',
+    ))
 
 
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                  retrieved_context=None, retrieved_source=None, sumudrika=False,
                  sumudrika_greet=True, jagu=False, jagu_greet=True,
                  persona_farewell=False, language=DEFAULT_LANGUAGE,
-                 has_product_matches=False):
+                 has_product_matches=False, document_instruction=None,
+                 max_tokens=None):
     """messages: [{role: 'user'|'assistant', content: str | list}, ...] — the
     caller's conversation so far, already trimmed/sanitized. 'content' is a
     plain string for text-only turns, or a list of OpenAI-style content
@@ -730,7 +782,7 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "see or weren't given an image when one is attached to the "
             "current message."
         )
-    system_prompt = SYSTEM_PROMPT + current_mode_line + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
+    system_prompt = COMPACT_SYSTEM_PROMPT + current_mode_line + (CODE_SYSTEM_SUFFIX if model_key == 'code' else '')
     if account_context:
         system_prompt += (
             "\n\nThe user is logged into their EduTrellis Store account. Here is "
@@ -833,6 +885,10 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
             "options below' — the cards themselves show the real photo, "
             "price, and link."
         )
+    if document_instruction:
+        # Generated by the server from a validated attachment-action choice;
+        # it is not copied from the uploaded file or from arbitrary user text.
+        mode_reminder += " " + document_instruction
     late_reminders = [{'role': 'system', 'content': mode_reminder}]
     # Same fix for the Sumudrika persona note: folded into the one giant
     # leading system message, EduTrellis Quick (a much smaller/faster model)
@@ -854,7 +910,7 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
         messages=full_messages,
         temperature=TEMPERATURE,
         top_p=TOP_P,
-        max_tokens=MAX_TOKENS,
+        max_tokens=max_tokens or MAX_TOKENS,
         stream=True,
     )
     if cfg['reasoning']:
@@ -871,6 +927,8 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
     # to the browser, restarting from scratch would duplicate/garble it, so
     # a mid-stream failure just stops here instead.
     check_vision_opening = cfg['vision']
+    request_started = time.perf_counter()
+    first_token_logged = False
     for attempt in range(STREAM_RETRY_ATTEMPTS + 1):
         yielded_any = False
         buffer = ''
@@ -882,6 +940,12 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                 content = getattr(chunk.choices[0].delta, 'content', None)
                 if not content:
                     continue
+                if not first_token_logged:
+                    logger.info(
+                        "AI timing first_upstream_token=%.3fs model=%s attempt=%d",
+                        time.perf_counter() - request_started, model_key, attempt + 1,
+                    )
+                    first_token_logged = True
                 if check_vision_opening:
                     # Hold back the opening until it's long enough (or the
                     # reply is already shorter than that) to judge — nothing
@@ -904,6 +968,10 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                 if _VISION_NO_IMAGE_RE.search(buffer):
                     raise _VisionNoImageDetected()
                 yield buffer
+            logger.info(
+                "AI timing stream_complete=%.3fs model=%s attempt=%d",
+                time.perf_counter() - request_started, model_key, attempt + 1,
+            )
             return
         except _VisionNoImageDetected:
             if attempt >= STREAM_RETRY_ATTEMPTS:
@@ -912,9 +980,10 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                 yield buffer
                 return
             time.sleep(STREAM_RETRY_BACKOFF_SECONDS * (attempt + 1))
-        except Exception:
-            if yielded_any or attempt >= STREAM_RETRY_ATTEMPTS:
+        except Exception as exc:
+            if yielded_any or attempt >= STREAM_RETRY_ATTEMPTS or not _is_transient_error(exc):
                 raise
+            logger.warning("Transient AI error; retrying model=%s error=%s", model_key, exc)
             time.sleep(STREAM_RETRY_BACKOFF_SECONDS * (attempt + 1))
 
 

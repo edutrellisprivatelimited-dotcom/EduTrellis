@@ -9,6 +9,7 @@ import re
 from django.db.models import Q
 
 from myapp import web_search
+from myapp import semantic_search
 from myapp.models import KnowledgeEntry
 
 MIN_KEYWORD_LEN = 3
@@ -71,7 +72,14 @@ def search_knowledge_base(query, user=None, session_key=''):
     scored = [(c, score(c)) for c in candidates]
     scored = [(c, s) for c, s in scored if s >= min_score]
     scored.sort(key=lambda pair: pair[1], reverse=True)
-    return [c for c, _ in scored][:KB_MAX_ENTRIES]
+    matches = [c for c, _ in scored][:KB_MAX_ENTRIES]
+    if matches:
+        return matches
+
+    # Keyword search misses synonyms and paraphrases. Fall back to local
+    # embeddings over a bounded owner-scoped corpus.
+    semantic_candidates = KnowledgeEntry.objects.filter(owner_q)[:200]
+    return semantic_search.rank(query, semantic_candidates, KB_MAX_ENTRIES)
 
 
 def context_from_entries(entries):

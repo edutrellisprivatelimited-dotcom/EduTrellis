@@ -265,6 +265,12 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 .attach-preview span{flex:1;font-size:.78rem;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .attach-preview button{border:none;background:none;color:#9aa3b0;cursor:pointer;font-size:.9rem;padding:.35rem;flex-shrink:0}
 .attach-preview button:hover{color:var(--red)}
+.document-action-panel{max-width:780px;margin:0 auto .5rem;background:var(--bg-alt);border:1px solid var(--line);border-radius:12px;padding:.65rem .75rem}
+.document-action-panel:not([hidden]){display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
+.document-action-title{font-size:.78rem;font-weight:700;color:var(--head);margin-right:auto}
+.document-action-btn{border:1.5px solid var(--line);background:var(--surface);color:var(--head);font:inherit;font-size:.75rem;font-weight:700;padding:.42rem .7rem;border-radius:9px;cursor:pointer}
+.document-action-btn:hover,.document-action-btn.active{border-color:var(--red);color:var(--red);background:var(--tint)}
+.document-action-hint{flex:1 1 100%;font-size:.72rem;color:var(--text);line-height:1.4}
 .attach-error{max-width:780px;margin:.4rem auto 0;font-size:.75rem;color:var(--red);text-align:center;font-weight:600}
 .msg-img{max-width:220px;max-height:220px;border-radius:12px;display:block;margin-bottom:.45rem;object-fit:cover}
 .msg-doc-chip{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.15);border-radius:8px;padding:.35rem .6rem;font-size:.78rem;font-weight:600;margin-bottom:.45rem}
@@ -402,11 +408,11 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   var fill = document.getElementById('loaderFill'), pct = document.getElementById('loaderPct'), box = document.getElementById('loader');
   var n = 0;
   var t = setInterval(function(){
-    n += Math.random() * 13 + 4;
-    if (n >= 100){ n = 100; clearInterval(t); setTimeout(function(){ box.classList.add('done'); }, 320); }
+    n += 34;
+    if (n >= 100){ n = 100; clearInterval(t); box.classList.add('done'); }
     fill.style.width = n + '%';
     pct.textContent = Math.floor(n) + '%';
-  }, 110);
+  }, 70);
 })();
 </script>
 <header>
@@ -488,6 +494,12 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         <span id="attachLabel">Image attached</span>
         <button type="button" id="attachRemove" aria-label="Remove attachment"><i class="fas fa-xmark"></i></button>
       </div>
+      <div class="document-action-panel" id="documentActionPanel" hidden>
+        <span class="document-action-title">What should AI do with this file?</span>
+        <button type="button" class="document-action-btn" id="documentCodingBtn"><i class="fas fa-code"></i> Start coding</button>
+        <button type="button" class="document-action-btn" id="documentDetailsBtn"><i class="fas fa-list"></i> Show details</button>
+        <p class="document-action-hint" id="documentActionHint">Choose an action to continue.</p>
+      </div>
       <div class="input-wrap" id="inputWrap">
         <div class="model-picker-wrap">
           <button type="button" class="model-picker-btn" id="modelPickerBtn" aria-haspopup="true" aria-expanded="false" aria-label="Choose AI model">
@@ -535,8 +547,8 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
           </div>
         </div>
         {% endif %}
-        <button type="button" id="attachBtn" class="mic-btn" aria-label="Attach a file" title="Attach an image, PDF, DOCX, CSV, or TXT"><i class="fas fa-paperclip"></i></button>
-        <input type="file" id="imageInput" accept="image/*,.pdf,.docx,.csv,.txt" hidden>
+        <button type="button" id="attachBtn" class="mic-btn" aria-label="Attach a file" title="Attach an image, document, spreadsheet, presentation, HTML, or audio"><i class="fas fa-paperclip"></i></button>
+        <input type="file" id="imageInput" accept="image/*,audio/*,.pdf,.docx,.csv,.txt,.xlsx,.xlsm,.pptx,.html,.htm,.css,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.java,.c,.cpp,.h,.hpp,.cs,.php,.rb,.go,.rs,.swift,.kt,.kts,.sql,.json,.xml,.yaml,.yml,.md,.vue,.svelte,.sh,.ps1,.toml,.ini,.mp3,.wav,.m4a,.webm,.ogg" hidden>
         <button type="button" id="cameraBtn" class="mic-btn" aria-label="Take a photo" title="Take a photo"><i class="fas fa-camera"></i></button>
         <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
         <button type="button" id="micBtn" class="mic-btn" aria-label="Voice typing" title="Speak your message"><i class="fas fa-microphone"></i></button>
@@ -567,6 +579,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   var AI_FREE_USED = {{ ai_free_used|default:0 }};
   var AI_PURCHASE_URL = '{{ ai_purchase_url|default:"/store/" }}';
   var AI_DEFAULT_MODEL = '{{ ai_default_model|default:"ultra" }}';
+  var AI_RESUME_CONVERSATION_ID = {{ ai_resume_conversation_id|default:"null" }};
   var MODEL_LABELS = JSON.parse(document.getElementById('boot-model-labels').textContent || '{}');
 
   var state = {
@@ -586,16 +599,35 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // state.currentConversationId should go through this setter rather than
   // assigning it directly, so the two never drift out of sync.
   var CURRENT_CONV_STORAGE_KEY = 'ai_current_conversation_id';
+  var CURRENT_CONV_NEW_MARKER = 'new';
   // Used by stashPendingMessage/resumePendingMessage further down (the
   // login/signup gate flow) — declared here, ahead of both, since
   // resumeConversationOnLoad below also needs to check it before those
   // function bodies have run.
   var PENDING_KEY = 'aiPendingMessage';
+  function readPendingMessage(){
+    var raw;
+    try { raw = sessionStorage.getItem(PENDING_KEY); } catch (e) { return null; }
+    if (!raw) return null;
+    var pending;
+    try { pending = JSON.parse(raw); } catch (e) {
+      try { sessionStorage.removeItem(PENDING_KEY); } catch (ignore) {}
+      return null;
+    }
+    if (!pending || Date.now() - (pending.ts || 0) > 30 * 60 * 1000) {
+      try { sessionStorage.removeItem(PENDING_KEY); } catch (ignore) {}
+      return null;
+    }
+    return pending;
+  }
+  var pendingMessageOnLoad = readPendingMessage();
   function setCurrentConversationId(id){
     state.currentConversationId = id;
     try {
       if (id) localStorage.setItem(CURRENT_CONV_STORAGE_KEY, String(id));
-      else localStorage.removeItem(CURRENT_CONV_STORAGE_KEY);
+      // Preserve an intentional blank New chat across refresh. A missing key
+      // is different: it may mean storage was cleared, so server fallback wins.
+      else localStorage.setItem(CURRENT_CONV_STORAGE_KEY, CURRENT_CONV_NEW_MARKER);
     } catch (e) {}
   }
   // The AbortController for whichever request is currently in flight (plain
@@ -671,6 +703,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   var attachThumb = document.getElementById('attachThumb');
   var attachDocIcon = document.getElementById('attachDocIcon');
   var attachLabel = document.getElementById('attachLabel');
+  var documentActionPanel = document.getElementById('documentActionPanel');
+  var documentCodingBtn = document.getElementById('documentCodingBtn');
+  var documentDetailsBtn = document.getElementById('documentDetailsBtn');
+  var documentActionHint = document.getElementById('documentActionHint');
   var attachRemove = document.getElementById('attachRemove');
   var attachError = document.getElementById('attachError');
   var convList = document.getElementById('convList');
@@ -1571,14 +1607,22 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     stagedImage = null;
     stagedDocument = null;
     if (attachPreview) { attachPreview.hidden = true; attachPreview.classList.remove('uploading'); }
+    if (documentActionPanel) documentActionPanel.hidden = true;
+    if (documentCodingBtn) documentCodingBtn.classList.remove('active');
+    if (documentDetailsBtn) documentDetailsBtn.classList.remove('active');
     if (attachThumb) attachThumb.hidden = true;
     if (attachDocIcon) attachDocIcon.hidden = true;
     if (imageInput) imageInput.value = '';
+    if (!state.githubMode) input.placeholder = 'Message AI';
   }
 
   function stageImage(dataUri){
     attachGen++;
     stagedDocument = null;
+    if (documentActionPanel) documentActionPanel.hidden = true;
+    if (documentCodingBtn) documentCodingBtn.classList.remove('active');
+    if (documentDetailsBtn) documentDetailsBtn.classList.remove('active');
+    if (!state.githubMode) input.placeholder = 'Message AI';
     stagedImage = dataUri;
     if (attachThumb) { attachThumb.src = dataUri; attachThumb.hidden = false; }
     if (attachDocIcon) attachDocIcon.hidden = true;
@@ -1586,14 +1630,50 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     if (attachPreview) { attachPreview.hidden = false; attachPreview.classList.remove('uploading'); }
   }
 
-  function stageDocument(name, text, truncated){
+  function updateDocumentAction(mode){
+    if (!stagedDocument) return;
+    stagedDocument.mode = mode;
+    if (documentActionPanel) documentActionPanel.hidden = false;
+    if (documentCodingBtn) documentCodingBtn.classList.toggle('active', mode === 'coding');
+    if (documentDetailsBtn) documentDetailsBtn.classList.toggle('active', mode === 'details');
+    if (mode === 'coding') {
+      if (typeof applyModelSelection === 'function') applyModelSelection('code', true);
+      input.placeholder = 'What should I change in ' + stagedDocument.name + '?';
+      if (documentActionHint) documentActionHint.textContent = stagedDocument.codingTruncated
+        ? 'This file is too long for a complete safe rewrite; coding will use only the displayed partial source.'
+        : 'Describe the change. The reply will include the complete updated file.';
+      input.focus();
+    } else if (mode === 'details') {
+      input.placeholder = 'Message AI';
+      if (documentActionHint) documentActionHint.textContent = stagedDocument.truncated
+        ? 'AI will explain the available part of this long file without rewriting it.'
+        : 'AI will explain the file without rewriting it.';
+    } else if (documentActionHint) {
+      documentActionHint.textContent = 'Choose an action to continue.';
+    }
+  }
+
+  function stageDocument(name, text, truncated, codingText, codingTruncated, mode){
     stagedImage = null;
-    stagedDocument = { name: name, text: text, truncated: !!truncated };
+    stagedDocument = {
+      name: name, text: text, truncated: !!truncated,
+      codingText: codingText || text, codingTruncated: !!codingTruncated,
+      mode: mode || null,
+    };
     if (attachThumb) attachThumb.hidden = true;
     if (attachDocIcon) attachDocIcon.hidden = false;
     if (attachLabel) attachLabel.textContent = name + (truncated ? ' (partial — long file)' : '');
     if (attachPreview) { attachPreview.hidden = false; attachPreview.classList.remove('uploading'); }
+    updateDocumentAction(stagedDocument.mode);
   }
+
+  if (documentCodingBtn) documentCodingBtn.addEventListener('click', function(){
+    updateDocumentAction('coding');
+  });
+  if (documentDetailsBtn) documentDetailsBtn.addEventListener('click', function(){
+    updateDocumentAction('details');
+    send('Show details about this file only. Do not rewrite it.');
+  });
 
   // Resizes to a max 1280px edge and re-encodes as JPEG, stepping quality
   // down if still too big — phone photos routinely run 3-10MB, and both
@@ -1628,7 +1708,38 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     img.src = url;
   }
 
-  var DOCUMENT_EXTENSIONS = ['.pdf', '.docx', '.csv', '.txt'];
+  var DOCUMENT_EXTENSIONS = [
+    '.pdf', '.docx', '.csv', '.txt', '.xlsx', '.xlsm', '.pptx', '.html', '.htm',
+    '.css', '.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx', '.py', '.java', '.c',
+    '.cpp', '.h', '.hpp', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+    '.kts', '.sql', '.json', '.xml', '.yaml', '.yml', '.md', '.vue', '.svelte',
+    '.sh', '.ps1', '.toml', '.ini'
+  ];
+  var AUDIO_EXTENSIONS = ['.mp3', '.wav', '.m4a', '.webm', '.ogg', '.aac'];
+
+  function uploadAudio(file){
+    var gen = ++attachGen;
+    if (attachPreview) { attachPreview.hidden = false; attachPreview.classList.add('uploading'); }
+    if (attachThumb) attachThumb.hidden = true;
+    if (attachDocIcon) attachDocIcon.hidden = false;
+    if (attachLabel) attachLabel.textContent = 'Transcribing ' + file.name + '…';
+    var fd = new FormData();
+    fd.append('file', file);
+    fetch('/AI/api/transcribe/', {
+      method: 'POST', credentials: 'same-origin', headers: { 'X-CSRFToken': csrfToken() }, body: fd,
+    }).then(function(resp){
+      return resp.json().then(function(body){ return { ok: resp.ok, body: body }; });
+    }).then(function(res){
+      if (gen !== attachGen) return;
+      clearStagedImage();
+      if (!res.ok) { showAttachError(res.body.detail || 'Could not transcribe that audio.'); return; }
+      input.value = (input.value.trim() + ' ' + res.body.text).trim();
+      autoResize(); input.focus();
+    }).catch(function(){
+      if (gen !== attachGen) return;
+      clearStagedImage(); showAttachError('Could not transcribe that audio.');
+    });
+  }
 
   function uploadDocument(file){
     var gen = ++attachGen;
@@ -1652,7 +1763,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         showAttachError(res.body.detail || 'Could not read that file.');
         return;
       }
-      stageDocument(res.body.filename, res.body.text, res.body.truncated);
+      stageDocument(
+        res.body.filename, res.body.text, res.body.truncated,
+        res.body.coding_text, res.body.coding_truncated
+      );
     }).catch(function(){
       if (gen !== attachGen) return;
       clearStagedImage();
@@ -1671,8 +1785,12 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       return;
     }
     var ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
+    if ((file.type && file.type.indexOf('audio/') === 0) || AUDIO_EXTENSIONS.indexOf(ext) !== -1) {
+      uploadAudio(file);
+      return;
+    }
     if (DOCUMENT_EXTENSIONS.indexOf(ext) === -1) {
-      showAttachError('Please choose an image, PDF, DOCX, CSV, or TXT file.');
+      showAttachError('Please choose a supported image, document, spreadsheet, presentation, HTML, or audio file.');
       return;
     }
     uploadDocument(file);
@@ -1893,22 +2011,26 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // Skipped when a gate-triggered login/signup resume is about to run
   // (see resumePendingMessage far below) — that one already knows exactly
   // which conversation to reopen, so this would otherwise race it.
-  (function resumeConversationOnLoad(){
-    var pendingRaw;
-    try { pendingRaw = sessionStorage.getItem(PENDING_KEY); } catch (e) { pendingRaw = null; }
-    if (pendingRaw) return;
-    var savedId;
-    try { savedId = localStorage.getItem(CURRENT_CONV_STORAGE_KEY); } catch (e) { return; }
-    if (!savedId) return;
-    var id = parseInt(savedId, 10);
-    if (!id) return;
-    var found = state.conversations.some(function(c){ return c.id === id; });
-    if (found) {
-      loadConversation(id);
-    } else {
-      try { localStorage.removeItem(CURRENT_CONV_STORAGE_KEY); } catch (e) {}
+  function resumeRegularConversation(){
+    var savedValue = null;
+    try { savedValue = localStorage.getItem(CURRENT_CONV_STORAGE_KEY); } catch (e) {}
+    if (savedValue === CURRENT_CONV_NEW_MARKER) return false;
+
+    var savedId = parseInt(savedValue || '', 10);
+    var id = state.conversations.some(function(c){ return c.id === savedId; })
+      ? savedId
+      : AI_RESUME_CONVERSATION_ID;
+    if (!state.conversations.some(function(c){ return c.id === id; })) {
+      id = state.conversations.length ? state.conversations[0].id : null;
     }
-  })();
+    if (!id) return false;
+    loadConversation(id);
+    return true;
+  }
+
+  // Only a fresh, valid login hand-off should supersede normal restoration.
+  // A stale/malformed pending value used to make the chat appear deleted.
+  if (!(AI_AUTHENTICATED && pendingMessageOnLoad)) resumeRegularConversation();
 
   function refreshConversations(){
     return fetch('/AI/api/conversations/', { credentials: 'same-origin' })
@@ -2029,7 +2151,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // and restoring it in resumePendingMessage() below (right after reload)
   // is what makes "log in mid-chat" feel continuous instead of a reset.
   function stashPendingMessage(pending){
-    if (!pending || (!pending.text && !pending.image && !pending.document)) return;
+    if (!pending || (!state.currentConversationId && !pending.text && !pending.image && !pending.document)) return;
     try {
       sessionStorage.setItem(PENDING_KEY, JSON.stringify({
         conversationId: state.currentConversationId,
@@ -2038,6 +2160,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         documentName: pending.document ? pending.document.name : null,
         documentText: pending.document ? pending.document.text : null,
         documentTruncated: pending.document ? !!pending.document.truncated : false,
+        documentCodingText: pending.document ? pending.document.codingText : null,
+        documentCodingTruncated: pending.document ? !!pending.document.codingTruncated : false,
+        documentMode: pending.document ? pending.document.mode : null,
         ts: Date.now(),
       }));
     } catch (e) {}
@@ -2155,6 +2280,96 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     });
   }
 
+  function youtubeUrlFromText(text){
+    var match = (text || '').match(/https?:\/\/(?:www\.|m\.|music\.)?(?:youtube\.com\/(?:watch\?[^\s]*v=|shorts\/|live\/)|youtu\.be\/)[^\s<]+/i);
+    return match ? match[0].replace(/[),.!?]+$/, '') : null;
+  }
+
+  function showYoutubeOptions(text, url){
+    stopSpeaking(); renderRow('user', text); input.value = ''; autoResize();
+    var bubble = renderRow('assistant', '');
+    bubble.className = 'msg-bubble md';
+    bubble.innerHTML = '<p><strong>YouTube download options</strong></p><div class="suggest-row">' +
+      '<button class="suggest-chip" data-youtube-quality="720">720p video</button>' +
+      '<button class="suggest-chip" data-youtube-quality="1080">1080p video</button>' +
+      '<button class="suggest-chip" data-youtube-quality="audio">MP3 320 kbps</button></div>';
+    bubble.addEventListener('click', function(e){
+      var button = e.target.closest('[data-youtube-quality]');
+      if (!button || state.streaming) return;
+      sendYoutubeDownload('', url, button.getAttribute('data-youtube-quality'), bubble);
+    }, { once: true });
+  }
+
+  function sendYoutubeDownload(text, url, quality, existingBubble){
+    stopSpeaking();
+    if (text) renderRow('user', text);
+    input.value = '';
+    autoResize();
+    setStreaming(true);
+    var bubble = existingBubble || renderRow('assistant', '', { typing: true, statusKey: 'default' });
+    startTypingStatus(bubble, 'default');
+    var controller = new AbortController();
+    activeAbort = controller;
+
+    function fail(message){
+      stopBubbleTyping(bubble);
+      bubble.className = 'msg-bubble error';
+      bubble.textContent = message;
+      activeAbort = null;
+      setStreaming(false);
+      input.focus();
+    }
+
+    function poll(job){
+      fetch('/AI/api/youtube/' + job + '/status/', {
+        credentials: 'same-origin', signal: controller.signal,
+      }).then(function(resp){ return resp.json().then(function(body){ return { ok: resp.ok, body: body }; }); })
+        .then(function(res){
+          if (!res.ok) { fail(res.body.detail || 'Could not check the download.'); return; }
+          var body = res.body;
+          if (body.status === 'failed') { fail(body.error || 'Could not prepare this video.'); return; }
+          if (body.status === 'ready') {
+            stopBubbleTyping(bubble);
+            var title = escHtml(body.title || 'YouTube video');
+            bubble.className = 'msg-bubble md';
+            bubble.innerHTML = '<p><strong>' + title + '</strong></p>' +
+              '<p>Your file is ready for one hour:</p>' +
+              '<p><a href="' + (body.video_url || body.audio_url) + '"><strong>' +
+              (body.audio_url ? 'Download MP3 (320 kbps conversion)' : 'Download ' + quality + 'p video') + '</strong></a></p>' +
+              '<p><small>Only download content you own or have permission to save.</small></p>';
+            activeAbort = null;
+            setStreaming(false);
+            scrollToBottom(); input.focus();
+            return;
+          }
+          stopBubbleTyping(bubble);
+          bubble.innerHTML = '<span class="typing-status">Preparing video and audio… ' + (body.progress || 0) + '%</span>';
+          scrollToBottom();
+          setTimeout(function(){ poll(job); }, 1500);
+        }).catch(function(err){
+          if (err && err.name === 'AbortError') { fail('Stopped.'); return; }
+          fail('Could not prepare this YouTube download.');
+        });
+    }
+
+    fetch('/AI/api/youtube/start/', {
+      method: 'POST', credentials: 'same-origin', signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+      body: JSON.stringify({ url: url, quality: quality }),
+    }).then(function(resp){ return resp.json().then(function(body){ return { ok: resp.ok, body: body }; }); })
+      .then(function(res){
+        if (res.body.status === 'login_required') {
+          stopBubbleTyping(bubble); bubble.parentElement.remove(); setStreaming(false);
+          showGate({ text: text }); return;
+        }
+        if (!res.ok) { fail(res.body.detail || 'Could not start the download.'); return; }
+        poll(res.body.job);
+      }).catch(function(err){
+        if (err && err.name === 'AbortError') { fail('Stopped.'); return; }
+        fail('Could not start the YouTube download.');
+      });
+  }
+
   function send(promptText){
     if (state.gated) { showGate(); return; }
     if (state.conversationEnded) return;
@@ -2163,6 +2378,40 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var imageToSend = stagedImage;
     var documentToSend = stagedDocument;
     if ((!text && !imageToSend && !documentToSend) || state.streaming) return;
+    if (documentToSend && !documentToSend.mode) {
+      var attachmentIntent = text.toLowerCase().replace(/[^a-z ]/g, '').trim();
+      if (/^(start )?(coding|editing|code)$/.test(attachmentIntent)) {
+        input.value = '';
+        autoResize();
+        updateDocumentAction('coding');
+        return;
+      }
+      if (/^(show )?(details|detail|summary|analyse|analyze)$/.test(attachmentIntent)) {
+        updateDocumentAction('details');
+        text = 'Show details about this file only. Do not rewrite it.';
+      } else {
+        if (documentActionPanel) documentActionPanel.hidden = false;
+        if (documentActionHint) documentActionHint.textContent = 'Choose Start coding or Show details before sending.';
+        return;
+      }
+    }
+    if (documentToSend && documentToSend.mode === 'coding' && !text) {
+      if (documentActionHint) documentActionHint.textContent = 'Tell AI what you want changed in the file.';
+      input.focus();
+      return;
+    }
+    var documentTextToSend = documentToSend
+      ? (documentToSend.mode === 'coding' ? documentToSend.codingText : documentToSend.text)
+      : undefined;
+    var documentTruncatedToSend = documentToSend
+      ? (documentToSend.mode === 'coding' ? documentToSend.codingTruncated : documentToSend.truncated)
+      : false;
+
+    var youtubeUrl = !imageToSend && !documentToSend ? youtubeUrlFromText(text) : null;
+    if (youtubeUrl) {
+      showYoutubeOptions(text, youtubeUrl);
+      return;
+    }
 
     stopVoiceTyping();
     stopSpeaking();
@@ -2174,6 +2423,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     setStreaming(true);
 
     var assistantText = '';
+    var streamRenderFrame = null;
     var answeredModelKey = null;
     var matchedProducts = [];
     var isSumudrika = false;
@@ -2190,6 +2440,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     activeAbort = abortController;
 
     function finalizeBubble(){
+      if (streamRenderFrame !== null) {
+        cancelAnimationFrame(streamRenderFrame);
+        streamRenderFrame = null;
+      }
       stopBubbleTyping(bubble);
       var label = answeredModelKey ? MODEL_LABELS[answeredModelKey] : null;
       var tagHtml = label ? '<div class="msg-model-tag">' + escHtml(label) + '</div>' : '';
@@ -2209,8 +2463,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       signal: abortController.signal,
       body: JSON.stringify({
         conversation_id: state.currentConversationId, message: text, model: currentModel, image: imageToSend,
-        document_text: documentToSend ? documentToSend.text : undefined,
+        document_text: documentTextToSend,
         document_name: documentToSend ? documentToSend.name : undefined,
+        document_mode: documentToSend ? documentToSend.mode : undefined,
+        document_truncated: documentTruncatedToSend,
         language: currentLanguage,
       })
     }).then(function(resp){
@@ -2258,6 +2514,14 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       }
       var reader = resp.body.getReader();
       var decoder = new TextDecoder();
+      function scheduleStreamRender(){
+        if (streamRenderFrame !== null) return;
+        streamRenderFrame = requestAnimationFrame(function(){
+          streamRenderFrame = null;
+          bubble.innerHTML = formatMd(assistantText) + '<span class="msg-cursor"></span>';
+          scrollToBottom();
+        });
+      }
       function pump(){
         return reader.read().then(function(result){
           if (result.done) return;
@@ -2265,8 +2529,10 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
           if (!chunk) return pump();
           stopBubbleTyping(bubble);
           assistantText += chunk;
-          bubble.innerHTML = formatMd(assistantText) + '<span class="msg-cursor"></span>';
-          scrollToBottom();
+          // Coalesce rapid token chunks into one DOM update per animation
+          // frame. Re-parsing all Markdown for every token causes visible
+          // lag on long answers and slower phones.
+          scheduleStreamRender();
           return pump();
         });
       }
@@ -2336,23 +2602,25 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   // Left untouched (not cleared) if we're not actually authenticated yet —
   // e.g. a plain page refresh while still gated shouldn't burn the stash.
   (function resumePendingMessage(){
-    var raw;
-    try { raw = sessionStorage.getItem(PENDING_KEY); } catch (e) { return; }
-    if (!raw || !AI_AUTHENTICATED) return;
+    var pending = pendingMessageOnLoad;
+    if (!pending || !AI_AUTHENTICATED) return;
     try { sessionStorage.removeItem(PENDING_KEY); } catch (e) {}
-    var pending;
-    try { pending = JSON.parse(raw); } catch (e) { return; }
     if (!pending || Date.now() - (pending.ts || 0) > 30 * 60 * 1000) return; // stale — ignore
 
     function restoreAndSend(){
       if (pending.image) stageImage(pending.image);
-      else if (pending.documentName) stageDocument(pending.documentName, pending.documentText || '', pending.documentTruncated);
-      send(pending.text || '');
+      else if (pending.documentName) stageDocument(
+        pending.documentName, pending.documentText || '', pending.documentTruncated,
+        pending.documentCodingText || pending.documentText || '', pending.documentCodingTruncated,
+        pending.documentMode
+      );
+      if (pending.text || pending.image || pending.documentName) send(pending.text || '');
     }
-    var convId = pending.conversationId;
+    var convId = parseInt(pending.conversationId || '', 10);
     var found = convId && state.conversations.some(function(c){ return c.id === convId; });
     if (found) { loadConversation(convId).then(restoreAndSend); return; }
-    restoreAndSend();
+    if (pending.text || pending.image || pending.documentName) restoreAndSend();
+    else resumeRegularConversation();
   })();
 
   input.focus();

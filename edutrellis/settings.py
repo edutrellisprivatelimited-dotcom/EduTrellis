@@ -170,4 +170,21 @@ TAVILY_API_KEY = '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'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Expose the AI latency breakdown added in views.py/ai_chat.py in the normal
+# development and Gunicorn logs.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'loggers': {
+        'myapp': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
 
