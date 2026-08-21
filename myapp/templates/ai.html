@@ -4,8 +4,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>EduTrellis AI</title>
-<meta name="robots" content="noindex, follow">
+<title>EduTrellis AI — Free AI Chat Assistant for Shopping &amp; Learning</title>
+<meta name="description" content="Chat with EduTrellis AI, a free assistant that helps you find products in the EduTrellis Store, answers questions and supports your learning — right from your browser.">
+<meta name="keywords" content="EduTrellis AI, AI chat assistant, free AI chatbot India, EduTrellis chatbot, AI shopping assistant, AI study help">
+<meta name="author" content="EduTrellis">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://www.edutrellis.in{{ request.path }}">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="EduTrellis">
+<meta property="og:title" content="EduTrellis AI — Free AI Chat Assistant">
+<meta property="og:description" content="Chat with EduTrellis AI for product help, quick answers and learning support — free, right from your browser.">
+<meta property="og:url" content="https://www.edutrellis.in{{ request.path }}">
+<meta property="og:image" content="https://www.edutrellis.in{% static 'img/og-cover.jpg' %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_IN">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="EduTrellis AI — Free AI Chat Assistant">
+<meta name="twitter:description" content="Chat with EduTrellis AI for product help, quick answers and learning support — free, right from your browser.">
+<meta name="twitter:image" content="https://www.edutrellis.in{% static 'img/og-cover.jpg' %}">
 <script>
 // Applied synchronously, before first paint, so a saved dark/light choice
 // takes effect immediately instead of flashing the other theme while the
@@ -21,6 +40,22 @@
 <link rel="manifest" href="{% url 'ai_manifest' %}">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"WebApplication",
+ "name":"EduTrellis AI",
+ "url":"https://www.edutrellis.in/AI/",
+ "applicationCategory":"BusinessApplication",
+ "operatingSystem":"Any",
+ "description":"Free AI chat assistant from EduTrellis that helps you find products in the EduTrellis Store, answers questions and supports your learning.",
+ "image":"https://www.edutrellis.in{% static 'img/og-cover.jpg' %}",
+ "offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},
+ "provider":{"@type":"Organization","name":"EduTrellis","url":"https://www.edutrellis.in"}
+}
+</script>
+
 <style>
 :root{--red:#e8001e;--red-dark:#c0001a;--dark:#1c2333;--text:#555f6d;--head:#111418;--line:#e7eaf0;--bg-alt:#f8f9fc;--bg:#fff;--surface:#fff;--tint:#fff1f3;--header-bg:rgba(255,255,255,.94)}
 /* dark theme — an explicit toggle stamps data-theme on <html>; with no
