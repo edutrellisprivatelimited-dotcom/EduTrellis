@@ -1,29 +1,54 @@
-"""Lightweight local intent classification for automatic model routing."""
-_classifier = None
+"""Fast, dependency-free intent classification for automatic model routing.
 
-_EXAMPLES = [
-    ('debug this python error write code fix api css javascript', 'code'),
-    ('research current news latest facts compare sources explain topic', 'research'),
-    ('find product buy price recommend shopping order store', 'shopping'),
-    ('summarize spreadsheet pdf presentation document file', 'document'),
-    ('write story email caption brainstorm creative rewrite', 'creative'),
-    ('hello advice explain question conversation', 'general'),
-]
+This runs on every chat request, so importing and training a machine-learning
+pipeline here adds a large cold-start delay for very little benefit. A small
+keyword scorer is deterministic, starts instantly, and preserves the existing
+route categories.
+"""
+import re
+
+
+_TOKEN_RE = re.compile(r"[a-z0-9+#.-]+")
+_KEYWORDS = {
+    'code': {
+        'api', 'bug', 'code', 'coding', 'css', 'database', 'debug', 'django',
+        'error', 'exception', 'html', 'java', 'javascript', 'node', 'php',
+        'program', 'programming', 'python', 'react', 'sql', 'traceback',
+        'typescript',
+    },
+    'research': {
+        'compare', 'current', 'evidence', 'fact', 'facts', 'latest', 'news',
+        'research', 'source', 'sources', 'study', 'today', 'verify',
+    },
+    'shopping': {
+        'buy', 'order', 'price', 'product', 'recommend', 'shop', 'shopping',
+        'store',
+    },
+    'document': {
+        'document', 'file', 'pdf', 'presentation', 'spreadsheet', 'summarize',
+        'summary',
+    },
+    'creative': {
+        'brainstorm', 'caption', 'creative', 'email', 'poem', 'rewrite',
+        'story',
+    },
+}
+_CATEGORY_PRIORITY = ('code', 'research', 'shopping', 'document', 'creative')
 
 
 def classify(text):
-    global _classifier
-    try:
-        if _classifier is None:
-            from sklearn.feature_extraction.text import TfidfVectorizer
-            from sklearn.pipeline import make_pipeline
-            from sklearn.svm import LinearSVC
-            samples, labels = zip(*_EXAMPLES)
-            _classifier = make_pipeline(TfidfVectorizer(ngram_range=(1, 2)), LinearSVC()).fit(samples, labels)
-        return str(_classifier.predict([text or ''])[0])
-    except Exception:
-        lowered = (text or '').lower()
-        return 'code' if any(k in lowered for k in ('code', 'error', 'python', 'javascript')) else 'general'
+    tokens = set(_TOKEN_RE.findall((text or '').lower()))
+    if not tokens:
+        return 'general'
+
+    scores = {
+        category: len(tokens.intersection(keywords))
+        for category, keywords in _KEYWORDS.items()
+    }
+    best_score = max(scores.values(), default=0)
+    if not best_score:
+        return 'general'
+    return next(category for category in _CATEGORY_PRIORITY if scores[category] == best_score)
 
 
 def choose_model(text, default_model):

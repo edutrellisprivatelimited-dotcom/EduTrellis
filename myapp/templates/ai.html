@@ -2458,7 +2458,11 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     setStreaming(true);
 
     var assistantText = '';
-    var streamRenderFrame = null;
+    var streamRenderTimer = null;
+    // Narrow mobile layouts pay much more for Markdown parsing and forced
+    // scroll layouts. Ten paints per second still feels live while avoiding
+    // a full re-render for every token received from the network.
+    var streamRenderInterval = window.matchMedia('(max-width: 640px)').matches ? 100 : 50;
     var answeredModelKey = null;
     var matchedProducts = [];
     var isSumudrika = false;
@@ -2475,9 +2479,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     activeAbort = abortController;
 
     function finalizeBubble(){
-      if (streamRenderFrame !== null) {
-        cancelAnimationFrame(streamRenderFrame);
-        streamRenderFrame = null;
+      if (streamRenderTimer !== null) {
+        clearTimeout(streamRenderTimer);
+        streamRenderTimer = null;
       }
       stopBubbleTyping(bubble);
       var label = answeredModelKey ? MODEL_LABELS[answeredModelKey] : null;
@@ -2550,12 +2554,12 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       var reader = resp.body.getReader();
       var decoder = new TextDecoder();
       function scheduleStreamRender(){
-        if (streamRenderFrame !== null) return;
-        streamRenderFrame = requestAnimationFrame(function(){
-          streamRenderFrame = null;
+        if (streamRenderTimer !== null) return;
+        streamRenderTimer = setTimeout(function(){
+          streamRenderTimer = null;
           bubble.innerHTML = formatMd(assistantText) + '<span class="msg-cursor"></span>';
           scrollToBottom();
-        });
+        }, streamRenderInterval);
       }
       function pump(){
         return reader.read().then(function(result){
@@ -2604,6 +2608,21 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
         // user clicked Stop — keep whatever streamed so far, same as a
         // normal finish, not an error state.
         finalizeBubble();
+        setStreaming(false);
+        scrollToBottom();
+        input.focus();
+        refreshConversations();
+        return;
+      }
+      if (assistantText.trim()) {
+        // Preserve text already received when a mobile connection drops
+        // near the end of a stream; replacing it with a generic error makes
+        // a successful partial response look like no response at all.
+        finalizeBubble();
+        bubble.insertAdjacentHTML(
+          'beforeend',
+          '<div class="msg-stream-note">Response interrupted. Retry if anything is missing.</div>'
+        );
         setStreaming(false);
         scrollToBottom();
         input.focus();

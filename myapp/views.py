@@ -2459,7 +2459,13 @@ def ai_chat_send(request):
             # answer, so it must never be saved as one.
             logger.exception("AI chat stream failed after retries: %s", e)
             had_error = True
-            yield "\n\n[Something went wrong on our end — please try again.]"
+            if full_reply.strip():
+                # A dropped mobile connection or upstream stream can happen
+                # after useful text has arrived. Keep that text visible
+                # instead of replacing it with a generic failure message.
+                yield "\n\n[Response interrupted. You can retry if anything is missing.]"
+            else:
+                yield "The AI service did not respond. Please try again."
         finally:
             # The conversation can have been deleted (by this same user, in
             # another tab, or via the sidebar delete button) while this reply

@@ -14,7 +14,7 @@ MAX_TOKENS = 1200
 TEMPERATURE = 1.0
 TOP_P = 0.95
 STREAM_RETRY_ATTEMPTS = 1          # one retry, and only for transient failures
-STREAM_RETRY_BACKOFF_SECONDS = 1.5
+STREAM_RETRY_BACKOFF_SECONDS = 0.5
 
 # EduTrellis Vision was live-tested to randomly (~1 in 3 tries, reproducible
 # across many prompt-wording variants and even at temperature 0) open with a
@@ -720,6 +720,17 @@ def _is_transient_error(exc):
     ))
 
 
+def _is_model_unavailable_error(exc):
+    """Return True when the selected model itself cannot be invoked."""
+    status = getattr(exc, 'status_code', None)
+    text = str(exc).lower()
+    return status in (404, 410) or (
+        status == 400 and 'model' in text and any(term in text for term in (
+            'not found', 'unavailable', 'does not exist', 'unsupported',
+        ))
+    )
+
+
 def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                  retrieved_context=None, retrieved_source=None, sumudrika=False,
                  sumudrika_greet=True, jagu=False, jagu_greet=True,
@@ -981,10 +992,25 @@ def stream_chat(messages, model_key=DEFAULT_MODEL_KEY, account_context=None,
                 return
             time.sleep(STREAM_RETRY_BACKOFF_SECONDS * (attempt + 1))
         except Exception as exc:
-            if yielded_any or attempt >= STREAM_RETRY_ATTEMPTS or not _is_transient_error(exc):
+            transient = _is_transient_error(exc)
+            can_fallback = (
+                model_key == DEFAULT_MODEL_KEY
+                and MODELS['quick']['id'] != kwargs['model']
+                and (transient or _is_model_unavailable_error(exc))
+            )
+            if yielded_any or attempt >= STREAM_RETRY_ATTEMPTS or (not transient and not can_fallback):
                 raise
-            logger.warning("Transient AI error; retrying model=%s error=%s", model_key, exc)
-            time.sleep(STREAM_RETRY_BACKOFF_SECONDS * (attempt + 1))
+            if can_fallback:
+                # Lightning is the public default. If its worker is busy or
+                # temporarily unavailable, retry once on the already-tested
+                # Quick model instead of showing a generic failure.
+                kwargs['model'] = MODELS['quick']['id']
+                logger.warning(
+                    "AI default model failed; falling back to Quick error=%s", exc,
+                )
+            else:
+                logger.warning("Transient AI error; retrying model=%s error=%s", model_key, exc)
+                time.sleep(STREAM_RETRY_BACKOFF_SECONDS * (attempt + 1))
 
 
 # ── GitHub mode: repo-aware code changes, driven by a plain-English prompt ──

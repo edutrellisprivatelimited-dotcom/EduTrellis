@@ -1,11 +1,12 @@
 import json
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
-from . import doc_extract
+from . import ai_chat, doc_extract, privacy, request_router
 from .models import AIConversation, AIMessage, StoreProfile
 from .views import AI_CURRENT_CONVERSATION_SESSION_KEY, _ai_document_instruction
 
@@ -75,6 +76,42 @@ class AIConversationPersistenceTests(TestCase):
         self.assertEqual(response.context['ai_resume_conversation_id'], conversation.id)
         response = self.client.get(f'/AI/api/conversations/{conversation.id}/')
         self.assertEqual(response.json()['messages'][0]['content'], 'Before login')
+
+
+class AIResponseReliabilityTests(TestCase):
+    def test_request_routing_does_not_need_a_runtime_ml_model(self):
+        self.assertEqual(request_router.classify('Debug this Python traceback'), 'code')
+        self.assertEqual(request_router.classify('Research the latest facts and sources'), 'research')
+        self.assertEqual(request_router.classify('Hello, how are you?'), 'general')
+        self.assertEqual(request_router.choose_model('Fix this JavaScript bug', 'lightning')[0], 'code')
+
+    @override_settings(AI_USE_PRESIDIO=False)
+    def test_fast_privacy_path_redacts_common_identifiers(self):
+        redacted = privacy.redact('Email me@example.com or call 9876543210')
+
+        self.assertEqual(redacted, 'Email <EMAIL> or call <PHONE>')
+
+    def test_default_model_falls_back_to_quick_before_showing_an_error(self):
+        chunk = SimpleNamespace(
+            choices=[SimpleNamespace(delta=SimpleNamespace(content='Recovered reply'))]
+        )
+        create = SimpleNamespace()
+        create.create = Mock(
+            side_effect=[TimeoutError('upstream timed out'), iter([chunk])]
+        )
+        client = SimpleNamespace(chat=SimpleNamespace(completions=create))
+
+        with patch('myapp.ai_chat._get_client', return_value=client):
+            result = ''.join(ai_chat.stream_chat(
+                [{'role': 'user', 'content': 'Hello'}], model_key='lightning'
+            ))
+
+        self.assertEqual(result, 'Recovered reply')
+        self.assertEqual(create.create.call_count, 2)
+        self.assertEqual(
+            create.create.call_args_list[1].kwargs['model'],
+            ai_chat.MODELS['quick']['id'],
+        )
 
 
 class HTMLExtractionTests(TestCase):
