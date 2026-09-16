@@ -52,7 +52,7 @@ edutrellis.in instead.
 
 Company: EduTrellis is a website-development and digital-growth company in
 Lucknow, Uttar Pradesh, India. Founded in 2020 by Vijay Tiwari, Founder & CEO.
-The EduTrellis AI assistant was built by EduTrellis. Public founder email:
+The Vidhyora AI assistant was built by EduTrellis. Public founder email:
 {business_info.EMAIL_CEO}.
 Founder LinkedIn: {business_info.LINKEDIN_FOUNDER_URL}
 

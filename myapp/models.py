@@ -53,8 +53,8 @@ class StoreProfile(models.Model):
     # a boolean flag, so back-to-back renewals stack cleanly. Staff accounts
     # bypass both the cap and this field entirely (see views._ai_profile_gate)
     # rather than being modeled as a permanent subscription here.
-    ai_subscription_until = models.DateTimeField(null=True, blank=True, help_text="EduTrellis AI access is unlimited until this time. Blank/past = free tier.")
-    ai_free_messages_used = models.PositiveIntegerField(default=0, help_text="Free-tier EduTrellis AI messages sent so far (resets on each new subscription purchase).")
+    ai_subscription_until = models.DateTimeField(null=True, blank=True, help_text="Vidhyora AI access is unlimited until this time. Blank/past = free tier.")
+    ai_free_messages_used = models.PositiveIntegerField(default=0, help_text="Free-tier Vidhyora AI messages sent so far (resets on each new subscription purchase).")
 
     # First-time AI chat onboarding — asked once, on this account's first
     # real AI reply, then captured from whatever they say next (see
@@ -425,7 +425,7 @@ WALLET_OFFER_CREDIT = 100
 # seeded automatically by migration 0034_seed_ai_subscription_product.
 # Buying it (see Order.maybe_grant_ai_subscription) extends the buyer's
 # StoreProfile.ai_subscription_until by this many days.
-AI_SUBSCRIPTION_PRODUCT_SLUG = 'edutrellis-ai-monthly'
+AI_SUBSCRIPTION_PRODUCT_SLUG = 'vidhyora-ai-1-month'
 AI_SUBSCRIPTION_DAYS = 30
 
 
@@ -526,7 +526,7 @@ class Order(models.Model):
             StoreProfile.objects.filter(user=self.user).update(wallet_balance=F('wallet_balance') + WALLET_OFFER_CREDIT)
 
     def maybe_grant_ai_subscription(self):
-        """Extends the buyer's EduTrellis AI subscription once this order's
+        """Extends the buyer's Vidhyora AI subscription once this order's
         AI-plan item (AI_SUBSCRIPTION_PRODUCT_SLUG) is actually paid for —
         either an online payment that's cleared, or a COD order the admin
         has marked Delivered (COD's own "paid" signal elsewhere in this

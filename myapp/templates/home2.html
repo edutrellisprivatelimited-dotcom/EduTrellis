@@ -650,6 +650,7 @@
       <li><a href="#home" class="active">Home</a></li>
       <li><a href="{% url 'home' %}">EduTrellis Homepage</a></li>
       <li><a href="{% url 'estore' %}">E-Store</a></li>
+      <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
       <li><a href="#services">Services</a></li>
       <li><a href="#about">About Us</a></li>
       <li><a href="#results">Results</a></li>
@@ -669,6 +670,7 @@
   <a href="#home" onclick="closeMenu()">Home</a>
   <a href="{% url 'home' %}">EduTrellis Homepage</a>
   <a href="{% url 'estore' %}" onclick="closeMenu()">E-Store</a>
+  <a href="https://www.vidhyora.online/" target="_blank" rel="noopener" onclick="closeMenu()">Vidhyora AI</a>
   <a href="#services" onclick="closeMenu()">Services</a>
   <a href="#about" onclick="closeMenu()">About Us</a>
   <a href="#results" onclick="closeMenu()">Results</a>
@@ -1363,12 +1365,12 @@
 <div class="ai-promo-toast" id="aiPromoToast" hidden>
   <button type="button" class="ai-promo-close" id="aiPromoClose" aria-label="Dismiss">&times;</button>
   <div class="ai-promo-flag">🇮🇳 Made in India</div>
-  <p class="ai-promo-text">We've launched <strong>EduTrellis AI</strong> — try it for free!</p>
-  <a href="/AI/" class="ai-promo-cta">Try it free <i class="fas fa-arrow-right"></i></a>
+  <p class="ai-promo-text">Try our AI models with <strong>Vidhyora AI</strong>.</p>
+  <a href="https://www.vidhyora.online/" target="_blank" rel="noopener" class="ai-promo-cta">Try Vidhyora AI <i class="fas fa-arrow-right"></i></a>
 </div>
 <script>
 (function(){
-  var KEY = 'edutrellis_ai_promo_dismissed';
+  var KEY = 'vidhyora_ai_promo_dismissed';
   if (localStorage.getItem(KEY) === '1') return;
   var el = document.getElementById('aiPromoToast');
   if (!el) return;

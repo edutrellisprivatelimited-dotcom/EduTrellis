@@ -1450,7 +1450,7 @@ def dashboard_ai_grant(request):
             profile.save(update_fields=['ai_subscription_until', 'ai_free_messages_used'])
             messages.success(
                 request,
-                f"Granted {target_user.email or target_user.username} EduTrellis AI premium access "
+                f"Granted {target_user.email or target_user.username} Vidhyora AI premium access "
                 f"until {timezone.localtime(profile.ai_subscription_until):%d %b %Y}.",
             )
         else:
@@ -1467,7 +1467,7 @@ def dashboard_ai_revoke(request, pk):
         profile = get_object_or_404(StoreProfile, pk=pk)
         profile.ai_subscription_until = None
         profile.save(update_fields=['ai_subscription_until'])
-        messages.success(request, f'Revoked EduTrellis AI premium access for {profile.user.email or profile.user.username}.')
+        messages.success(request, f'Revoked Vidhyora AI premium access for {profile.user.email or profile.user.username}.')
     return redirect('dashboard_ai_management')
 
 
@@ -1587,7 +1587,7 @@ def dashboard_ai_block(request):
             )
             label = (target_user.email or target_user.username) if target_user else ip_address
             if created:
-                messages.success(request, f'Blocked {label} from EduTrellis AI.')
+                messages.success(request, f'Blocked {label} from Vidhyora AI.')
             else:
                 messages.error(request, f'{label} is already blocked.')
         return _ai_activity_redirect(conversation_id)
@@ -2114,9 +2114,9 @@ def ai_manifest(request):
     icon_192 = request.build_absolute_uri(static_url('ai-icon-192.png'))
     icon_512 = request.build_absolute_uri(static_url('ai-icon-512.png'))
     manifest = {
-        'name': 'EduTrellis AI',
-        'short_name': 'EduTrellis AI',
-        'description': 'Chat with EduTrellis AI about our services, your store account, and more.',
+        'name': 'Vidhyora AI',
+        'short_name': 'Vidhyora AI',
+        'description': 'Chat with Vidhyora AI about our services, your store account, and more.',
         'start_url': '/AI/',
         'scope': '/AI/',
         'display': 'standalone',
@@ -2253,7 +2253,7 @@ def _ai_profile_gate(user, ip=None):
         return {
             'status': 'subscription_required',
             'detail': (
-                f"You've used all {AI_FREE_MESSAGE_LIMIT} free EduTrellis AI messages. "
+                f"You've used all {AI_FREE_MESSAGE_LIMIT} free Vidhyora AI messages. "
                 "Subscribe for Rs 99/month for unlimited messages on every model."
             ),
             'purchase_url': _ai_purchase_url(),
@@ -2278,8 +2278,7 @@ def _ai_migrated_block(user):
     return {
         'status': 'migrated',
         'detail': (
-            "EduTrellis AI is now closed for Premium accounts — we've shifted and "
-            "updated this AI. Open Vidhyora to keep chatting; all your data has "
+            "Premium access has moved to Vidhyora AI. Open Vidhyora to keep chatting; all your data has "
             "been transferred, plus more models, bug fixes, and updates."
         ),
         'redirect_url': AI_VIDHYORA_URL,
@@ -2700,7 +2699,7 @@ def ai_chat_send(request):
             block_filter |= Q(user=request.user)
         if AIBlock.objects.filter(block_filter).exists():
             return JsonResponse(
-                {'status': 'error', 'detail': "Your access to EduTrellis AI has been restricted. Contact support if you think this is a mistake."},
+                {'status': 'error', 'detail': "Your access to Vidhyora AI has been restricted. Contact support if you think this is a mistake."},
                 status=403,
             )
     cache_key = f'ai_chat_rate:{ip}'

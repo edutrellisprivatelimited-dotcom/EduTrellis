@@ -372,7 +372,7 @@
       <li><a href="#services">Services</a></li>
       <li><a href="{% url 'home2' %}">Website Development</a></li>
       <li><a href="{% url 'estore' %}">E-Store</a></li>
-      <li><a href="{% url 'ai_page' %}">EduTrellis AI</a></li>
+      <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
       <li><a href="#portfolio">Portfolio</a></li>
       <li><a href="#projects">Blog</a></li>
       <li><a href="#clients">Founder</a></li>
@@ -391,8 +391,9 @@
     <li><a href="#home">Home</a></li>
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
+    <li><a href="{% url 'home2' %}">Website Development</a></li>
     <li><a href="{% url 'estore' %}">E-Store</a></li>
-    <li><a href="{% url 'ai_page' %}">EduTrellis AI</a></li>
+    <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#projects">Blog</a></li>
     <li><a href="#clients">Founder</a></li>
@@ -1317,6 +1318,30 @@ function filterPortfolio(cat, btn) {
 }
 </script>
 <script src="{% static 'sitejs.js' %}"></script>
+<!-- VIDHYORA AI PROMO -->
+<style>
+.ai-promo-toast{position:fixed;left:1.15rem;bottom:1.15rem;z-index:850;max-width:290px;background:#fff;border:1px solid var(--border,#e2e8f0);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.16);padding:1rem 1.1rem;font-family:var(--font-body,'DM Sans',sans-serif);transform:translateY(16px);opacity:0;pointer-events:none;transition:transform .35s ease,opacity .35s ease}
+.ai-promo-toast.show{transform:translateY(0);opacity:1;pointer-events:auto}
+.ai-promo-close{position:absolute;top:.45rem;right:.55rem;border:none;background:none;font-size:1.15rem;line-height:1;color:#9aa3b0;cursor:pointer;padding:.25rem}
+.ai-promo-flag{font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--red);margin-bottom:.35rem}
+.ai-promo-text{font-size:.83rem;color:var(--text,#4a5568);line-height:1.4;margin:0 0 .7rem}.ai-promo-text strong{color:var(--dark)}
+.ai-promo-cta{display:inline-flex;align-items:center;gap:.4rem;background:var(--red);color:#fff;font-weight:700;font-size:.78rem;padding:.5rem .85rem;border-radius:9px;text-decoration:none}
+@media (max-width:480px){.ai-promo-toast{left:.75rem;right:.75rem;max-width:none;bottom:.75rem}}
+</style>
+<div class="ai-promo-toast" id="aiPromoToast" hidden>
+  <button type="button" class="ai-promo-close" id="aiPromoClose" aria-label="Dismiss">&times;</button>
+  <div class="ai-promo-flag">Made in India</div>
+  <p class="ai-promo-text">Try our AI models with <strong>Vidhyora AI</strong>.</p>
+  <a href="https://www.vidhyora.online/" target="_blank" rel="noopener" class="ai-promo-cta">Try Vidhyora AI <i class="fas fa-arrow-right"></i></a>
+</div>
+<script>
+(function(){
+  var KEY='vidhyora_ai_promo_dismissed', el=document.getElementById('aiPromoToast');
+  if(!el || localStorage.getItem(KEY)==='1') return;
+  el.hidden=false; setTimeout(function(){el.classList.add('show');},900);
+  document.getElementById('aiPromoClose').addEventListener('click',function(){el.classList.remove('show');localStorage.setItem(KEY,'1');});
+})();
+</script>
 <script>
 (function(){
   var slider = document.getElementById('estoreSlider');

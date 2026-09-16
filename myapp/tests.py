@@ -106,8 +106,7 @@ class AIResponseReliabilityTests(TestCase):
         request = client.chat.completions.create.call_args.kwargs
         self.assertEqual(request['model'], ai_chat.MODELS['code']['id'])
         self.assertEqual(request['messages'][0]['role'], 'system')
-        self.assertIn('ChatGPT 5.6 in EduTrellis AI', request['messages'][0]['content'])
-        self.assertIn('not the official OpenAI gpt-5.6 API', request['messages'][0]['content'])
+        self.assertIn('Vidhyora Nova', request['messages'][0]['content'])
 
     def test_chatgpt_is_the_fresh_default_for_staff_on_every_page_load(self):
         user = User.objects.create_user(
@@ -118,7 +117,7 @@ class AIResponseReliabilityTests(TestCase):
 
         self.assertEqual(ai_chat.DEFAULT_MODEL_KEY, ai_chat.CHATGPT_56_MODEL_KEY)
         self.assertEqual(response.context['ai_default_model'], ai_chat.CHATGPT_56_MODEL_KEY)
-        self.assertEqual(response.context['ai_default_model_label'], 'ChatGPT 5.6')
+        self.assertEqual(response.context['ai_default_model_label'], 'Vidhyora Nova')
         self.assertNotContains(response, "localStorage.getItem('ai_model')")
         self.assertNotContains(response, "localStorage.setItem('ai_model'")
 
@@ -128,7 +127,7 @@ class AIResponseReliabilityTests(TestCase):
         response = self.client.get('/AI/')
 
         self.assertEqual(response.context['ai_default_model'], 'quick')
-        self.assertEqual(response.context['ai_default_model_label'], 'EduTrellis Quick')
+        self.assertEqual(response.context['ai_default_model_label'], 'Vidhyora Flux')
         self.assertEqual(
             {m['key'] for m in response.context['ai_models']},
             {'quick', 'light', 'code'},

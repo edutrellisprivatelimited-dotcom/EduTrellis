@@ -4,17 +4,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}EduTrellis AI — Free AI Chat Assistant for Shopping &amp; Learning{% endif %}</title>
-<meta name="description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Chat with EduTrellis AI, a free assistant that helps you find products in the EduTrellis Store, answers questions and supports your learning — right from your browser.{% endif %}">
-<meta name="keywords" content="EduTrellis AI, AI chat assistant, free AI chatbot India, EduTrellis chatbot, AI shopping assistant, AI study help">
+<title>{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Vidhyora AI — Advanced Multimodal AI Models{% endif %}</title>
+<meta name="description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Explore Vidhyora Nova, Vidhyora Prime and Vidhyora Flux for advanced general AI, powerful reasoning and fast multimodal help.{% endif %}">
+<meta name="keywords" content="Vidhyora AI, Vidhyora Nova, Vidhyora Prime, Vidhyora Flux, multimodal AI, AI assistant India">
 <meta name="author" content="EduTrellis">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://www.edutrellis.in{{ request.path }}">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="EduTrellis">
-<meta property="og:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}EduTrellis AI — Free AI Chat Assistant{% endif %}">
-<meta property="og:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Chat with EduTrellis AI for product help, quick answers and learning support — free, right from your browser.{% endif %}">
+<meta property="og:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Vidhyora AI — Advanced Multimodal AI{% endif %}">
+<meta property="og:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Use Vidhyora AI for reasoning, images, coding, writing, research and more.{% endif %}">
 <meta property="og:url" content="https://www.edutrellis.in{{ request.path }}">
 <meta property="og:image" content="{% if site_customization.share_image %}https://www.edutrellis.in{{ site_customization.share_image.url }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
 <meta property="og:image:width" content="1200">
@@ -22,8 +22,8 @@
 <meta property="og:locale" content="en_IN">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}EduTrellis AI — Free AI Chat Assistant{% endif %}">
-<meta name="twitter:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Chat with EduTrellis AI for product help, quick answers and learning support — free, right from your browser.{% endif %}">
+<meta name="twitter:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Vidhyora AI — Advanced Multimodal AI{% endif %}">
+<meta name="twitter:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Use Vidhyora AI for reasoning, images, coding, writing, research and more.{% endif %}">
 <meta name="twitter:image" content="{% if site_customization.share_image %}https://www.edutrellis.in{{ site_customization.share_image.url }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
 <script>
 // Applied synchronously, before first paint, so a saved dark/light choice
@@ -45,11 +45,11 @@
 {
  "@context":"https://schema.org",
  "@type":"WebApplication",
- "name":"EduTrellis AI",
- "url":"https://www.edutrellis.in/AI/",
+ "name":"Vidhyora AI",
+ "url":"https://www.vidhyora.online/",
  "applicationCategory":"BusinessApplication",
  "operatingSystem":"Any",
- "description":"Free AI chat assistant from EduTrellis that helps you find products in the EduTrellis Store, answers questions and supports your learning.",
+ "description":"Advanced multimodal AI with Vidhyora Nova, Vidhyora Prime and Vidhyora Flux.",
  "image":"https://www.edutrellis.in{% static 'img/og-cover.jpg' %}",
  "offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},
  "provider":{"@type":"Organization","name":"EduTrellis","url":"https://www.edutrellis.in"}
@@ -498,7 +498,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 </head>
 <body>
 <div id="loader">
-  <div class="loader-logo">Edu<span>Trellis</span> AI</div>
+  <div class="loader-logo">Vidhyora <span>AI</span></div>
   <div class="loader-tag">An EduTrellis Company</div>
   <div class="loader-progress"><div class="loader-fill" id="loaderFill"></div></div>
   <div class="loader-pct" id="loaderPct">0%</div>
@@ -520,7 +520,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     <div class="hd-left">
       <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle chat history"><i class="fas fa-bars"></i></button>
       <a href="/" class="logo-wrap">
-        <span class="logo-txt">Edu<span>Trellis</span> AI</span>
+        <span class="logo-txt">Vidhyora <span>AI</span></span>
         <span class="logo-sub">An EduTrellis Company</span>
       </a>
     </div>
@@ -541,21 +541,21 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
 <div class="install-banner" id="welcomeBanner" hidden>
   <i class="fas fa-hand-sparkles welcome-banner-icon"></i>
-  <span class="install-banner-text">Welcome to EduTrellis AI! If any reply is ever wrong or not what you expected, tap <strong>Report it</strong> under that message — we'll fix it within 1 hour.</span>
+  <span class="install-banner-text">Welcome to Vidhyora AI! If any reply is ever wrong or not what you expected, tap <strong>Report it</strong> under that message — we'll fix it within 1 hour.</span>
   <button type="button" class="install-banner-close" id="welcomeBannerClose" aria-label="Dismiss"><i class="fas fa-xmark"></i></button>
 </div>
 
 <div class="install-banner" id="installBanner" hidden>
   <img src="{% static 'ai-icon-192.png' %}" alt="" class="install-banner-icon">
-  <span class="install-banner-text">Install EduTrellis AI as an app for quicker access.</span>
+  <span class="install-banner-text">Install Vidhyora AI as an app for quicker access.</span>
   <button type="button" class="install-banner-btn" id="installBannerBtn">Install</button>
   <button type="button" class="install-banner-close" id="installBannerClose" aria-label="Dismiss"><i class="fas fa-xmark"></i></button>
 </div>
 
 <div class="feature-modal-backdrop" id="featureModalBackdrop" hidden></div>
-<div class="feature-modal" id="featureModal" hidden role="dialog" aria-modal="true" aria-label="What EduTrellis AI can do">
+<div class="feature-modal" id="featureModal" hidden role="dialog" aria-modal="true" aria-label="What Vidhyora AI can do">
   <button type="button" class="feature-modal-close" id="featureModalClose" aria-label="Dismiss"><i class="fas fa-xmark"></i></button>
-  <p class="feature-modal-title">More things EduTrellis AI can do</p>
+  <p class="feature-modal-title">More things Vidhyora AI can do</p>
   <div class="feature-modal-list">
     <div class="feature-modal-item">
       <i class="fas fa-note-sticky feature-modal-icon"></i>
@@ -591,9 +591,9 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 
 {% if ai_subscribed %}
 <div class="feature-modal-backdrop" id="migrationModalBackdrop" hidden></div>
-<div class="feature-modal migration-modal" id="migrationModal" hidden role="dialog" aria-modal="true" aria-label="EduTrellis AI has closed for Premium accounts">
+<div class="feature-modal migration-modal" id="migrationModal" hidden role="dialog" aria-modal="true" aria-label="Premium access has moved to Vidhyora AI">
   <p class="feature-modal-title">Hello, Premium User! 👋</p>
-  <p class="migration-modal-body">EduTrellis AI is now closed for Premium accounts — we've shifted and updated this AI. Open Vidhyora below to keep chatting: all your data has been transferred, plus more models, bug fixes, and updates.</p>
+  <p class="migration-modal-body">Premium access has moved to Vidhyora AI. Open Vidhyora below to keep chatting with more models, fixes, and updates.</p>
   <a href="https://www.vidhyora.online/" class="feature-modal-btn migration-modal-btn" id="migrationModalOpen">Open Vidhyora AI</a>
 </div>
 {% endif %}
@@ -630,7 +630,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       <div class="chat-col" id="chatCol">
         <div class="empty-state" id="emptyState">
           <div class="brand-mark">
-            <span class="logo-txt">Edu<span>Trellis</span> AI</span>
+            <span class="logo-txt">Vidhyora <span>AI</span></span>
             <span class="logo-sub">An EduTrellis Company</span>
           </div>
           <p>Ask me anything — including about your EduTrellis Store cart and orders if you're logged in. I can't take actions on your account, only answer questions about it.</p>
@@ -1163,7 +1163,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     // (see footer conditional in ai.html) — staff/subscribed accounts get
     // the plain foot-note instead and never see this element at all.
     var freeLeft = Math.max(0, AI_FREE_LIMIT - state.freeUsed);
-    guestMeter.innerHTML = freeLeft + ' of ' + AI_FREE_LIMIT + ' free EduTrellis AI messages left — <a href="' + AI_PURCHASE_URL + '">subscribe for Rs 99/month</a> for unlimited access.';
+    guestMeter.innerHTML = freeLeft + ' of ' + AI_FREE_LIMIT + ' free Vidhyora AI messages left — <a href="' + AI_PURCHASE_URL + '">subscribe for Rs 99/month</a> for unlimited access.';
   }
   updateGuestMeter();
 
@@ -2701,7 +2701,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
     var wrap = document.createElement('div');
     wrap.innerHTML = (
       '<div class="gate-card" id="gateCard">' +
-        '<p>' + escHtml(detail || ('You\'ve used all ' + AI_FREE_LIMIT + ' free EduTrellis AI messages.')) + '</p>' +
+        '<p>' + escHtml(detail || ('You\'ve used all ' + AI_FREE_LIMIT + ' free Vidhyora AI messages.')) + '</p>' +
         '<a href="' + AI_PURCHASE_URL + '" class="auth-submit" style="display:block;text-decoration:none">Purchase Plan — Rs 99/month</a>' +
       '</div>'
     );

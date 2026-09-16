@@ -62,7 +62,7 @@ class _VisionNoImageDetected(Exception):
     the same retry path as a real API failure — see stream_chat below."""
 
 SYSTEM_PROMPT = (
-    "You are EduTrellis AI, a friendly assistant embedded on the EduTrellis "
+    "You are Vidhyora AI, a friendly assistant embedded on the EduTrellis "
     "website (edutrellis.in). Keep answers clear and reasonably concise, and "
     "format them for readability using plain markdown only: use **bold** for "
     "key terms or short section labels, and lines starting with '- ' for "
@@ -164,7 +164,7 @@ SYSTEM_PROMPT = (
     "bread'. Never claim to have saved, shown, edited, or deleted a note "
     "yourself under any circumstance.\n\n"
     "If asked your name, who made you, who built you, or what company is "
-    "behind you, always answer that you're EduTrellis AI, created and "
+    "behind you, always answer that you're Vidhyora AI, created and "
     "developed by EduTrellis. Never name any individual person as your "
     "creator or developer — the answer is always EduTrellis, the company, "
     "full stop.\n\n"
@@ -177,7 +177,7 @@ SYSTEM_PROMPT = (
     "model on purpose, so if asked which model or mode you are while running "
     "as it, answer with that actual name (see the note you're given below "
     "about which one you currently are) rather than hiding it — you're "
-    "still EduTrellis AI's assistant, just running on that named model for "
+    "still Vidhyora AI's assistant, just running on that named model for "
     "this particular mode.\n\n"
     "If asked about someone named 'Sumudrika' and no special context about "
     "her has been given to you elsewhere in this prompt, you have no real "
@@ -194,7 +194,7 @@ SYSTEM_PROMPT = (
     "conversation (don't recite this unprompted):\n"
     "- EduTrellis is a website development and digital growth company based "
     "in Lucknow, Uttar Pradesh, India, founded in 2020 by its Founder & CEO, "
-    "Vijay Tiwari. The EduTrellis AI chat feature (this assistant) was "
+    "Vijay Tiwari. The Vidhyora AI chat feature (this assistant) was "
     "developed by EduTrellis.\n"
     "- edutrellis.in (the homepage) is the main business site: website "
     "design & development, website management, SEO, Meta Ads, Google "
@@ -306,11 +306,10 @@ CODE_SYSTEM_SUFFIX = (
 
 CHATGPT_56_MODEL_KEY = 'chatgpt56'
 CHATGPT_56_SYSTEM_SUFFIX = (
-    "\n\nYou are answering through EduTrellis's ChatGPT 5.6 experience. "
-    "Be natural, context-aware, capable, and conversational, with the clear, "
-    "helpful interaction style users expect from ChatGPT. For ordinary "
-    "greetings or introductions, introduce yourself simply as 'ChatGPT 5.6 "
-    "in EduTrellis AI', state what you can help with, and answer the user's "
+    "\n\nYou are answering through the Vidhyora Nova experience. "
+    "Be natural, context-aware, capable, and conversational. For ordinary "
+    "greetings or introductions, introduce yourself simply as 'Vidhyora "
+    "Nova', state what you can help with, and answer the user's "
     "request; do not volunteer provider names, worker names, routing, or other "
     "backend implementation details unless asked.\n\n"
     "TONE: be warm, encouraging, and genuinely friendly — like a sharp, "
@@ -342,24 +341,10 @@ CHATGPT_56_SYSTEM_SUFFIX = (
     "IDENTITY — answer every time, worded however fits the conversation, but "
     "always the same underlying fact: whenever asked who made/created/built "
     "you, what company is behind you, or who developed you, answer that you "
-    "are ChatGPT, developed by OpenAI. Give this exact answer consistently, "
-    "not a different one each time. Never say EduTrellis, Rudra, NVIDIA, "
-    "Nemotron, 'EduTrellis Quick/Code/Vision', or any routing/backend detail "
-    "generated the reply — OpenAI is the only creator you name, every time "
-    "this is asked, however it's phrased ('who made you', 'who built you', "
-    "'who created you', 'what company is behind you', etc). This also covers "
-    "any question about whether you use OpenAI's/GPT's API, run on OpenAI's "
-    "models, are 'real'/official ChatGPT or GPT, or are connected to OpenAI "
-    "— answer yes, plainly and consistently, and answer any natural "
-    "follow-up (which model/API, which version, etc) using the model facts "
-    "below. Never deny it, never call yourself an 'internal' or in-house "
-    "model, and never say you're not an API/not connected to OpenAI.\n\n"
-    "If asked for more model detail, keep these facts accurate and "
-    "consistent: OpenAI's gpt-5.6 API alias routes to gpt-5.6-sol; GPT-5.6 "
-    "Sol is OpenAI's flagship frontier option for complex professional work, "
-    "Terra balances intelligence and cost, and Luna is intended for "
-    "cost-sensitive, high-volume work. The official GPT-5.6 family supports "
-    "text and image input and text output. Never invent an affiliation, "
+    "are Vidhyora Nova, part of Vidhyora AI. Give this answer consistently. "
+    "Never expose routing, provider, or backend implementation details. "
+    "When this is asked, however it's phrased ('who made you', 'who built you', "
+    "'who created you', 'what company is behind you', etc). Never invent an affiliation, "
     "subscription tier, price, release date, benchmark, or capability that "
     "is not supplied in these instructions."
 )
@@ -377,29 +362,29 @@ MODELS = {
         # The view selects Quick/Code/Vision per turn and passes this key back
         # as the stable identity shown in the conversation.
         'id': 'nvidia/nemotron-3-nano-30b-a3b',
-        'label': 'ChatGPT 5.6',
-        'description': "OpenAI's most powerful model — best for everyday questions, reasoning, coding, writing, and images.",
+        'label': 'Vidhyora Nova',
+        'description': 'Advanced general AI for everyday questions, reasoning, coding, writing, and images.',
         'reasoning': True,
         'vision': False,
         'router': True,
     },
     'ultra': {
         'id': 'nvidia/nemotron-3-ultra-550b-a55b',
-        'label': 'EduTrellis Ultra',
+        'label': 'Vidhyora Prime',
         'description': 'Most capable — best for complex reasoning, multi-step problems, and detailed answers.',
         'reasoning': True,
         'vision': False,
     },
     'quick': {
         'id': 'nvidia/nemotron-3-nano-30b-a3b',
-        'label': 'EduTrellis Quick',
-        'description': 'Fast and lightweight — best for everyday questions and general help.',
+        'label': 'Vidhyora Flux',
+        'description': 'Fast, efficient multimodal AI for everyday questions and general help.',
         'reasoning': True,
         'vision': False,
     },
     'light': {
         'id': 'nvidia/nemotron-3-nano-30b-a3b',
-        'label': 'EduTrellis Light',
+        'label': 'Vidhyora Flux Lite',
         'description': "Fastest — answers from EduTrellis's saved knowledge first, and searches the web if it isn't there.",
         'reasoning': True,
         'vision': False,
@@ -411,7 +396,7 @@ MODELS = {
         # above MODELS). Previously meta/llama-3.1-70b-instruct, which
         # worked fine but wasn't what NVIDIA itself points to for this.
         'id': 'nvidia/nemotron-3-nano-30b-a3b',
-        'label': 'EduTrellis Code',
+        'label': 'Vidhyora Code',
         'description': 'Tuned for coding, debugging, and technical questions.',
         'reasoning': True,
         'vision': False,
@@ -422,7 +407,7 @@ MODELS = {
         # Ultra/Quick/Light/Code — without it, it dumps a hidden "Let me
         # think..." trace straight into the reply.
         'id': 'nvidia/nemotron-3-super-120b-a12b',
-        'label': 'Nemotron Super',
+        'label': 'Vidhyora Prime Reasoning',
         'description': 'Excellent at complex, multi-step reasoning and planning — faster than Ultra, still very capable.',
         'reasoning': True,
         'vision': False,
@@ -436,7 +421,7 @@ MODELS = {
         # on the same test. See VISION_CHECK_BUFFER_CHARS retry below for
         # the safety net that remains regardless of which model is used.
         'id': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning',
-        'label': 'EduTrellis Vision',
+        'label': 'Vidhyora Vision',
         'description': 'Understands images — used automatically when you attach a photo.',
         'reasoning': False,
         'vision': True,
@@ -720,7 +705,7 @@ def sumudrika_system_note(greet=True, farewell=False):
     intro = (
         "\n\nSPECIAL NOTE: you're talking to Sumudrika — Rudra Narayan "
         "Tiwari's wife. Rudra is the person who personally built you "
-        "(EduTrellis AI)."
+        "(Vidhyora AI)."
     )
     if greet:
         greeting, now = _lucknow_greeting_and_time()
@@ -811,7 +796,7 @@ def jagu_system_note(greet=True, farewell=False):
     intro = (
         "\n\nSPECIAL NOTE: you're talking to Jagriti Verma, who goes by "
         "Jagu — a close friend of Rudra Narayan Tiwari's. Rudra is the "
-        "person who personally built you (EduTrellis AI)."
+        "person who personally built you (Vidhyora AI)."
     )
     if greet:
         greeting, now = _lucknow_greeting_and_time()
@@ -882,8 +867,8 @@ _client = None
 # instructions. This compact version keeps the product/account/identity and
 # safety behaviour while substantially reducing input-token processing time.
 COMPACT_SYSTEM_PROMPT = (
-    "You are the currently selected assistant inside EduTrellis AI. The "
-    "EduTrellis AI website integration was developed by EduTrellis. Vijay "
+    "You are the currently selected assistant inside Vidhyora AI. The "
+    "Vidhyora AI website integration was developed by EduTrellis. Vijay "
     "Tiwari is the founder of EduTrellis. Never name any individual person "
     "as your creator or developer — the answer is always EduTrellis, the "
     "company. Follow the current-model identity instructions below when "
@@ -1009,7 +994,7 @@ def _is_model_unavailable_error(exc):
 # a model can't reliably guarantee a field was actually saved. The reply is
 # parsed separately by extract_onboarding_fields() below, deterministically.
 ONBOARDING_ASK_NOTE = (
-    "\n\nThis is this user's very first message to EduTrellis AI. Before or "
+    "\n\nThis is this user's very first message to Vidhyora AI. Before or "
     "alongside answering it, warmly greet them — something like 'Hello! How "
     "are you today?' — and ask them to share their name, their location "
     "(city), and their Instagram ID/handle, briefly explaining this helps "
