@@ -99,23 +99,14 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default Django session lifetime is 2 weeks, counted from creation — an
-# anonymous visitor's cart/AI chat history (both keyed off session_key) would
-# silently become unreachable after that, since a new session (and therefore
-# a new, empty session_key) gets created on their next visit. Extending this
+# anonymous visitor's cart (keyed off session_key) would silently become
+# unreachable after that, since a new session (and therefore a new, empty
+# session_key) gets created on their next visit. Extending this
 # to a year and refreshing it on every request means a returning guest keeps
 # their data as long as they visit at least once a year, without needing an
 # account.
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
 SESSION_SAVE_EVERY_REQUEST = True
-
-# GitHub OAuth App credentials for the /AI/ GitHub-mode "Login with GitHub"
-# button (myapp/views.py github_oauth_start/callback). Register an OAuth App
-# at https://github.com/settings/developers with its Authorization callback
-# URL set to <your domain>/AI/api/github/oauth/callback/, then set these two
-# env vars. Left unset, the connect panel just falls back to pasting a
-# Personal Access Token — nothing breaks, the button simply doesn't appear.
-GITHUB_OAUTH_CLIENT_ID = os.environ.get('GITHUB_OAUTH_CLIENT_ID', '')
-GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET', '')
 
 SECURE_SSL_REDIRECT = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
@@ -159,23 +150,8 @@ LEAD_RECIPIENT_EMAIL = EMAIL_HOST_USER
 # or by Railway potentially blocking outbound SMTP on production.
 TWO_FACTOR_API_KEY = '12feb4c9-9636-11f1-9cb1-0200cd936042'
 
-# ── AI Chat (NVIDIA API) ─────────────────────────────────────────────────────
-# Powers the public /AI/ chat page (myapp/ai_chat.py). This is a real,
-# billable API key — hardcoded here at the user's explicit choice, same as
-# the credentials above, which means it's visible in this repo's git
-# history to anyone with access. Rotate it in the NVIDIA console if it ever
-# needs to change.
-NVIDIA_API_KEY = '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'
-
-# Powers EduTrellis Light's web-search fallback (myapp/web_search.py) when
-# the saved knowledge base has nothing relevant — same hardcoding choice and
-# same caveat as NVIDIA_API_KEY above. Rotate at app.tavily.com if needed.
-TAVILY_API_KEY = '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'
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Expose the AI latency breakdown added in views.py/ai_chat.py in the normal
-# development and Gunicorn logs.
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

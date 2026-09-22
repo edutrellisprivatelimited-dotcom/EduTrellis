@@ -13,7 +13,6 @@ class StaticViewSitemap(Sitemap):
     priorities = {
         'home': 1.0,
         'estore': 0.9,
-        'ai_page': 0.8,
     }
 
     def get_urls(self, page=1, site=None, protocol=None):
@@ -32,7 +31,7 @@ class StaticViewSitemap(Sitemap):
         ]
 
     def items(self):
-        return ['home', 'estore', 'ai_page']
+        return ['home', 'estore']
 
     def location(self, item):
         return reverse(item)

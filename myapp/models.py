@@ -1,6 +1,3 @@
-from datetime import timedelta
-import uuid
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F
@@ -48,34 +45,12 @@ class StoreProfile(models.Model):
     email_verified = models.BooleanField(default=False)  # unused — verification moved to phone/SMS, see phone_verified
     phone_verified = models.BooleanField(default=False)
 
-    # EduTrellis AI subscription — buying the AI plan product (see
-    # AI_SUBSCRIPTION_PRODUCT_SLUG below) extends this instead of granting
-    # a boolean flag, so back-to-back renewals stack cleanly. Staff accounts
-    # bypass both the cap and this field entirely (see views._ai_profile_gate)
-    # rather than being modeled as a permanent subscription here.
-    ai_subscription_until = models.DateTimeField(null=True, blank=True, help_text="Vidhyora AI access is unlimited until this time. Blank/past = free tier.")
-    ai_free_messages_used = models.PositiveIntegerField(default=0, help_text="Free-tier Vidhyora AI messages sent so far (resets on each new subscription purchase).")
-
-    # First-time AI chat onboarding — asked once, on this account's first
-    # real AI reply, then captured from whatever they say next (see
-    # views.ai_chat_send and ai_chat.extract_onboarding_fields). Values are
-    # saved only if the user actually volunteers them; never required.
-    ai_onboarded = models.BooleanField(default=False, help_text="Already asked the first-time name/location/Instagram question (or the account predates this feature) — never ask again.")
-    ai_onboarding_pending = models.BooleanField(default=False, help_text="The question was just asked; the user's next message will be parsed for an answer.")
-    ai_display_name = models.CharField(max_length=100, blank=True, help_text="Name the user gave the AI chat, if any.")
-    ai_location = models.CharField(max_length=150, blank=True, help_text="Location the user gave the AI chat, if any.")
-    ai_instagram_handle = models.CharField(max_length=60, blank=True, help_text="Instagram handle the user gave the AI chat, if any (no leading @).")
-
     class Meta:
         verbose_name = 'Store Customer Profile'
         verbose_name_plural = 'Store Customer Profiles'
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} ({self.phone})"
-
-    @property
-    def is_ai_subscribed(self):
-        return bool(self.ai_subscription_until and self.ai_subscription_until > timezone.now())
 
 
 class Category(models.Model):
@@ -425,14 +400,6 @@ class CartItem(models.Model):
 WALLET_OFFER_PRODUCT_ID = 'aud-metal'
 WALLET_OFFER_CREDIT = 100
 
-# Product id (matches Product.slug) for the EduTrellis AI monthly plan —
-# seeded automatically by migration 0034_seed_ai_subscription_product.
-# Buying it (see Order.maybe_grant_ai_subscription) extends the buyer's
-# StoreProfile.ai_subscription_until by this many days.
-AI_SUBSCRIPTION_PRODUCT_SLUG = 'vidhyora-ai-1-month'
-AI_SUBSCRIPTION_DAYS = 30
-
-
 class Order(models.Model):
     """A placed order, created from the cart at checkout. Product data is
     snapshotted onto OrderItem the same way CartItem snapshots it, since the
@@ -458,7 +425,6 @@ class Order(models.Model):
     handling_fee           = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total                  = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     wallet_credit_applied  = models.BooleanField(default=False)
-    ai_subscription_granted = models.BooleanField(default=False)
 
     # Delivery address — snapshotted at checkout the same way OrderItem
     # snapshots product data, so a later profile edit never changes where an
@@ -528,41 +494,6 @@ class Order(models.Model):
         has_offer_product = self.items.filter(product_id=WALLET_OFFER_PRODUCT_ID).exists()
         if is_first_order and has_offer_product:
             StoreProfile.objects.filter(user=self.user).update(wallet_balance=F('wallet_balance') + WALLET_OFFER_CREDIT)
-
-    def maybe_grant_ai_subscription(self):
-        """Extends the buyer's Vidhyora AI subscription once this order's
-        AI-plan item (AI_SUBSCRIPTION_PRODUCT_SLUG) is actually paid for —
-        either an online payment that's cleared, or a COD order the admin
-        has marked Delivered (COD's own "paid" signal elsewhere in this
-        codebase, e.g. maybe_credit_wallet above). Extends from whichever is
-        later, now or the current expiry, so renewing early stacks instead
-        of wasting remaining days. Idempotent the same way as
-        maybe_credit_wallet — an atomic compare-and-swap on
-        ai_subscription_granted means a re-saved order status or a repeated
-        webhook call can't extend the subscription twice for one order."""
-        if self.ai_subscription_granted:
-            return
-        if not self.items.filter(product_id=AI_SUBSCRIPTION_PRODUCT_SLUG).exists():
-            return
-        payment = self.latest_payment
-        if not payment:
-            return
-        paid = payment.status == Payment.STATUS_PAID or (
-            payment.method == Payment.METHOD_COD and self.status == self.STATUS_DELIVERED
-        )
-        if not paid:
-            return
-        claimed = Order.objects.filter(pk=self.pk, ai_subscription_granted=False).update(ai_subscription_granted=True)
-        if not claimed:
-            return
-        self.ai_subscription_granted = True
-        profile, _ = StoreProfile.objects.get_or_create(user=self.user)
-        now = timezone.now()
-        base = profile.ai_subscription_until if profile.ai_subscription_until and profile.ai_subscription_until > now else now
-        profile.ai_subscription_until = base + timedelta(days=AI_SUBSCRIPTION_DAYS)
-        profile.ai_free_messages_used = 0
-        profile.save(update_fields=['ai_subscription_until', 'ai_free_messages_used'])
-
 
 class OrderItem(models.Model):
     order        = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
@@ -777,226 +708,3 @@ class Review(models.Model):
     def __str__(self):
         return f"{self.user.username} → {self.product.name} ({self.rating}★)"
 
-
-class AIConversation(models.Model):
-    """One saved chat thread on /AI/, ChatGPT-style. A guest (not logged in)
-    can chat for a few messages before being asked to log in — their
-    conversation is kept here tied to session_key (user is null) and gets
-    handed over to their account (user set, session_key cleared) the moment
-    they log in or sign up, the same way an anonymous cart is merged in."""
-    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ai_conversations', null=True, blank=True)
-    session_key = models.CharField(max_length=40, blank=True, db_index=True)
-    title       = models.CharField(max_length=80, blank=True)
-    # Captured once at creation from the same IP-detection the chat rate
-    # limiter already uses — lets staff (see dashboard AI Activity) spot a
-    # repeat spammer across guest sessions/accounts sharing one connection,
-    # not just within one rate-limit window. Null when the request's IP
-    # couldn't be determined at all (never set to the literal 'unknown').
-    ip_address  = models.GenericIPAddressField(null=True, blank=True, db_index=True)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-updated_at']
-        verbose_name = 'AI Conversation'
-        verbose_name_plural = 'AI Conversations'
-
-    def __str__(self):
-        return self.title or f"Conversation #{self.pk}"
-
-
-class AIBlock(models.Model):
-    """Staff-issued block against a repeat spammer on /AI/, checked on every
-    ai_chat_send call before anything else runs. Blocks by IP (works
-    against a guest, and stops a logged-out spammer from just signing up
-    again from the same connection) and/or by account (still works if their
-    IP changes) — either or both can be set; see dashboard AI Activity for
-    where these get created."""
-    ip_address = models.GenericIPAddressField(null=True, blank=True, db_index=True)
-    user       = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='ai_blocks')
-    reason     = models.CharField(max_length=200, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'AI Block'
-        verbose_name_plural = 'AI Blocks'
-        constraints = [
-            models.CheckConstraint(
-                condition=models.Q(ip_address__isnull=False) | models.Q(user__isnull=False),
-                name='aiblock_ip_or_user_required',
-            ),
-        ]
-
-    def __str__(self):
-        if self.user_id:
-            return f'Blocked account: {self.user.email or self.user.username}'
-        return f'Blocked IP: {self.ip_address}'
-
-
-class GitHubConnection(models.Model):
-    """A staff member's personal-access-token connection to GitHub, used by
-    /AI/'s GitHub mode to read files from and push commits to a chosen repo
-    on their instruction. One per staff user; never exposed to non-staff,
-    and the token itself is never sent back to the browser once saved."""
-    user            = models.OneToOneField(User, on_delete=models.CASCADE, related_name='github_connection')
-    access_token    = models.CharField(max_length=255)
-    github_username = models.CharField(max_length=120, blank=True)
-    repo_full_name  = models.CharField(max_length=200, blank=True, help_text="owner/repo this connection reads/writes, e.g. 'boosternotes/EduTrellis'.")
-    default_branch  = models.CharField(max_length=100, blank=True, default='main')
-    connected_at    = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = 'GitHub Connection'
-        verbose_name_plural = 'GitHub Connections'
-
-    def __str__(self):
-        return f"{self.github_username or self.user.username} → {self.repo_full_name or '(no repo set)'}"
-
-
-class KnowledgeEntry(models.Model):
-    """A saved fact/answer EduTrellis Light checks before anything else.
-    Seeded manually from the admin, and grown automatically three ways: a
-    live web search fallback saves its top result; every real chat Q&A
-    (any model) saves the pair; and a Q&A that involved an uploaded file/
-    image, or a logged-in user's own account details, is saved too — but
-    scoped private to that one user/guest session (see user/session_key
-    below) instead of shared, since that content can be personal or
-    proprietary. A blank user AND blank session_key means shared with
-    everyone; either one set means only that person's own future Light
-    questions can retrieve it. See light_mode.save_from_chat/
-    search_knowledge_base for exactly how this is decided and enforced."""
-    SOURCE_MANUAL = 'manual'
-    SOURCE_WEB = 'web_search'
-    SOURCE_CHAT = 'chat'
-    SOURCE_CHOICES = [(SOURCE_MANUAL, 'Manual'), (SOURCE_WEB, 'Web search'), (SOURCE_CHAT, 'Chat')]
-
-    topic       = models.CharField(max_length=200, help_text="Short label/question this answers, e.g. 'refund policy' or 'GST registration steps'.")
-    content     = models.TextField(help_text='The saved text EduTrellis Light will answer from.')
-    source      = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_MANUAL)
-    source_url  = models.URLField(blank=True, help_text='Where this was found, if saved from a web search.')
-    user        = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='knowledge_entries', help_text='Set only for an entry private to one logged-in person (from a file/image upload, or their own account details). Blank = visible to everyone.')
-    session_key = models.CharField(max_length=40, blank=True, db_index=True, help_text='Same idea as user, for a private entry saved from a guest (not logged in) session.')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['-updated_at']
-        verbose_name = 'Knowledge Entry'
-        verbose_name_plural = 'Knowledge Entries (EduTrellis Light)'
-
-    def __str__(self):
-        return self.topic
-
-
-class YouTubeDownloadJob(models.Model):
-    STATUS_PENDING = 'pending'
-    STATUS_WORKING = 'working'
-    STATUS_READY = 'ready'
-    STATUS_FAILED = 'failed'
-    STATUS_CHOICES = [
-        (STATUS_PENDING, 'Pending'), (STATUS_WORKING, 'Working'),
-        (STATUS_READY, 'Ready'), (STATUS_FAILED, 'Failed'),
-    ]
-
-    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='youtube_downloads')
-    source_url = models.URLField(max_length=500)
-    quality = models.CharField(max_length=10, default='1080')
-    title = models.CharField(max_length=300, blank=True)
-    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    progress = models.PositiveSmallIntegerField(default=0)
-    video_path = models.CharField(max_length=500, blank=True)
-    audio_path = models.CharField(max_length=500, blank=True)
-    error = models.CharField(max_length=500, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
-
-    class Meta:
-        ordering = ['-created_at']
-
-
-class AIMessage(models.Model):
-    ROLE_USER = 'user'
-    ROLE_ASSISTANT = 'assistant'
-    ROLE_CHOICES = [(ROLE_USER, 'User'), (ROLE_ASSISTANT, 'Assistant')]
-
-    conversation = models.ForeignKey(AIConversation, on_delete=models.CASCADE, related_name='messages')
-    role         = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    content      = models.TextField()
-    image_data   = models.TextField(blank=True)  # data: URI of an attached image, if any (user turns only)
-    document_name = models.CharField(max_length=255, blank=True)
-    # Extracted text (capped by doc_extract.MAX_CHARS), persisted so
-    # follow-up questions about the same document work without re-uploading
-    # it — replayed on every turn within AI_CHAT_MAX_HISTORY, same tradeoff
-    # as replaying an attached image.
-    document_text = models.TextField(blank=True)
-    model_key    = models.CharField(max_length=20, blank=True)  # which EduTrellis model answered (assistant turns only)
-    # Comma-separated slugs of real EduTrellis Store products shown as cards
-    # under this reply (assistant turns only) — see myapp.product_search.
-    # Never AI-generated text; always resolved from the real Product table
-    # so history replay shows the same real cards, not anything the model
-    # claimed.
-    product_slugs = models.CharField(max_length=250, blank=True)
-    created_at   = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['created_at']
-        verbose_name = 'AI Message'
-        verbose_name_plural = 'AI Messages'
-
-    def __str__(self):
-        return f"{self.role}: {self.content[:40]}"
-
-
-class AINote(models.Model):
-    """A note saved from the AI chat, Google-Keep style — created when the
-    user says something like 'take this note', 'note it down', or 'save
-    details' (see request_router.is_note_intent / views._ai_save_note_response).
-    Owned the same dual way as AIConversation: a real account, or a guest
-    tied to session_key."""
-    user         = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='ai_notes')
-    session_key  = models.CharField(max_length=40, blank=True, db_index=True)
-    conversation = models.ForeignKey(AIConversation, on_delete=models.SET_NULL, null=True, blank=True, related_name='notes')
-    heading      = models.CharField(max_length=120, blank=True)
-    content      = models.TextField()
-    created_at   = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'AI Note'
-        verbose_name_plural = 'AI Notes'
-
-    def __str__(self):
-        return self.heading or f"Note #{self.pk}"
-
-
-class AIReport(models.Model):
-    """A user's 'this answer is wrong / abusive' report against one
-    assistant reply, submitted from the Report button under every AI chat
-    message. Snapshots the reported reply's text and model at submit time
-    (not just a message FK) so staff can still see exactly what was flagged
-    even if the message, or the whole conversation, is later deleted."""
-    STATUS_OPEN = 'open'
-    STATUS_RESOLVED = 'resolved'
-    STATUS_CHOICES = [(STATUS_OPEN, 'Open'), (STATUS_RESOLVED, 'Resolved')]
-
-    conversation   = models.ForeignKey(AIConversation, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
-    message        = models.ForeignKey(AIMessage, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
-    reported_reply = models.TextField(blank=True)
-    model_key      = models.CharField(max_length=20, blank=True)
-    explanation    = models.TextField(blank=True)
-    user           = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='ai_reports')
-    session_key    = models.CharField(max_length=40, blank=True, db_index=True)
-    ip_address     = models.GenericIPAddressField(null=True, blank=True)
-    status         = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_OPEN)
-    created_at     = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'AI Report'
-        verbose_name_plural = 'AI Reports'
-
-    def __str__(self):
-        return f"Report #{self.pk} ({self.get_status_display()})"

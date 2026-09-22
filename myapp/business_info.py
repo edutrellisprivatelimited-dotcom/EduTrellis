@@ -1,16 +1,14 @@
 """Single source of truth for EduTrellis's real, verified contact details.
 
-Every place that shows or tells a user this information — the AI chat
-system prompt, company_knowledge's grounding context, and the public
-site's contact cards/footers (via the `business_info` context processor,
-see edutrellis/settings.py) — must read it from here, not keep its own
+Every place that shows this information — the public site's contact
+cards/footers (via the `business_info` context processor, see
+edutrellis/settings.py) — must read it from here, not keep its own
 hardcoded copy. Update it in exactly one place when a real detail changes.
 
 There is deliberately only ONE phone/WhatsApp number and ONE general
 support email. EduTrellis does not have a separate sales line, toll-free
 number, or a second support address — do not add one here without it
-being genuinely true, since anything added here is treated as
-authoritative and handed straight to the AI model as fact.
+being genuinely true.
 """
 
 PHONE_DISPLAY = '+91 96959 53183'
@@ -52,13 +50,6 @@ HOURS = 'Monday-Saturday 9 AM-8 PM; Sunday 10 AM-6 PM'
 INSTAGRAM_URL = 'https://www.instagram.com/edutrellis'
 LINKEDIN_COMPANY_URL = 'https://www.linkedin.com/company/edutrellis'
 FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61590850943948'
-
-# The exact reply the AI must give instead of inventing a detail it wasn't
-# actually given — see ai_chat.SYSTEM_PROMPT and company_knowledge.py.
-NOT_FOUND_MESSAGE = (
-    "I couldn't find verified information for that. Please visit "
-    "edutrellis.in or contact support@edutrellis.in."
-)
 
 
 def as_dict():

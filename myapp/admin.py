@@ -6,8 +6,7 @@ from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
-    EmailSettings, EmailVerification, AIConversation, AIMessage, GitHubConnection,
-    KnowledgeEntry, AIReport,
+    EmailSettings, EmailVerification,
 )
 
 
@@ -121,114 +120,9 @@ class EmailVerificationAdmin(admin.ModelAdmin):
 
 @admin.register(StoreProfile)
 class StoreProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone', 'wallet_balance', 'phone_verified', 'ai_display_name', 'ai_location', 'ai_instagram_handle')
-    search_fields = ('user__username', 'user__email', 'phone', 'ai_display_name', 'ai_location', 'ai_instagram_handle')
-    list_filter = ('phone_verified', 'ai_onboarded')
-
-
-class AIMessageInline(admin.TabularInline):
-    model = AIMessage
-    extra = 0
-    readonly_fields = ('role', 'content', 'image_data', 'document_name', 'model_key', 'created_at')
-    can_delete = False
-
-
-@admin.register(AIConversation)
-class AIConversationAdmin(admin.ModelAdmin):
-    # who_asked makes it obvious at a glance whether a conversation belongs
-    # to a real account or an anonymous guest, without opening each row.
-    list_display = ('__str__', 'who_asked', 'created_at', 'updated_at')
-    search_fields = ('title', 'user__username', 'user__email', 'session_key')
-    list_filter = ('created_at',)
-    inlines = [AIMessageInline]
-
-    def who_asked(self, obj):
-        if obj.user:
-            return obj.user.get_full_name() or obj.user.username
-        return f'Guest ({obj.session_key[:10]}…)' if obj.session_key else 'Guest'
-    who_asked.short_description = 'Asked by'
-
-
-@admin.register(AIMessage)
-class AIMessageAdmin(admin.ModelAdmin):
-    list_display = ('conversation', 'who_asked', 'role', 'attachment', 'model_key', 'created_at')
-    list_select_related = ('conversation', 'conversation__user')
-    list_filter = ('role', 'model_key')
-    search_fields = ('content', 'document_name', 'conversation__title', 'conversation__user__username', 'conversation__user__email', 'conversation__session_key')
-
-    def who_asked(self, obj):
-        user = obj.conversation.user
-        if user:
-            return user.get_full_name() or user.username
-        session_key = obj.conversation.session_key
-        return f'Guest ({session_key[:10]}…)' if session_key else 'Guest'
-    who_asked.short_description = 'Asked by'
-
-    def attachment(self, obj):
-        if obj.document_name:
-            return f'📄 {obj.document_name}'
-        if obj.image_data:
-            return '🖼️ image'
-        return ''
-    attachment.short_description = 'Attachment'
-
-
-@admin.register(AIReport)
-class AIReportAdmin(admin.ModelAdmin):
-    # reported_by mirrors AIConversationAdmin.who_asked — shows at a glance
-    # whether the report came from a real account (with the email needed to
-    # follow up) or an anonymous guest, without opening each row.
-    list_display = ('id', 'reported_by', 'issue_summary', 'model_key', 'status', 'created_at')
-    list_editable = ('status',)
-    list_filter = ('status', 'model_key', 'created_at')
-    search_fields = (
-        'explanation', 'reported_reply', 'user__username', 'user__email',
-        'session_key', 'conversation__title',
-    )
-    list_select_related = ('user', 'conversation')
-    readonly_fields = (
-        'conversation', 'message', 'reported_reply', 'model_key',
-        'user', 'session_key', 'ip_address', 'created_at',
-    )
-
-    def reported_by(self, obj):
-        if obj.user:
-            return f"{obj.user.get_full_name() or obj.user.username} ({obj.user.email or 'no email'})"
-        return f'Guest ({obj.session_key[:10]}…)' if obj.session_key else 'Guest'
-    reported_by.short_description = 'Reported by'
-
-    def issue_summary(self, obj):
-        text = obj.explanation.strip()
-        return (text[:60] + '…') if len(text) > 60 else (text or '(no explanation given)')
-    issue_summary.short_description = 'Issue'
-
-
-@admin.register(KnowledgeEntry)
-class KnowledgeEntryAdmin(admin.ModelAdmin):
-    # visible_to makes it obvious whether an entry is shared with everyone
-    # or private to one person (from a file/image upload, or their own
-    # account details) — see KnowledgeEntry's docstring and
-    # light_mode.save_from_chat for how that's decided.
-    list_display = ('topic', 'source', 'visible_to', 'updated_at')
-    list_select_related = ('user',)
-    list_filter = ('source',)
-    search_fields = ('topic', 'content', 'user__username', 'user__email', 'session_key')
-
-    def visible_to(self, obj):
-        if obj.user:
-            return obj.user.get_full_name() or obj.user.username
-        if obj.session_key:
-            return f'Guest ({obj.session_key[:10]}…)'
-        return 'Everyone'
-    visible_to.short_description = 'Visible to'
-
-
-@admin.register(GitHubConnection)
-class GitHubConnectionAdmin(admin.ModelAdmin):
-    # access_token deliberately left out of list_display so it's never
-    # casually visible while scanning the list view.
-    list_display = ('user', 'github_username', 'repo_full_name', 'default_branch', 'connected_at')
-    search_fields = ('user__username', 'github_username', 'repo_full_name')
+    list_display = ('user', 'phone', 'wallet_balance', 'phone_verified')
+    search_fields = ('user__username', 'user__email', 'phone')
+    list_filter = ('phone_verified',)
 
 
 @admin.register(PhoneVerification)

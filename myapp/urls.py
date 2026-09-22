@@ -4,10 +4,12 @@ from myapp import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    # Common lowercase/typo ways people type the AI page — all land on the
-    # canonical /AI/.
-    path('ai/', RedirectView.as_view(url='/AI/', permanent=False)),
-    path('aii/', RedirectView.as_view(url='/AI/', permanent=False)),
+    # The in-house AI chat page was retired — Vidhyora AI now lives at its
+    # own external product site. Redirect old links/bookmarks there instead
+    # of 404ing.
+    path('AI/', RedirectView.as_view(url='https://www.vidhyora.online/', permanent=True)),
+    path('ai/', RedirectView.as_view(url='https://www.vidhyora.online/', permanent=True)),
+    path('aii/', RedirectView.as_view(url='https://www.vidhyora.online/', permanent=True)),
     # The standalone Website Development page was retired and folded into
     # the homepage — redirect any indexed/bookmarked links instead of 404ing.
     path('websitecreation/', RedirectView.as_view(url='/', permanent=True)),
@@ -47,16 +49,6 @@ urlpatterns = [
     path('store/dashboard/users/add/', views.dashboard_user_add, name='dashboard_user_add'),
     path('store/dashboard/signups/<int:pk>/edit/', views.dashboard_signup_edit, name='dashboard_signup_edit'),
     path('store/dashboard/signups/<int:pk>/delete/', views.dashboard_signup_delete, name='dashboard_signup_delete'),
-    path('store/dashboard/ai/', views.dashboard_ai_management, name='dashboard_ai_management'),
-    path('store/dashboard/ai/grant/', views.dashboard_ai_grant, name='dashboard_ai_grant'),
-    path('store/dashboard/ai/<int:pk>/revoke/', views.dashboard_ai_revoke, name='dashboard_ai_revoke'),
-    path('store/dashboard/ai/activity/', views.dashboard_ai_activity, name='dashboard_ai_activity'),
-    path('store/dashboard/ai/activity/<int:pk>/', views.dashboard_ai_activity_detail, name='dashboard_ai_activity_detail'),
-    path('store/dashboard/ai/activity/block/', views.dashboard_ai_block, name='dashboard_ai_block'),
-    path('store/dashboard/ai/activity/unblock/<int:pk>/', views.dashboard_ai_unblock, name='dashboard_ai_unblock'),
-    path('store/dashboard/ai/reports/', views.dashboard_ai_reports, name='dashboard_ai_reports'),
-    path('store/dashboard/ai/reports/<int:pk>/status/', views.dashboard_ai_report_status_update, name='dashboard_ai_report_status_update'),
-    path('store/dashboard/ai/reports/<int:pk>/delete/', views.dashboard_ai_report_delete, name='dashboard_ai_report_delete'),
     path('store/dashboard/contacts/', views.dashboard_contacts, name='dashboard_contacts'),
     path('store/dashboard/contacts/<int:pk>/delete/', views.dashboard_contact_delete, name='dashboard_contact_delete'),
     path('store/dashboard/categories/', views.dashboard_categories, name='dashboard_categories'),
@@ -88,29 +80,4 @@ urlpatterns = [
     path('store/dashboard/logout/', views.dashboard_logout, name='dashboard_logout'),
 
     path('contact/', views.contact_lead, name='contact_lead'),
-
-    path('AI/', views.ai_page, name='ai_page'),
-    path('AI/manifest.json', views.ai_manifest, name='ai_manifest'),
-    path('AI/sw.js', views.pwa_service_worker, name='ai_service_worker'),
-    path('AI/api/send/', views.ai_chat_send, name='ai_chat_send'),
-    path('AI/api/extract/', views.ai_extract_document, name='ai_extract_document'),
-    path('AI/api/transcribe/', views.ai_transcribe_audio, name='ai_transcribe_audio'),
-    path('AI/api/youtube/start/', views.ai_youtube_start, name='ai_youtube_start'),
-    path('AI/api/youtube/<uuid:token>/status/', views.ai_youtube_status, name='ai_youtube_status'),
-    path('AI/api/youtube/<uuid:token>/file/<str:file_kind>/', views.ai_youtube_file, name='ai_youtube_file'),
-    path('AI/api/conversations/', views.ai_conversations_list, name='ai_conversations_list'),
-    path('AI/api/conversations/<int:conversation_id>/', views.ai_conversation_messages, name='ai_conversation_messages'),
-    path('AI/api/conversations/<int:conversation_id>/delete/', views.ai_conversation_delete, name='ai_conversation_delete'),
-    path('AI/api/notes/', views.ai_notes_list, name='ai_notes_list'),
-    path('AI/api/notes/<int:note_id>/delete/', views.ai_note_delete, name='ai_note_delete'),
-    path('AI/api/report/', views.ai_report_submit, name='ai_report_submit'),
-
-    path('AI/api/github/status/', views.github_status, name='github_status'),
-    path('AI/api/github/oauth/start/', views.github_oauth_start, name='github_oauth_start'),
-    path('AI/api/github/oauth/callback/', views.github_oauth_callback, name='github_oauth_callback'),
-    path('AI/api/github/connect/', views.github_connect, name='github_connect'),
-    path('AI/api/github/repos/', views.github_repos, name='github_repos'),
-    path('AI/api/github/repo/', views.github_set_repo, name='github_set_repo'),
-    path('AI/api/github/disconnect/', views.github_disconnect, name='github_disconnect'),
-    path('AI/api/github/send/', views.ai_github_send, name='ai_github_send'),
 ]

@@ -14,7 +14,12 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from myapp.models import AI_SUBSCRIPTION_PRODUCT_SLUG, Order, OrderItem, Payment, Product, Review, StoreProfile
+from myapp.models import Order, OrderItem, Payment, Product, Review, StoreProfile
+
+# Product slug for the Vidhyora AI plan — kept as a local literal since the
+# in-house AI chat system (which used to define this) has been removed;
+# only this file's review-template selection still cares about the slug.
+AI_SUBSCRIPTION_PRODUCT_SLUG = 'vidhyora-ai-1-month'
 
 DEMO_PASSWORD = '123456'
 

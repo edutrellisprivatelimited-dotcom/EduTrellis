@@ -19,7 +19,6 @@
   <summary><i class="fas fa-user-plus"></i> Add user manually <i class="fas fa-chevron-down chevron"></i></summary>
   <form method="post" action="{% url 'dashboard_user_add' %}">
     {% csrf_token %}
-    <input type="hidden" name="next" value="dashboard_signups">
     <div class="form-grid-2">
       <div class="form-group">
         <label for="{{ add_user_form.name.id_for_label }}">Full name</label>
