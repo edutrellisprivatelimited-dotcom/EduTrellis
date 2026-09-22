@@ -1,4 +1,4 @@
-"""Verified public facts shown on edutrellis.in and /websitecreation.
+"""Verified public facts shown on edutrellis.in.
 
 This context is injected for every model, not learned from chat replies. Keep
 it in sync with the public templates when company copy, prices, or contacts
@@ -63,15 +63,14 @@ asked about company registration/structure, state this plainly; never call
 EduTrellis a "Private Limited" company or invent a CIN/incorporation date.
 
 Official contacts: {business_info.EMAIL_SUPPORT}; call/WhatsApp {business_info.PHONE_DISPLAY}.
-Public hours on /websitecreation: {business_info.HOURS}.
+Public hours: {business_info.HOURS}.
 Instagram: {business_info.INSTAGRAM_URL} (@edutrellis)
 LinkedIn: {business_info.LINKEDIN_COMPANY_URL}
 Facebook: {business_info.FACEBOOK_URL}
 
-Official pages: {business_info.WEBSITE} and
-{business_info.WEBSITE_CREATION_URL}. The website-creation page offers a
-free quote/consultation. Do not claim that prices are unpublished: the main
-public page displays these prices:
+Official page: {business_info.WEBSITE}, which offers a free quote/
+consultation. Do not claim that prices are unpublished: the main public
+page displays these prices:
 - Complete Website Management: ₹2,999/month; includes end-to-end management,
   logo/banner updates, content upload/optimization, Instagram/Facebook/Google
   marketing, social-handle creation/growth, SEO, and a dedicated manager.
@@ -99,7 +98,6 @@ digital marketing, mobile-first design and the EduTrellis team. Do not infer
 facts about people or projects merely from stock/illustrative images.
 
 Public website claims include 1200+ clients, 500+ projects/sites delivered,
-98% satisfaction, 5-star average rating and 24/7 support. /websitecreation also
-shows 545+ website-management clients and 200+ e-commerce stores built. State
-these as claims displayed by the website, not independently verified facts.
+98% satisfaction, 5-star average rating and 24/7 support. State these as
+claims displayed by the website, not independently verified facts.
 """

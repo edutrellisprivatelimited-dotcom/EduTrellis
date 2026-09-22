@@ -35,7 +35,6 @@ REGISTRATION_NOTE = 'Udyam-registered MSME, Lucknow, Uttar Pradesh, India'
 GRIEVANCE_OFFICER_NAME = 'EduTrellis Support Team'
 
 WEBSITE = 'https://www.edutrellis.in/'
-WEBSITE_CREATION_URL = 'https://www.edutrellis.in/websitecreation/'
 
 ADDRESS = 'P-109, Prembagh, Shahpur, Chinhat, Lucknow, Uttar Pradesh 226028'
 ADDRESS_SHORT = 'P-109, Prembagh, Shahpur, Chinhat, Lucknow, UP 226028'
@@ -74,7 +73,6 @@ def as_dict():
         'registration_note': REGISTRATION_NOTE,
         'grievance_officer_name': GRIEVANCE_OFFICER_NAME,
         'website': WEBSITE,
-        'website_creation_url': WEBSITE_CREATION_URL,
         'address': ADDRESS,
         'address_short': ADDRESS_SHORT,
         'address_street': ADDRESS_STREET,

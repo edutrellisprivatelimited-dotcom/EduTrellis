@@ -71,10 +71,6 @@ def home(request):
     })
 
 
-def home2(request):
-    return render(request, "home2.html", {})
-
-
 def estore(request):
     return render(request, "estore.html", _estore_context(request))
 
@@ -1268,28 +1264,6 @@ def contact_lead(request):
         )
 
     return JsonResponse({'status': 'ok', 'message': 'Message sent successfully.'})
-
-
-def websitecreation_contact(request):
-    if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'detail': 'Invalid request method.'}, status=405)
-
-    form = ContactLeadForm(_parse_json_body(request))
-    if not form.is_valid():
-        return JsonResponse(
-            {'status': 'validation_error', 'errors': {k: v[0] for k, v in form.errors.items()}},
-            status=400,
-        )
-
-    ContactLead.objects.create(
-        name=form.cleaned_data['name'],
-        phone=form.cleaned_data['phone'],
-        email=form.cleaned_data['email'],
-        service=form.cleaned_data.get('service', ''),
-        message=form.cleaned_data.get('message', ''),
-        source=ContactLead.SOURCE_WEBSITECREATION,
-    )
-    return JsonResponse({'status': 'ok', 'message': "Thanks — we'll get back to you within 24 hours."})
 
 
 # ── Custom store admin dashboard (staff-only, replaces linking to /admin/) ──

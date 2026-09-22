@@ -8,8 +8,10 @@ urlpatterns = [
     # canonical /AI/.
     path('ai/', RedirectView.as_view(url='/AI/', permanent=False)),
     path('aii/', RedirectView.as_view(url='/AI/', permanent=False)),
-    path('websitecreation/', views.home2, name='home2'),
-    path('websitecreation/contact/', views.websitecreation_contact, name='websitecreation_contact'),
+    # The standalone Website Development page was retired and folded into
+    # the homepage — redirect any indexed/bookmarked links instead of 404ing.
+    path('websitecreation/', RedirectView.as_view(url='/', permanent=True)),
+    path('websitecreation/contact/', RedirectView.as_view(url='/', permanent=True)),
     # Preserve old/commonly-guessed store URLs while keeping /store/ as the
     # only indexable canonical URL.
     path('estore', RedirectView.as_view(url='/store/', permanent=True, query_string=True)),

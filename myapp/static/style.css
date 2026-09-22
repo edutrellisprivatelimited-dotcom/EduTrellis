@@ -132,6 +132,11 @@ nav{
 .logo-txt span{color:var(--red)}
 .logo-sub{font-size:.58rem;font-weight:700;letter-spacing:.16em;color:var(--text);text-transform:uppercase;margin-top:3px}
 
+/* Groups nav links + login + hamburger as one right-aligned cluster instead
+   of letting nav's justify-content:space-between spread all of them out
+   with large, uneven gaps across the full header width. */
+.nav-right{display:flex;align-items:center;gap:1.5rem;flex-shrink:0}
+
 nav ul{display:flex;list-style:none;gap:.05rem;align-items:center}
 nav ul li a{
   color:var(--dark);text-decoration:none;font-weight:600;font-size:.72rem;
@@ -1012,6 +1017,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   :root{--strip-h:34px;--nav-h:68px}
   nav{padding:0 1.4rem}
   nav ul{display:none}
+  .nav-right{gap:.7rem}
   .hamburger{display:flex}
   .cursor,.cursor-ring{display:none}
   section{padding:88px 1.8rem}

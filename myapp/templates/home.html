@@ -366,24 +366,25 @@
         <div class="logo-sub">Digital Growth Partner</div>
       </div>
     </a>
-    <ul id="desktopNav">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#products">Products</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="{% url 'home2' %}">Website Development</a></li>
-      <li><a href="{% url 'estore' %}">E-Store</a></li>
-      <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
-      <li><a href="#portfolio">Portfolio</a></li>
-      <li><a href="#projects">Blog</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact Us</a></li>
-    </ul>
-    <button class="nav-login-btn" id="openAuth" type="button" aria-label="Login">
-      <i class="fas fa-user"></i><span class="lbl">Login</span>
-    </button>
-    <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
-      <span></span><span></span><span></span>
-    </button>
+    <div class="nav-right">
+      <ul id="desktopNav">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="{% url 'estore' %}">E-Store</a></li>
+        <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
+        <li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#projects">Blog</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+      </ul>
+      <button class="nav-login-btn" id="openAuth" type="button" aria-label="Login">
+        <i class="fas fa-user"></i><span class="lbl">Login</span>
+      </button>
+      <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </nav>
 </header>
 
@@ -393,7 +394,6 @@
     <li><a href="#home">Home</a></li>
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
-    <li><a href="{% url 'home2' %}">Website Development</a></li>
     <li><a href="{% url 'estore' %}">E-Store</a></li>
     <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
@@ -407,15 +407,20 @@
 <!-- ==================== LOGIN MODAL ==================== -->
 <style>
 .nav-login-btn{
-  display:inline-flex;align-items:center;gap:.4rem;flex-shrink:0;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;flex-shrink:0;cursor:pointer;
   border:1.5px solid var(--red,#e8001e);background:none;color:var(--red,#e8001e);
-  font-family:var(--font-head,'Sora',sans-serif);font-weight:700;font-size:.75rem;
-  letter-spacing:.05em;text-transform:uppercase;padding:.5rem 1.05rem;border-radius:50px;
-  transition:background .25s,color .25s,transform .25s;
+  font-family:var(--font-head,'Sora',sans-serif);font-weight:700;font-size:.72rem;
+  letter-spacing:.07em;text-transform:uppercase;padding:.52rem 1.3rem;border-radius:50px;
+  transition:background .25s,color .25s,transform .25s,box-shadow .25s;
+  white-space:nowrap;
 }
-.nav-login-btn:hover{background:var(--red,#e8001e);color:#fff;transform:translateY(-2px)}
-.nav-login-btn i{font-size:.85rem}
-@media(max-width:900px){.nav-login-btn .lbl{display:none}.nav-login-btn{padding:.55rem;border-radius:50%}}
+.nav-login-btn:hover{background:var(--red,#e8001e);color:#fff;transform:translateY(-2px);box-shadow:0 8px 22px rgba(232,0,30,.3)}
+.nav-login-btn:active{transform:translateY(0)}
+.nav-login-btn i{font-size:.82rem}
+@media(max-width:992px){
+  .nav-login-btn .lbl{display:none}
+  .nav-login-btn{padding:0;width:38px;height:38px;border-radius:50%}
+}
 
 .auth-modal{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:1.25rem;opacity:0;visibility:hidden;background:rgba(15,22,35,.55);transition:opacity .3s,visibility .3s}
 .auth-modal.open{opacity:1;visibility:visible}
