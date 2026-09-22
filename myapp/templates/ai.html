@@ -727,7 +727,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
       </div>
       <p class="attach-error" id="attachError" hidden></p>
       {% if ai_is_staff or ai_subscribed %}
-      <p class="foot-note">Responses are AI-generated and may be inaccurate. Don't share sensitive personal information.</p>
+      <p class="foot-note">Responses are AI-generated and may be inaccurate. Don't share sensitive personal information. See our <a href="{% url 'policy_page' 'disclaimer' %}" target="_blank" rel="noopener">AI Disclaimer</a>.</p>
       {% else %}
       <p class="guest-meter" id="guestMeter"></p>
       {% endif %}

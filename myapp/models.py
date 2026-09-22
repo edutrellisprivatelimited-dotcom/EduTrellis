@@ -250,7 +250,7 @@ class AboutUsContent(models.Model):
 
     heading    = models.CharField(max_length=200, default='A gadget store run by a tech company')
     paragraph1 = models.TextField(default=(
-        "EduTrellis Private Limited has been working since 2020 — building and selling websites, "
+        "EduTrellis has been working since 2020 — building and selling websites, "
         "and running the technical services around them: hosting, SEO, digital marketing and Google "
         "Business, for clients across India from our base in Lucknow."
     ))
@@ -290,15 +290,19 @@ class AboutUsContent(models.Model):
 
 class PolicyPage(models.Model):
     """Admin-editable legal/policy pages linked from the storefront footer."""
-    PRIVACY  = 'privacy'
-    TERMS    = 'terms'
-    REFUND   = 'refund'
-    SHIPPING = 'shipping'
+    PRIVACY        = 'privacy'
+    TERMS          = 'terms'
+    REFUND         = 'refund'
+    SHIPPING       = 'shipping'
+    DISCLAIMER     = 'disclaimer'
+    ACCEPTABLE_USE = 'acceptable_use'
     KEY_CHOICES = [
         (PRIVACY, 'Privacy Policy'),
         (TERMS, 'Terms & Conditions'),
-        (REFUND, 'Refund Policy'),
+        (REFUND, 'Refund & Cancellation Policy'),
         (SHIPPING, 'Shipping & Delivery'),
+        (DISCLAIMER, 'Disclaimer'),
+        (ACCEPTABLE_USE, 'Acceptable Use Policy (AI & API Services)'),
     ]
     key        = models.CharField(max_length=20, choices=KEY_CHOICES, unique=True)
     title      = models.CharField(max_length=150)

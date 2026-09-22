@@ -27,6 +27,8 @@ main{max-width:760px;margin:0 auto;padding:2.6rem 1.25rem 4rem}
 h1{font-family:'Sora',sans-serif;font-size:clamp(1.5rem,4vw,2.1rem);font-weight:800;color:var(--head);letter-spacing:-.02em;margin-bottom:.5rem}
 .updated{font-size:.8rem;color:#9aa3b0;margin-bottom:2rem}
 .policy-body p{margin-bottom:1.2rem;font-size:.96rem;color:var(--text)}
+.other-policies{max-width:760px;margin:0 auto;padding:0 1.25rem;display:flex;flex-wrap:wrap;gap:.6rem 1.1rem;border-top:1px solid var(--line);padding-top:1.5rem}
+.other-policies a{font-size:.85rem;font-weight:600}
 footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
 </style>
 </head>
@@ -44,7 +46,15 @@ footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
     {% for para in policy.paragraphs %}<p>{{ para }}</p>{% endfor %}
   </div>
 </main>
-<footer>&copy; 2026 EduTrellis Private Limited. All rights reserved.</footer>
+<div class="other-policies">
+  <a href="{% url 'policy_page' 'privacy' %}">Privacy Policy</a>
+  <a href="{% url 'policy_page' 'terms' %}">Terms &amp; Conditions</a>
+  <a href="{% url 'policy_page' 'refund' %}">Refund &amp; Cancellation</a>
+  <a href="{% url 'policy_page' 'shipping' %}">Shipping &amp; Delivery</a>
+  <a href="{% url 'policy_page' 'disclaimer' %}">Disclaimer</a>
+  <a href="{% url 'policy_page' 'acceptable_use' %}">Acceptable Use Policy</a>
+</div>
+<footer>&copy; 2026 EduTrellis. All rights reserved.</footer>
 <script>
 // Casual deterrent only, not real protection — anyone determined can still
 // reach DevTools (browser menu, other shortcuts, an extension), so nothing

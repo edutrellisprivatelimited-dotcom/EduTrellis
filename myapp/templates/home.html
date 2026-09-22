@@ -1144,7 +1144,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
       </div>
       <div class="about-text reveal-right" style="line-height:1.45">
         <h3 style="margin-bottom:.4rem">Who We Are</h3>
-        <p style="margin-bottom:.5rem">EduTrellis Private Limited is your complete digital growth partner, specializing in website management and development for educational businesses and coaches across India.</p>
+        <p style="margin-bottom:.5rem">EduTrellis is your complete digital growth partner, specializing in website management and development for educational businesses and coaches across India.</p>
         <p style="margin-bottom:.5rem">With 1200+ active clients, we deliver real results — more students, more revenue, and a stronger digital presence.</p>
         <h3 style="margin-top:.9rem;margin-bottom:.4rem">Why Choose Us?</h3>
         <ul class="about-list" style="margin-bottom:.7rem">
@@ -1306,11 +1306,14 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
     </div>
   </div>
   <div class="foot-bottom">
-    <p>&copy; 2026 EduTrellis Private Limited. All Rights Reserved.</p>
+    <p>&copy; 2026 EduTrellis. All Rights Reserved.</p>
     <div class="foot-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms &amp; Conditions</a>
-      <a href="#">Refund Policy</a>
+      <a href="{% url 'policy_page' 'privacy' %}">Privacy Policy</a>
+      <a href="{% url 'policy_page' 'terms' %}">Terms &amp; Conditions</a>
+      <a href="{% url 'policy_page' 'refund' %}">Refund Policy</a>
+      <a href="{% url 'policy_page' 'shipping' %}">Shipping &amp; Delivery</a>
+      <a href="{% url 'policy_page' 'disclaimer' %}">Disclaimer</a>
+      <a href="{% url 'policy_page' 'acceptable_use' %}">Acceptable Use Policy</a>
     </div>
   </div>
 </footer>

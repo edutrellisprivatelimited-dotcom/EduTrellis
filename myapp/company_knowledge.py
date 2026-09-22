@@ -54,6 +54,10 @@ Company: EduTrellis is a website-development and digital-growth company in
 Lucknow, Uttar Pradesh, India. Founded in 2020 by Vijay Tiwari, Founder & CEO.
 The Vidhyora AI assistant was built by EduTrellis. Public founder email:
 {business_info.EMAIL_CEO}.
+Legal structure: EduTrellis is a {business_info.ENTITY_TYPE.lower()}
+({business_info.REGISTRATION_NOTE}) — NOT a private limited company. If
+asked about company registration/structure, state this plainly; never call
+EduTrellis a "Private Limited" company or invent a CIN/incorporation date.
 Founder LinkedIn: {business_info.LINKEDIN_FOUNDER_URL}
 
 Official contacts: {business_info.EMAIL_SUPPORT}; call/WhatsApp {business_info.PHONE_DISPLAY}.

@@ -21,6 +21,17 @@ WHATSAPP_LINK = f'https://wa.me/{WHATSAPP_DIGITS}'
 EMAIL_SUPPORT = 'support@edutrellis.in'
 EMAIL_CEO = 'ceo@edutrellis.in'
 
+# Legal identity — used on every legal/policy page and fed to the AI as
+# ground truth so it never invents a company structure. EduTrellis is a
+# sole proprietorship (not a private limited company), registered as a
+# Udyam (MSME) enterprise in Lucknow. Update LEGAL_NAME/ENTITY_TYPE only
+# if the actual registration changes.
+LEGAL_NAME = 'EduTrellis'
+ENTITY_TYPE = 'Sole Proprietorship'
+REGISTRATION_NOTE = 'Udyam-registered MSME, Lucknow, Uttar Pradesh, India'
+GRIEVANCE_OFFICER_NAME = 'Vijay Tiwari'
+GRIEVANCE_OFFICER_TITLE = 'Founder & CEO'
+
 WEBSITE = 'https://www.edutrellis.in/'
 WEBSITE_CREATION_URL = 'https://www.edutrellis.in/websitecreation/'
 
@@ -57,6 +68,11 @@ def as_dict():
         'whatsapp_link': WHATSAPP_LINK,
         'email_support': EMAIL_SUPPORT,
         'email_ceo': EMAIL_CEO,
+        'legal_name': LEGAL_NAME,
+        'entity_type': ENTITY_TYPE,
+        'registration_note': REGISTRATION_NOTE,
+        'grievance_officer_name': GRIEVANCE_OFFICER_NAME,
+        'grievance_officer_title': GRIEVANCE_OFFICER_TITLE,
         'website': WEBSITE,
         'website_creation_url': WEBSITE_CREATION_URL,
         'address': ADDRESS,
