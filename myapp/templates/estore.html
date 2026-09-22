@@ -338,7 +338,6 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 /* ---------------- ABOUT ---------------- */
 .about-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:3rem;align-items:stretch;margin-top:2.6rem}
 
-/* left column: photo + founder card */
 .about-photo{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 14px 40px rgba(0,0,0,.16)}
 .about-photo .ap-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .8s cubic-bezier(.2,.6,.2,1)}
 .about-photo:hover .ap-img{transform:scale(1.05)}
@@ -347,17 +346,6 @@ header.stuck{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .ap-badge i{width:40px;height:40px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:grid;place-items:center;font-size:.95rem}
 .ap-badge b{display:block;font-family:'Sora',sans-serif;font-size:.92rem;color:var(--head);line-height:1.25}
 .ap-badge span{font-size:.78rem;color:var(--text)}
-
-.founder-card{display:flex;gap:1rem;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.2rem;margin-top:1.2rem;box-shadow:var(--shadow-sm);flex-wrap:wrap}
-.founder-ava{width:62px;height:62px;flex:none;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;display:grid;place-items:center;font-family:'Sora',sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:-.02em;background-size:cover;background-position:center top}
-.founder-meta{flex:1;min-width:150px}
-.founder-meta b{display:block;font-family:'Sora',sans-serif;font-size:1rem;color:var(--head)}
-.founder-meta span{font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
-.founder-links{display:flex;gap:.5rem;flex-wrap:wrap;width:100%}
-.founder-links a{display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;font-size:.8rem;font-weight:700;padding:.45rem .95rem;border-radius:50px;transition:transform .25s}
-.founder-links a:hover{transform:translateY(-2px)}
-.fl-mail{background:var(--red-soft);color:var(--red);border:1px solid #ffd2d8}
-.fl-in{background:#0077b5;color:#fff;box-shadow:0 5px 16px rgba(0,119,181,.3)}
 
 .about-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-top:1.2rem}
 .about-stat{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:.8rem .6rem;text-align:center}
@@ -765,7 +753,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
   .foot-bottom{justify-content:center;text-align:center}
   .hero-trust{gap:1.2rem}
   .about-stats{grid-template-columns:1fr 1fr}
-  .founder-links{width:auto}
   .form-box{padding:1.4rem}
   .modal-card{padding:1.5rem}
   .offer-body{padding:1.3rem 1.4rem 1.5rem}
@@ -1078,18 +1065,6 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
               <b>{{ about.badge_title }}</b>
               <span>{{ about.badge_subtitle }}</span>
             </div>
-          </div>
-        </div>
-
-        <div class="founder-card">
-          <div class="founder-ava"{% if about.founder_photo %} style="background-image:url('{{ about.founder_photo.url }}')"{% endif %}>{% if not about.founder_photo %}{{ about.founder_name|slice:":2"|upper }}{% endif %}</div>
-          <div class="founder-meta">
-            <b>{{ about.founder_name }}</b>
-            <span>{{ about.founder_title }}</span>
-          </div>
-          <div class="founder-links">
-            <a href="mailto:{{ about.founder_email }}" class="fl-mail"><i class="fas fa-envelope"></i> {{ about.founder_email }}</a>
-            {% if about.founder_linkedin %}<a href="{{ about.founder_linkedin }}" target="_blank" rel="noopener" class="fl-in"><i class="fab fa-linkedin-in"></i> LinkedIn</a>{% endif %}
           </div>
         </div>
 

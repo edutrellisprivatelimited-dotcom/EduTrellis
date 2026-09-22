@@ -375,7 +375,6 @@
       <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
       <li><a href="#portfolio">Portfolio</a></li>
       <li><a href="#projects">Blog</a></li>
-      <li><a href="#clients">Founder</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact Us</a></li>
     </ul>
@@ -399,7 +398,6 @@
     <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener">Vidhyora AI</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#projects">Blog</a></li>
-    <li><a href="#clients">Founder</a></li>
     <li><a href="#" id="openAuthMobile">Login</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#contact">Contact Us</a></li>
@@ -1071,48 +1069,6 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
 
 
 
-<!-- ===== MEET THE FOUNDER (was Clients) ===== -->
-<section id="clients">
-  <div class="wrap">
-    <h2 class="reveal">Meet Our <span>Founder</span></h2>
-    <div class="accent reveal d1"></div>
-    <p class="sub reveal d2">The vision and leadership behind EduTrellis</p>
-    <div class="about-grid">
-      <div class="about-img-wrap reveal-left" style="padding:1rem">
-        <div class="about-decorative"></div>
-        <div class="about-decorative2"></div>
-        <img src="{% static 'img/founder.webp' %}" alt="Vijay Tiwari - EduTrellis Founder" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
-        <div class="about-badge"><div class="bn">10+</div><div class="bt">Years Experience</div></div>
-      </div>
-      <div class="about-text reveal-right">
-        <h3>Vijay Tiwari</h3>
-        <p style="font-size:.85rem;color:var(--red);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:-.5rem">Founder &amp; CEO, EduTrellis</p>
-        <p style="font-size:.9rem;color:var(--text);display:flex;align-items:center;gap:.5rem;margin-top:.3rem"><i class="fas fa-envelope" style="color:var(--red)"></i> <a href="mailto:{{ BIZ.email_ceo }}" style="color:var(--text);text-decoration:none">{{ BIZ.email_ceo }}</a></p>
-        <p style="margin-top:1rem">Our founder started EduTrellis in 2020 with a simple goal — to make professional digital growth accessible and affordable for every business and educator in India.</p>
-        <p>Today, that vision has grown into a trusted digital partner serving 1200+ clients, built on transparency, hard work and genuine care for every client's success.</p>
-        <h3 style="margin-top:1.5rem">Founder's Belief</h3>
-        <ul class="about-list">
-          <li><i class="fas fa-check-circle"></i> Every business deserves a strong digital presence</li>
-          <li><i class="fas fa-check-circle"></i> Honesty &amp; transparency in every client relationship</li>
-          <li><i class="fas fa-check-circle"></i> Results should be measurable, not just promised</li>
-          <li><i class="fas fa-check-circle"></i> Personal attention — clients aren't just numbers</li>
-        </ul>
-        <div class="mission">
-          <h4>🎯 A Personal Note</h4>
-          <p>"I started EduTrellis because I saw how many great businesses were being held back by outdated or missing websites. Every client we work with becomes part of our journey — and their growth is what drives us every single day."</p>
-        </div>
-        <div class="about-btns">
-          <a href="mailto:{{ BIZ.email_ceo }}" class="cta-btn">Connect With Us <i class="fas fa-arrow-right"></i></a>
-          <a href="https://www.linkedin.com/in/vijaytiwariii/" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:#0077b5;box-shadow:0 8px 26px rgba(0,119,181,.35);"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- ===== END MEET THE FOUNDER ===== -->
-
-
-
 <!-- FAQ -->
 <section id="faq">
   <div class="wrap">
@@ -1275,7 +1231,6 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
         <li><a href="#portfolio"><i class="fas fa-chevron-right"></i>Portfolio</a></li>
         <li><a href="#projects"><i class="fas fa-chevron-right"></i>Blog</a></li>
-        <li><a href="#clients"><i class="fas fa-chevron-right"></i>Founder</a></li>
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact</a></li>
       </ul>
@@ -1296,13 +1251,12 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
     <div class="foot-col">
       <h4>Contact</h4>
       <div class="foot-contact-item"><i class="fas fa-envelope"></i><a href="mailto:{{ BIZ.email_support }}">{{ BIZ.email_support }}</a></div>
-      <div class="foot-contact-item"><i class="fas fa-user-tie"></i><a href="mailto:{{ BIZ.email_ceo }}">{{ BIZ.email_ceo }} (CEO)</a></div>
+      <div class="foot-contact-item"><i class="fas fa-user-tie"></i><a href="mailto:{{ BIZ.email_ceo }}">{{ BIZ.email_ceo }} (Business Enquiries)</a></div>
       <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer">{{ BIZ.phone_display }} (WhatsApp)</a></div>
       <div class="foot-contact-item"><i class="fas fa-map-marker-alt"></i><span>{{ BIZ.address_short }}</span></div>
       <div class="foot-contact-item"><i class="fab fa-instagram"></i><a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer">@edutrellis</a></div>
       <div class="foot-contact-item"><i class="fab fa-facebook-f"></i><a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer">EduTrellis on Facebook</a></div>
       <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer">EduTrellis on LinkedIn</a></div>
-      <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/in/vijaytiwariii/" target="_blank" rel="noopener noreferrer">Vijay Tiwari (Founder) on LinkedIn</a></div>
     </div>
   </div>
   <div class="foot-bottom">

@@ -29,8 +29,10 @@ EMAIL_CEO = 'ceo@edutrellis.in'
 LEGAL_NAME = 'EduTrellis'
 ENTITY_TYPE = 'Sole Proprietorship'
 REGISTRATION_NOTE = 'Udyam-registered MSME, Lucknow, Uttar Pradesh, India'
-GRIEVANCE_OFFICER_NAME = 'Vijay Tiwari'
-GRIEVANCE_OFFICER_TITLE = 'Founder & CEO'
+# Deliberately a role, not a person — EduTrellis does not publicly name
+# individual owners/leadership. Uses the general support inbox, not a
+# "ceo@" address, so the contact itself doesn't imply an individual role.
+GRIEVANCE_OFFICER_NAME = 'EduTrellis Support Team'
 
 WEBSITE = 'https://www.edutrellis.in/'
 WEBSITE_CREATION_URL = 'https://www.edutrellis.in/websitecreation/'
@@ -50,7 +52,6 @@ HOURS = 'Monday-Saturday 9 AM-8 PM; Sunday 10 AM-6 PM'
 
 INSTAGRAM_URL = 'https://www.instagram.com/edutrellis'
 LINKEDIN_COMPANY_URL = 'https://www.linkedin.com/company/edutrellis'
-LINKEDIN_FOUNDER_URL = 'https://www.linkedin.com/in/vijaytiwariii/'
 FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61590850943948'
 
 # The exact reply the AI must give instead of inventing a detail it wasn't
@@ -72,7 +73,6 @@ def as_dict():
         'entity_type': ENTITY_TYPE,
         'registration_note': REGISTRATION_NOTE,
         'grievance_officer_name': GRIEVANCE_OFFICER_NAME,
-        'grievance_officer_title': GRIEVANCE_OFFICER_TITLE,
         'website': WEBSITE,
         'website_creation_url': WEBSITE_CREATION_URL,
         'address': ADDRESS,
@@ -85,7 +85,6 @@ def as_dict():
         'hours': HOURS,
         'instagram_url': INSTAGRAM_URL,
         'linkedin_company_url': LINKEDIN_COMPANY_URL,
-        'linkedin_founder_url': LINKEDIN_FOUNDER_URL,
         'facebook_url': FACEBOOK_URL,
     }
 
