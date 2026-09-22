@@ -379,6 +379,9 @@
       <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact Us</a></li>
     </ul>
+    <button class="nav-login-btn" id="openAuth" type="button" aria-label="Login">
+      <i class="fas fa-user"></i><span class="lbl">Login</span>
+    </button>
     <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
       <span></span><span></span><span></span>
     </button>
@@ -397,9 +400,61 @@
     <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#projects">Blog</a></li>
     <li><a href="#clients">Founder</a></li>
+    <li><a href="#" id="openAuthMobile">Login</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#contact">Contact Us</a></li>
   </ul>
+</div>
+
+<!-- ==================== LOGIN MODAL ==================== -->
+<style>
+.nav-login-btn{
+  display:inline-flex;align-items:center;gap:.4rem;flex-shrink:0;cursor:pointer;
+  border:1.5px solid var(--red,#e8001e);background:none;color:var(--red,#e8001e);
+  font-family:var(--font-head,'Sora',sans-serif);font-weight:700;font-size:.75rem;
+  letter-spacing:.05em;text-transform:uppercase;padding:.5rem 1.05rem;border-radius:50px;
+  transition:background .25s,color .25s,transform .25s;
+}
+.nav-login-btn:hover{background:var(--red,#e8001e);color:#fff;transform:translateY(-2px)}
+.nav-login-btn i{font-size:.85rem}
+@media(max-width:900px){.nav-login-btn .lbl{display:none}.nav-login-btn{padding:.55rem;border-radius:50%}}
+
+.auth-modal{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:1.25rem;opacity:0;visibility:hidden;background:rgba(15,22,35,.55);transition:opacity .3s,visibility .3s}
+.auth-modal.open{opacity:1;visibility:visible}
+.auth-modal-card{background:#fff;border-radius:22px;width:min(400px,100%);max-height:92vh;overflow-y:auto;padding:2rem;box-shadow:0 30px 70px rgba(0,0,0,.3);transform:translateY(18px);transition:transform .35s;position:relative}
+.auth-modal.open .auth-modal-card{transform:none}
+.auth-modal-x{position:absolute;top:1rem;right:1rem;border:none;background:var(--bg2,#f7f8fc);width:34px;height:34px;border-radius:50%;cursor:pointer;color:var(--dark,#0f1623);font-size:1rem;transition:background .2s,color .2s}
+.auth-modal-x:hover{background:var(--red,#e8001e);color:#fff}
+.auth-modal-top{text-align:center;margin-bottom:1.4rem}
+.auth-modal-top .logo-txt{font-family:var(--font-head,'Sora',sans-serif);font-size:1.4rem;font-weight:900;color:var(--dark,#0f1623)}
+.auth-modal-top .logo-txt span{color:var(--red,#e8001e)}
+.auth-modal-top p{font-size:.85rem;margin-top:.3rem;color:var(--text,#4a5568)}
+.auth-msg{font-size:.82rem;font-weight:600;text-align:center;margin-bottom:.9rem;display:none}
+.auth-msg.show{display:block}
+.auth-msg.err{color:#c0281e}
+.auth-msg.ok{color:#1a7a3c}
+.auth-alt{text-align:center;font-size:.82rem;margin-top:1.1rem;color:var(--text,#4a5568)}
+.auth-alt a{color:var(--red,#e8001e);font-weight:700;text-decoration:none}
+</style>
+<div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-label="Login to your EduTrellis account">
+  <div class="auth-modal-card">
+    <button class="auth-modal-x" id="closeAuth" type="button" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <div class="auth-modal-top">
+      <div class="logo-txt">Edu<span>Trellis</span></div>
+      <p>Log in to your EduTrellis account</p>
+    </div>
+    <p class="auth-msg" id="authMsg"></p>
+    <div class="fg">
+      <label for="liId">Email or phone</label>
+      <input type="text" id="liId" name="account-identifier" placeholder="you@email.com or 98XXXXXXXX" autocomplete="username">
+    </div>
+    <div class="fg">
+      <label for="liPw">Password</label>
+      <input type="password" id="liPw" placeholder="Your password" autocomplete="current-password">
+    </div>
+    <button class="submit-btn" id="doLogin" type="button"><i class="fas fa-right-to-bracket"></i> Log in</button>
+    <p class="auth-alt">New here? <a href="{% url 'estore' %}">Create an account on EduTrellis Store</a></p>
+  </div>
 </div>
 
 <!-- HERO SLIDER -->
@@ -1354,6 +1409,81 @@ function filterPortfolio(cat, btn) {
   }
   prev.addEventListener('click', function(){ slider.scrollBy({left:-step(), behavior:'smooth'}); });
   next.addEventListener('click', function(){ slider.scrollBy({left:step(), behavior:'smooth'}); });
+})();
+</script>
+<script>
+(function(){
+  var modal = document.getElementById('authModal');
+  var msg = document.getElementById('authMsg');
+  if (!modal) return;
+
+  function openAuth(){
+    msg.classList.remove('show');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeAuth(){
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function showMsg(text, kind){
+    msg.textContent = text;
+    msg.className = 'auth-msg show ' + kind;
+  }
+  function csrfToken(){
+    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
+  var openBtn = document.getElementById('openAuth');
+  var openBtnMobile = document.getElementById('openAuthMobile');
+  var closeBtn = document.getElementById('closeAuth');
+  var loginBtn = document.getElementById('doLogin');
+
+  if (openBtn) openBtn.addEventListener('click', openAuth);
+  if (openBtnMobile) openBtnMobile.addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('mobileMenu').classList.remove('open');
+    document.getElementById('ham').classList.remove('open');
+    openAuth();
+  });
+  if (closeBtn) closeBtn.addEventListener('click', closeAuth);
+  modal.addEventListener('click', function(e){ if (e.target === modal) closeAuth(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modal.classList.contains('open')) closeAuth(); });
+
+  if (loginBtn) loginBtn.addEventListener('click', function(){
+    var identifier = document.getElementById('liId').value.trim();
+    var password = document.getElementById('liPw').value;
+    if (!identifier) { showMsg('Enter your email or phone number', 'err'); return; }
+    if (!password) { showMsg('Enter your password', 'err'); return; }
+
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in…';
+
+    fetch('/store/api/login/', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+      body: JSON.stringify({ identifier: identifier, password: password })
+    })
+      .then(function(r){ return r.json().then(function(body){ return { ok: r.ok, body: body }; }); })
+      .then(function(res){
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Log in';
+        if (!res.ok) {
+          var m = res.body.errors ? Object.values(res.body.errors)[0] : (res.body.detail || 'Could not log in');
+          showMsg(m, 'err');
+          return;
+        }
+        showMsg('Logged in — redirecting…', 'ok');
+        window.location.href = "{% url 'estore' %}";
+      })
+      .catch(function(){
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Log in';
+        showMsg('Something went wrong — please try again', 'err');
+      });
+  });
 })();
 </script>
 </html>
