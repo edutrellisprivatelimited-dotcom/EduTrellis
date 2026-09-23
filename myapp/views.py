@@ -25,12 +25,12 @@ from myapp.forms import (
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
-    FeeSettingsForm, AddUserForm,
+    FeeSettingsForm, AddUserForm, NavAISettingsForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
+    DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -53,6 +53,16 @@ def home(request):
         "trending_products": trending_products,
         "nav_user_json": json.dumps(nav_user),
     })
+
+
+def ai_redirect(request):
+    """/AI/, /ai/, /aii/ — old in-house AI chat links. Reads the current
+    destination from NavAISettings instead of a hardcoded URL so it stays
+    in sync with the dashboard's Dynamic AI setting. Not a permanent (301)
+    redirect on purpose: that setting is expected to change, and a 301
+    would get cached by browsers pointing at whatever URL was live when
+    they first followed the link."""
+    return redirect(NavAISettings.get_solo().url)
 
 
 def estore(request):
@@ -1585,6 +1595,20 @@ def dashboard_fee_settings(request):
         form = FeeSettingsForm(instance=settings_obj)
     return render(request, 'dashboard/fee_settings.html', {
         'active': 'fee_settings', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+    })
+
+
+@dashboard_staff_required
+def dashboard_nav_ai_settings(request):
+    settings_obj = NavAISettings.get_solo()
+    form = NavAISettingsForm(request.POST or None, instance=settings_obj)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = NavAISettingsForm(instance=settings_obj)
+    return render(request, 'dashboard/nav_ai_settings.html', {
+        'active': 'nav_ai_settings', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
     })
 
 

@@ -6,10 +6,11 @@ urlpatterns = [
     path('', views.home, name='home'),
     # The in-house AI chat page was retired — Vidhyora AI now lives at its
     # own external product site. Redirect old links/bookmarks there instead
-    # of 404ing.
-    path('AI/', RedirectView.as_view(url='https://www.vidhyora.online/', permanent=True)),
-    path('ai/', RedirectView.as_view(url='https://www.vidhyora.online/', permanent=True)),
-    path('aii/', RedirectView.as_view(url='https://www.vidhyora.online/', permanent=True)),
+    # of 404ing. Destination is read from NavAISettings (dashboard >
+    # Customize > Dynamic AI), not hardcoded here.
+    path('AI/', views.ai_redirect),
+    path('ai/', views.ai_redirect),
+    path('aii/', views.ai_redirect),
     # The standalone Website Development page was retired and folded into
     # the homepage — redirect any indexed/bookmarked links instead of 404ing.
     path('websitecreation/', RedirectView.as_view(url='/', permanent=True)),
@@ -69,6 +70,7 @@ urlpatterns = [
     path('store/dashboard/email-settings/test/', views.dashboard_email_settings_test, name='dashboard_email_settings_test'),
     path('store/dashboard/pwa-settings/', views.dashboard_pwa_settings, name='dashboard_pwa_settings'),
     path('store/dashboard/customize/', views.dashboard_pwa_settings, name='dashboard_customize'),
+    path('store/dashboard/nav-ai/', views.dashboard_nav_ai_settings, name='dashboard_nav_ai_settings'),
     path('store/dashboard/payments/', views.dashboard_payments, name='dashboard_payments'),
     path('store/dashboard/backup/', views.dashboard_backup, name='dashboard_backup'),
     path('store/dashboard/backup/settings/', views.dashboard_backup_settings, name='dashboard_backup_settings'),

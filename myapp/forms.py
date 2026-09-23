@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor, StoreProfile,
     AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings, FeeSettings,
+    NavAISettings,
 )
 
 
@@ -433,6 +434,16 @@ class FeeSettingsForm(forms.ModelForm):
 
     def clean_handling_fee(self):
         return self.cleaned_data.get('handling_fee') or 0
+
+
+class NavAISettingsForm(forms.ModelForm):
+    class Meta:
+        model = NavAISettings
+        fields = ['name', 'url']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Vidhyora AI'}),
+            'url': forms.URLInput(attrs={'placeholder': 'https://www.vidhyora.online/'}),
+        }
 
 
 class EmailSettingsForm(forms.ModelForm):

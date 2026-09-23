@@ -853,7 +853,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <li><a href="#categories">Categories</a></li>
       <li><a href="#about">About Us</a></li>
       <li><a href="#contact">Contact Us</a></li>
-      <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener"><i class="fas fa-robot" style="font-size:.65rem"></i> Vidhyora AI</a></li>
+      <li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener"><i class="fas fa-robot" style="font-size:.65rem"></i> {{ NAV_AI.name }}</a></li>
       <li><a href="{% url 'home' %}" target="_blank" rel="noopener">Main Website <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem"></i></a></li>
     </ul>
   </nav>
@@ -871,7 +871,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
     <li><a href="#categories">Categories <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#about">About Us <i class="fas fa-chevron-right"></i></a></li>
     <li><a href="#contact">Contact Us <i class="fas fa-chevron-right"></i></a></li>
-    <li><a href="https://www.vidhyora.online/" target="_blank" rel="noopener"><i class="fas fa-robot"></i> Vidhyora AI</a></li>
+    <li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener"><i class="fas fa-robot"></i> {{ NAV_AI.name }}</a></li>
     <li><a href="{% url 'home' %}" target="_blank" rel="noopener">Main Website <i class="fas fa-arrow-up-right-from-square"></i></a></li>
   </ul>
 </div>
@@ -3066,8 +3066,8 @@ if (INITIAL_PRODUCT_SLUG){
 <div class="ai-promo-toast" id="aiPromoToast" hidden>
   <button type="button" class="ai-promo-close" id="aiPromoClose" aria-label="Dismiss">&times;</button>
   <div class="ai-promo-flag">🇮🇳 Made in India</div>
-  <p class="ai-promo-text">Try our AI models with <strong>Vidhyora AI</strong>.</p>
-  <a href="https://www.vidhyora.online/" target="_blank" rel="noopener" class="ai-promo-cta">Try Vidhyora AI <i class="fas fa-arrow-right"></i></a>
+  <p class="ai-promo-text">Try our AI models with <strong>{{ NAV_AI.name }}</strong>.</p>
+  <a href="{{ NAV_AI.url }}" target="_blank" rel="noopener" class="ai-promo-cta">Try {{ NAV_AI.name }} <i class="fas fa-arrow-right"></i></a>
 </div>
 <script>
 (function(){

@@ -615,6 +615,28 @@ class PWASettings(models.Model):
         return bool(self.is_enabled and self.icon)
 
 
+class NavAISettings(models.Model):
+    """Singleton config for the 'Vidhyora AI' link shown in the main site
+    and store navbars, managed from the store dashboard. Lets the AI
+    product's display name and destination URL be changed in one place
+    instead of hardcoded in every template that links to it."""
+    name       = models.CharField(max_length=40, default='Vidhyora AI', help_text="Label shown in the navbar, e.g. 'Vidhyora AI'.")
+    url        = models.URLField(max_length=300, default='https://www.vidhyora.online/', help_text='Where the link goes. Include https://.')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Dynamic AI (Navbar Link)'
+        verbose_name_plural = 'Dynamic AI (Navbar Link)'
+
+    def __str__(self):
+        return f'{self.name} → {self.url}'
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class FeeSettings(models.Model):
     """Singleton delivery/handling fee configuration, managed from the store
     dashboard. Any field left at 0 simply isn't charged."""
