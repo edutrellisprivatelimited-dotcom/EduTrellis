@@ -333,7 +333,30 @@ initPasswordToggles();
       var hasActive = !!group.querySelector('.dash-nav-sub a.active');
       group.classList.toggle('has-active', hasActive);
       if (hasActive) group.setAttribute('open', '');
+      else group.removeAttribute('open');
     });
+  }
+
+  /* Pages can add their own <style> via {% templatetag openblock %} extra_head
+     {% templatetag closeblock %} (backup.html, products.html, etc.) — that
+     renders as one extra <style> element right after base.html's own, since
+     it's the only thing extra_head ever emits. A PJAX swap only touches
+     #dashBody, so without this those pages would render completely
+     unstyled once reached via sidebar nav (they still look fine on a hard
+     refresh, since the browser parses <head> fresh then). Mirror whatever
+     the fetched page's extra <style> is (or remove it if the new page
+     doesn't have one) into a dedicated #dashPageStyle tag here. */
+  function syncPageStyle(doc){
+    var headStyles = doc.querySelectorAll('head > style');
+    var extra = headStyles.length > 1 ? headStyles[headStyles.length - 1] : null;
+    var existing = document.getElementById('dashPageStyle');
+    if (existing) existing.remove();
+    if (extra){
+      var s = document.createElement('style');
+      s.id = 'dashPageStyle';
+      s.textContent = extra.textContent;
+      document.head.appendChild(s);
+    }
   }
 
   function loadPage(url, push){
@@ -347,6 +370,7 @@ initPasswordToggles();
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var newBody = doc.getElementById('dashBody');
         if (!newBody) throw new Error('not a dashboard page');
+        syncPageStyle(doc);
         mainEl.innerHTML = newBody.innerHTML;
         runScripts(mainEl);
         initPasswordToggles(mainEl);
