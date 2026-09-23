@@ -26,13 +26,13 @@ from myapp.forms import (
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
     FeeSettingsForm, AddUserForm, NavAISettingsForm, FounderSectionForm, HeroSlideImageFormSet,
-    BlogSettingsForm, BlogGalleryItemFormSet, AIModelNameFormSet,
+    BlogSettingsForm, BlogGalleryItemFormSet,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings, FounderSection,
-    HeroSlideImage, BlogSettings, BlogGalleryItem, AIModelName,
+    HeroSlideImage, BlogSettings, BlogGalleryItem,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -310,46 +310,6 @@ def _review_payload(r, viewer=None, shared=False):
     }
 
 
-def _ai_models_block():
-    """Builds the "{{AI_MODELS}}" placeholder's replacement text from the
-    current AIModelName list, in the 3 shapes it's used in: a bullet list
-    for descriptions, a comma-joined name list for specs (e.g. "Nova,
-    Prime and Flux"), and a plain comma-joined list for tags (e.g. "Nova,
-    Prime, Flux"). Returns empty strings if the list is empty, so the
-    placeholder just disappears rather than leaving dangling punctuation."""
-    models = list(AIModelName.objects.all())
-    if not models:
-        return '', '', ''
-    bullets = '\n'.join(
-        f'• {m.name} — {m.tagline}' if m.tagline else f'• {m.name}'
-        for m in models
-    )
-    names = [m.name for m in models]
-    if len(names) == 1:
-        prose = names[0]
-    else:
-        prose = ', '.join(names[:-1]) + f' and {names[-1]}'
-    tags_joined = ', '.join(names)
-    return bullets, prose, tags_joined
-
-
-def _apply_ai_models_placeholder(description, specs_text, tags_text):
-    """Product.description/specs/tags can include a literal {{AI_MODELS}}
-    placeholder (see myapp/migrations/0057_aimodelname.py for how the
-    Vidhyora AI products got theirs) — filled in here from the current
-    AIModelName list at render time, so renaming/adding/removing a model
-    from the dashboard updates every product using the placeholder at
-    once instead of needing separate hand-edits."""
-    if '{{AI_MODELS}}' not in (description + specs_text + tags_text):
-        return description, specs_text, tags_text
-    bullets, prose, tags_joined = _ai_models_block()
-    return (
-        description.replace('{{AI_MODELS}}', bullets),
-        specs_text.replace('{{AI_MODELS}}', prose),
-        tags_text.replace('{{AI_MODELS}}', tags_joined),
-    )
-
-
 def _parse_specs(specs_text):
     items = []
     for line in specs_text.splitlines():
@@ -369,9 +329,9 @@ def _product_payload(p):
     for img in p.images.all():
         gallery.append({'type': 'image', 'url': img.image.url})
 
-    description, specs_text, tags_text = _apply_ai_models_placeholder(
-        p.description or p.short_description, p.specs, p.tags,
-    )
+    description = p.description or p.short_description
+    specs_text = p.specs
+    tags_text = p.tags
 
     return {
         'id': p.slug,
@@ -1726,19 +1686,6 @@ def dashboard_blog_settings(request):
         formset = BlogGalleryItemFormSet(queryset=BlogGalleryItem.objects.all())
     return render(request, 'dashboard/blog_settings.html', {
         'active': 'blog_settings', 'settings_form': settings_form, 'formset': formset, 'saved': saved,
-    })
-
-
-@dashboard_staff_required
-def dashboard_ai_models_settings(request):
-    formset = AIModelNameFormSet(request.POST or None, queryset=AIModelName.objects.all())
-    saved = False
-    if request.method == 'POST' and formset.is_valid():
-        formset.save()
-        saved = True
-        formset = AIModelNameFormSet(queryset=AIModelName.objects.all())
-    return render(request, 'dashboard/ai_models_settings.html', {
-        'active': 'ai_models_settings', 'formset': formset, 'saved': saved,
     })
 
 

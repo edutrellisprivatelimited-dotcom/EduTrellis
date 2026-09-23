@@ -42,13 +42,13 @@
   <div class="form-group">
     <label for="{{ form.description.id_for_label }}">Full description</label>
     {{ form.description }}
-    <div class="help">Shown when a shopper opens the product detail view.{% if product and product.category.slug == 'ai' %} A literal <code>{% templatetag openvariable %}AI_MODELS{% templatetag closevariable %}</code> in the text is replaced at render time with a bullet list built from Customize &gt; AI Models — edit the model names there instead of here.{% endif %}</div>
+    <div class="help">Shown when a shopper opens the product detail view.</div>
     {{ form.description.errors }}
   </div>
 
   <div class="form-group">
     <label>Specifications</label>
-    <div class="help" style="margin:0 0 .3rem">Add each spec as a label/value pair — shown as a table on the product detail view.{% if product and product.category.slug == 'ai' %} A value of <code>{% templatetag openvariable %}AI_MODELS{% templatetag closevariable %}</code> is replaced at render time with the current model names, comma-joined.{% endif %}</div>
+    <div class="help" style="margin:0 0 .3rem">Add each spec as a label/value pair — shown as a table on the product detail view.</div>
     <table class="spec-table" id="specTable">
       <thead><tr><th>Label</th><th>Value</th><th></th></tr></thead>
       <tbody id="specTableBody"></tbody>

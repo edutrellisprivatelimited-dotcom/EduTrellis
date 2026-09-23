@@ -7,7 +7,7 @@ from .models import (
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
     EmailSettings, EmailVerification, FounderSection, NavAISettings,
-    HeroSlideImage, BlogSettings, BlogGalleryItem, AIModelName,
+    HeroSlideImage, BlogSettings, BlogGalleryItem,
 )
 
 
@@ -138,12 +138,6 @@ class BlogSettingsAdmin(admin.ModelAdmin):
 @admin.register(BlogGalleryItem)
 class BlogGalleryItemAdmin(admin.ModelAdmin):
     list_display = ('caption', 'order')
-    ordering = ('order', 'id')
-
-
-@admin.register(AIModelName)
-class AIModelNameAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tagline', 'order')
     ordering = ('order', 'id')
 
 
