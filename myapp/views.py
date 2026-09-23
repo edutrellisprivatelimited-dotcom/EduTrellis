@@ -25,12 +25,12 @@ from myapp.forms import (
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
-    FeeSettingsForm, AddUserForm, NavAISettingsForm,
+    FeeSettingsForm, AddUserForm, NavAISettingsForm, FounderSectionForm,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
-    DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings,
+    DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings, FounderSection,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -1511,6 +1511,20 @@ def dashboard_about(request):
         saved = True
         form = AboutUsContentForm(instance=about)
     return render(request, 'dashboard/about_form.html', {'active': 'about', 'form': form, 'about': about, 'saved': saved})
+
+
+@dashboard_staff_required
+def dashboard_founder_settings(request):
+    founder = FounderSection.get_solo()
+    form = FounderSectionForm(request.POST or None, request.FILES or None, instance=founder)
+    saved = False
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        saved = True
+        form = FounderSectionForm(instance=founder)
+    return render(request, 'dashboard/founder_settings.html', {
+        'active': 'founder_settings', 'form': form, 'founder': founder, 'saved': saved,
+    })
 
 
 @dashboard_staff_required

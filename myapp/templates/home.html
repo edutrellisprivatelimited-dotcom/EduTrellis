@@ -373,9 +373,10 @@
         <li><a href="#products">Products</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="{% url 'estore' %}">E-Store</a></li>
-        <li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>
+        {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>{% endif %}
         <li><a href="#portfolio">Portfolio</a></li>
         <li><a href="#projects">Blog</a></li>
+        {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}
         <li><a href="#about">About</a></li>
         <li><a href="#contact">Contact Us</a></li>
       </ul>
@@ -411,9 +412,10 @@
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="{% url 'estore' %}">E-Store</a></li>
-    <li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>
+    {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>{% endif %}
     <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#projects">Blog</a></li>
+    {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}
     <li><a href="#" id="openAuthMobile">Login</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#contact">Contact Us</a></li>
@@ -1112,6 +1114,49 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
 </script>
 <!-- ===== END BLOG SECTION ===== -->
 
+{% if FOUNDER.is_active %}
+<!-- ===== MEET THE FOUNDER ===== -->
+<section id="clients">
+  <div class="wrap">
+    <h2 class="reveal">Meet Our <span>Founder</span></h2>
+    <div class="accent reveal d1"></div>
+    <p class="sub reveal d2">The vision and leadership behind EduTrellis</p>
+    <div class="about-grid">
+      <div class="about-img-wrap reveal-left" style="padding:1rem">
+        <div class="about-decorative"></div>
+        <div class="about-decorative2"></div>
+        {% if FOUNDER.photo %}
+          <img src="{{ FOUNDER.photo.url }}" alt="{{ FOUNDER.name|default:'EduTrellis Founder' }}" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
+        {% else %}
+          <img src="{% static 'img/founder.webp' %}" alt="{{ FOUNDER.name|default:'EduTrellis Founder' }}" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
+        {% endif %}
+        <div class="about-badge"><div class="bn">{{ FOUNDER.badge_value }}</div><div class="bt">{{ FOUNDER.badge_label }}</div></div>
+      </div>
+      <div class="about-text reveal-right">
+        <h3>{{ FOUNDER.name|default:FOUNDER.title }}</h3>
+        {% if FOUNDER.name %}<p style="font-size:.85rem;color:var(--red);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:-.5rem">{{ FOUNDER.title }}, EduTrellis</p>{% endif %}
+        {% if FOUNDER.email %}<p style="font-size:.9rem;color:var(--text);display:flex;align-items:center;gap:.5rem;margin-top:.3rem"><i class="fas fa-envelope" style="color:var(--red)"></i> <a href="mailto:{{ FOUNDER.email }}" style="color:var(--text);text-decoration:none">{{ FOUNDER.email }}</a></p>{% endif %}
+        <p style="margin-top:1rem">{{ FOUNDER.intro_paragraph1 }}</p>
+        <p>{{ FOUNDER.intro_paragraph2 }}</p>
+        <h3 style="margin-top:1.5rem">{{ FOUNDER.belief_heading }}</h3>
+        <ul class="about-list">
+          {% for point in FOUNDER.belief_list %}<li><i class="fas fa-check-circle"></i> {{ point }}</li>{% endfor %}
+        </ul>
+        <div class="mission">
+          <h4>{{ FOUNDER.note_heading }}</h4>
+          <p>{{ FOUNDER.note_text }}</p>
+        </div>
+        <div class="about-btns">
+          {% if FOUNDER.email %}<a href="mailto:{{ FOUNDER.email }}" class="cta-btn">Connect With Us <i class="fas fa-arrow-right"></i></a>{% endif %}
+          {% if FOUNDER.linkedin %}<a href="{{ FOUNDER.linkedin }}" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:#0077b5;box-shadow:0 8px 26px rgba(0,119,181,.35);"><i class="fab fa-linkedin-in"></i> LinkedIn</a>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ===== END MEET THE FOUNDER ===== -->
+{% endif %}
+
 
 
 <!-- FAQ -->
@@ -1276,6 +1321,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
         <li><a href="#portfolio"><i class="fas fa-chevron-right"></i>Portfolio</a></li>
         <li><a href="#projects"><i class="fas fa-chevron-right"></i>Blog</a></li>
+        {% if FOUNDER.is_active %}<li><a href="#clients"><i class="fas fa-chevron-right"></i>Founder</a></li>{% endif %}
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact</a></li>
       </ul>
@@ -1385,12 +1431,14 @@ function filterPortfolio(cat, btn) {
 .ai-promo-cta{display:inline-flex;align-items:center;gap:.4rem;background:var(--red);color:#fff;font-weight:700;font-size:.78rem;padding:.5rem .85rem;border-radius:9px;text-decoration:none}
 @media (max-width:480px){.ai-promo-toast{left:.75rem;right:.75rem;max-width:none;bottom:.75rem}}
 </style>
+{% if NAV_AI.is_active %}
 <div class="ai-promo-toast" id="aiPromoToast" hidden>
   <button type="button" class="ai-promo-close" id="aiPromoClose" aria-label="Dismiss">&times;</button>
   <div class="ai-promo-flag">Made in India</div>
   <p class="ai-promo-text">Try our AI models with <strong>{{ NAV_AI.name }}</strong>.</p>
   <a href="{{ NAV_AI.url }}" target="_blank" rel="noopener" class="ai-promo-cta">Try {{ NAV_AI.name }} <i class="fas fa-arrow-right"></i></a>
 </div>
+{% endif %}
 <script>
 (function(){
   var KEY='vidhyora_ai_promo_dismissed', el=document.getElementById('aiPromoToast');

@@ -30,41 +30,6 @@
     </div>
   </div>
 
-  <h3 style="font-size:1rem;margin:1.4rem 0 .8rem">Founder</h3>
-  <div class="form-group">
-    <label for="{{ form.founder_photo.id_for_label }}">Founder photo</label>
-    {% if about.founder_photo %}
-      <div class="current-thumb"><img src="{{ about.founder_photo.url }}" alt=""><span class="help">Current photo — upload a new one to replace it.</span></div>
-    {% endif %}
-    {{ form.founder_photo }}
-    <div class="help">Optional — falls back to initials when left blank.</div>
-    {{ form.founder_photo.errors }}
-  </div>
-  <div class="form-grid-2">
-    <div class="form-group">
-      <label for="{{ form.founder_name.id_for_label }}">Name</label>
-      {{ form.founder_name }}
-      {{ form.founder_name.errors }}
-    </div>
-    <div class="form-group">
-      <label for="{{ form.founder_title.id_for_label }}">Title</label>
-      {{ form.founder_title }}
-      {{ form.founder_title.errors }}
-    </div>
-  </div>
-  <div class="form-grid-2">
-    <div class="form-group">
-      <label for="{{ form.founder_email.id_for_label }}">Email</label>
-      {{ form.founder_email }}
-      {{ form.founder_email.errors }}
-    </div>
-    <div class="form-group">
-      <label for="{{ form.founder_linkedin.id_for_label }}">LinkedIn URL</label>
-      {{ form.founder_linkedin }}
-      {{ form.founder_linkedin.errors }}
-    </div>
-  </div>
-
   <h3 style="font-size:1rem;margin:1.4rem 0 .8rem">Stats row</h3>
   <div class="form-grid-2">
     <div class="form-group"><label for="{{ form.stat1_value.id_for_label }}">Stat 1 value</label>{{ form.stat1_value }}</div>

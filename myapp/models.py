@@ -206,12 +206,6 @@ class AboutUsContent(models.Model):
     badge_title    = models.CharField(max_length=120, default='Working since 2020')
     badge_subtitle = models.CharField(max_length=200, default='Websites & technical services · store launched 2026')
 
-    founder_name     = models.CharField(max_length=120, default='Vijay Tiwari')
-    founder_title    = models.CharField(max_length=120, default='Founder & CEO')
-    founder_email    = models.EmailField(default='ceo@edutrellis.in')
-    founder_linkedin = models.URLField(blank=True, default='https://www.linkedin.com/in/vijaytiwariii/')
-    founder_photo    = models.ImageField(upload_to='about/', blank=True, null=True)
-
     stat1_value = models.CharField(max_length=20, default='2020')
     stat1_label = models.CharField(max_length=40, default='Founded')
     stat2_value = models.CharField(max_length=20, default='1200+')
@@ -254,6 +248,70 @@ class AboutUsContent(models.Model):
     @property
     def bullet_list(self):
         return [b.strip() for b in self.bullet_points.splitlines() if b.strip()]
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class FounderSection(models.Model):
+    """Singleton content block backing the homepage's "Meet Our Founder"
+    section, managed from its own dashboard page (Customize > Founder) so
+    it isn't mixed in with the general About Us settings.
+
+    name/linkedin default to blank on purpose — EduTrellis previously
+    decided not to publicly name an individual owner/founder. Leave them
+    blank to keep the section name-free (it falls back to just the title),
+    or fill them in if that decision changes. is_active fully hides the
+    section (and its nav links) from the site when off."""
+    is_active = models.BooleanField(default=True, help_text='Show this section on the homepage. Turn off to remove it and its nav links entirely.')
+
+    name      = models.CharField(max_length=120, blank=True, default='', help_text="Optional — leave blank to not show an individual's name.")
+    title     = models.CharField(max_length=120, default='Founder & CEO')
+    email     = models.EmailField(blank=True, default='ceo@edutrellis.in')
+    linkedin  = models.URLField(blank=True, default='', help_text='Optional personal LinkedIn profile link.')
+    photo     = models.ImageField(upload_to='founder/', blank=True, null=True, help_text='Falls back to a default illustration when left blank.')
+
+    badge_value = models.CharField(max_length=20, default='10+')
+    badge_label = models.CharField(max_length=60, default='Years Experience')
+
+    intro_paragraph1 = models.TextField(default=(
+        "Our founder started EduTrellis in 2020 with a simple goal — to make professional digital "
+        "growth accessible and affordable for every business and educator in India."
+    ))
+    intro_paragraph2 = models.TextField(default=(
+        "Today, that vision has grown into a trusted digital partner serving 1200+ clients, built on "
+        "transparency, hard work and genuine care for every client's success."
+    ))
+
+    belief_heading = models.CharField(max_length=150, default="Founder's Belief")
+    belief_points  = models.TextField(default=(
+        "Every business deserves a strong digital presence\n"
+        "Honesty & transparency in every client relationship\n"
+        "Results should be measurable, not just promised\n"
+        "Personal attention — clients aren't just numbers"
+    ), help_text="One point per line.")
+
+    note_heading = models.CharField(max_length=100, default='🎯 A Personal Note')
+    note_text    = models.TextField(default=(
+        "\"I started EduTrellis because I saw how many great businesses were being held back by "
+        "outdated or missing websites. Every client we work with becomes part of our journey — and "
+        "their growth is what drives us every single day.\""
+    ))
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Founder Section'
+        verbose_name_plural = 'Founder Section'
+
+    def __str__(self):
+        return 'Founder section'
+
+    @property
+    def belief_list(self):
+        return [b.strip() for b in self.belief_points.splitlines() if b.strip()]
 
     @classmethod
     def get_solo(cls):
@@ -620,6 +678,7 @@ class NavAISettings(models.Model):
     and store navbars, managed from the store dashboard. Lets the AI
     product's display name and destination URL be changed in one place
     instead of hardcoded in every template that links to it."""
+    is_active  = models.BooleanField(default=True, help_text='Show this link on the site. Turn off to remove it — and the promo popups that mention it — everywhere at once.')
     name       = models.CharField(max_length=40, default='Vidhyora AI', help_text="Label shown in the navbar, e.g. 'Vidhyora AI'.")
     url        = models.URLField(max_length=300, default='https://www.vidhyora.online/', help_text='Where the link goes. Include https://.')
     updated_at = models.DateTimeField(auto_now=True)

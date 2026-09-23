@@ -6,7 +6,7 @@ from .models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
-    EmailSettings, EmailVerification,
+    EmailSettings, EmailVerification, FounderSection, NavAISettings,
 )
 
 
@@ -41,10 +41,18 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(AboutUsContent)
 class AboutUsContentAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'founder_name', 'updated_at')
+    list_display = ('__str__', 'updated_at')
 
     def has_add_permission(self, request):
         return not AboutUsContent.objects.exists()
+
+
+@admin.register(FounderSection)
+class FounderSectionAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_active', 'name', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not FounderSection.objects.exists()
 
 
 @admin.register(PolicyPage)
@@ -102,6 +110,14 @@ class FeeSettingsAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return not FeeSettings.objects.exists()
+
+
+@admin.register(NavAISettings)
+class NavAISettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_active', 'name', 'url', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not NavAISettings.objects.exists()
 
 
 @admin.register(EmailSettings)

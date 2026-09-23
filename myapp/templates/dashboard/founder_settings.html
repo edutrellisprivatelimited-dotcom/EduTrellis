@@ -1,0 +1,102 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Founder{% endblock %}
+{% block page_title %}Founder{% endblock %}
+
+{% block content %}
+<p class="backup-sub" style="color:var(--text);font-size:.88rem;margin:0 0 1.4rem">
+  Controls the "Meet Our Founder" section on the homepage. Turn it off below to remove it — and its nav links — from the site entirely.
+</p>
+
+{% if saved %}<div class="save-msg"><i class="fas fa-circle-check"></i> Saved.</div>{% endif %}
+
+<form class="form-card" style="max-width:720px" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="toggle-row" style="border-bottom:none;padding-bottom:0">
+    <div><b>Show this section</b><span>Turn off to remove it — and its nav links — from the homepage entirely.</span></div>
+    {{ form.is_active }}
+  </div>
+
+  <div class="form-group" style="margin-top:1rem">
+    <label for="{{ form.photo.id_for_label }}">Photo</label>
+    {% if founder.photo %}
+      <div class="current-thumb"><img src="{{ founder.photo.url }}" alt=""><span class="help">Current photo — upload a new one to replace it.</span></div>
+    {% endif %}
+    {{ form.photo }}
+    <div class="help">Optional — falls back to a default illustration when left blank.</div>
+    {{ form.photo.errors }}
+  </div>
+
+  <div class="form-grid-2">
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}">Name</label>
+      {{ form.name }}
+      <div class="help">Optional — leave blank to not show an individual's name. The section then shows just the title below.</div>
+      {{ form.name.errors }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.title.id_for_label }}">Title</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+    </div>
+  </div>
+  <div class="form-grid-2">
+    <div class="form-group">
+      <label for="{{ form.email.id_for_label }}">Email</label>
+      {{ form.email }}
+      {{ form.email.errors }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.linkedin.id_for_label }}">LinkedIn URL</label>
+      {{ form.linkedin }}
+      <div class="help">Optional — the LinkedIn button is hidden when left blank.</div>
+      {{ form.linkedin.errors }}
+    </div>
+  </div>
+  <div class="form-grid-2">
+    <div class="form-group"><label for="{{ form.badge_value.id_for_label }}">Photo badge value</label>{{ form.badge_value }}</div>
+    <div class="form-group"><label for="{{ form.badge_label.id_for_label }}">Photo badge label</label>{{ form.badge_label }}</div>
+  </div>
+
+  <h3 style="font-size:1rem;margin:1.4rem 0 .8rem">Story</h3>
+  <div class="form-group">
+    <label for="{{ form.intro_paragraph1.id_for_label }}">Paragraph 1</label>
+    {{ form.intro_paragraph1 }}
+    {{ form.intro_paragraph1.errors }}
+  </div>
+  <div class="form-group">
+    <label for="{{ form.intro_paragraph2.id_for_label }}">Paragraph 2</label>
+    {{ form.intro_paragraph2 }}
+    {{ form.intro_paragraph2.errors }}
+  </div>
+
+  <h3 style="font-size:1rem;margin:1.4rem 0 .8rem">Belief list</h3>
+  <div class="form-group">
+    <label for="{{ form.belief_heading.id_for_label }}">Heading</label>
+    {{ form.belief_heading }}
+    {{ form.belief_heading.errors }}
+  </div>
+  <div class="form-group">
+    <label for="{{ form.belief_points.id_for_label }}">Points</label>
+    {{ form.belief_points }}
+    {{ form.belief_points.errors }}
+  </div>
+
+  <h3 style="font-size:1rem;margin:1.4rem 0 .8rem">Personal note</h3>
+  <div class="form-group">
+    <label for="{{ form.note_heading.id_for_label }}">Heading</label>
+    {{ form.note_heading }}
+    {{ form.note_heading.errors }}
+  </div>
+  <div class="form-group">
+    <label for="{{ form.note_text.id_for_label }}">Note</label>
+    {{ form.note_text }}
+    {{ form.note_text.errors }}
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save changes</button>
+    <a href="{% url 'home' %}#clients" class="btn btn-ghost" target="_blank">Preview on homepage</a>
+  </div>
+</form>
+{% endblock %}

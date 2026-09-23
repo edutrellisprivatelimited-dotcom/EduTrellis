@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor, StoreProfile,
     AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings, FeeSettings,
-    NavAISettings,
+    NavAISettings, FounderSection,
 )
 
 
@@ -354,7 +354,6 @@ class AboutUsContentForm(forms.ModelForm):
         model = AboutUsContent
         fields = [
             'photo', 'badge_title', 'badge_subtitle',
-            'founder_name', 'founder_title', 'founder_email', 'founder_linkedin', 'founder_photo',
             'stat1_value', 'stat1_label', 'stat2_value', 'stat2_label',
             'stat3_value', 'stat3_label', 'stat4_value', 'stat4_label',
             'heading', 'paragraph1', 'paragraph2', 'list_heading', 'bullet_points',
@@ -363,6 +362,23 @@ class AboutUsContentForm(forms.ModelForm):
             'paragraph1': forms.Textarea(attrs={'rows': 4}),
             'paragraph2': forms.Textarea(attrs={'rows': 4}),
             'bullet_points': forms.Textarea(attrs={'rows': 5, 'placeholder': 'One point per line'}),
+        }
+
+
+class FounderSectionForm(forms.ModelForm):
+    class Meta:
+        model = FounderSection
+        fields = [
+            'is_active', 'photo', 'name', 'title', 'email', 'linkedin',
+            'badge_value', 'badge_label',
+            'intro_paragraph1', 'intro_paragraph2',
+            'belief_heading', 'belief_points', 'note_heading', 'note_text',
+        ]
+        widgets = {
+            'intro_paragraph1': forms.Textarea(attrs={'rows': 3}),
+            'intro_paragraph2': forms.Textarea(attrs={'rows': 3}),
+            'belief_points': forms.Textarea(attrs={'rows': 4, 'placeholder': 'One point per line'}),
+            'note_text': forms.Textarea(attrs={'rows': 3}),
         }
 
 
@@ -439,7 +455,7 @@ class FeeSettingsForm(forms.ModelForm):
 class NavAISettingsForm(forms.ModelForm):
     class Meta:
         model = NavAISettings
-        fields = ['name', 'url']
+        fields = ['is_active', 'name', 'url']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Vidhyora AI'}),
             'url': forms.URLInput(attrs={'placeholder': 'https://www.vidhyora.online/'}),
