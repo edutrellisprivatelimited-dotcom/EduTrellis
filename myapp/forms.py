@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor, StoreProfile,
     AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings, FeeSettings,
-    NavAISettings, FounderSection,
+    NavAISettings, FounderSection, HeroSlideImage,
 )
 
 
@@ -346,6 +346,12 @@ ProductColorFormSet = forms.inlineformset_factory(
         'hex_code': forms.TextInput(attrs={'type': 'color'}),
         'order': forms.NumberInput(attrs={'placeholder': 'Order'}),
     },
+)
+
+HeroSlideImageFormSet = forms.modelformset_factory(
+    HeroSlideImage,
+    fields=['image', 'order'],
+    extra=3, min_num=1, validate_min=True, max_num=10, validate_max=True, can_delete=True,
 )
 
 

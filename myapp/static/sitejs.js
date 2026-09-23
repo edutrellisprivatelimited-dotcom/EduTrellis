@@ -278,10 +278,11 @@ window.addEventListener('scroll',function(){
    ============================================================ */
 (function(){
   var curSlide=0;
-  var total=3;
   var slides=document.querySelectorAll('.slide');
   var dots=document.querySelectorAll('.dot');
+  var total=slides.length;
   var timer;
+  if (!total) return;
 
   function updateSlider(){
     slides.forEach(function(s,i){s.classList.toggle('active',i===curSlide);});

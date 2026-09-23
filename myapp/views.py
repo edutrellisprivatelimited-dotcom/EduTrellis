@@ -25,12 +25,13 @@ from myapp.forms import (
     StoreProfileEditForm, StorePasswordChangeForm, CheckoutAddressForm, ReviewForm, CategoryForm, OrderStatusForm,
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
-    FeeSettingsForm, AddUserForm, NavAISettingsForm, FounderSectionForm,
+    FeeSettingsForm, AddUserForm, NavAISettingsForm, FounderSectionForm, HeroSlideImageFormSet,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings, FounderSection,
+    HeroSlideImage,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -45,6 +46,48 @@ except ImportError:  # pragma: no cover - optional dependency until configured
     razorpay = None
 
 
+# Heading/subtitle/button copy for the homepage hero slider. Only the
+# background images (HeroSlideImage) are dashboard-editable — see the
+# Banner page under Customize — so this stays a code-level constant. When
+# there are more images than text sets, slides cycle back to the start.
+HERO_SLIDE_TEXT = [
+    {
+        'badge': "● India's #1 Digital Growth Partner",
+        'heading_html': 'Transform Your <em>Digital Presence</em> — Start Today',
+        'subtitle': 'From Website to Success — Complete Digital Solutions Tailored for Indian Businesses',
+        'cta1_text': 'Get Started Today', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
+        'cta2_text': 'Explore Plans', 'cta2_url': '#products', 'cta2_icon': 'fa-chevron-down',
+        'stats': [('1200+', 'Happy Clients'), ('500+', 'Projects Done'), ('98%', 'Satisfaction')],
+    },
+    {
+        'badge': '🔥 Complete Management Plans',
+        'heading_html': 'Complete <em>Website Management</em> — We Handle It All',
+        'subtitle': 'Your website, marketing & growth — in expert hands. Get 1 month + 15 days FREE on first enroll',
+        'cta1_text': 'Explore Plans', 'cta1_url': '#products', 'cta1_icon': 'fa-arrow-right',
+        'cta2_text': 'Book Free Demo', 'cta2_url': '#contact', 'cta2_icon': 'fa-calendar',
+        'stats': [('₹2,999', 'From/Month'), ('+15 Days', '1st Month Bonus'), ('24/7', 'Support')],
+    },
+    {
+        'badge': '🌐 Custom Website Development',
+        'heading_html': 'Custom <em>Websites Built</em> for Real Growth',
+        'subtitle': 'Professional, fast & SEO-ready websites crafted for your specific business goals',
+        'cta1_text': 'Book FREE Demo', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
+        'cta2_text': 'See Our Work', 'cta2_url': '#projects', 'cta2_icon': 'fa-eye',
+        'stats': [('500+', 'Sites Built'), ('SEO', 'Ready'), ('24/7', 'Support')],
+    },
+]
+
+
+def _hero_slides():
+    images = list(HeroSlideImage.objects.all())
+    if not images:
+        return []
+    return [
+        {**HERO_SLIDE_TEXT[i % len(HERO_SLIDE_TEXT)], 'image_url': img.image.url}
+        for i, img in enumerate(images)
+    ]
+
+
 def home(request):
     trending_products = Product.objects.filter(is_active=True).select_related('category')[:8]
     nav_user = _user_payload(request.user) if request.user.is_authenticated else None
@@ -52,6 +95,7 @@ def home(request):
         "contact_form": ContactLeadForm(),
         "trending_products": trending_products,
         "nav_user_json": json.dumps(nav_user),
+        "hero_slides": _hero_slides(),
     })
 
 
@@ -1595,6 +1639,19 @@ def dashboard_pwa_settings(request):
         form = PWASettingsForm(instance=settings_obj)
     return render(request, 'dashboard/pwa_settings.html', {
         'active': 'customize', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+    })
+
+
+@dashboard_staff_required
+def dashboard_banner_settings(request):
+    formset = HeroSlideImageFormSet(request.POST or None, request.FILES or None, queryset=HeroSlideImage.objects.all())
+    saved = False
+    if request.method == 'POST' and formset.is_valid():
+        formset.save()
+        saved = True
+        formset = HeroSlideImageFormSet(queryset=HeroSlideImage.objects.all())
+    return render(request, 'dashboard/banner_settings.html', {
+        'active': 'banner_settings', 'formset': formset, 'saved': saved,
     })
 
 

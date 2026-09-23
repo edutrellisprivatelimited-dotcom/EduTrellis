@@ -182,6 +182,25 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
 
+class HeroSlideImage(models.Model):
+    """A background image for the homepage's hero slider, managed from the
+    dashboard (Customize > Banner). Each image cycles through the same 3
+    sets of heading/subtitle/button text used since launch (that copy isn't
+    admin-editable — only the images are); if there are more images than
+    text sets, later slides reuse an earlier set. At least one image must
+    always exist so the hero section is never left empty."""
+    image = models.ImageField(upload_to='hero/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Hero Banner Image'
+        verbose_name_plural = 'Hero Banner Images'
+
+    def __str__(self):
+        return f'Hero slide image #{self.pk}'
+
+
 class ProductColor(models.Model):
     """A selectable colour variant shown as a swatch on the product detail
     page. Purely presentational — it doesn't split stock or pricing."""

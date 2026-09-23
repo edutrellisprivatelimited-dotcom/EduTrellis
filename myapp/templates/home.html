@@ -505,76 +505,30 @@
 <!-- HERO SLIDER -->
 <div class="hero" id="home">
   <div class="slider-wrap">
-    <!-- Slide 1 -->
-    <div class="slide active">
-   <div class="slide-bg" style="background-image:url('{% static "img/banner1.webp" %}')"></div>
-   <div class="slide-overlay"></div>
+    {% for slide in hero_slides %}
+    <div class="slide{% if forloop.first %} active{% endif %}">
+      <div class="slide-bg" style="background-image:url('{{ slide.image_url }}')"></div>
       <div class="slide-overlay"></div>
       <div class="slide-mesh"></div>
       <div class="slide-content">
-        <div class="slide-badge">● India's #1 Digital Growth Partner</div>
-        <h1>Transform Your <em>Digital Presence</em> — Start Today</h1>
-        <p>From Website to Success — Complete Digital Solutions Tailored for Indian Businesses</p>
+        <div class="slide-badge">{{ slide.badge }}</div>
+        <h1>{{ slide.heading_html|safe }}</h1>
+        <p>{{ slide.subtitle }}</p>
         <div class="hero-btns">
-          <a href="#contact" class="cta-btn">Get Started Today <i class="fas fa-arrow-right"></i></a>
-          <a href="#products" class="cta-btn ghost">Explore Plans <i class="fas fa-chevron-down"></i></a>
+          <a href="{{ slide.cta1_url }}" class="cta-btn">{{ slide.cta1_text }} <i class="fas {{ slide.cta1_icon }}"></i></a>
+          <a href="{{ slide.cta2_url }}" class="cta-btn ghost">{{ slide.cta2_text }} <i class="fas {{ slide.cta2_icon }}"></i></a>
         </div>
         <div class="hero-stats">
-          <div class="hstat"><h3>1200+</h3><p>Happy Clients</p></div>
-          <div class="hstat"><h3>500+</h3><p>Projects Done</p></div>
-          <div class="hstat"><h3>98%</h3><p>Satisfaction</p></div>
+          {% for value, label in slide.stats %}<div class="hstat"><h3>{{ value }}</h3><p>{{ label }}</p></div>{% endfor %}
         </div>
       </div>
     </div>
-    <!-- Slide 2 -->
-    <div class="slide">
-{% load static %}
-
-<div class="slide-bg" style="background-image:url('{% static "img/banner2.webp" %}')"></div>
-      <div class="slide-overlay"></div>
-      <div class="slide-mesh"></div>
-      <div class="slide-content">
-        <div class="slide-badge">🔥 Complete Management Plans</div>
-        <h2>Complete <em>Website Management</em> — We Handle It All</h2>
-        <p>Your website, marketing &amp; growth — in expert hands. Get 1 month + 15 days FREE on first enroll</p>
-        <div class="hero-btns">
-          <a href="#products" class="cta-btn">Explore Plans <i class="fas fa-arrow-right"></i></a>
-          <a href="#contact" class="cta-btn ghost">Book Free Demo <i class="fas fa-calendar"></i></a>
-        </div>
-        <div class="hero-stats">
-          <div class="hstat"><h3>₹2,999</h3><p>From/Month</p></div>
-          <div class="hstat"><h3>+15 Days</h3><p>1st Month Bonus</p></div>
-          <div class="hstat"><h3>24/7</h3><p>Support</p></div>
-        </div>
-      </div>
-    </div>
-    <!-- Slide 3 -->
-    <div class="slide">
-<div class="slide-bg" style="background-image:url('{% static "img/banner3.webp" %}')"></div>
-      <div class="slide-overlay"></div>
-      <div class="slide-mesh"></div>
-      <div class="slide-content">
-        <div class="slide-badge">🌐 Custom Website Development</div>
-        <h2>Custom <em>Websites Built</em> for Real Growth</h2>
-        <p>Professional, fast &amp; SEO-ready websites crafted for your specific business goals</p>
-        <div class="hero-btns">
-          <a href="#contact" class="cta-btn">Book FREE Demo <i class="fas fa-arrow-right"></i></a>
-          <a href="#projects" class="cta-btn ghost">See Our Work <i class="fas fa-eye"></i></a>
-        </div>
-        <div class="hero-stats">
-          <div class="hstat"><h3>500+</h3><p>Sites Built</p></div>
-          <div class="hstat"><h3>SEO</h3><p>Ready</p></div>
-          <div class="hstat"><h3>24/7</h3><p>Support</p></div>
-        </div>
-      </div>
-    </div>
+    {% endfor %}
 
     <button class="sarr prev" onclick="changeSlide(-1)" aria-label="Previous slide">&#8249;</button>
     <button class="sarr next" onclick="changeSlide(1)" aria-label="Next slide">&#8250;</button>
     <div class="slider-dots">
-      <button class="dot active" onclick="goTo(0)" aria-label="Slide 1"></button>
-      <button class="dot" onclick="goTo(1)" aria-label="Slide 2"></button>
-      <button class="dot" onclick="goTo(2)" aria-label="Slide 3"></button>
+      {% for slide in hero_slides %}<button class="dot{% if forloop.first %} active{% endif %}" onclick="goTo({{ forloop.counter0 }})" aria-label="Slide {{ forloop.counter }}"></button>{% endfor %}
     </div>
     <div class="scroll-hint" aria-hidden="true"><span></span><p>Scroll Down</p></div>
   </div>
