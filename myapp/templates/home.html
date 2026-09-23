@@ -280,6 +280,7 @@
 </style>
 
 <body>
+<script id="navUserBoot" type="application/json">{{ nav_user_json|safe }}</script>
 
 <!-- CURSOR (desktop only) -->
 <div class="cursor" id="cursor"></div>
@@ -378,9 +379,24 @@
         <li><a href="#about">About</a></li>
         <li><a href="#contact">Contact Us</a></li>
       </ul>
-      <button class="nav-login-btn" id="openAuth" type="button" aria-label="Login">
-        <i class="fas fa-user"></i><span class="lbl">Login</span>
-      </button>
+      <div class="nav-account-wrap" id="navAccountWrap">
+        <button class="nav-login-btn" id="openAuth" type="button" aria-label="Account">
+          <i class="fas fa-user"></i><span class="lbl">Login</span>
+        </button>
+        <div class="nav-account-menu" id="navAccountMenu">
+          <div class="nam-head">
+            <div class="nam-avatar" id="navAmAvatar"></div>
+            <div class="nam-meta"><b id="navAmName"></b><span id="navAmEmail"></span></div>
+          </div>
+          <button type="button" id="navAmAdmin" data-action="admin" style="display:none"><i class="fas fa-user-shield"></i> Admin panel</button>
+          <button type="button" data-action="cart"><i class="fas fa-cart-shopping"></i> My cart</button>
+          <button type="button" data-action="wallet"><i class="fas fa-wallet"></i> My wallet</button>
+          <button type="button" data-action="orders"><i class="fas fa-box"></i> My orders</button>
+          <button type="button" data-action="edit"><i class="fas fa-user-pen"></i> Edit profile</button>
+          <button type="button" data-action="password"><i class="fas fa-key"></i> Change password</button>
+          <button type="button" data-action="logout" class="nam-logout"><i class="fas fa-right-from-bracket"></i> Logout</button>
+        </div>
+      </div>
       <button class="hamburger" id="ham" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
         <span></span><span></span><span></span>
       </button>
@@ -406,20 +422,44 @@
 
 <!-- ==================== LOGIN MODAL ==================== -->
 <style>
+@media(min-width:993px){.nav-right{gap:1.1rem}}
+.nav-account-wrap{position:relative;flex-shrink:0}
 .nav-login-btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;flex-shrink:0;cursor:pointer;
-  border:1.5px solid var(--red,#e8001e);background:none;color:var(--red,#e8001e);
-  font-family:var(--font-head,'Sora',sans-serif);font-weight:700;font-size:.72rem;
-  letter-spacing:.07em;text-transform:uppercase;padding:.52rem 1.3rem;border-radius:50px;
-  transition:background .25s,color .25s,transform .25s,box-shadow .25s;
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;flex-shrink:0;cursor:pointer;
+  border:none;background:linear-gradient(135deg,var(--red,#e8001e),var(--dark-red,#b8001a));color:#fff;
+  font-family:var(--font-head,'Sora',sans-serif);font-weight:700;font-size:.82rem;
+  letter-spacing:.01em;padding:.62rem 1.35rem;border-radius:50px;
+  box-shadow:0 6px 20px rgba(232,0,30,.32);
+  transition:transform .25s,box-shadow .25s;
   white-space:nowrap;
 }
-.nav-login-btn:hover{background:var(--red,#e8001e);color:#fff;transform:translateY(-2px);box-shadow:0 8px 22px rgba(232,0,30,.3)}
+.nav-login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,0,30,.42)}
 .nav-login-btn:active{transform:translateY(0)}
-.nav-login-btn i{font-size:.82rem}
+.nav-login-btn i{font-size:.88rem}
+.nav-login-btn .fa-chevron-down{font-size:.6rem;opacity:.85}
+.nav-account-avatar{width:24px;height:24px;border-radius:50%;overflow:hidden;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.25);font-size:.66rem;font-weight:800}
+.nav-account-avatar img{width:100%;height:100%;object-fit:cover}
 @media(max-width:992px){
-  .nav-login-btn .lbl{display:none}
+  .nav-right{gap:.6rem}
+  .nav-login-btn .lbl,.nav-login-btn .fa-chevron-down{display:none}
   .nav-login-btn{padding:0;width:38px;height:38px;border-radius:50%}
+}
+
+.nav-account-menu{position:absolute;top:calc(100% + 12px);right:0;width:min(264px,88vw);background:#fff;border:1px solid var(--border,#e2e8f0);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.16);padding:.6rem;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .25s,transform .25s,visibility .25s;z-index:2100}
+.nav-account-menu.open{opacity:1;visibility:visible;transform:none}
+.nam-head{display:flex;gap:.75rem;align-items:center;padding:.5rem .5rem .9rem;border-bottom:1px solid var(--border,#e2e8f0);margin-bottom:.4rem}
+.nam-avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--dark,#0f1623),#1c2333);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-head,'Sora',sans-serif);font-weight:800;font-size:1rem;overflow:hidden}
+.nam-avatar img{width:100%;height:100%;object-fit:cover}
+.nam-meta{min-width:0}
+.nam-meta b{display:block;font-size:.9rem;color:var(--dark,#0f1623);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nam-meta span{display:block;font-size:.75rem;color:var(--text,#4a5568);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-account-menu button{width:100%;display:flex;align-items:center;gap:.65rem;border:none;background:none;text-align:left;padding:.65rem .5rem;border-radius:10px;font-family:inherit;font-size:.86rem;font-weight:600;color:var(--dark,#0f1623);cursor:pointer;transition:background .2s}
+.nav-account-menu button:hover{background:var(--bg2,#f7f8fc)}
+.nav-account-menu button i{width:16px;color:var(--text,#4a5568)}
+.nav-account-menu button.nam-logout{color:var(--red,#e8001e);border-top:1px solid var(--border,#e2e8f0);margin-top:.3rem;padding-top:.75rem}
+.nav-account-menu button.nam-logout i{color:var(--red,#e8001e)}
+@media(max-width:992px){
+  .nav-account-menu{right:-10px;width:min(280px,90vw)}
 }
 
 .auth-modal{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:1.25rem;opacity:0;visibility:hidden;background:rgba(15,22,35,.55);transition:opacity .3s,visibility .3s}
@@ -1377,7 +1417,75 @@ function filterPortfolio(cat, btn) {
 (function(){
   var modal = document.getElementById('authModal');
   var msg = document.getElementById('authMsg');
-  if (!modal) return;
+  var openBtn = document.getElementById('openAuth');
+  var wrap = document.getElementById('navAccountWrap');
+  var menu = document.getElementById('navAccountMenu');
+  if (!modal || !openBtn) return;
+
+  var user = null;
+  try {
+    var bootEl = document.getElementById('navUserBoot');
+    user = bootEl ? JSON.parse(bootEl.textContent || 'null') : null;
+  } catch (e) { user = null; }
+
+  function csrfToken(){
+    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+  function initials(name){
+    return (name || '?').trim().split(/\s+/).map(function(w){ return w[0]; }).slice(0, 2).join('').toUpperCase();
+  }
+  function avatarHtml(u){
+    return u && u.avatar_url ? '<img src="' + u.avatar_url + '" alt="">' : initials(u && u.name);
+  }
+  function closeAccountMenu(){ if (menu) menu.classList.remove('open'); }
+  function renderAccountUI(){
+    var mobileLi = document.getElementById('openAuthMobile');
+    mobileLi = mobileLi ? mobileLi.closest('li') : null;
+    if (!user){
+      openBtn.innerHTML = '<i class="fas fa-user"></i><span class="lbl">Login</span>';
+      closeAccountMenu();
+      if (mobileLi) mobileLi.style.display = '';
+      return;
+    }
+    openBtn.innerHTML = '<span class="nav-account-avatar">' + avatarHtml(user) + '</span>' +
+      '<span class="lbl">' + (user.name || 'Account').split(' ')[0] + '</span>' +
+      '<i class="fas fa-chevron-down"></i>';
+    var amAvatar = document.getElementById('navAmAvatar');
+    var amName = document.getElementById('navAmName');
+    var amEmail = document.getElementById('navAmEmail');
+    var amAdmin = document.getElementById('navAmAdmin');
+    if (amAvatar) amAvatar.innerHTML = avatarHtml(user);
+    if (amName) amName.textContent = user.name || 'Account';
+    if (amEmail) amEmail.textContent = user.email || '';
+    if (amAdmin) amAdmin.style.display = user.is_staff ? 'flex' : 'none';
+    if (mobileLi) mobileLi.style.display = 'none';
+  }
+  renderAccountUI();
+
+  if (menu) menu.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    closeAccountMenu();
+    switch (btn.dataset.action){
+      case 'admin': window.location.href = '/store/dashboard/'; break;
+      case 'cart': window.location.href = "{% url 'estore' %}?open=cart"; break;
+      case 'wallet': window.location.href = "{% url 'estore' %}?open=wallet"; break;
+      case 'orders': window.location.href = "{% url 'estore' %}?open=orders"; break;
+      case 'edit': window.location.href = "{% url 'estore' %}?open=profile"; break;
+      case 'password': window.location.href = "{% url 'estore' %}?open=password"; break;
+      case 'logout':
+        fetch('/store/api/logout/', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
+          body: '{}'
+        }).then(function(){ user = null; renderAccountUI(); });
+        break;
+    }
+  });
+  document.addEventListener('click', function(e){
+    if (wrap && !e.target.closest('#navAccountWrap')) closeAccountMenu();
+  });
 
   function openAuth(){
     msg.classList.remove('show');
@@ -1392,21 +1500,20 @@ function filterPortfolio(cat, btn) {
     msg.textContent = text;
     msg.className = 'auth-msg show ' + kind;
   }
-  function csrfToken(){
-    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-  }
 
-  var openBtn = document.getElementById('openAuth');
   var openBtnMobile = document.getElementById('openAuthMobile');
   var closeBtn = document.getElementById('closeAuth');
   var loginBtn = document.getElementById('doLogin');
 
-  if (openBtn) openBtn.addEventListener('click', openAuth);
+  openBtn.addEventListener('click', function(){
+    if (user){ if (menu) menu.classList.toggle('open'); return; }
+    openAuth();
+  });
   if (openBtnMobile) openBtnMobile.addEventListener('click', function(e){
     e.preventDefault();
     document.getElementById('mobileMenu').classList.remove('open');
     document.getElementById('ham').classList.remove('open');
+    if (user){ if (menu) menu.classList.toggle('open'); return; }
     openAuth();
   });
   if (closeBtn) closeBtn.addEventListener('click', closeAuth);
@@ -1437,8 +1544,11 @@ function filterPortfolio(cat, btn) {
           showMsg(m, 'err');
           return;
         }
-        showMsg('Logged in — redirecting…', 'ok');
-        window.location.href = "{% url 'estore' %}";
+        user = res.body.user || null;
+        renderAccountUI();
+        document.getElementById('liId').value = '';
+        document.getElementById('liPw').value = '';
+        closeAuth();
       })
       .catch(function(){
         loginBtn.disabled = false;

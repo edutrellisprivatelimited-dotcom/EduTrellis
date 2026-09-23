@@ -2477,6 +2477,21 @@ function renderAccountUI(){
 }
 renderAccountUI();
 
+/* Deep link from the main site's nav account menu, e.g. /store/?open=wallet —
+   opens the matching panel once on load, then strips the param so a refresh
+   or back-navigation doesn't reopen it. */
+(function(){
+  var params = new URLSearchParams(location.search);
+  var open = params.get('open');
+  var openers = { cart: openDrawer, wallet: openWallet, orders: openOrders, profile: openProfile, password: openPassword };
+  if (open && state.user && openers[open]){
+    openers[open]();
+    params.delete('open');
+    var qs = params.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  }
+})();
+
 /* offer popup triggers: 8 seconds in, or on exit intent — once per visit */
 setTimeout(openOffer, 8000);
 document.addEventListener('mouseout', e => { if (!e.relatedTarget && e.clientY <= 0) openOffer(); });

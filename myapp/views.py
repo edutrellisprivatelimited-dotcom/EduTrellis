@@ -47,9 +47,11 @@ except ImportError:  # pragma: no cover - optional dependency until configured
 
 def home(request):
     trending_products = Product.objects.filter(is_active=True).select_related('category')[:8]
+    nav_user = _user_payload(request.user) if request.user.is_authenticated else None
     return render(request, "home.html", {
         "contact_form": ContactLeadForm(),
         "trending_products": trending_products,
+        "nav_user_json": json.dumps(nav_user),
     })
 
 
