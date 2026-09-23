@@ -1132,11 +1132,12 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 }
 
 html,body{overflow-x:hidden!important;max-width:100vw;}
-section,header,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overflow-x:hidden;}
-/* overflow-x:hidden above implicitly turns header's overflow-y into "auto",
-   clipping the absolutely-positioned account dropdown that hangs below the
-   fixed-height header — force it back to visible so the menu can show. */
-header{overflow-y:visible}
+/* header deliberately excluded: its width is already bounded by
+   position:fixed;left:0;right:0, and giving it overflow-x:hidden makes the
+   UA compute overflow-y as "auto" too (per the CSS overflow spec, one axis
+   hidden forces the other off "visible" even if that axis is set
+   explicitly) — which clips the account dropdown that hangs below it. */
+section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overflow-x:hidden;}
 .wrap{overflow-x:hidden}
 @media(max-width:768px){
   .slide-content{padding:1.5rem .9rem 5.5rem;max-width:100%;overflow:hidden;}
