@@ -201,6 +201,41 @@ class HeroSlideImage(models.Model):
         return f'Hero slide image #{self.pk}'
 
 
+class BlogSettings(models.Model):
+    """Singleton on/off switch for the homepage's "Our Blog" gallery
+    section, managed from the dashboard (Customize > Blog)."""
+    is_active = models.BooleanField(default=True, help_text='Show this section on the homepage. Turn off to remove it entirely.')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Blog Section'
+        verbose_name_plural = 'Blog Section'
+
+    def __str__(self):
+        return 'Blog section settings'
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class BlogGalleryItem(models.Model):
+    """One tile in the homepage's "Our Blog" gallery section — an image
+    plus its caption, managed from the dashboard (Customize > Blog)."""
+    image   = models.ImageField(upload_to='blog/')
+    caption = models.CharField(max_length=200)
+    order   = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Blog Gallery Item'
+        verbose_name_plural = 'Blog Gallery Items'
+
+    def __str__(self):
+        return self.caption or f'Blog item #{self.pk}'
+
+
 class ProductColor(models.Model):
     """A selectable colour variant shown as a swatch on the product detail
     page. Purely presentational — it doesn't split stock or pricing."""

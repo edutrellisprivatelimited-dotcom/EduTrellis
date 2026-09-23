@@ -26,12 +26,13 @@ from myapp.forms import (
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
     FeeSettingsForm, AddUserForm, NavAISettingsForm, FounderSectionForm, HeroSlideImageFormSet,
+    BlogSettingsForm, BlogGalleryItemFormSet,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings, FounderSection,
-    HeroSlideImage,
+    HeroSlideImage, BlogSettings, BlogGalleryItem,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -96,6 +97,8 @@ def home(request):
         "trending_products": trending_products,
         "nav_user_json": json.dumps(nav_user),
         "hero_slides": _hero_slides(),
+        "blog_settings": BlogSettings.get_solo(),
+        "blog_items": BlogGalleryItem.objects.all(),
     })
 
 
@@ -1652,6 +1655,23 @@ def dashboard_banner_settings(request):
         formset = HeroSlideImageFormSet(queryset=HeroSlideImage.objects.all())
     return render(request, 'dashboard/banner_settings.html', {
         'active': 'banner_settings', 'formset': formset, 'saved': saved,
+    })
+
+
+@dashboard_staff_required
+def dashboard_blog_settings(request):
+    settings_obj = BlogSettings.get_solo()
+    settings_form = BlogSettingsForm(request.POST or None, instance=settings_obj)
+    formset = BlogGalleryItemFormSet(request.POST or None, request.FILES or None, queryset=BlogGalleryItem.objects.all())
+    saved = False
+    if request.method == 'POST' and settings_form.is_valid() and formset.is_valid():
+        settings_form.save()
+        formset.save()
+        saved = True
+        settings_form = BlogSettingsForm(instance=settings_obj)
+        formset = BlogGalleryItemFormSet(queryset=BlogGalleryItem.objects.all())
+    return render(request, 'dashboard/blog_settings.html', {
+        'active': 'blog_settings', 'settings_form': settings_form, 'formset': formset, 'saved': saved,
     })
 
 

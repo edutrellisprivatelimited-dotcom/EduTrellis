@@ -7,6 +7,7 @@ from .models import (
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
     EmailSettings, EmailVerification, FounderSection, NavAISettings,
+    HeroSlideImage, BlogSettings, BlogGalleryItem,
 )
 
 
@@ -118,6 +119,26 @@ class NavAISettingsAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return not NavAISettings.objects.exists()
+
+
+@admin.register(HeroSlideImage)
+class HeroSlideImageAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'order')
+    ordering = ('order', 'id')
+
+
+@admin.register(BlogSettings)
+class BlogSettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_active', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not BlogSettings.objects.exists()
+
+
+@admin.register(BlogGalleryItem)
+class BlogGalleryItemAdmin(admin.ModelAdmin):
+    list_display = ('caption', 'order')
+    ordering = ('order', 'id')
 
 
 @admin.register(EmailSettings)

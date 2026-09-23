@@ -375,7 +375,7 @@
         <li><a href="{% url 'estore' %}">E-Store</a></li>
         {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>{% endif %}
         <li><a href="#portfolio">Portfolio</a></li>
-        <li><a href="#projects">Blog</a></li>
+        {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
         {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}
         <li><a href="#about">About</a></li>
         <li><a href="#contact">Contact Us</a></li>
@@ -414,7 +414,7 @@
     <li><a href="{% url 'estore' %}">E-Store</a></li>
     {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>{% endif %}
     <li><a href="#portfolio">Portfolio</a></li>
-    <li><a href="#projects">Blog</a></li>
+    {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
     {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}
     <li><a href="#" id="openAuthMobile">Login</a></li>
     <li><a href="#about">About</a></li>
@@ -1007,6 +1007,7 @@
 .gallery-item:hover .gallery-imgbox { transform: scale(1.08); }
 
 </style>
+{% if blog_settings.is_active %}
 <!-- ===== BLOG SECTION (was Projects) ===== -->
 <section id="projects">
   <div class="wrap">
@@ -1015,46 +1016,12 @@
     <p class="sub reveal d2">Tips, insights &amp; ideas to help your business grow online</p>
     <div class="pf-gallery reveal">
       <div class="gallery-grid">
+        {% for item in blog_items %}
         <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal1.webp' %}')" role="img" aria-label="Why Every Business Needs a Website" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Why Every Business Needs a Website in 2026</div>
+          <div class="gallery-imgbox" style="background-image:url('{{ item.image.url }}')" role="img" aria-label="{{ item.caption }}" oncontextmenu="return false"></div>
+          <div class="gallery-caption">{{ item.caption }}</div>
         </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal2.webp' %}')" role="img" aria-label="SEO Tips for Small Businesses" oncontextmenu="return false"></div>
-          <div class="gallery-caption">5 SEO Tips to Rank Higher on Google</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal3.webp' %}')" role="img" aria-label="E-commerce Growth Strategies" oncontextmenu="return false"></div>
-          <div class="gallery-caption">How to Scale Your Online Store</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal4.webp' %}')" role="img" aria-label="Digital Marketing Trends" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Digital Marketing Trends to Watch</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal5.webp' %}')" role="img" aria-label="Building a Strong Brand" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Building a Brand That Customers Trust</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal6.webp' %}')" role="img" aria-label="Mobile-First Design Importance" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Why Mobile-First Design Matters</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal7.webp' %}')" role="img" aria-label="Building a Strong Brand" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Building a Brand That Customers Trust</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal8.webp' %}')" role="img" aria-label="Mobile-First Design Importance" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Why Mobile-First Design Matters</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal9.webp' %}')" role="img" aria-label="Building a Strong Brand" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Building a Brand That Customers Trust</div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-imgbox" style="background-image:url('{% static 'img/gal10.webp' %}')" role="img" aria-label="Mobile-First Design Importance" oncontextmenu="return false"></div>
-          <div class="gallery-caption">Why Mobile-First Design Matters</div>
-        </div>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -1067,6 +1034,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
 });
 </script>
 <!-- ===== END BLOG SECTION ===== -->
+{% endif %}
 
 {% if FOUNDER.is_active %}
 <!-- ===== MEET THE FOUNDER ===== -->
@@ -1274,7 +1242,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
         <li><a href="#products"><i class="fas fa-chevron-right"></i>Products</a></li>
         <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
         <li><a href="#portfolio"><i class="fas fa-chevron-right"></i>Portfolio</a></li>
-        <li><a href="#projects"><i class="fas fa-chevron-right"></i>Blog</a></li>
+        {% if blog_settings.is_active %}<li><a href="#projects"><i class="fas fa-chevron-right"></i>Blog</a></li>{% endif %}
         {% if FOUNDER.is_active %}<li><a href="#clients"><i class="fas fa-chevron-right"></i>Founder</a></li>{% endif %}
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact</a></li>
