@@ -7,6 +7,11 @@
   Controls the "{{ settings_obj.name }}" link shown in the main site and store navbars. Change the name or URL here and it updates everywhere the link appears — no code changes needed.
 </p>
 
+<div style="background:#fff7e6;border:1px solid #f5c26b;border-radius:12px;padding:.85rem 1rem;font-size:.83rem;margin-bottom:1.4rem;color:#8a5a00;display:flex;gap:.6rem;align-items:flex-start">
+  <i class="fas fa-triangle-exclamation" style="margin-top:.15rem"></i>
+  <span>The legal pages (Terms, Privacy, Disclaimer, Refund, Shipping and Acceptable Use — see Customize &gt; Policies) mention "{{ settings_obj.name }}" by name several times. If you rename this link, those pages won't update automatically — edit them separately to keep the wording consistent.</span>
+</div>
+
 {% if saved %}<div class="save-msg"><i class="fas fa-circle-check"></i> Saved.</div>{% endif %}
 
 <form class="form-card" style="max-width:560px" method="post">
