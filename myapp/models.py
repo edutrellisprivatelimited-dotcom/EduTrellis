@@ -12,11 +12,9 @@ class ContactLead(models.Model):
     """
     SOURCE_EDUTRELLIS = 'edutrellis'
     SOURCE_STORE = 'store'
-    SOURCE_WEBSITECREATION = 'websitecreation'
     SOURCE_CHOICES = [
         (SOURCE_EDUTRELLIS, 'edutrellis.in'),
         (SOURCE_STORE, 'edutrellis.in/store'),
-        (SOURCE_WEBSITECREATION, 'edutrellis.in/websitecreation'),
     ]
 
     name       = models.CharField(max_length=120)
