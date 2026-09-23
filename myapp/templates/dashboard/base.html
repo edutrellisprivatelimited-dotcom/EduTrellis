@@ -34,6 +34,19 @@ a{color:inherit;text-decoration:none}
 .dash-nav a i{width:18px;text-align:center}
 .dash-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
 .dash-nav a.active{background:var(--red);color:#fff;box-shadow:0 8px 22px rgba(232,0,30,.35)}
+.dash-nav-group{border:none}
+.dash-nav-group>summary{display:flex;align-items:center;gap:.7rem;padding:.75rem .9rem;border-radius:12px;font-size:.87rem;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;list-style:none;transition:all .2s}
+.dash-nav-group>summary::-webkit-details-marker{display:none}
+.dash-nav-group>summary i:first-child{width:18px;text-align:center}
+.dash-nav-group>summary:hover{background:rgba(255,255,255,.06);color:#fff}
+.dash-nav-group>summary .chev{margin-left:auto;font-size:.68rem;transition:transform .2s}
+.dash-nav-group[open]>summary .chev{transform:rotate(180deg)}
+.dash-nav-group.has-active>summary{color:#fff}
+.dash-nav-sub{display:flex;flex-direction:column;gap:.15rem;margin-top:.15rem}
+.dash-nav-sub a{display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem .6rem 2.3rem;border-radius:10px;font-size:.83rem;font-weight:600;color:rgba(255,255,255,.6);transition:all .2s}
+.dash-nav-sub a i{width:16px;text-align:center;font-size:.78rem}
+.dash-nav-sub a:hover{background:rgba(255,255,255,.06);color:#fff}
+.dash-nav-sub a.active{background:var(--red);color:#fff;box-shadow:0 8px 22px rgba(232,0,30,.35)}
 .dash-sidebar-foot{display:flex;flex-direction:column;gap:.3rem;border-top:1px solid rgba(255,255,255,.1);padding-top:1rem}
 .dash-sidebar-foot a{display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;border-radius:12px;font-size:.85rem;font-weight:600;color:rgba(255,255,255,.65);transition:background .2s}
 .dash-sidebar-foot a:hover{background:rgba(255,255,255,.06);color:#fff}
@@ -202,10 +215,15 @@ tbody tr:hover{background:var(--bg-alt)}
       <a href="{% url 'dashboard_payment_settings' %}" class="{% if active == 'payment_settings' %}active{% endif %}"><i class="fas fa-credit-card"></i> Payment Settings</a>
       <a href="{% url 'dashboard_fee_settings' %}" class="{% if active == 'fee_settings' %}active{% endif %}"><i class="fas fa-truck-ramp-box"></i> Delivery &amp; Handling Fees</a>
       <a href="{% url 'dashboard_email_settings' %}" class="{% if active == 'email_settings' %}active{% endif %}"><i class="fas fa-envelope-circle-check"></i> Email Settings</a>
-      <a href="{% url 'dashboard_customize' %}" class="{% if active == 'customize' %}active{% endif %}"><i class="fas fa-palette"></i> Customize</a>
       <a href="{% url 'dashboard_backup' %}" class="{% if active == 'backup' %}active{% endif %}"><i class="fas fa-database"></i> Backup &amp; Restore</a>
-      <a href="{% url 'dashboard_about' %}" class="{% if active == 'about' %}active{% endif %}"><i class="fas fa-circle-info"></i> About Us</a>
-      <a href="{% url 'dashboard_policies' %}" class="{% if active == 'policies' %}active{% endif %}"><i class="fas fa-file-shield"></i> Policies</a>
+      <details class="dash-nav-group{% if active == 'customize' or active == 'about' or active == 'policies' %} has-active{% endif %}" {% if active == 'customize' or active == 'about' or active == 'policies' %}open{% endif %}>
+        <summary><i class="fas fa-palette"></i> Customize <i class="fas fa-chevron-down chev"></i></summary>
+        <div class="dash-nav-sub">
+          <a href="{% url 'dashboard_customize' %}" class="{% if active == 'customize' %}active{% endif %}"><i class="fas fa-share-nodes"></i> Branding &amp; Sharing</a>
+          <a href="{% url 'dashboard_about' %}" class="{% if active == 'about' %}active{% endif %}"><i class="fas fa-circle-info"></i> About Us</a>
+          <a href="{% url 'dashboard_policies' %}" class="{% if active == 'policies' %}active{% endif %}"><i class="fas fa-file-shield"></i> Policies</a>
+        </div>
+      </details>
     </nav>
     <div class="dash-sidebar-foot">
       <a href="{% url 'estore' %}"><i class="fas fa-arrow-left"></i> Back to store</a>
