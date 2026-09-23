@@ -236,6 +236,30 @@ class BlogGalleryItem(models.Model):
         return self.caption or f'Blog item #{self.pk}'
 
 
+class AIModelName(models.Model):
+    """One AI model shown as part of the Vidhyora AI store listings'
+    description/specs, managed from the dashboard (Customize > AI Models).
+
+    The 3 Vidhyora AI products (1/6/12-month plans) each hold their own
+    free-text description and specs, but their "which models are included"
+    line/bullets are generated at render time from this list instead of
+    being duplicated as static text in all 3 — see _product_payload() and
+    the {{AI_MODELS}} placeholder in those products' stored description
+    and specs. Renaming, adding or removing a model here updates all 3
+    listings at once instead of needing to hand-edit each one."""
+    name    = models.CharField(max_length=60)
+    tagline = models.CharField(max_length=120, blank=True, help_text='Optional short description, e.g. "advanced general AI".')
+    order   = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'AI Model Name'
+        verbose_name_plural = 'AI Model Names'
+
+    def __str__(self):
+        return self.name
+
+
 class ProductColor(models.Model):
     """A selectable colour variant shown as a swatch on the product detail
     page. Purely presentational — it doesn't split stock or pricing."""

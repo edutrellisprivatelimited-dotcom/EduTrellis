@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from myapp.models import (
     Category, Order, Product, ProductImage, ProductColor, StoreProfile,
     AboutUsContent, PolicyPage, PaymentSettings, DropboxSettings, EmailSettings, PWASettings, FeeSettings,
-    NavAISettings, FounderSection, HeroSlideImage, BlogSettings, BlogGalleryItem,
+    NavAISettings, FounderSection, HeroSlideImage, BlogSettings, BlogGalleryItem, AIModelName,
 )
 
 
@@ -366,6 +366,16 @@ BlogGalleryItemFormSet = forms.modelformset_factory(
     fields=['image', 'caption', 'order'],
     extra=4, min_num=1, validate_min=True, max_num=24, validate_max=True, can_delete=True,
     widgets={'caption': forms.TextInput(attrs={'placeholder': 'Caption shown under the image'})},
+)
+
+AIModelNameFormSet = forms.modelformset_factory(
+    AIModelName,
+    fields=['name', 'tagline', 'order'],
+    extra=2, max_num=12, validate_max=True, can_delete=True,
+    widgets={
+        'name': forms.TextInput(attrs={'placeholder': 'e.g. Vidhyora Nova'}),
+        'tagline': forms.TextInput(attrs={'placeholder': 'e.g. advanced general AI'}),
+    },
 )
 
 
