@@ -1,0 +1,80 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block extra_head %}
+<style>
+.pc-rows{display:flex;flex-direction:column;gap:1rem;margin-top:.4rem}
+.pc-row{background:var(--bg-alt);border:1px solid var(--line);border-radius:14px;padding:1rem}
+.pc-row-top{display:flex;align-items:flex-start;gap:.9rem;flex-wrap:wrap}
+.pc-thumb{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--line);flex:none;background:#fff}
+.pc-row-top input[type=file]{flex:1;min-width:160px;font-size:.8rem}
+.pc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem;margin-top:.8rem}
+.pc-field label{display:block;font-size:.7rem;font-weight:700;color:#9aa3b0;margin-bottom:.25rem;text-transform:uppercase;letter-spacing:.02em}
+.pc-field input[type=text],.pc-field input[type=number]{width:100%;padding:.5rem .7rem;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-family:inherit;font-size:.85rem}
+.pc-features{margin-top:.8rem}
+.pc-features label{display:block;font-size:.7rem;font-weight:700;color:#9aa3b0;margin-bottom:.25rem;text-transform:uppercase;letter-spacing:.02em}
+.pc-features textarea{width:100%;padding:.6rem .8rem;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-family:inherit;font-size:.85rem;resize:vertical}
+.pc-row-bottom{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:.8rem}
+</style>
+{% endblock %}
+
+{% block content %}
+<p class="backup-sub" style="color:var(--text);font-size:.88rem;margin:0 0 1.4rem">
+  Controls the "Our Products" pricing section on the homepage. Add, edit, remove and reorder cards — image, badge, title, price, feature list, CTA button text and accent colour — at least one card must always stay.
+</p>
+
+{% if saved %}<div class="save-msg"><i class="fas fa-circle-check"></i> Saved — changes are live on the storefront.</div>{% endif %}
+
+<form class="form-card" style="max-width:820px" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ formset.management_form }}
+  {% if formset.non_form_errors %}<div class="help" style="color:var(--red)">{{ formset.non_form_errors }}</div>{% endif %}
+
+  <div class="form-group">
+    <label>Product cards</label>
+    <div class="pc-rows">
+      {% for f in formset.forms %}
+      <div class="pc-row">
+        {{ f.id }}
+        {% if f.non_field_errors %}<div class="help" style="color:var(--red)">{{ f.non_field_errors }}</div>{% endif %}
+        <div class="pc-row-top">
+          {% if f.instance.pk and f.instance.image %}<img class="pc-thumb" src="{{ f.instance.image.url }}" alt="">{% endif %}
+          {{ f.image }}
+        </div>
+        <div class="pc-grid">
+          <div class="pc-field"><label>Badge ribbon</label>{{ f.badge_text }}</div>
+          <div class="pc-field"><label>Title</label>{{ f.title }}</div>
+          <div class="pc-field"><label>Subtitle</label>{{ f.subtitle }}</div>
+          <div class="pc-field"><label>Price</label>{{ f.price_amount }}</div>
+          <div class="pc-field"><label>Price suffix</label>{{ f.price_suffix }}</div>
+          <div class="pc-field"><label>CTA button text</label>{{ f.cta_text }}</div>
+          <div class="pc-field"><label>Accent colour</label>{{ f.accent_color }}</div>
+          <div class="pc-field"><label>Order</label>{{ f.order }}</div>
+        </div>
+        <div class="pc-features">
+          <label>Features (one per line — "Label | description" to bold the label)</label>
+          {{ f.features }}
+        </div>
+        {% if f.image.errors or f.title.errors or f.price_amount.errors %}
+          <div class="help" style="color:var(--red)">{{ f.image.errors }} {{ f.title.errors }} {{ f.price_amount.errors }}</div>
+        {% endif %}
+        <div class="pc-row-bottom">
+          {% if f.instance.pk %}
+          <label class="gallery-row-del">{{ f.DELETE }} Remove this card</label>
+          {% else %}
+          <span></span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="help">Order controls display sequence, lowest first. Price is just the number (e.g. "8,999") — the ₹ symbol is added automatically. Accent colour is optional (e.g. #7c3aed) and only affects this card's price header &amp; button.</div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save changes</button>
+    <a href="{% url 'home' %}#products" class="btn btn-ghost" target="_blank">Preview on homepage</a>
+  </div>
+</form>
+{% endblock %}

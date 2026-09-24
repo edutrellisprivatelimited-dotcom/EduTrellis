@@ -72,6 +72,7 @@ urlpatterns = [
     path('store/dashboard/customize/', views.dashboard_pwa_settings, name='dashboard_customize'),
     path('store/dashboard/banner/', views.dashboard_banner_settings, name='dashboard_banner_settings'),
     path('store/dashboard/blog/', views.dashboard_blog_settings, name='dashboard_blog_settings'),
+    path('store/dashboard/products-section/', views.dashboard_products_settings, name='dashboard_products_settings'),
     path('store/dashboard/nav-ai/', views.dashboard_nav_ai_settings, name='dashboard_nav_ai_settings'),
     path('store/dashboard/founder/', views.dashboard_founder_settings, name='dashboard_founder_settings'),
     path('store/dashboard/payments/', views.dashboard_payments, name='dashboard_payments'),

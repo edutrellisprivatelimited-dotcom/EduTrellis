@@ -236,6 +236,44 @@ class BlogGalleryItem(models.Model):
         return self.caption or f'Blog item #{self.pk}'
 
 
+class ProductCard(models.Model):
+    """One pricing card in the homepage's "Our Products" section (not to be
+    confused with the EduTrellis Store's Product model), managed from the
+    dashboard (Customize > Products). Admin can add, remove, reorder and
+    fully edit these — image, price, feature list and the CTA button."""
+    image        = models.ImageField(upload_to='products_home/')
+    badge_text   = models.CharField(max_length=40, blank=True, default='', help_text='Optional ribbon shown on the image, e.g. "⭐ Most Popular". Leave blank to hide.')
+    title        = models.CharField(max_length=100)
+    subtitle     = models.CharField(max_length=150, blank=True, default='')
+    price_amount = models.CharField(max_length=20, default='0', help_text='Just the number, e.g. "2,999" — the ₹ is added automatically.')
+    price_suffix = models.CharField(max_length=20, blank=True, default='', help_text='Optional, e.g. "/month". Leave blank for a one-time price.')
+    features     = models.TextField(blank=True, default='', help_text='One feature per line. Use "Label | description" to bold the label, e.g. "Fast Delivery | within 48 hours" — or just plain text with no "|".')
+    cta_text     = models.CharField(max_length=40, default='Get Quote')
+    accent_color = models.CharField(max_length=7, blank=True, default='', help_text='Optional hex colour (e.g. #7c3aed) for this card\'s price header & button. Leave blank for the default red.')
+    order        = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Product Card'
+        verbose_name_plural = 'Product Cards'
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def feature_list(self):
+        items = []
+        for line in self.features.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if '|' in line:
+                label, _, rest = line.partition('|')
+                items.append((label.strip(), rest.strip()))
+            else:
+                items.append((None, line))
+        return items
+
 
 class ProductColor(models.Model):
     """A selectable colour variant shown as a swatch on the product detail

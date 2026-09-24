@@ -26,13 +26,13 @@ from myapp.forms import (
     ProductForm, ProductImageFormSet, ProductColorFormSet,
     AboutUsContentForm, PolicyPageForm, PaymentSettingsForm, DropboxSettingsForm, PWASettingsForm,
     FeeSettingsForm, AddUserForm, NavAISettingsForm, FounderSectionForm, HeroSlideImageFormSet,
-    BlogSettingsForm, BlogGalleryItemFormSet,
+    BlogSettingsForm, BlogGalleryItemFormSet, ProductCardFormSet,
 )
 from myapp.models import (
     ContactLead, StoreProfile, Cart, CartItem, Category, Order, OrderItem,
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings, FounderSection,
-    HeroSlideImage, BlogSettings, BlogGalleryItem,
+    HeroSlideImage, BlogSettings, BlogGalleryItem, ProductCard,
 )
 from myapp import dropbox_backup
 from myapp.emailing import send_store_email, get_notify_email
@@ -99,6 +99,7 @@ def home(request):
         "hero_slides": _hero_slides(),
         "blog_settings": BlogSettings.get_solo(),
         "blog_items": BlogGalleryItem.objects.all(),
+        "product_cards": ProductCard.objects.all(),
     })
 
 
@@ -1686,6 +1687,19 @@ def dashboard_blog_settings(request):
         formset = BlogGalleryItemFormSet(queryset=BlogGalleryItem.objects.all())
     return render(request, 'dashboard/blog_settings.html', {
         'active': 'blog_settings', 'settings_form': settings_form, 'formset': formset, 'saved': saved,
+    })
+
+
+@dashboard_staff_required
+def dashboard_products_settings(request):
+    formset = ProductCardFormSet(request.POST or None, request.FILES or None, queryset=ProductCard.objects.all())
+    saved = False
+    if request.method == 'POST' and formset.is_valid():
+        formset.save()
+        saved = True
+        formset = ProductCardFormSet(queryset=ProductCard.objects.all())
+    return render(request, 'dashboard/products_settings.html', {
+        'active': 'products_settings', 'formset': formset, 'saved': saved,
     })
 
 

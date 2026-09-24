@@ -597,126 +597,28 @@
     <p class="sub reveal d2">Choose the perfect plan for your digital growth journey</p>
     <div class="prod-grid">
 
-      <div class="prod-card reveal d1">
-        <div class="popular-badge">⭐ Most Popular</div>
+      {% for card in product_cards %}
+      <div class="prod-card reveal d{{ forloop.counter }}">
+        {% if card.badge_text %}<div class="popular-badge">{{ card.badge_text }}</div>{% endif %}
         <div class="prod-img-wrap">
-          <img src="{% static 'img/product1.webp' %}" alt="Website Management" class="prod-img" loading="lazy">
-          <span class="prod-badge">₹2,999/mo</span>
+          <img src="{{ card.image.url }}" alt="{{ card.title }}" class="prod-img" loading="lazy">
+          <span class="prod-badge"{% if card.accent_color %} style="background:{{ card.accent_color }}"{% endif %}>₹{{ card.price_amount }}{{ card.price_suffix }}</span>
         </div>
         <div class="prod-body">
-          <div class="prod-header">
-            <h3>Complete Website Management</h3>
-            <div class="prod-price">₹2,999<small>/month</small></div>
-            <div class="prod-sub">Everything You Need — We Handle It All</div>
+          <div class="prod-header"{% if card.accent_color %} style="background:{{ card.accent_color }}"{% endif %}>
+            <h3>{{ card.title }}</h3>
+            <div class="prod-price">₹{{ card.price_amount }}{% if card.price_suffix %}<small>{{ card.price_suffix }}</small>{% endif %}</div>
+            <div class="prod-sub">{{ card.subtitle }}</div>
           </div>
           <ul class="feat-list">
-            <li><i class="fas fa-check-circle"></i><span><strong>Complete Website Management</strong> — end to end</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Logo &amp; Banner Updates</strong> — fresh creatives</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Content Upload &amp; Optimization</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Digital Marketing</strong> — Instagram, Facebook &amp; Google</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Social Media Handles</strong> — creation &amp; growth</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>SEO &amp; Ranking</strong> — get found on Google</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Website Manager</strong> assigned to you</span></li>
+            {% for label, text in card.feature_list %}
+            <li><i class="fas fa-check-circle"></i><span>{% if label %}<strong>{{ label }}</strong> — {{ text }}{% else %}{{ text }}{% endif %}</span></li>
+            {% endfor %}
           </ul>
-          <div class="prod-cta"><a href="#contact" class="cta-btn">Book FREE Demo <i class="fas fa-arrow-right"></i></a></div>
+          <div class="prod-cta"><a href="#contact" class="cta-btn"{% if card.accent_color %} style="background:{{ card.accent_color }};box-shadow:0 8px 26px {{ card.accent_color }}61"{% endif %}>{{ card.cta_text }} <i class="fas fa-arrow-right"></i></a></div>
         </div>
       </div>
-
-      <div class="prod-card reveal d2">
-        <div class="prod-img-wrap">
-          <img src="{% static 'img/product2.webp' %}" alt="Static Website" class="prod-img" loading="lazy">
-          <span class="prod-badge">₹8,999</span>
-        </div>
-        <div class="prod-body">
-          <div class="prod-header">
-            <h3>Static Business Website</h3>
-            <div class="prod-price">₹8,999</div>
-            <div class="prod-sub">Single Page Professional Business Site</div>
-          </div>
-          <ul class="feat-list">
-            <li><i class="fas fa-check-circle"></i><span><strong>Hero Banner</strong> with your brand identity</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>About Us Section</strong> — mission &amp; vision</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Products / Services Showcase</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Contact Section</strong> with form &amp; map</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Fully Mobile Responsive</strong> design</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Fast Loading</strong> &amp; SEO-ready</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Free 1 Month</strong> maintenance included</span></li>
-          </ul>
-          <div class="prod-cta"><a href="#contact" class="cta-btn">Get Quote <i class="fas fa-arrow-right"></i></a></div>
-        </div>
-      </div>
-
-      <div class="prod-card reveal d3">
-        <div class="prod-img-wrap">
-          <img src="{% static 'img/product3.webp' %}" alt="E-commerce" class="prod-img" loading="lazy">
-          <span class="prod-badge">₹14,999</span>
-        </div>
-        <div class="prod-body">
-          <div class="prod-header">
-            <h3>Dynamic / E-commerce Website</h3>
-            <div class="prod-price">₹14,999</div>
-            <div class="prod-sub">Full-Featured Online Store</div>
-          </div>
-          <ul class="feat-list">
-            <li><i class="fas fa-check-circle"></i><span><strong>Online Store</strong> — clothing, products &amp; more</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Payment Gateway</strong> — Razorpay, PayU &amp; UPI</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Product Catalog</strong> with filters &amp; search</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Admin Panel</strong> — manage orders &amp; customers</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Cart &amp; Checkout</strong> with coupon support</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Customer Dashboard</strong> with order tracking</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Secure &amp; Scalable</strong> architecture</span></li>
-          </ul>
-          <div class="prod-cta"><a href="#contact" class="cta-btn">Get Quote <i class="fas fa-arrow-right"></i></a></div>
-        </div>
-      </div>
-
-      <div class="prod-card reveal d4">
-        <div class="prod-img-wrap">
-          <img src="{% static 'img/product4.webp' %}" alt="Custom Projects" class="prod-img" loading="lazy">
-          <span class="prod-badge" style="background:var(--dark)">₹19,999</span>
-        </div>
-        <div class="prod-body">
-          <div class="prod-header" style="background:linear-gradient(135deg,#1c2333,#2c3e50)">
-            <h3>Custom Big Projects</h3>
-            <div class="prod-price">₹19,999</div>
-            <div class="prod-sub">Enterprise-Grade Custom Solutions</div>
-          </div>
-          <ul class="feat-list">
-            <li><i class="fas fa-check-circle"></i><span><strong>Full Custom Development</strong> — built to spec</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Large-Scale LMS Platforms</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Multi-vendor / Multi-role</strong> systems</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>API Integrations</strong> with third-party tools</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Advanced Analytics Dashboards</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Project Manager</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Training &amp; Full Documentation</strong></span></li>
-          </ul>
-          <div class="prod-cta"><a href="#contact" class="cta-btn dark">Discuss Project <i class="fas fa-arrow-right"></i></a></div>
-        </div>
-      </div>
-
-      <div class="prod-card reveal d5">
-        <div class="prod-img-wrap">
-          <img src="{% static 'img/product5.webp' %}" alt="Complete Package" class="prod-img" loading="lazy">
-          <span class="prod-badge" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">₹29,999</span>
-        </div>
-        <div class="prod-body">
-          <div class="prod-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
-            <h3>Complete Manager Package</h3>
-            <div class="prod-price">₹29,999</div>
-            <div class="prod-sub">Website + Management — All in One</div>
-          </div>
-          <ul class="feat-list">
-            <li><i class="fas fa-check-circle"></i><span><strong>Custom Website Development</strong> included</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Logo, Banner &amp; Thumbnail Design</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Google My Business Setup &amp; Management</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Google Maps Listing</strong> &amp; local SEO</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Social Media &amp; Digital Marketing</strong></span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>SEO + Student Traffic</strong> generation</span></li>
-            <li><i class="fas fa-check-circle"></i><span><strong>Dedicated Manager</strong> for ongoing support</span></li>
-          </ul>
-          <div class="prod-cta"><a href="#contact" class="cta-btn" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);box-shadow:0 8px 26px rgba(124,58,237,.38)">Get This Package <i class="fas fa-arrow-right"></i></a></div>
-        </div>
-      </div>
+      {% endfor %}
 
     </div>
   </div>

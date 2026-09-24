@@ -7,7 +7,7 @@ from .models import (
     Product, ProductImage, ProductColor, AboutUsContent, PolicyPage, PaymentSettings, Payment,
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings,
     EmailSettings, EmailVerification, FounderSection, NavAISettings,
-    HeroSlideImage, BlogSettings, BlogGalleryItem,
+    HeroSlideImage, BlogSettings, BlogGalleryItem, ProductCard,
 )
 
 
@@ -138,6 +138,12 @@ class BlogSettingsAdmin(admin.ModelAdmin):
 @admin.register(BlogGalleryItem)
 class BlogGalleryItemAdmin(admin.ModelAdmin):
     list_display = ('caption', 'order')
+    ordering = ('order', 'id')
+
+
+@admin.register(ProductCard)
+class ProductCardAdmin(admin.ModelAdmin):
+    list_display = ('title', 'price_amount', 'price_suffix', 'order')
     ordering = ('order', 'id')
 
 
