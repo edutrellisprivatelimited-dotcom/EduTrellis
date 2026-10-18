@@ -1284,3 +1284,6 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
 /* "Not sure what you need?" band — photo background under a dark fade */
 .svc-cta-band{background:linear-gradient(90deg,rgba(13,17,28,.96) 0%,rgba(13,17,28,.88) 40%,rgba(42,10,18,.6) 75%,rgba(120,0,20,.55) 100%),url('img/cta_consult.jpg') center 35%/cover no-repeat;padding:2.2rem 2.2rem;min-height:170px}
 @media(max-width:640px){.svc-cta-band{background:linear-gradient(180deg,rgba(13,17,28,.9) 0%,rgba(13,17,28,.82) 60%,rgba(42,10,18,.85) 100%),url('img/cta_consult.jpg') center/cover no-repeat;padding:1.6rem 1.3rem}}
+/* Impact numbers — team photo under a dark brand overlay (parallax on desktop) */
+.numbers-sec{background:linear-gradient(135deg,rgba(13,17,28,.93) 0%,rgba(26,10,14,.88) 50%,rgba(22,18,40,.93) 100%),url('img/numbers_bg.jpg') center/cover no-repeat fixed}
+@media(max-width:1024px),(hover:none){.numbers-sec{background-attachment:scroll}}
