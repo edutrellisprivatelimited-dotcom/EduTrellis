@@ -339,5 +339,10 @@ function toggleFaq(el){
   var isOpen=item.classList.contains('open');
   document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open');});
   if(!isOpen)item.classList.add('open');
+  document.querySelectorAll('.faq-q').forEach(function(q){q.setAttribute('aria-expanded',q.closest('.faq-item').classList.contains('open'));});
 }
 window.toggleFaq=toggleFaq;
+document.addEventListener('keydown',function(e){
+  var q=e.target.closest&&e.target.closest('.faq-q');
+  if(q&&(e.key==='Enter'||e.key===' ')){e.preventDefault();toggleFaq(q);}
+});
