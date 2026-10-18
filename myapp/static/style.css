@@ -1268,3 +1268,16 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
   .svc-cta-band{flex-direction:column;align-items:flex-start;padding:1.5rem 1.3rem}
   .svc-cta-band .cta-btn{width:100%;justify-content:center}
 }
+/* ===== E-STORE slim strip (replaces the old red .estore-banner) ===== */
+.estore-strip{display:flex;align-items:center;justify-content:space-between;gap:1.2rem;flex-wrap:wrap;max-width:900px;margin:2.2rem auto 0;padding:1rem 1.2rem 1rem 1rem;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 8px 26px rgba(15,22,35,.05)}
+.es-left{display:flex;align-items:center;gap:.95rem;min-width:0}
+.es-ico{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:rgba(232,0,30,.08);color:var(--red);font-size:1.1rem}
+.estore-strip h3{font-family:var(--font-head);font-size:1.02rem;font-weight:800;color:var(--dark);margin:0 0 .3rem}
+.estore-strip ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.35rem 1rem}
+.estore-strip li{font-size:.8rem;color:var(--text);display:inline-flex;align-items:center;gap:.35rem}
+.estore-strip li i{font-size:.65rem;color:var(--red)}
+.es-link{flex:none;display:inline-flex;align-items:center;gap:.45rem;font-weight:700;font-size:.86rem;color:var(--red);padding:.6rem 1.1rem;border-radius:50px;border:1.5px solid rgba(232,0,30,.3);text-decoration:none;transition:all .3s}
+.es-link:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.es-link i{transition:transform .3s}
+.es-link:hover i{transform:translateX(3px)}
+@media(max-width:600px){.estore-strip{padding:.9rem}.es-link{width:100%;justify-content:center}}
