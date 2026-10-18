@@ -192,6 +192,8 @@ tbody tr:hover{background:var(--bg-alt)}
   .dash-topbar{padding:.75rem .85rem}
   .dash-admin .dav{width:32px;height:32px}
 }
+.dash-nav-group>summary .nav-count{font-size:.68rem;font-weight:800;min-width:20px;height:18px;padding:0 .4rem;display:inline-grid;place-items:center;border-radius:50px;background:var(--red);color:#fff}
+.dash-nav-sub .nav-count{margin-left:auto;font-size:.68rem;font-weight:800;min-width:20px;height:18px;padding:0 .4rem;display:inline-grid;place-items:center;border-radius:50px;background:rgba(232,0,30,.12);color:var(--red)}
 </style>
 {% block extra_head %}{% endblock %}
 </head>
@@ -207,10 +209,10 @@ tbody tr:hover{background:var(--bg-alt)}
     <nav class="dash-nav">
       <a href="{% url 'dashboard_home' %}" class="{% if active == 'home' %}active{% endif %}"><i class="fas fa-gauge"></i> Overview</a>
       <a href="{% url 'dashboard_contacts' %}" class="{% if active == 'contacts' %}active{% endif %}"><i class="fas fa-envelope-open-text"></i> Contact Leads</a>
-      <details class="dash-nav-group{% if active == 'signups' or active == 'categories' or active == 'products' or active == 'orders' or active == 'delivery' or active == 'payments' or active == 'payment_settings' or active == 'fee_settings' or active == 'email_settings' %} has-active{% endif %}" {% if active == 'signups' or active == 'categories' or active == 'products' or active == 'orders' or active == 'delivery' or active == 'payments' or active == 'payment_settings' or active == 'fee_settings' or active == 'email_settings' %}open{% endif %}>
+      <a href="{% url 'dashboard_signups' %}" class="{% if active == 'signups' %}active{% endif %}" title="Store &amp; EduTrellis AI accounts"><i class="fas fa-users"></i> Signups</a>
+      <details class="dash-nav-group{% if active == 'categories' or active == 'products' or active == 'orders' or active == 'delivery' or active == 'payments' or active == 'payment_settings' or active == 'fee_settings' or active == 'email_settings' %} has-active{% endif %}" {% if active == 'categories' or active == 'products' or active == 'orders' or active == 'delivery' or active == 'payments' or active == 'payment_settings' or active == 'fee_settings' or active == 'email_settings' %}open{% endif %}>
         <summary><i class="fas fa-store"></i> Estore <i class="fas fa-chevron-down chev"></i></summary>
         <div class="dash-nav-sub">
-          <a href="{% url 'dashboard_signups' %}" class="{% if active == 'signups' %}active{% endif %}"><i class="fas fa-users"></i> Signups</a>
           <a href="{% url 'dashboard_categories' %}" class="{% if active == 'categories' %}active{% endif %}"><i class="fas fa-tags"></i> Categories</a>
           <a href="{% url 'dashboard_products' %}" class="{% if active == 'products' %}active{% endif %}"><i class="fas fa-box-open"></i> Products</a>
           <a href="{% url 'dashboard_orders' %}" class="{% if active == 'orders' %}active{% endif %}"><i class="fas fa-box"></i> Orders</a>
@@ -235,7 +237,7 @@ tbody tr:hover{background:var(--bg-alt)}
           <a href="{% url 'dashboard_nav_ai_settings' %}" class="{% if active == 'nav_ai_settings' %}active{% endif %}"><i class="fas fa-robot"></i> Dynamic AI</a>
         </div>
       </details>
-      <details class="dash-nav-group{% if active == 'ai_management' or active == 'ai_activity' or active == 'ai_reports' or active == 'api_data' or active == 'api_management' or active == 'ai_settings' %} has-active{% endif %}" {% if active == 'ai_management' or active == 'ai_activity' or active == 'ai_reports' or active == 'api_data' or active == 'api_management' or active == 'ai_settings' %}open{% endif %}>
+      <details class="dash-nav-group{% if active == 'ai_management' or active == 'ai_activity' or active == 'ai_reports' or active == 'api_data' or active == 'api_management' or active == 'ai_settings' or active == 'api_settings' or active == 'api_checker' or active == 'calls' or active == 'opencode' %} has-active{% endif %}" {% if active == 'ai_management' or active == 'ai_activity' or active == 'ai_reports' or active == 'api_data' or active == 'api_management' or active == 'ai_settings' or active == 'api_settings' or active == 'api_checker' or active == 'calls' or active == 'opencode' %}open{% endif %}>
         <summary><i class="fas fa-robot"></i> EduTrellis AI <i class="fas fa-chevron-down chev"></i></summary>
         <div class="dash-nav-sub">
           <a href="{% url 'dashboard_ai_management' %}" class="{% if active == 'ai_management' %}active{% endif %}"><i class="fas fa-user-gear"></i> Management</a>
@@ -243,7 +245,22 @@ tbody tr:hover{background:var(--bg-alt)}
           <a href="{% url 'dashboard_ai_reports' %}" class="{% if active == 'ai_reports' %}active{% endif %}"><i class="fas fa-flag"></i> Reports</a>
           <a href="{% url 'dashboard_api_data' %}" class="{% if active == 'api_data' %}active{% endif %}"><i class="fas fa-chart-line"></i> API Data</a>
           <a href="{% url 'dashboard_api_management' %}" class="{% if active == 'api_management' %}active{% endif %}"><i class="fas fa-key"></i> API Management</a>
+          <a href="{% url 'dashboard_api_settings' %}" class="{% if active == 'api_settings' %}active{% endif %}"><i class="fas fa-plug"></i> API Settings</a>
+          <a href="{% url 'dashboard_api_checker' %}" class="{% if active == 'api_checker' %}active{% endif %}"><i class="fas fa-stethoscope"></i> API Checker</a>
+          <a href="{% url 'dashboard_calls' %}" class="{% if active == 'calls' %}active{% endif %}"><i class="fas fa-phone-volume"></i> Call Data</a>
+          <a href="{% url 'dashboard_opencode' %}" class="{% if active == 'opencode' %}active{% endif %}"><i class="fas fa-terminal"></i> Start Coding Data</a>
           <a href="{% url 'dashboard_ai_settings' %}" class="{% if active == 'ai_settings' %}active{% endif %}"><i class="fas fa-sliders"></i> AI Settings</a>
+        </div>
+      </details>
+      <details class="dash-nav-group{% if active == 'chats' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %} has-active{% endif %}" {% if active == 'chats' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %}open{% endif %}>
+        <summary><i class="fas fa-comments"></i> Chats{% if pending_chats %} <span class="nav-count" style="margin-left:.4rem" title="{{ pending_chats }} waiting for a reply">{{ pending_chats }}</span>{% endif %} <i class="fas fa-chevron-down chev"></i></summary>
+        <div class="dash-nav-sub">
+          <a href="{% url 'dashboard_chats' %}" class="{% if active == 'chats' %}active{% endif %}"><i class="fas fa-message"></i> Conversations{% if pending_chats %} <span class="nav-count" title="{{ pending_chats }} waiting for a reply">{{ pending_chats }}</span>{% endif %}</a>
+          <a href="{% url 'dashboard_chat_signups' %}" class="{% if active == 'chat_signups' %}active{% endif %}"><i class="fas fa-user-plus"></i> Chat Signups <span class="nav-count">{{ chat_signup_total|default:0 }}</span></a>
+          <a href="{% url 'dashboard_chat_status' %}" class="{% if active == 'chat_status' %}active{% endif %}"><i class="fas fa-signal"></i> Chat User Status <span class="nav-count" id="navOnline">{{ chat_online_total|default:0 }}</span></a>
+          <a href="{% url 'dashboard_chat_ips' %}" class="{% if active == 'chat_ips' %}active{% endif %}"><i class="fas fa-network-wired"></i> Chat IP Addresses <span class="nav-count">{{ chat_ip_total|default:0 }}</span></a>
+          <a href="{% url 'dashboard_chat_profile' %}" class="{% if active == 'chat_profile' %}active{% endif %}"><i class="fas fa-id-badge"></i> Support Profile</a>
+          <a href="{% url 'chats_page' %}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open Chats page</a>
         </div>
       </details>
     </nav>

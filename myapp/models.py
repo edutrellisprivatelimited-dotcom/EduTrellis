@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F
@@ -36,12 +39,70 @@ class ContactLead(models.Model):
 
 class StoreProfile(models.Model):
     """Extra store-specific fields for a Django auth User (E-Store signups)."""
+    LOCATION_UNKNOWN = 'unknown'
+    LOCATION_GRANTED = 'granted'
+    LOCATION_DENIED = 'denied'
+    LOCATION_CONSENT_CHOICES = [
+        (LOCATION_UNKNOWN, 'Not asked'),
+        (LOCATION_GRANTED, 'Enabled'),
+        (LOCATION_DENIED, 'Declined'),
+    ]
+
     user           = models.OneToOneField(User, on_delete=models.CASCADE, related_name='store_profile')
     phone          = models.CharField(max_length=20, blank=True)
+    age            = models.PositiveSmallIntegerField(null=True, blank=True)
+    state          = models.CharField(max_length=100, blank=True)
+    city           = models.CharField(max_length=100, blank=True)
     avatar         = models.ImageField(upload_to='avatars/', blank=True, null=True)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    manual_amount_paid = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0,
+        help_text='Amount manually recorded as paid when staff creates or edits this customer.',
+    )
+    manual_payment_received_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text='Date and time the manually recorded payment was received.',
+    )
     email_verified = models.BooleanField(default=False)  # unused — verification moved to phone/SMS, see phone_verified
     phone_verified = models.BooleanField(default=False)
+    location_consent = models.CharField(
+        max_length=10, choices=LOCATION_CONSENT_CHOICES, default=LOCATION_UNKNOWN,
+        help_text='Whether the user allowed a one-time browser location request.',
+    )
+    location_latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    location_longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    location_accuracy_m = models.PositiveIntegerField(null=True, blank=True)
+    location_updated_at = models.DateTimeField(null=True, blank=True)
+    location_place_name = models.CharField(
+        max_length=255, blank=True,
+        help_text='Reverse-geocoded "City, State" for location_latitude/longitude, resolved once when captured.',
+    )
+
+    # EduTrellis AI subscription — buying the AI plan product (see
+    # AI_SUBSCRIPTION_PRODUCT_SLUG on Order below) extends this instead of
+    # granting a boolean flag, so back-to-back renewals stack cleanly. Staff
+    # accounts bypass both the cap and this field entirely rather than being
+    # modeled as a permanent subscription here.
+    ai_subscription_until = models.DateTimeField(null=True, blank=True, help_text="EduTrellis AI access is unlimited until this time. Blank/past = free tier.")
+    # Set alongside ai_subscription_until at the same grant points (dashboard
+    # account creation, AI grant/revoke) — lets the account's own
+    # Subscription tab show a start date next to the expiry, not just
+    # "active until X".
+    ai_subscription_started_at = models.DateTimeField(null=True, blank=True, help_text="When the current AI subscription period began.")
+    ai_free_messages_used = models.PositiveIntegerField(default=0, help_text="Free-tier EduTrellis AI messages sent so far (resets on each new subscription purchase).")
+    login_count = models.PositiveIntegerField(
+        default=0,
+        help_text='Number of successful account logins recorded.',
+    )
+
+    # First-time AI chat onboarding — asked once, on this account's first
+    # real AI reply, then captured from whatever they say next. Values are
+    # saved only if the user actually volunteers them; never required.
+    ai_onboarded = models.BooleanField(default=False, help_text="Already asked the first-time name/location/Instagram question (or the account predates this feature) — never ask again.")
+    ai_onboarding_pending = models.BooleanField(default=False, help_text="The question was just asked; the user's next message will be parsed for an answer.")
+    ai_display_name = models.CharField(max_length=100, blank=True, help_text="Name the user gave the AI chat, if any.")
+    ai_location = models.CharField(max_length=150, blank=True, help_text="Location the user gave the AI chat, if any.")
+    ai_instagram_handle = models.CharField(max_length=60, blank=True, help_text="Instagram handle the user gave the AI chat, if any (no leading @).")
 
     class Meta:
         verbose_name = 'Store Customer Profile'
@@ -49,6 +110,26 @@ class StoreProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} ({self.phone})"
+
+    def save(self, *args, **kwargs):
+        # A manual receipt must always have a reportable timestamp. Callers
+        # can supply an earlier time; otherwise the moment it is first saved
+        # as paid is used.
+        if self.manual_amount_paid > 0 and self.manual_payment_received_at is None:
+            self.manual_payment_received_at = timezone.now()
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None:
+                kwargs['update_fields'] = set(update_fields) | {'manual_payment_received_at'}
+        elif self.manual_amount_paid <= 0:
+            self.manual_payment_received_at = None
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None:
+                kwargs['update_fields'] = set(update_fields) | {'manual_payment_received_at'}
+        super().save(*args, **kwargs)
+
+    @property
+    def is_ai_subscribed(self):
+        return bool(self.ai_subscription_until and self.ai_subscription_until > timezone.now())
 
 
 class Category(models.Model):
@@ -549,6 +630,12 @@ class CartItem(models.Model):
 WALLET_OFFER_PRODUCT_ID = 'aud-metal'
 WALLET_OFFER_CREDIT = 100
 
+# Buying it (see Order.maybe_grant_ai_subscription) extends the buyer's
+# StoreProfile.ai_subscription_until by this many days.
+AI_SUBSCRIPTION_PRODUCT_SLUG = 'edutrellis-ai-monthly'
+AI_SUBSCRIPTION_DAYS = 30
+
+
 class Order(models.Model):
     """A placed order, created from the cart at checkout. Product data is
     snapshotted onto OrderItem the same way CartItem snapshots it, since the
@@ -574,6 +661,7 @@ class Order(models.Model):
     handling_fee           = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total                  = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     wallet_credit_applied  = models.BooleanField(default=False)
+    ai_subscription_granted = models.BooleanField(default=False)
 
     # Delivery address — snapshotted at checkout the same way OrderItem
     # snapshots product data, so a later profile edit never changes where an
@@ -644,6 +732,41 @@ class Order(models.Model):
         if is_first_order and has_offer_product:
             StoreProfile.objects.filter(user=self.user).update(wallet_balance=F('wallet_balance') + WALLET_OFFER_CREDIT)
 
+    def maybe_grant_ai_subscription(self):
+        """Extends the buyer's EduTrellis AI subscription once this order's
+        AI-plan item (AI_SUBSCRIPTION_PRODUCT_SLUG) is actually paid for —
+        either an online payment that's cleared, or a COD order the admin
+        has marked Delivered (COD's own "paid" signal elsewhere in this
+        codebase, e.g. maybe_credit_wallet above). Extends from whichever is
+        later, now or the current expiry, so renewing early stacks instead
+        of wasting remaining days. Idempotent the same way as
+        maybe_credit_wallet — an atomic compare-and-swap on
+        ai_subscription_granted means a re-saved order status or a repeated
+        webhook call can't extend the subscription twice for one order."""
+        if self.ai_subscription_granted:
+            return
+        if not self.items.filter(product_id=AI_SUBSCRIPTION_PRODUCT_SLUG).exists():
+            return
+        payment = self.latest_payment
+        if not payment:
+            return
+        paid = payment.status == Payment.STATUS_PAID or (
+            payment.method == Payment.METHOD_COD and self.status == self.STATUS_DELIVERED
+        )
+        if not paid:
+            return
+        claimed = Order.objects.filter(pk=self.pk, ai_subscription_granted=False).update(ai_subscription_granted=True)
+        if not claimed:
+            return
+        self.ai_subscription_granted = True
+        profile, _ = StoreProfile.objects.get_or_create(user=self.user)
+        now = timezone.now()
+        base = profile.ai_subscription_until if profile.ai_subscription_until and profile.ai_subscription_until > now else now
+        profile.ai_subscription_until = base + timedelta(days=AI_SUBSCRIPTION_DAYS)
+        profile.ai_free_messages_used = 0
+        profile.save(update_fields=['ai_subscription_until', 'ai_free_messages_used'])
+
+
 class OrderItem(models.Model):
     order        = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product_id   = models.CharField(max_length=40)
@@ -708,7 +831,12 @@ class Payment(models.Model):
 
 class DropboxSettings(models.Model):
     """Singleton Dropbox App credentials used to back up/restore db.sqlite3,
-    managed from the store dashboard."""
+    managed from the store dashboard. Falls back to the server-level
+    DROPBOX_APP_KEY/DROPBOX_APP_SECRET/DROPBOX_REFRESH_TOKEN settings (the
+    same credentials ai_app.dropbox_images already uses for AI image
+    archiving) whenever a field here is left blank, so a server that already
+    has those configured shows as connected without also requiring them to
+    be re-entered through this dashboard form."""
     app_key       = models.CharField(max_length=200, blank=True)
     app_secret    = models.CharField(max_length=200, blank=True)
     refresh_token = models.CharField(max_length=400, blank=True)
@@ -727,8 +855,20 @@ class DropboxSettings(models.Model):
         return obj
 
     @property
+    def effective_app_key(self):
+        return self.app_key or getattr(settings, 'DROPBOX_APP_KEY', '')
+
+    @property
+    def effective_app_secret(self):
+        return self.app_secret or getattr(settings, 'DROPBOX_APP_SECRET', '')
+
+    @property
+    def effective_refresh_token(self):
+        return self.refresh_token or getattr(settings, 'DROPBOX_REFRESH_TOKEN', '')
+
+    @property
     def is_configured(self):
-        return bool(self.app_key and self.app_secret and self.refresh_token)
+        return bool(self.effective_app_key and self.effective_app_secret and self.effective_refresh_token)
 
 
 class PWASettings(models.Model):
@@ -773,7 +913,7 @@ class NavAISettings(models.Model):
     instead of hardcoded in every template that links to it."""
     is_active  = models.BooleanField(default=True, help_text='Show this link on the site. Turn off to remove it — and the promo popups that mention it — everywhere at once.')
     name       = models.CharField(max_length=40, default='Vidhyora AI', help_text="Label shown in the navbar, e.g. 'Vidhyora AI'.")
-    url        = models.URLField(max_length=300, default='https://www.vidhyora.online/', help_text='Where the link goes. Include https://.')
+    url        = models.URLField(max_length=300, default='https://www.edutrellis.in/ai/', help_text='Where the link goes. Include https://.')
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

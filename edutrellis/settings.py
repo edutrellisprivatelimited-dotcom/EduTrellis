@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,18 +34,22 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'myapp',
+    'ai_app.apps.AiAppConfig',
     'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'myapp.middleware.CanonicalHostMiddleware',
+    'ai_app.middleware.AISiteDisabledMiddleware',
+    'ai_app.middleware.AICustomModelsMiddleware',
     'myapp.middleware.PublicAssetCacheMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'ai_app.middleware.AISingleDeviceSessionMiddleware',
     'myapp.middleware.HideAdminFromNonStaffMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -64,6 +69,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'myapp.business_info.context_processor',
                 'myapp.site_context.context_processor',
+                'ai_app.context_processors.ai_site_context',
+                'ai_app.support_chat.dashboard_context',
             ],
         },
     },
@@ -97,6 +104,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
 # Default Django session lifetime is 2 weeks, counted from creation — an
 # anonymous visitor's cart (keyed off session_key) would silently become
@@ -150,6 +159,135 @@ LEAD_RECIPIENT_EMAIL = EMAIL_HOST_USER
 # or by Railway potentially blocking outbound SMTP on production.
 TWO_FACTOR_API_KEY = '12feb4c9-9636-11f1-9cb1-0200cd936042'
 
+# ── AI Chat (NVIDIA API) — powers /ai/ (ai_app.ai_chat) ─────────────────────
+# These are real, billable API keys — hardcoded here at the project owner's
+# explicit choice, same as the credentials above, which means they're
+# visible in this repo's git history to anyone with access. Rotate in the
+# NVIDIA console if any of them ever needs to change.
+NVIDIA_API_KEY = os.environ.get('NVIDIA_API_KEY', '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').strip()
+NVIDIA_CHAT_MODEL = os.environ.get('NVIDIA_CHAT_MODEL', 'nvidia/nemotron-3-ultra-550b-a55b').strip()
+# Spare keys for the same endpoint. One key being rate-limited, out of
+# credit, or revoked shouldn't take the whole chat down, so ai_chat tries
+# these in order after the primary above (see _nvidia_key_pool there).
+NVIDIA_FALLBACK_API_KEYS = [
+    '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',
+    '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',
+]
+# NVIDIA_API_KEYS overrides the whole ordered pool at once (comma-separated)
+# for deployments that would rather not carry the hardcoded spares.
+NVIDIA_CHAT_BACKUP_API_KEY = os.environ.get('NVIDIA_CHAT_BACKUP_API_KEY', '').strip()
+_chat_backup_key_file = BASE_DIR / '.secrets' / 'nvidia_chat_backup_api_key'
+if not NVIDIA_CHAT_BACKUP_API_KEY and _chat_backup_key_file.is_file():
+    NVIDIA_CHAT_BACKUP_API_KEY = _chat_backup_key_file.read_text(encoding='utf-8').strip()
+# Hardcoded so Luna has a working dedicated key even when the deployment
+# environment never set one — without this default, an unset env var
+# silently pushes every Luna turn onto the shared NVIDIA_API_KEY pool
+# instead of its own isolated backend, contending it into rate limits.
+NVIDIA_LUNA_API_KEY = os.environ.get(
+    'NVIDIA_LUNA_API_KEY',
+    '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',
+).strip()
+_luna_key_file = BASE_DIR / '.secrets' / 'nvidia_luna_api_key'
+if not NVIDIA_LUNA_API_KEY and _luna_key_file.is_file():
+    NVIDIA_LUNA_API_KEY = _luna_key_file.read_text(encoding='utf-8').strip()
+if not NVIDIA_LUNA_API_KEY:
+    NVIDIA_LUNA_API_KEY = NVIDIA_CHAT_BACKUP_API_KEY
+if NVIDIA_CHAT_BACKUP_API_KEY and NVIDIA_CHAT_BACKUP_API_KEY != NVIDIA_LUNA_API_KEY:
+    NVIDIA_FALLBACK_API_KEYS.append(NVIDIA_CHAT_BACKUP_API_KEY)
+
+_nvidia_key_env = os.environ.get('NVIDIA_API_KEYS', '').strip()
+if _nvidia_key_env:
+    _nvidia_keys = _nvidia_key_env.split(',')
+else:
+    _nvidia_keys = [NVIDIA_API_KEY] + NVIDIA_FALLBACK_API_KEYS
+NVIDIA_API_KEYS = list(dict.fromkeys(k.strip() for k in _nvidia_keys if k.strip()))
+# Luna's text credential stays out of the shared pool, including env overrides.
+NVIDIA_API_KEYS = [k for k in NVIDIA_API_KEYS if k != NVIDIA_LUNA_API_KEY]
+
+# Nemotron 3 Super (120B) — its own dedicated key rather than a member of the
+# pool above, since pool access to the Lightning endpoint says nothing about
+# invoke access to this one.
+_nemotron_super_key_file = BASE_DIR / '.secrets' / 'nvidia_nemotron_super_api_key'
+NVIDIA_NEMOTRON_SUPER_API_KEY = os.environ.get(
+    'NVIDIA_NEMOTRON_SUPER_API_KEY',
+    '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',
+).strip()
+if not NVIDIA_NEMOTRON_SUPER_API_KEY and _nemotron_super_key_file.is_file():
+    NVIDIA_NEMOTRON_SUPER_API_KEY = _nemotron_super_key_file.read_text(encoding='utf-8').strip()
+NVIDIA_FLUX_API_KEY = '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'
+
+# ChatGPT 5.6 Terra — its own dedicated key against nemotron-3-ultra-550b-a55b,
+# same trade-off as NVIDIA_NEMOTRON_SUPER_API_KEY above.
+_terra_key_file = BASE_DIR / '.secrets' / 'nvidia_terra_api_key'
+NVIDIA_TERRA_API_KEY = os.environ.get(
+    'NVIDIA_TERRA_API_KEY',
+    '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',
+).strip()
+if not NVIDIA_TERRA_API_KEY and _terra_key_file.is_file():
+    NVIDIA_TERRA_API_KEY = _terra_key_file.read_text(encoding='utf-8').strip()
+# Start Coding (OpenCode CLI). Blank = it shares NVIDIA_API_KEY; usually set
+# on the dashboard's API Settings page instead.
+NVIDIA_CODING_API_KEY = os.environ.get('NVIDIA_CODING_API_KEY', '').strip()
+NVIDIA_FLUX_EDIT_API_KEY = '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'
+
+# Full FLUX NIM inference URL accepting uploaded images (not the preview API).
+FLUX_EDIT_API_URL = os.environ.get('FLUX_EDIT_API_URL', '').strip()
+FLUX_EDIT_API_KEY = os.environ.get('FLUX_EDIT_API_KEY', '').strip()
+
+# Separate credentials for the Klein backup and FLUX.1-dev fallback.
+NVIDIA_FLUX_BACKUP_API_KEY = os.environ.get('NVIDIA_FLUX_BACKUP_API_KEY', '').strip()
+_flux_backup_key_file = BASE_DIR / '.secrets' / 'nvidia_flux_backup_api_key'
+if not NVIDIA_FLUX_BACKUP_API_KEY and _flux_backup_key_file.is_file():
+    NVIDIA_FLUX_BACKUP_API_KEY = _flux_backup_key_file.read_text(encoding='utf-8').strip()
+
+NVIDIA_FLUX_DEV_API_KEY = os.environ.get('NVIDIA_FLUX_DEV_API_KEY', '').strip()
+_flux_dev_key_file = BASE_DIR / '.secrets' / 'nvidia_flux_dev_api_key'
+if not NVIDIA_FLUX_DEV_API_KEY and _flux_dev_key_file.is_file():
+    NVIDIA_FLUX_DEV_API_KEY = _flux_dev_key_file.read_text(encoding='utf-8').strip()
+
+# Tavily powers optional live web search from the AI chat composer.
+TAVILY_API_KEY = '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'
+
+# ── Dropbox archive for AI-generated images ──────────────────────────────────
+# Every image the AI generates is mirrored to Dropbox (ai_app/dropbox_images.py),
+# because local media storage is wiped on every redeploy. Uploading happens
+# on a background thread, so this adds nothing to image reply times.
+#
+# Hardcoded at the project owner's explicit request, like the keys above —
+# which means a refresh token with full access to that Dropbox account is
+# visible to anyone who can read this repo or its git history. Rotate it
+# from the Dropbox App Console if that ever stops being acceptable.
+#
+# These are separate from the dashboard-configured DropboxSettings row that
+# myapp.dropbox_backup uses for db.sqlite3 backups (though DropboxSettings
+# falls back to these same values when its own fields are left blank — see
+# DropboxSettings.effective_app_key/effective_app_secret/effective_refresh_token).
+DROPBOX_APP_KEY = 'wgg2fsw5pf16x8q'
+DROPBOX_APP_SECRET = '38dg9gi6djz3zuu'
+DROPBOX_REFRESH_TOKEN = 'Si57f7yXuB0AAAAAAAAAAZGrsYbd1YLQpvGHxlJES4DRvKr7mDfZo8xqLaJBTY_s'
+
+# Master switch, off while the test suite runs. Tests exercise the real image
+# and report views, and those now archive to Dropbox — without this, running
+# `manage.py test` uploads the suite's fake images into the live account.
+# Tests that mean to cover archiving turn it back on with override_settings
+# and patch the client, so they never touch the network.
+DROPBOX_IMAGE_ARCHIVE_ENABLED = not (
+    'test' in sys.argv
+    or os.path.basename(sys.argv[0] if sys.argv else '').startswith(('pytest', 'py.test'))
+)
+# Long messages and long chats are shortened before they reach the chat model
+# (ai_app.context_compress). Off under tests so no test calls the real model.
+AI_CONTEXT_COMPRESSION_ENABLED = DROPBOX_IMAGE_ARCHIVE_ENABLED
+
+# GitHub OAuth App credentials for the /ai/ GitHub-mode "Login with GitHub"
+# button (ai_app/views.py github_oauth_start/callback). Register an OAuth App
+# at https://github.com/settings/developers with its Authorization callback
+# URL set to <your domain>/ai/api/github/oauth/callback/, then set these two
+# env vars. Left unset, the connect panel just falls back to pasting a
+# Personal Access Token — nothing breaks, the button simply doesn't appear.
+GITHUB_OAUTH_CLIENT_ID = os.environ.get('GITHUB_OAUTH_CLIENT_ID', '')
+GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET', '')
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGGING = {
@@ -160,6 +298,11 @@ LOGGING = {
     },
     'loggers': {
         'myapp': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'ai_app': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,

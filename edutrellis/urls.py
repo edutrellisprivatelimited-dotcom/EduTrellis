@@ -24,6 +24,13 @@ urlpatterns = [
     # Main App
     path('', include('myapp.urls')),
 
+    # EduTrellis AI — public chat/API at /ai/, admin pages nested into the
+    # same /store/dashboard/ prefix myapp's own dashboard uses.
+    path('ai/', include('ai_app.urls')),
+    # Chats — the support chat, its own product with its own accounts.
+    path('chats/', include('ai_app.chats_urls')),
+    path('store/dashboard/', include('ai_app.dashboard_urls')),
+
     # Sitemap
     path(
         'sitemap.xml',

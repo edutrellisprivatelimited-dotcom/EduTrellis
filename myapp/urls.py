@@ -4,12 +4,10 @@ from myapp import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    # The in-house AI chat page was retired — Vidhyora AI now lives at its
-    # own external product site. Redirect old links/bookmarks there instead
-    # of 404ing. Destination is read from NavAISettings (dashboard >
-    # Customize > Dynamic AI), not hardcoded here.
+    path('sw.js', views.root_service_worker_cleanup, name='root_sw_cleanup'),
+    # The real AI chat now lives at /ai/ (see edutrellis/urls.py's
+    # 'ai_app.urls' include) — these just catch old typo'd/legacy links.
     path('AI/', views.ai_redirect),
-    path('ai/', views.ai_redirect),
     path('aii/', views.ai_redirect),
     # The standalone Website Development page was retired and folded into
     # the homepage — redirect any indexed/bookmarked links instead of 404ing.

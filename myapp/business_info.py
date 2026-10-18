@@ -51,6 +51,13 @@ INSTAGRAM_URL = 'https://www.instagram.com/edutrellis'
 LINKEDIN_COMPANY_URL = 'https://www.linkedin.com/company/edutrellis'
 FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61590850943948'
 
+# The exact reply the AI must give instead of inventing a detail it wasn't
+# actually given — see ai_app.ai_chat.SYSTEM_PROMPT and company_knowledge.py.
+NOT_FOUND_MESSAGE = (
+    "I couldn't find verified information for that. Please visit "
+    "edutrellis.in or contact support@edutrellis.in."
+)
+
 
 def as_dict():
     return {

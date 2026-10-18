@@ -1,0 +1,73 @@
+{% extends "dashboard/base.html" %}
+{% block title %}API Data{% endblock %}
+{% block page_title %}API Data{% endblock %}
+
+{% block extra_head %}
+<style>
+.panel-note{padding:0 1.4rem 1.1rem;font-size:.8rem;color:var(--text)}
+.badge.model-frontend{background:#e8f3fb;color:#1a6fb0}
+.badge.model-internal{background:var(--bg-alt);color:var(--text)}
+.panel-filters{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.panel-filters select{height:38px;border:1.5px solid var(--line);border-radius:10px;padding:0 .7rem;font-family:inherit;font-size:.82rem;background:var(--bg-alt);color:var(--head)}
+.panel-filters select:focus{outline:none;border-color:var(--red)}
+.model-share{display:block;font-size:.72rem;color:var(--text);opacity:.65;margin-top:.15rem}
+.model-last-used{white-space:nowrap}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-ico"><i class="fas fa-robot"></i></div>
+    <div><div class="stat-num">{{ frontend_model_count }}</div><div class="stat-lbl">Models shown in the frontend picker</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-ico"><i class="fas fa-paper-plane"></i></div>
+    <div><div class="stat-num">{{ total_requests }}</div><div class="stat-lbl">Total AI requests served</div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h3>{{ models|length }} model{{ models|length|pluralize }}</h3>
+    <form class="panel-filters" method="get">
+      <span class="panel-search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="search" name="model_q" value="{{ model_q }}" placeholder="Search model name…">
+      </span>
+      <select name="model_scope" onchange="this.form.submit()" aria-label="Filter by picker visibility">
+        <option value="all" {% if model_scope == 'all' %}selected{% endif %}>All models</option>
+        <option value="frontend" {% if model_scope == 'frontend' %}selected{% endif %}>Frontend picker only</option>
+        <option value="internal" {% if model_scope == 'internal' %}selected{% endif %}>Internal only</option>
+      </select>
+      <select name="model_sort" onchange="this.form.submit()" aria-label="Sort by">
+        <option value="most_requests" {% if model_sort == 'most_requests' %}selected{% endif %}>Most requests</option>
+        <option value="least_requests" {% if model_sort == 'least_requests' %}selected{% endif %}>Least requests</option>
+        <option value="recent" {% if model_sort == 'recent' %}selected{% endif %}>Most recently used</option>
+        <option value="az" {% if model_sort == 'az' %}selected{% endif %}>A–Z</option>
+      </select>
+    </form>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Model</th><th>Shown in frontend?</th><th>Requests</th><th>Last used</th></tr></thead>
+      <tbody>
+        {% for model in models %}
+        <tr>
+          <td><strong>{{ model.label }}</strong></td>
+          <td>
+            {% if model.in_frontend %}<span class="badge model-frontend">Frontend picker</span>
+            {% else %}<span class="badge model-internal">Internal only</span>{% endif %}
+          </td>
+          <td>{{ model.requests }}{% if model.requests %}<span class="model-share">{{ model.share_pct }}% of total</span>{% endif %}</td>
+          <td class="model-last-used">{% if model.last_used %}{{ model.last_used|timesince }} ago{% else %}—{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="empty-row">No models match these filters</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="panel-note">API keys, connection tests and on/off switches for these models are on the API Settings page.</p>
+</div>
+{% endblock %}
