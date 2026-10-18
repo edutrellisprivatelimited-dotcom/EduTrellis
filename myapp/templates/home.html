@@ -372,7 +372,7 @@
         <li><a href="#home">Home</a></li>
         <li><a href="#products">Products</a></li>
         <li><a href="#services">Services</a></li>
-        <li><a href="{% url 'estore' %}">E-Store</a></li>
+        <li><a href="#estore">E-Store</a></li>
         {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
         <li><a href="#portfolio">Portfolio</a></li>
         {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
@@ -411,7 +411,7 @@
     <li><a href="#home">Home</a></li>
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
-    <li><a href="{% url 'estore' %}">E-Store</a></li>
+    <li><a href="#estore">E-Store</a></li>
     {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
     <li><a href="#portfolio">Portfolio</a></li>
     {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
@@ -741,15 +741,20 @@
 .xs-tab.active{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 8px 20px rgba(232,0,30,.28)}
 .xs-tab small{opacity:.7;font-weight:600;margin-left:.25rem}
 .xs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:2rem;position:relative}
-.xs-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--border);border-radius:20px;padding:1.4rem 1.3rem 1.2rem;box-shadow:0 1px 2px rgba(15,22,35,.04),0 8px 24px rgba(15,22,35,.05);transition:transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s,border-color .45s;overflow:hidden;isolation:isolate}
+.xs-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--border);border-radius:20px;padding:0;box-shadow:0 1px 2px rgba(15,22,35,.04),0 8px 24px rgba(15,22,35,.05);transition:transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s,border-color .45s;overflow:hidden;isolation:isolate}
 .xs-card::after{content:'';position:absolute;z-index:-1;right:-70px;bottom:-90px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(232,0,30,.12),transparent 70%);opacity:0;transition:opacity .45s}
 .xs-card:hover{transform:translateY(-6px);border-color:rgba(232,0,30,.28);box-shadow:0 2px 4px rgba(15,22,35,.04),0 22px 46px rgba(232,0,30,.13)}
 .xs-card:hover::after{opacity:1}
 .xs-card.is-hidden{display:none}
-.xs-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:1rem}
-.xs-ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:rgba(232,0,30,.08);color:var(--red);font-size:1.15rem;transition:all .45s cubic-bezier(.22,1,.36,1)}
+.xs-media{position:relative;height:150px}
+.xs-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.xs-media::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(10,14,24,.05) 30%,rgba(10,14,24,.55) 100%);pointer-events:none}
+.xs-card:hover .xs-media img{transform:scale(1.07)}
+.xs-media{overflow:hidden}
+.xs-body{position:relative;display:flex;flex-direction:column;flex:1;padding:1.9rem 1.3rem 1.2rem}
+.xs-ico{position:absolute;z-index:2;left:1.2rem;top:-24px;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:#fff;color:var(--red);font-size:1.15rem;box-shadow:0 8px 20px rgba(15,22,35,.15);border:1px solid var(--border);transition:all .45s cubic-bezier(.22,1,.36,1)}
 .xs-card:hover .xs-ico{background:var(--grad);color:#fff;box-shadow:0 10px 22px rgba(232,0,30,.32);transform:rotate(-6deg)}
-.xs-cat{font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text);opacity:.75;text-align:right}
+.xs-cat{position:absolute;z-index:2;top:.75rem;right:.75rem;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:.25rem .6rem;border-radius:50px}
 .xs-card h3{font-family:var(--font-head);font-size:1.02rem;font-weight:800;color:var(--dark);margin:0 0 .45rem;line-height:1.3}
 .xs-card p{font-size:.84rem;line-height:1.65;color:var(--text);margin:0 0 .9rem}
 .xs-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem}
@@ -775,88 +780,112 @@
     </div>
     <div class="xs-grid" id="xsGrid">
       <article class="xs-card reveal d1" data-cat="marketing">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-bullhorn"></i></span><span class="xs-cat">Marketing</span></div>
-        <h3>Google &amp; Meta Ads</h3>
-        <p>Targeted ad campaigns on Google, Instagram &amp; Facebook that bring real enquiries — not just clicks.</p>
-        <div class="xs-tags"><span>Lead gen</span><span>Retargeting</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/ads.jpg' %}" alt="Google &amp; Meta Ads" loading="lazy" width="700" height="420"><span class="xs-cat">Marketing</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-bullhorn"></i></span>
+          <h3>Google &amp; Meta Ads</h3>
+          <p>Targeted ad campaigns on Google, Instagram &amp; Facebook that bring real enquiries — not just clicks.</p>
+          <div class="xs-tags"><span>Lead gen</span><span>Retargeting</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d2" data-cat="marketing">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-film"></i></span><span class="xs-cat">Marketing</span></div>
-        <h3>Reels &amp; Video Editing</h3>
-        <p>Scroll-stopping reels, course promos and YouTube edits with captions, music and motion graphics.</p>
-        <div class="xs-tags"><span>Reels</span><span>YouTube</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/video.jpg' %}" alt="Reels &amp; Video Editing" loading="lazy" width="700" height="420"><span class="xs-cat">Marketing</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-film"></i></span>
+          <h3>Reels &amp; Video Editing</h3>
+          <p>Scroll-stopping reels, course promos and YouTube edits with captions, music and motion graphics.</p>
+          <div class="xs-tags"><span>Reels</span><span>YouTube</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d3" data-cat="marketing">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-envelope-open-text"></i></span><span class="xs-cat">Marketing</span></div>
-        <h3>Email &amp; SMS Marketing</h3>
-        <p>Newsletters, offers and automated follow-ups that keep students and customers coming back.</p>
-        <div class="xs-tags"><span>Campaigns</span><span>Automation</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/email.jpg' %}" alt="Email &amp; SMS Marketing" loading="lazy" width="700" height="420"><span class="xs-cat">Marketing</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-envelope-open-text"></i></span>
+          <h3>Email &amp; SMS Marketing</h3>
+          <p>Newsletters, offers and automated follow-ups that keep students and customers coming back.</p>
+          <div class="xs-tags"><span>Campaigns</span><span>Automation</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d1" data-cat="marketing">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-pen-nib"></i></span><span class="xs-cat">Marketing</span></div>
-        <h3>Copywriting &amp; Blogs</h3>
-        <p>Website copy, blog articles and ad text written to rank on Google and convert visitors.</p>
-        <div class="xs-tags"><span>SEO content</span><span>Ad copy</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/copy.jpg' %}" alt="Copywriting &amp; Blogs" loading="lazy" width="700" height="420"><span class="xs-cat">Marketing</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-pen-nib"></i></span>
+          <h3>Copywriting &amp; Blogs</h3>
+          <p>Website copy, blog articles and ad text written to rank on Google and convert visitors.</p>
+          <div class="xs-tags"><span>SEO content</span><span>Ad copy</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d2" data-cat="tech">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-mobile-screen-button"></i></span><span class="xs-cat">Tech & Platforms</span></div>
-        <h3>Mobile App Development</h3>
-        <p>Android &amp; iOS apps for your coaching, store or business — connected to your website.</p>
-        <div class="xs-tags"><span>Android</span><span>iOS</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/app.jpg' %}" alt="Mobile App Development" loading="lazy" width="700" height="420"><span class="xs-cat">Tech & Platforms</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-mobile-screen-button"></i></span>
+          <h3>Mobile App Development</h3>
+          <p>Android &amp; iOS apps for your coaching, store or business — connected to your website.</p>
+          <div class="xs-tags"><span>Android</span><span>iOS</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d3" data-cat="tech">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-chalkboard-user"></i></span><span class="xs-cat">Tech & Platforms</span></div>
-        <h3>LMS &amp; Online Course Setup</h3>
-        <p>Sell courses online with video lessons, quizzes, student logins and certificates.</p>
-        <div class="xs-tags"><span>Courses</span><span>Student portal</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/lms.jpg' %}" alt="LMS &amp; Online Course Setup" loading="lazy" width="700" height="420"><span class="xs-cat">Tech & Platforms</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-chalkboard-user"></i></span>
+          <h3>LMS &amp; Online Course Setup</h3>
+          <p>Sell courses online with video lessons, quizzes, student logins and certificates.</p>
+          <div class="xs-tags"><span>Courses</span><span>Student portal</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d1" data-cat="tech">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-robot"></i></span><span class="xs-cat">Tech & Platforms</span></div>
-        <h3>AI Chatbot Integration</h3>
-        <p>A 24/7 AI assistant on your site or WhatsApp that answers queries and captures leads.</p>
-        <div class="xs-tags"><span>AI</span><span>Lead capture</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/ai.jpg' %}" alt="AI Chatbot Integration" loading="lazy" width="700" height="420"><span class="xs-cat">Tech & Platforms</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-robot"></i></span>
+          <h3>AI Chatbot Integration</h3>
+          <p>A 24/7 AI assistant on your site or WhatsApp that answers queries and captures leads.</p>
+          <div class="xs-tags"><span>AI</span><span>Lead capture</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d2" data-cat="tech">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-server"></i></span><span class="xs-cat">Tech & Platforms</span></div>
-        <h3>Domain, Hosting &amp; Business Email</h3>
-        <p>Domain registration, fast secure hosting, SSL and professional you@yourbrand.com email.</p>
-        <div class="xs-tags"><span>SSL</span><span>Email</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/hosting.jpg' %}" alt="Domain, Hosting &amp; Business Email" loading="lazy" width="700" height="420"><span class="xs-cat">Tech & Platforms</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-server"></i></span>
+          <h3>Domain, Hosting &amp; Business Email</h3>
+          <p>Domain registration, fast secure hosting, SSL and professional you@yourbrand.com email.</p>
+          <div class="xs-tags"><span>SSL</span><span>Email</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d3" data-cat="growth">
-        <div class="xs-top"><span class="xs-ico"><i class="fab fa-whatsapp"></i></span><span class="xs-cat">Growth & Automation</span></div>
-        <h3>WhatsApp Business Automation</h3>
-        <p>Catalogs, quick replies, broadcast lists and auto-responses set up on WhatsApp Business.</p>
-        <div class="xs-tags"><span>Broadcasts</span><span>Auto-reply</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/whatsapp.jpg' %}" alt="WhatsApp Business Automation" loading="lazy" width="700" height="420"><span class="xs-cat">Growth & Automation</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fab fa-whatsapp"></i></span>
+          <h3>WhatsApp Business Automation</h3>
+          <p>Catalogs, quick replies, broadcast lists and auto-responses set up on WhatsApp Business.</p>
+          <div class="xs-tags"><span>Broadcasts</span><span>Auto-reply</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d1" data-cat="growth">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-filter-circle-dollar"></i></span><span class="xs-cat">Growth & Automation</span></div>
-        <h3>Landing Pages &amp; Sales Funnels</h3>
-        <p>High-converting pages for admissions, launches and offers — built to turn traffic into sales.</p>
-        <div class="xs-tags"><span>Funnels</span><span>Lead forms</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/funnel.jpg' %}" alt="Landing Pages &amp; Sales Funnels" loading="lazy" width="700" height="420"><span class="xs-cat">Growth & Automation</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-filter-circle-dollar"></i></span>
+          <h3>Landing Pages &amp; Sales Funnels</h3>
+          <p>High-converting pages for admissions, launches and offers — built to turn traffic into sales.</p>
+          <div class="xs-tags"><span>Funnels</span><span>Lead forms</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d2" data-cat="growth">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-gauge-high"></i></span><span class="xs-cat">Growth & Automation</span></div>
-        <h3>Website Redesign &amp; Speed Boost</h3>
-        <p>Give an outdated site a modern look and make it load fast on every phone.</p>
-        <div class="xs-tags"><span>Redesign</span><span>Speed</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/redesign.jpg' %}" alt="Website Redesign &amp; Speed Boost" loading="lazy" width="700" height="420"><span class="xs-cat">Growth & Automation</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-gauge-high"></i></span>
+          <h3>Website Redesign &amp; Speed Boost</h3>
+          <p>Give an outdated site a modern look and make it load fast on every phone.</p>
+          <div class="xs-tags"><span>Redesign</span><span>Speed</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
       <article class="xs-card reveal d3" data-cat="growth">
-        <div class="xs-top"><span class="xs-ico"><i class="fas fa-chart-pie"></i></span><span class="xs-cat">Growth & Automation</span></div>
-        <h3>Analytics &amp; Conversion Tracking</h3>
-        <p>Google Analytics, Meta Pixel and clear monthly reports so you know what is working.</p>
-        <div class="xs-tags"><span>GA4</span><span>Meta Pixel</span></div>
-        <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        <div class="xs-media"><img src="{% static 'img/services/analytics.jpg' %}" alt="Analytics &amp; Conversion Tracking" loading="lazy" width="700" height="420"><span class="xs-cat">Growth & Automation</span></div>
+        <div class="xs-body"><span class="xs-ico"><i class="fas fa-chart-pie"></i></span>
+          <h3>Analytics &amp; Conversion Tracking</h3>
+          <p>Google Analytics, Meta Pixel and clear monthly reports so you know what is working.</p>
+          <div class="xs-tags"><span>GA4</span><span>Meta Pixel</span></div>
+          <a href="#contact" class="xs-link">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
       </article>
     </div>
   </div>
