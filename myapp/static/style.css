@@ -1295,3 +1295,37 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
 .pf-more-btn i{transition:transform .35s}
 .pf-more-btn[aria-expanded=true] i{transform:rotate(180deg)}
 .portfolio-tabs{flex-wrap:wrap}
+
+/* ===== PORTFOLIO polish (overrides the inline .ptab / .portfolio-card rules) ===== */
+#portfolio{position:relative;overflow:hidden}
+#portfolio::before{content:'';position:absolute;width:560px;height:560px;left:-220px;top:120px;border-radius:50%;background:radial-gradient(circle,rgba(232,0,30,.06),transparent 70%);pointer-events:none}
+.pf-eyebrow{display:table;margin:0 auto .9rem;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);background:rgba(232,0,30,.07);border:1px solid rgba(232,0,30,.18);padding:.4rem 1rem;border-radius:50px}
+.pf-eyebrow i{margin-right:.35rem}
+#portfolio .portfolio-tabs{display:flex;justify-content:center;flex-wrap:wrap;gap:.35rem;width:max-content;max-width:100%;margin:2.2rem auto 0;padding:.4rem;background:#fff;border:1px solid var(--border);border-radius:50px;box-shadow:0 10px 30px rgba(15,22,35,.07)}
+#portfolio .ptab{display:inline-flex;align-items:center;gap:.45rem;font-family:inherit;font-size:.84rem;font-weight:700;color:var(--text);background:transparent;border:0;padding:.6rem 1.05rem;border-radius:50px;cursor:pointer;transition:all .3s;white-space:nowrap}
+#portfolio .ptab i{font-size:.8rem;color:var(--red);transition:color .3s}
+#portfolio .ptab small{font-size:.68rem;font-weight:800;min-width:20px;height:20px;padding:0 .35rem;display:inline-grid;place-items:center;border-radius:50px;background:rgba(232,0,30,.08);color:var(--red);transition:all .3s}
+#portfolio .ptab:hover{background:rgba(232,0,30,.06);color:var(--dark)}
+#portfolio .ptab.active{background:var(--grad);color:#fff;box-shadow:0 8px 20px rgba(232,0,30,.3)}
+#portfolio .ptab.active i{color:#fff}
+#portfolio .ptab.active small{background:rgba(255,255,255,.22);color:#fff}
+#portfolio .portfolio-grid{margin-top:2.4rem;gap:1.5rem}
+#portfolio .portfolio-card{border-radius:20px;border:1px solid var(--border);background:#fff;box-shadow:0 1px 2px rgba(15,22,35,.04),0 10px 28px rgba(15,22,35,.06);overflow:hidden;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s,border-color .5s}
+#portfolio .portfolio-card:hover{transform:translateY(-8px);border-color:rgba(232,0,30,.25);box-shadow:0 2px 4px rgba(15,22,35,.04),0 26px 54px rgba(232,0,30,.13)}
+#portfolio .pf-img-wrap{position:relative}
+#portfolio .pf-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,24,.25) 0%,transparent 35%);pointer-events:none}
+#portfolio .pf-tag-img{position:absolute;z-index:2;top:.8rem;left:.8rem;margin:0;display:inline-flex;align-items:center;gap:.35rem;font-size:.62rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#fff;background:rgba(15,22,35,.45);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:.3rem .65rem;border-radius:50px}
+#portfolio .pf-overlay{z-index:3;background:linear-gradient(180deg,rgba(15,22,35,.15),rgba(15,22,35,.65))}
+#portfolio .pf-body{display:flex;flex-direction:column;flex:1;padding:1.2rem 1.25rem 1.25rem}
+#portfolio .pf-body h3{font-size:1.05rem;margin:0 0 .45rem}
+#portfolio .pf-body p{font-size:.85rem;line-height:1.65;margin:0 0 .9rem}
+#portfolio .pf-tech{gap:.35rem;margin-bottom:1rem}
+#portfolio .pf-tech span{font-size:.68rem;font-weight:600;border-radius:50px;padding:.22rem .6rem;background:var(--bg-alt,#f4f5f8);border:1px solid var(--border);color:var(--dark)}
+.pf-link{margin-top:auto;display:inline-flex;align-items:center;gap:.4rem;font-size:.84rem;font-weight:700;color:var(--red);text-decoration:none;padding-top:.85rem;border-top:1px dashed var(--border)}
+.pf-link i{transition:transform .3s}
+#portfolio .portfolio-card:hover .pf-link i{transform:translateX(4px)}
+@media(max-width:760px){
+  #portfolio .portfolio-tabs{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;border-radius:16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #portfolio .portfolio-tabs::-webkit-scrollbar{display:none}
+  #portfolio .ptab{font-size:.78rem;padding:.55rem .85rem}
+}

@@ -918,18 +918,19 @@
 <!-- ===== PORTFOLIO SECTION ===== -->
 <section id="portfolio">
   <div class="wrap">
+    <span class="pf-eyebrow reveal"><i class="fas fa-briefcase"></i> Our Work</span>
     <h2 class="reveal">Our <span>Portfolio</span></h2>
     <div class="accent reveal d1"></div>
     <p class="sub reveal d2">Websites for every kind of business — from jewellery shops and flour mills to schools and hospitals. Pick yours and we'll build one like it.</p>
 
     <!-- Filter Tabs -->
-    <div class="portfolio-tabs">
-      <button class="ptab active" onclick="filterPortfolio('all', this)">All</button>
-      <button class="ptab" onclick="filterPortfolio('ecommerce', this)">E-commerce</button>
-      <button class="ptab" onclick="filterPortfolio('food', this)">Food &amp; Industry</button>
-      <button class="ptab" onclick="filterPortfolio('education', this)">Education</button>
-      <button class="ptab" onclick="filterPortfolio('business', this)">Business &amp; Office</button>
-      <button class="ptab" onclick="filterPortfolio('health', this)">Health &amp; Fitness</button>
+    <div class="portfolio-tabs reveal d2">
+      <button class="ptab active" onclick="filterPortfolio('all', this)"><i class="fas fa-border-all"></i> All <small>16</small></button>
+      <button class="ptab" onclick="filterPortfolio('ecommerce', this)"><i class="fas fa-bag-shopping"></i> E-commerce <small>4</small></button>
+      <button class="ptab" onclick="filterPortfolio('food', this)"><i class="fas fa-wheat-awn"></i> Food &amp; Industry <small>4</small></button>
+      <button class="ptab" onclick="filterPortfolio('education', this)"><i class="fas fa-graduation-cap"></i> Education <small>3</small></button>
+      <button class="ptab" onclick="filterPortfolio('business', this)"><i class="fas fa-building"></i> Business &amp; Office <small>3</small></button>
+      <button class="ptab" onclick="filterPortfolio('health', this)"><i class="fas fa-heart-pulse"></i> Health &amp; Fitness <small>2</small></button>
     </div>
 
     <!-- Website types we build -->
@@ -938,240 +939,256 @@
       <div class="portfolio-card reveal d1" data-cat="ecommerce">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/jewellery.jpg' %}" alt="Jewellery Store Website" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-bag-shopping"></i> E-commerce</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">E-commerce</span>
           <h3>Jewellery Store Website</h3>
           <p>Elegant online showroom for gold, silver &amp; diamond jewellery with live rate display, zoomable product photos and secure checkout.</p>
           <div class="pf-tech"><span>Catalog</span><span>Live gold rate</span><span>Razorpay</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d2" data-cat="food">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/restaurant.jpg' %}" alt="Restaurant &amp; Food Delivery" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-wheat-awn"></i> Food &amp; Industry</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Food &amp; Industry</span>
           <h3>Restaurant &amp; Food Delivery</h3>
           <p>Digital menu, table booking and online ordering with delivery tracking — orders land straight on your phone or WhatsApp.</p>
           <div class="pf-tech"><span>Online orders</span><span>Delivery</span><span>WhatsApp</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d3" data-cat="education">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/school.jpg' %}" alt="School Website" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-graduation-cap"></i> Education</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Education</span>
           <h3>School Website</h3>
           <p>Admissions, notices, events, gallery and fee payment — everything parents and students need in one place.</p>
           <div class="pf-tech"><span>Admissions</span><span>Notice board</span><span>Fee payment</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d4" data-cat="business">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/office.jpg' %}" alt="Corporate Office Website" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-building"></i> Business &amp; Office</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Business &amp; Office</span>
           <h3>Corporate Office Website</h3>
           <p>A professional company site with services, team, careers and lead-capture forms that turn visitors into enquiries.</p>
           <div class="pf-tech"><span>CMS</span><span>Careers</span><span>Lead forms</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d1" data-cat="ecommerce">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/grocery.jpg' %}" alt="Grocery &amp; Daily Needs Delivery" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-bag-shopping"></i> E-commerce</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">E-commerce</span>
           <h3>Grocery &amp; Daily Needs Delivery</h3>
           <p>Local grocery store online — categories, slot-based home delivery, cash-on-delivery and repeat-order shortcuts.</p>
           <div class="pf-tech"><span>Home delivery</span><span>COD</span><span>Pincode check</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d2" data-cat="food">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/flourmill.jpg' %}" alt="Flour Mill &amp; Agro Industry" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-wheat-awn"></i> Food &amp; Industry</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Food &amp; Industry</span>
           <h3>Flour Mill &amp; Agro Industry</h3>
           <p>Showcase your mill, products and quality process — with bulk-order enquiries for dealers and distributors.</p>
           <div class="pf-tech"><span>Product range</span><span>Dealer enquiry</span><span>Bulk orders</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d3" data-cat="education">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/university.jpg' %}" alt="University &amp; College Portal" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-graduation-cap"></i> Education</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Education</span>
           <h3>University &amp; College Portal</h3>
           <p>Courses, departments, faculty, results and student logins — a full portal built to handle thousands of users.</p>
           <div class="pf-tech"><span>Student login</span><span>Results</span><span>Departments</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d4" data-cat="health">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/clinic.jpg' %}" alt="Hospital &amp; Clinic Website" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-heart-pulse"></i> Health &amp; Fitness</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Health &amp; Fitness</span>
           <h3>Hospital &amp; Clinic Website</h3>
           <p>Doctor profiles, departments and online appointment booking with reminders — patients book in seconds.</p>
           <div class="pf-tech"><span>Appointments</span><span>Doctors</span><span>Reminders</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d1 pf-more" data-cat="ecommerce">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/fashion.jpg' %}" alt="Fashion &amp; Clothing Store" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-bag-shopping"></i> E-commerce</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">E-commerce</span>
           <h3>Fashion &amp; Clothing Store</h3>
           <p>Size &amp; colour variants, lookbooks, wishlists and easy returns — a stylish store your customers love to browse.</p>
           <div class="pf-tech"><span>Variants</span><span>Wishlist</span><span>Coupons</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d2 pf-more" data-cat="food">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/bakery.jpg' %}" alt="Bakery &amp; Café Website" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-wheat-awn"></i> Food &amp; Industry</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Food &amp; Industry</span>
           <h3>Bakery &amp; Café Website</h3>
           <p>Mouth-watering menu, custom cake orders and pre-orders for pickup — with photos that sell before the first bite.</p>
           <div class="pf-tech"><span>Menu</span><span>Cake orders</span><span>Pickup</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d3 pf-more" data-cat="education">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/coaching.jpg' %}" alt="Coaching Institute &amp; LMS" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-graduation-cap"></i> Education</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Education</span>
           <h3>Coaching Institute &amp; LMS</h3>
           <p>Batches, test series, recorded lectures and student dashboards — sell courses and teach online.</p>
           <div class="pf-tech"><span>LMS</span><span>Test series</span><span>Video lessons</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d4 pf-more" data-cat="business">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/realestate.jpg' %}" alt="Real Estate &amp; Property" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-building"></i> Business &amp; Office</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Business &amp; Office</span>
           <h3>Real Estate &amp; Property</h3>
           <p>Property listings with filters, photo galleries, maps and site-visit booking for builders and agents.</p>
           <div class="pf-tech"><span>Listings</span><span>Maps</span><span>Site visits</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d1 pf-more" data-cat="ecommerce">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/electronics.jpg' %}" alt="Electronics &amp; Gadgets Store" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-bag-shopping"></i> E-commerce</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">E-commerce</span>
           <h3>Electronics &amp; Gadgets Store</h3>
           <p>Spec-rich product pages, comparisons, EMI options and order tracking for mobiles, laptops and accessories.</p>
           <div class="pf-tech"><span>Specs</span><span>EMI</span><span>Order tracking</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d2 pf-more" data-cat="food">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/manufacturing.jpg' %}" alt="Manufacturing &amp; Factory" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-wheat-awn"></i> Food &amp; Industry</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Food &amp; Industry</span>
           <h3>Manufacturing &amp; Factory</h3>
           <p>Capabilities, machinery, certifications and product catalogues that win B2B buyers and export enquiries.</p>
           <div class="pf-tech"><span>B2B</span><span>Catalogue PDF</span><span>RFQ form</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d3 pf-more" data-cat="business">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/logistics.jpg' %}" alt="Logistics &amp; Courier" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-building"></i> Business &amp; Office</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Business &amp; Office</span>
           <h3>Logistics &amp; Courier</h3>
           <p>Shipment tracking, rate calculator and pickup requests for transport, courier and warehousing businesses.</p>
           <div class="pf-tech"><span>Tracking</span><span>Rate calculator</span><span>Pickups</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="portfolio-card reveal d4 pf-more" data-cat="health">
         <div class="pf-img-wrap">
           <img src="{% static 'img/portfolio/gym.jpg' %}" alt="Gym &amp; Fitness Studio" class="pf-img" loading="lazy" width="700" height="440">
+          <span class="pf-tag pf-tag-img"><i class="fas fa-heart-pulse"></i> Health &amp; Fitness</span>
           <div class="pf-overlay">
             <a href="#contact"><i class="fas fa-eye"></i> Get a Similar Website</a>
           </div>
         </div>
         <div class="pf-body">
-          <span class="pf-tag">Health &amp; Fitness</span>
           <h3>Gym &amp; Fitness Studio</h3>
           <p>Membership plans, class schedules, trainer profiles and online sign-ups that keep your gym full.</p>
           <div class="pf-tech"><span>Memberships</span><span>Schedules</span><span>Online join</span></div>
+          <a href="#contact" class="pf-link">Get a quote for this <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
