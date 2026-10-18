@@ -1245,39 +1245,58 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
 
 {% if FOUNDER.is_active %}
 <!-- ===== MEET THE FOUNDER ===== -->
-<section id="clients">
+<section id="clients" class="fd-sec">
   <div class="wrap">
+    <span class="fd-eyebrow reveal"><i class="fas fa-user-tie"></i> Leadership</span>
     <h2 class="reveal">Meet Our <span>Founder</span></h2>
     <div class="accent reveal d1"></div>
     <p class="sub reveal d2">The vision and leadership behind EduTrellis</p>
-    <div class="about-grid">
-      <div class="about-img-wrap reveal-left" style="padding:1rem">
-        <div class="about-decorative"></div>
-        <div class="about-decorative2"></div>
-        {% if FOUNDER.photo %}
-          <img src="{{ FOUNDER.photo.url }}" alt="{{ FOUNDER.name|default:'EduTrellis Founder' }}" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
-        {% else %}
-          <img src="{% static 'img/founder.webp' %}" alt="{{ FOUNDER.name|default:'EduTrellis Founder' }}" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
-        {% endif %}
-        <div class="about-badge"><div class="bn">{{ FOUNDER.badge_value }}</div><div class="bt">{{ FOUNDER.badge_label }}</div></div>
-      </div>
-      <div class="about-text reveal-right">
-        <h3>{{ FOUNDER.name|default:FOUNDER.title }}</h3>
-        {% if FOUNDER.name %}<p style="font-size:.85rem;color:var(--red);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:-.5rem">{{ FOUNDER.title }}, EduTrellis</p>{% endif %}
-        {% if FOUNDER.email %}<p style="font-size:.9rem;color:var(--text);display:flex;align-items:center;gap:.5rem;margin-top:.3rem"><i class="fas fa-envelope" style="color:var(--red)"></i> <a href="mailto:{{ FOUNDER.email }}" style="color:var(--text);text-decoration:none">{{ FOUNDER.email }}</a></p>{% endif %}
-        <p style="margin-top:1rem">{{ FOUNDER.intro_paragraph1 }}</p>
-        <p>{{ FOUNDER.intro_paragraph2 }}</p>
-        <h3 style="margin-top:1.5rem">{{ FOUNDER.belief_heading }}</h3>
-        <ul class="about-list">
-          {% for point in FOUNDER.belief_list %}<li><i class="fas fa-check-circle"></i> {{ point }}</li>{% endfor %}
-        </ul>
-        <div class="mission">
-          <h4>{{ FOUNDER.note_heading }}</h4>
-          <p>{{ FOUNDER.note_text }}</p>
+    <div class="fd-grid">
+      <div class="fd-photo-col reveal-left">
+        <div class="fd-photo">
+          {% if FOUNDER.photo %}
+            <img src="{{ FOUNDER.photo.url }}" alt="{{ FOUNDER.name|default:'EduTrellis Founder' }}" loading="lazy">
+          {% else %}
+            <img src="{% static 'img/founder.webp' %}" alt="{{ FOUNDER.name|default:'EduTrellis Founder' }}" loading="lazy">
+          {% endif %}
+          {% if FOUNDER.badge_value %}<div class="fd-badge"><strong>{{ FOUNDER.badge_value }}</strong><span>{{ FOUNDER.badge_label }}</span></div>{% endif %}
+          <div class="fd-namecard">
+            <div>
+              <div class="fd-nc-name">{{ FOUNDER.name|default:FOUNDER.title }}</div>
+              {% if FOUNDER.name %}<div class="fd-nc-role">{{ FOUNDER.title }}, EduTrellis</div>{% endif %}
+            </div>
+            <div class="fd-nc-social">
+              {% if FOUNDER.email %}<a href="mailto:{{ FOUNDER.email }}" aria-label="Email {{ FOUNDER.name }}"><i class="fas fa-envelope"></i></a>{% endif %}
+              {% if FOUNDER.linkedin %}<a href="{{ FOUNDER.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="{{ FOUNDER.name }} on LinkedIn"><i class="fab fa-linkedin-in"></i></a>{% endif %}
+            </div>
+          </div>
         </div>
-        <div class="about-btns">
+      </div>
+      <div class="fd-text reveal-right">
+        <span class="fd-role-pill"><i class="fas fa-crown"></i> {% if FOUNDER.name %}{{ FOUNDER.title }}{% else %}Founder{% endif %}</span>
+        <h3 class="fd-name">{{ FOUNDER.name|default:FOUNDER.title }}</h3>
+        {% if FOUNDER.email %}<a class="fd-email" href="mailto:{{ FOUNDER.email }}"><i class="fas fa-envelope"></i> {{ FOUNDER.email }}</a>{% endif %}
+        <div class="fd-story">
+          <p>{{ FOUNDER.intro_paragraph1 }}</p>
+          <p>{{ FOUNDER.intro_paragraph2 }}</p>
+        </div>
+        {% if FOUNDER.belief_list %}
+        <h4 class="fd-sub">{{ FOUNDER.belief_heading }}</h4>
+        <ul class="fd-beliefs">
+          {% for point in FOUNDER.belief_list %}<li><span><i class="fas fa-check"></i></span>{{ point }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        {% if FOUNDER.note_text %}
+        <blockquote class="fd-quote">
+          <i class="fas fa-quote-left"></i>
+          {% if FOUNDER.note_heading %}<h4>{{ FOUNDER.note_heading }}</h4>{% endif %}
+          <p>{{ FOUNDER.note_text }}</p>
+          {% if FOUNDER.name %}<cite>— {{ FOUNDER.name }}</cite>{% endif %}
+        </blockquote>
+        {% endif %}
+        <div class="fd-btns">
           {% if FOUNDER.email %}<a href="mailto:{{ FOUNDER.email }}" class="cta-btn">Connect With Us <i class="fas fa-arrow-right"></i></a>{% endif %}
-          {% if FOUNDER.linkedin %}<a href="{{ FOUNDER.linkedin }}" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:#0077b5;box-shadow:0 8px 26px rgba(0,119,181,.35);"><i class="fab fa-linkedin-in"></i> LinkedIn</a>{% endif %}
+          {% if FOUNDER.linkedin %}<a href="{{ FOUNDER.linkedin }}" target="_blank" rel="noopener noreferrer" class="fd-li-btn"><i class="fab fa-linkedin-in"></i> LinkedIn</a>{% endif %}
         </div>
       </div>
     </div>
