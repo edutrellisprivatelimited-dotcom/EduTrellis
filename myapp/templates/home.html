@@ -373,7 +373,7 @@
         <li><a href="#products">Products</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="{% url 'estore' %}">E-Store</a></li>
-        {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>{% endif %}
+        {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
         <li><a href="#portfolio">Portfolio</a></li>
         {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
         {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}
@@ -412,7 +412,7 @@
     <li><a href="#products">Products</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="{% url 'estore' %}">E-Store</a></li>
-    {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" target="_blank" rel="noopener">{{ NAV_AI.name }}</a></li>{% endif %}
+    {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
     <li><a href="#portfolio">Portfolio</a></li>
     {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
     {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}
@@ -1213,6 +1213,7 @@ document.addEventListener('keydown', function(e){
   if (e.ctrlKey && (k === 'U' || k === 'u')) { e.preventDefault(); }
 });
 </script>
+{% include '_pw_toggle.html' %}
 </body>
   <script type="application/ld+json">
 {
@@ -1260,7 +1261,7 @@ function filterPortfolio(cat, btn) {
   <button type="button" class="ai-promo-close" id="aiPromoClose" aria-label="Dismiss">&times;</button>
   <div class="ai-promo-flag">Made in India</div>
   <p class="ai-promo-text">Try our AI models with <strong>{{ NAV_AI.name }}</strong>.</p>
-  <a href="{{ NAV_AI.url }}" target="_blank" rel="noopener" class="ai-promo-cta">Try {{ NAV_AI.name }} <i class="fas fa-arrow-right"></i></a>
+  <a href="{{ NAV_AI.url }}" class="ai-promo-cta">Try {{ NAV_AI.name }} <i class="fas fa-arrow-right"></i></a>
 </div>
 {% endif %}
 <script>

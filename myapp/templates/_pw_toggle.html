@@ -1,0 +1,35 @@
+<style>
+.pw-wrap{position:relative;display:block}
+.pw-wrap>input{padding-right:2.8rem!important;width:100%}
+.pw-eye{position:absolute;top:50%;right:.6rem;transform:translateY(-50%);background:none;border:0;padding:.3rem;cursor:pointer;color:#8a8f98;display:flex;align-items:center;line-height:0}
+.pw-eye:hover{color:#444}
+.pw-eye svg{width:18px;height:18px}
+</style>
+<script>
+(function(){
+  var EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  function add(inp){
+    if(inp.dataset.pwEye)return;
+    inp.dataset.pwEye='1';
+    var w=document.createElement('span');w.className='pw-wrap';
+    inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
+    var b=document.createElement('button');
+    b.type='button';b.className='pw-eye';b.innerHTML=EYE;b.setAttribute('aria-label','Show password');
+    b.addEventListener('click',function(){
+      var show=inp.type==='password';
+      inp.type=show?'text':'password';
+      b.innerHTML=show?OFF:EYE;
+      b.setAttribute('aria-label',show?'Hide password':'Show password');
+    });
+    w.appendChild(b);
+  }
+  function scan(root){(root.querySelectorAll?root:document).querySelectorAll('input[type=password]').forEach(add);}
+  function init(){
+    scan(document);
+    new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;if(n.matches&&n.matches('input[type=password]'))add(n);else scan(n);});});})
+      .observe(document.body,{childList:true,subtree:true});
+  }
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
+})();
+</script>
