@@ -1045,18 +1045,18 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
    MOBILE — 768px
    ================================================ */
 @media(max-width:768px){
-  :root{--strip-h:50px;--nav-h:60px}
-  .top-strip{height:var(--strip-h);padding:2px 0}
+  :root{--strip-h:30px;--nav-h:60px}
+  .top-strip{height:var(--strip-h);padding:0}
   .strip-inner{
-    flex-wrap:wrap;
+    flex-wrap:nowrap;
     justify-content:center;
-    align-content:center;
-    gap:2px .4rem;
+    align-items:center;
+    gap:.55rem;
     padding:0 .6rem;
     max-width:100%;
     overflow:hidden;
   }
-  .strip-email-link{display:inline-flex!important;order:-1;flex-basis:100%;justify-content:center;margin-bottom:1px}
+  .strip-email-link{display:inline-flex!important;order:-1}
   .strip-sep{display:none}
   .strip-pulse{display:none}
   .strip-link{font-size:.62rem;gap:.22rem;white-space:nowrap}
@@ -1117,8 +1117,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
    VERY SMALL — 400px
    ================================================ */
 @media(max-width:400px){
-  :root{--strip-h:46px;--nav-h:52px}
-  .strip-inner{padding:0 .5rem;gap:.3rem}
+  :root{--strip-h:28px;--nav-h:52px}
+  .strip-inner{padding:0 .5rem;gap:.4rem}
   .strip-link{font-size:.65rem}
   .slide-content h1,.slide-content h2{font-size:1.5rem}
   .hero-stats{max-width:300px}
@@ -1159,7 +1159,7 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
 }
 @media(max-width:400px){
   .logo-txt{font-size:1.2rem}
-  .strip-inner{padding:0 .4rem;gap:2px .25rem}
+  .strip-inner{padding:0 .4rem;gap:.35rem}
   .strip-link{font-size:.58rem}
   nav{padding:0 .5rem!important}
   section{padding:48px .75rem!important}
