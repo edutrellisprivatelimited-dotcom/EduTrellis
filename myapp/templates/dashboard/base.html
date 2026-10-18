@@ -201,7 +201,7 @@ tbody tr:hover{background:var(--bg-alt)}
   <div class="dash-scrim" id="dashScrim"></div>
   <aside class="dash-sidebar" id="dashSidebar">
     <div>
-      <a href="{% url 'estore' %}" class="dash-logo" style="display:inline-block">Edu<span>Trellis</span></a>
+      <a href="{% url 'home' %}" class="dash-logo" style="display:inline-block">Edu<span>Trellis</span></a>
       <div class="dash-logo-sub">Store Admin</div>
     </div>
     <nav class="dash-nav">
@@ -233,6 +233,17 @@ tbody tr:hover{background:var(--bg-alt)}
           <a href="{% url 'dashboard_founder_settings' %}" class="{% if active == 'founder_settings' %}active{% endif %}"><i class="fas fa-user-tie"></i> Founder</a>
           <a href="{% url 'dashboard_policies' %}" class="{% if active == 'policies' %}active{% endif %}"><i class="fas fa-file-shield"></i> Policies</a>
           <a href="{% url 'dashboard_nav_ai_settings' %}" class="{% if active == 'nav_ai_settings' %}active{% endif %}"><i class="fas fa-robot"></i> Dynamic AI</a>
+        </div>
+      </details>
+      <details class="dash-nav-group{% if active == 'ai_management' or active == 'ai_activity' or active == 'ai_reports' or active == 'api_data' or active == 'api_management' or active == 'ai_settings' %} has-active{% endif %}" {% if active == 'ai_management' or active == 'ai_activity' or active == 'ai_reports' or active == 'api_data' or active == 'api_management' or active == 'ai_settings' %}open{% endif %}>
+        <summary><i class="fas fa-robot"></i> EduTrellis AI <i class="fas fa-chevron-down chev"></i></summary>
+        <div class="dash-nav-sub">
+          <a href="{% url 'dashboard_ai_management' %}" class="{% if active == 'ai_management' %}active{% endif %}"><i class="fas fa-user-gear"></i> Management</a>
+          <a href="{% url 'dashboard_ai_activity' %}" class="{% if active == 'ai_activity' %}active{% endif %}"><i class="fas fa-comments"></i> Activity</a>
+          <a href="{% url 'dashboard_ai_reports' %}" class="{% if active == 'ai_reports' %}active{% endif %}"><i class="fas fa-flag"></i> Reports</a>
+          <a href="{% url 'dashboard_api_data' %}" class="{% if active == 'api_data' %}active{% endif %}"><i class="fas fa-chart-line"></i> API Data</a>
+          <a href="{% url 'dashboard_api_management' %}" class="{% if active == 'api_management' %}active{% endif %}"><i class="fas fa-key"></i> API Management</a>
+          <a href="{% url 'dashboard_ai_settings' %}" class="{% if active == 'ai_settings' %}active{% endif %}"><i class="fas fa-sliders"></i> AI Settings</a>
         </div>
       </details>
     </nav>
