@@ -54,6 +54,7 @@ except ImportError:  # pragma: no cover - optional dependency until configured
 HERO_SLIDE_TEXT = [
     {
         'badge': 'Websites for Every Business', 'badge_icon': 'fa-laptop-code',
+        'floats': [('fa-bolt', 'Lightning Fast'), ('fa-mobile-screen', 'Mobile Ready')],
         'heading_html': 'Any Website You Need — <em>Designed &amp; Built</em> by Us',
         'subtitle': 'Business sites, online stores, coaching portals, portfolios & landing pages — fast, mobile-ready and built to convert',
         'cta1_text': 'Get Your Website', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
@@ -62,6 +63,7 @@ HERO_SLIDE_TEXT = [
     },
     {
         'badge': 'Digital Marketing', 'badge_icon': 'fa-bullhorn',
+        'floats': [('fa-magnifying-glass', 'Rank on Google'), ('fa-arrow-trend-up', 'More Leads')],
         'heading_html': 'Get Found. Get Leads. <em>Get Customers.</em>',
         'subtitle': 'SEO, social media, Google & Meta ads — marketing that puts your business in front of the right people',
         'cta1_text': 'Start Marketing', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
@@ -70,6 +72,7 @@ HERO_SLIDE_TEXT = [
     },
     {
         'badge': "India's Digital Growth Partner", 'badge_icon': 'fa-chart-line',
+        'floats': [('fa-users', '1200+ Clients'), ('fa-star', '98% Satisfaction')],
         'heading_html': 'We Help Your <em>Business Grow</em> — Online &amp; Beyond',
         'subtitle': 'Strategy, branding and automation that turn visitors into loyal, paying customers',
         'cta1_text': 'Grow With Us', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
@@ -78,6 +81,7 @@ HERO_SLIDE_TEXT = [
     },
     {
         'badge': 'Website Management Plans', 'badge_icon': 'fa-screwdriver-wrench',
+        'floats': [('fa-shield-halved', 'Secure & Backed Up'), ('fa-headset', '24/7 Support')],
         'heading_html': 'Your Website, <em>Fully Managed</em> — Zero Hassle',
         'subtitle': 'Updates, security, backups & content handled for you. Get 1 month + 15 days FREE on first enroll',
         'cta1_text': 'Explore Plans', 'cta1_url': '#products', 'cta1_icon': 'fa-arrow-right',
@@ -86,6 +90,7 @@ HERO_SLIDE_TEXT = [
     },
     {
         'badge': 'And So Much More', 'badge_icon': 'fa-layer-group',
+        'floats': [('fa-palette', 'Design & Branding'), ('fa-robot', 'AI Tools')],
         'heading_html': 'One Partner for <em>Everything Digital</em>',
         'subtitle': 'Logo & design, hosting, apps, e-commerce and AI tools — everything your business needs, under one roof',
         'cta1_text': 'Talk to Us', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',

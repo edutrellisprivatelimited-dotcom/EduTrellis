@@ -1164,3 +1164,18 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
   nav{padding:0 .5rem!important}
   section{padding:48px .75rem!important}
 }
+
+/* Hero floating glass chips — subtle premium accent, two per slide */
+.hero-float{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:.55rem;padding:.5rem .95rem .5rem .5rem;border-radius:50px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.18);color:#fff;font-size:.8rem;font-weight:600;white-space:nowrap;pointer-events:none;animation:heroFloat 5.5s ease-in-out infinite}
+.hf-ico{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ff2d4a,#b30018);box-shadow:0 0 14px rgba(255,45,74,.55);font-size:.72rem}
+.hf-1{top:24%;left:7%}
+.hf-2{bottom:24%;right:7%;animation-delay:-2.75s}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@media(max-width:768px){
+  .hero-float{font-size:.62rem;padding:.3rem .65rem .3rem .3rem;gap:.35rem}
+  .hf-ico{width:20px;height:20px;font-size:.55rem}
+  .hf-1{top:4%;left:4%}
+  .hf-2{top:4%;bottom:auto;right:4%}
+  @keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+}
+@media(prefers-reduced-motion:reduce){.hero-float{animation:none}}
