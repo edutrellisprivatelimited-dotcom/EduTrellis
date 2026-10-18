@@ -352,6 +352,12 @@ HeroSlideImageFormSet = forms.modelformset_factory(
     HeroSlideImage,
     fields=['image', 'order'],
     extra=3, min_num=1, validate_min=True, max_num=10, validate_max=True, can_delete=True,
+    # Plain FileInput: the default ClearableFileInput prints a "Currently: <link>"
+    # line, which the Banner page replaces with its own thumbnail preview.
+    widgets={
+        'image': forms.FileInput(attrs={'accept': 'image/*'}),
+        'order': forms.NumberInput(attrs={'min': 0}),
+    },
 )
 
 
@@ -493,7 +499,7 @@ class NavAISettingsForm(forms.ModelForm):
         fields = ['is_active', 'name', 'url']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Vidhyora AI'}),
-            'url': forms.URLInput(attrs={'placeholder': 'https://www.vidhyora.online/'}),
+            'url': forms.URLInput(attrs={'placeholder': 'https://www.edutrellis.in/ai/'}),
         }
 
 

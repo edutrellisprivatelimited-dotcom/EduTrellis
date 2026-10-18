@@ -511,7 +511,7 @@
       <div class="slide-overlay"></div>
       <div class="slide-mesh"></div>
       <div class="slide-content">
-        <div class="slide-badge">{{ slide.badge }}</div>
+        <div class="slide-badge">{% if slide.badge_icon %}<i class="fas {{ slide.badge_icon }}"></i> {% endif %}{{ slide.badge }}</div>
         <h1>{{ slide.heading_html|safe }}</h1>
         <p>{{ slide.subtitle }}</p>
         <div class="hero-btns">

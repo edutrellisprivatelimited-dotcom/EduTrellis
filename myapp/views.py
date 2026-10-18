@@ -53,7 +53,7 @@ except ImportError:  # pragma: no cover - optional dependency until configured
 # there are more images than text sets, slides cycle back to the start.
 HERO_SLIDE_TEXT = [
     {
-        'badge': '🌐 Websites for Every Business',
+        'badge': 'Websites for Every Business', 'badge_icon': 'fa-laptop-code',
         'heading_html': 'Any Website You Need — <em>Designed &amp; Built</em> by Us',
         'subtitle': 'Business sites, online stores, coaching portals, portfolios & landing pages — fast, mobile-ready and built to convert',
         'cta1_text': 'Get Your Website', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
@@ -61,7 +61,7 @@ HERO_SLIDE_TEXT = [
         'stats': [('500+', 'Sites Built'), ('SEO', 'Ready'), ('Mobile', 'First')],
     },
     {
-        'badge': '📣 Digital Marketing',
+        'badge': 'Digital Marketing', 'badge_icon': 'fa-bullhorn',
         'heading_html': 'Get Found. Get Leads. <em>Get Customers.</em>',
         'subtitle': 'SEO, social media, Google & Meta ads — marketing that puts your business in front of the right people',
         'cta1_text': 'Start Marketing', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
@@ -69,7 +69,7 @@ HERO_SLIDE_TEXT = [
         'stats': [('SEO', 'Optimised'), ('Ads', 'That Convert'), ('Social', 'Growth')],
     },
     {
-        'badge': "📈 India's Digital Growth Partner",
+        'badge': "India's Digital Growth Partner", 'badge_icon': 'fa-chart-line',
         'heading_html': 'We Help Your <em>Business Grow</em> — Online &amp; Beyond',
         'subtitle': 'Strategy, branding and automation that turn visitors into loyal, paying customers',
         'cta1_text': 'Grow With Us', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
@@ -77,7 +77,7 @@ HERO_SLIDE_TEXT = [
         'stats': [('1200+', 'Happy Clients'), ('500+', 'Projects Done'), ('98%', 'Satisfaction')],
     },
     {
-        'badge': '🛠️ Website Management Plans',
+        'badge': 'Website Management Plans', 'badge_icon': 'fa-screwdriver-wrench',
         'heading_html': 'Your Website, <em>Fully Managed</em> — Zero Hassle',
         'subtitle': 'Updates, security, backups & content handled for you. Get 1 month + 15 days FREE on first enroll',
         'cta1_text': 'Explore Plans', 'cta1_url': '#products', 'cta1_icon': 'fa-arrow-right',
@@ -85,7 +85,7 @@ HERO_SLIDE_TEXT = [
         'stats': [('₹2,999', 'From/Month'), ('+15 Days', '1st Month Bonus'), ('24/7', 'Support')],
     },
     {
-        'badge': '✨ And So Much More',
+        'badge': 'And So Much More', 'badge_icon': 'fa-layer-group',
         'heading_html': 'One Partner for <em>Everything Digital</em>',
         'subtitle': 'Logo & design, hosting, apps, e-commerce and AI tools — everything your business needs, under one roof',
         'cta1_text': 'Talk to Us', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
