@@ -1405,37 +1405,43 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
   </div>
 </section>
 <!-- CONTACT -->
-<section id="contact">
+<section id="contact" class="ct-sec">
   <div class="wrap">
+    <span class="ct-eyebrow reveal"><i class="fas fa-paper-plane"></i> Get In Touch</span>
     <h2 class="reveal">Contact <span>Us</span></h2>
     <div class="accent reveal d1"></div>
     <p class="sub reveal d2">Let's start your digital growth journey today — it's free to begin</p>
-    <div class="contact-grid">
-      <div class="contact-info reveal-left">
-        <h3>Get In Touch</h3>
-        <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Email Support</h4><a href="mailto:{{ BIZ.email_support }}">{{ BIZ.email_support }}</a></div></div>
-        <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Business Enquiries</h4><a href="mailto:{{ BIZ.email_ceo }}">{{ BIZ.email_ceo }}</a></div></div>
-        <div class="ci-item"><div class="ci-icon"><i class="fas fa-map-marker-alt"></i></div><div><h4>Our Office</h4><p style="font-size:.92rem;color:var(--text);margin:0;line-height:1.6">{{ BIZ.address_street }},<br>{{ BIZ.address_city }}, {{ BIZ.address_state }} {{ BIZ.address_zip }}</p></div></div>
-        <a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="whatsapp-cta">
+
+    <div class="ct-quick reveal d2">
+      <a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="ct-q ct-q-wa"><span><i class="fab fa-whatsapp"></i></span><div><strong>WhatsApp</strong><small>{{ BIZ.phone_display }}</small></div></a>
+      <a href="mailto:{{ BIZ.email_support }}" class="ct-q"><span><i class="fas fa-envelope"></i></span><div><strong>Email Support</strong><small>{{ BIZ.email_support }}</small></div></a>
+      <a href="mailto:{{ BIZ.email_ceo }}" class="ct-q"><span><i class="fas fa-briefcase"></i></span><div><strong>Business Enquiries</strong><small>{{ BIZ.email_ceo }}</small></div></a>
+    </div>
+
+    <div class="ct-grid">
+      <aside class="ct-info reveal-left">
+        <h3>Visit or reach us</h3>
+        <div class="ct-row"><span><i class="fas fa-location-dot"></i></span><div><h4>Our Office</h4><p>{{ BIZ.address_street }},<br>{{ BIZ.address_city }}, {{ BIZ.address_state }} {{ BIZ.address_zip }}</p></div></div>
+        <div class="ct-row"><span><i class="fas fa-clock"></i></span><div><h4>Business Hours</h4>
+          <ul class="ct-hours"><li><span>Mon – Sat</span><b>9:00 AM – 8:00 PM</b></li><li><span>Sunday</span><b>10:00 AM – 6:00 PM</b></li></ul>
+        </div></div>
+        <a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="ct-wa">
           <i class="fab fa-whatsapp"></i>
-          <div><span>Chat on WhatsApp</span><small>{{ BIZ.phone_display }} — We reply fast</small></div>
+          <div><span>Chat on WhatsApp</span><small>{{ BIZ.phone_display }} — we reply fast</small></div>
+          <i class="fas fa-arrow-right ct-wa-go"></i>
         </a>
-        <div class="biz-hours">
-          <h4><i class="fas fa-clock" style="margin-right:.5rem;color:var(--red)"></i>Business Hours</h4>
-          <p>Monday – Saturday: 9:00 AM – 8:00 PM</p>
-          <p>Sunday: 10:00 AM – 6:00 PM</p>
+        <div class="ct-social">
+          <span>Follow us</span>
+          <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ab-ig"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="ab-li"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="ab-fb"><i class="fab fa-facebook-f"></i></a>
         </div>
-        <div class="biz-hours" style="margin-top:1.2rem">
-          <h4><i class="fas fa-share-alt" style="margin-right:.5rem;color:var(--red)"></i>Follow Us</h4>
-          <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-            <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:linear-gradient(135deg,#e1306c,#833ab4);color:#fff;text-decoration:none;padding:.5rem 1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:all .3s;box-shadow:0 4px 16px rgba(225,48,108,.3)"><i class="fab fa-instagram"></i>Instagram</a>
-            <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#0077b5;color:#fff;text-decoration:none;padding:.5rem 1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:all .3s;box-shadow:0 4px 16px rgba(0,119,181,.3)"><i class="fab fa-linkedin-in"></i>LinkedIn</a>
-            <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#1877f2;color:#fff;text-decoration:none;padding:.5rem 1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:all .3s;box-shadow:0 4px 16px rgba(24,119,242,.3)"><i class="fab fa-facebook-f"></i>Facebook</a>
-          </div>
+      </aside>
+      <div class="ct-form reveal-right">
+        <div class="ct-form-head">
+          <span><i class="fas fa-comments"></i></span>
+          <div><h3>Send Us a Message</h3><p>Tell us what you need — we'll call you back with a free plan.</p></div>
         </div>
-      </div>
-      <div class="contact-form-box reveal-right">
-        <h3>Send Us a Message</h3>
         <form id="contactForm" onsubmit="handleSubmit(event)" novalidate>
           {% csrf_token %}
           <div id="formMessage" style="display:none;margin-bottom:1rem;padding:.85rem 1rem;border-radius:12px;font-size:.92rem;font-weight:600;"></div>
@@ -1459,15 +1465,31 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
           <div class="fg">
             <label for="fservice">Service Interested In</label>
             <select id="fservice" name="service">
-              <option>Website Management (₹2,999/month)</option>
-              <option>Static Business Website (₹8,999)</option>
-              <option>Dynamic / E-commerce Website (₹14,999)</option>
-              <option>Custom Big Project (₹19,999+)</option>
-              <option>Logo, Banner &amp; Thumbnail Design (₹2,999/2mo)</option>
-              <option>Google Business &amp; Maps Setup (₹3,499)</option>
-              <option>Content Management Service</option>
-              <option>Complete Manager Package (₹29,999/6mo)</option>
               <option>Multiple / Not Sure</option>
+              <optgroup label="Websites">
+                <option>Static Business Website</option>
+                <option>Dynamic / E-commerce Website</option>
+                <option>Custom Big Project</option>
+              </optgroup>
+              <optgroup label="Management &amp; Support">
+                <option>Complete Website Management</option>
+                <option>Complete Manager Package</option>
+                <option>Website Maintenance &amp; Support</option>
+                <option>Content Management Service</option>
+              </optgroup>
+              <optgroup label="Marketing &amp; Design">
+                <option>SEO &amp; Search Ranking</option>
+                <option>Social Media Growth</option>
+                <option>Google &amp; Meta Ads</option>
+                <option>Logo, Banner &amp; Thumbnail Design</option>
+                <option>Google Business &amp; Maps Setup</option>
+              </optgroup>
+              <optgroup label="More">
+                <option>Mobile App Development</option>
+                <option>LMS &amp; Online Course Setup</option>
+                <option>AI Chatbot Integration</option>
+                <option>Payment Gateway Integration</option>
+              </optgroup>
             </select>
           </div>
           <div class="fg">
@@ -1477,6 +1499,11 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
           </div>
           <button type="submit" class="submit-btn" id="submitBtn"><i class="fas fa-paper-plane"></i> Send Message &amp; Get Callback</button>
         </form>
+        <ul class="ct-trust">
+          <li><i class="fas fa-lock"></i> Your details stay private</li>
+          <li><i class="fas fa-handshake"></i> Free consultation</li>
+          <li><i class="fas fa-ban"></i> No spam, ever</li>
+        </ul>
       </div>
     </div>
   </div>

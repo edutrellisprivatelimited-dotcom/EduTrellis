@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, F
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve, Resolver404
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.mail import BadHeaderError
 from django.conf import settings
 from django.utils import timezone
@@ -257,6 +257,23 @@ def pwa_manifest(request):
 
 def pwa_service_worker(request):
     return render(request, 'sw.js', content_type='application/javascript')
+
+
+# Nothing on the site registers a root-scope /sw.js any more (the store uses
+# /store/sw.js, the AI chat /ai/sw.js), but browsers that installed one in the
+# past keep polling it and log 404s. Serving this no-op worker lets those
+# browsers update to it, after which it unregisters itself for good. Caches
+# are left alone because they're shared origin-wide with the store/AI workers.
+_ROOT_SW_CLEANUP_JS = (
+    "self.addEventListener('install',function(){self.skipWaiting();});"
+    "self.addEventListener('activate',function(e){e.waitUntil(self.registration.unregister());});"
+)
+
+
+def root_service_worker_cleanup(request):
+    response = HttpResponse(_ROOT_SW_CLEANUP_JS, content_type='application/javascript')
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 def _estore_context(request):
