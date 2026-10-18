@@ -1382,3 +1382,45 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
   .fd-namecard{left:.9rem;right:.9rem;bottom:.9rem}
 }
 @media(prefers-reduced-motion:reduce){.fd-badge{animation:none}}
+
+/* ===== FAQ redesign ===== */
+#faq{position:relative;overflow:hidden}
+#faq::before{content:'';position:absolute;width:520px;height:520px;left:-200px;bottom:-160px;border-radius:50%;background:radial-gradient(circle,rgba(232,0,30,.06),transparent 70%);pointer-events:none}
+.faq-eyebrow{display:table;margin:0 auto .9rem;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);background:rgba(232,0,30,.07);border:1px solid rgba(232,0,30,.18);padding:.4rem 1rem;border-radius:50px}
+.faq-eyebrow i{margin-right:.35rem}
+.faq-layout{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:2.4rem;align-items:start;max-width:1120px;margin:2.8rem auto 0;position:relative}
+.faq-aside{position:sticky;top:calc(var(--offset,118px) + 1.5rem)}
+.faq-help{position:relative;overflow:hidden;padding:1.8rem 1.6rem;border-radius:24px;color:#fff;background:linear-gradient(150deg,var(--dark) 0%,#2a0a12 100%);box-shadow:0 24px 50px rgba(15,22,35,.18)}
+.faq-help::before{content:'';position:absolute;width:240px;height:240px;right:-90px;top:-90px;border-radius:50%;background:radial-gradient(circle,rgba(232,0,30,.45),transparent 70%)}
+.faq-help>*{position:relative}
+.faq-help-ico{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:var(--grad);font-size:1.2rem;box-shadow:0 10px 24px rgba(232,0,30,.4);margin-bottom:1.1rem}
+.faq-help h3{font-family:var(--font-head);font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 .5rem}
+.faq-help p{font-size:.88rem;line-height:1.7;color:rgba(255,255,255,.7);margin:0 0 1.3rem}
+.faq-help-wa{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.8rem 1rem;border-radius:14px;font-weight:700;font-size:.9rem;color:#fff;background:linear-gradient(135deg,#25d366,#1da851);box-shadow:0 10px 24px rgba(37,211,102,.3);text-decoration:none;transition:transform .3s}
+.faq-help-wa:hover{transform:translateY(-2px)}
+.faq-help-link{display:flex;align-items:center;justify-content:center;gap:.45rem;margin-top:.6rem;padding:.75rem 1rem;border-radius:14px;font-weight:700;font-size:.86rem;color:#fff;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);text-decoration:none;transition:all .3s}
+.faq-help-link:hover{background:rgba(255,255,255,.14)}
+.faq-help-meta{margin-top:1.3rem;padding-top:1.1rem;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:.5rem;font-size:.8rem;color:rgba(255,255,255,.65)}
+.faq-help-meta i{color:#ff5a70;width:16px;margin-right:.35rem}
+#faq .faq-list{max-width:none;margin:0}
+#faq .faq-item{background:#fff;border:1px solid var(--border);border-radius:18px;margin-bottom:.75rem;box-shadow:0 1px 2px rgba(15,22,35,.03);transition:border-color .35s,box-shadow .35s,transform .35s}
+#faq .faq-item:hover{border-color:rgba(232,0,30,.25)}
+#faq .faq-item.open{border-color:rgba(232,0,30,.35);box-shadow:0 14px 36px rgba(232,0,30,.1)}
+#faq .faq-q{padding:1.05rem 1.2rem;gap:.85rem;justify-content:flex-start}
+.faq-num{flex:none;font-family:var(--font-head);font-weight:800;font-size:.78rem;color:rgba(232,0,30,.45);min-width:20px}
+.faq-qi{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(232,0,30,.07);color:var(--red);font-size:.9rem;transition:all .35s}
+#faq .faq-item.open .faq-qi{background:var(--grad);color:#fff;box-shadow:0 8px 18px rgba(232,0,30,.3)}
+#faq .faq-q h4{flex:1;font-size:.95rem}
+#faq .faq-icon{flex:none;margin-left:auto;border-radius:50%}
+#faq .faq-item.open .faq-a{max-height:600px}
+#faq .faq-a p{padding:0 1.4rem 1.3rem 5.3rem;font-size:.9rem;line-height:1.8}
+@media(max-width:960px){
+  .faq-layout{grid-template-columns:1fr}
+  .faq-aside{position:relative;top:0;order:2}
+}
+@media(max-width:560px){
+  .faq-num{display:none}
+  #faq .faq-q{padding:.95rem 1rem;gap:.7rem}
+  .faq-qi{width:34px;height:34px}
+  #faq .faq-a p{padding:0 1.1rem 1.1rem}
+}
