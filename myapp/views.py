@@ -53,28 +53,44 @@ except ImportError:  # pragma: no cover - optional dependency until configured
 # there are more images than text sets, slides cycle back to the start.
 HERO_SLIDE_TEXT = [
     {
-        'badge': "● India's #1 Digital Growth Partner",
-        'heading_html': 'Transform Your <em>Digital Presence</em> — Start Today',
-        'subtitle': 'From Website to Success — Complete Digital Solutions Tailored for Indian Businesses',
-        'cta1_text': 'Get Started Today', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
+        'badge': '🌐 Websites for Every Business',
+        'heading_html': 'Any Website You Need — <em>Designed &amp; Built</em> by Us',
+        'subtitle': 'Business sites, online stores, coaching portals, portfolios & landing pages — fast, mobile-ready and built to convert',
+        'cta1_text': 'Get Your Website', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
+        'cta2_text': 'See Our Work', 'cta2_url': '#projects', 'cta2_icon': 'fa-eye',
+        'stats': [('500+', 'Sites Built'), ('SEO', 'Ready'), ('Mobile', 'First')],
+    },
+    {
+        'badge': '📣 Digital Marketing',
+        'heading_html': 'Get Found. Get Leads. <em>Get Customers.</em>',
+        'subtitle': 'SEO, social media, Google & Meta ads — marketing that puts your business in front of the right people',
+        'cta1_text': 'Start Marketing', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
+        'cta2_text': 'Our Services', 'cta2_url': '#services', 'cta2_icon': 'fa-chevron-down',
+        'stats': [('SEO', 'Optimised'), ('Ads', 'That Convert'), ('Social', 'Growth')],
+    },
+    {
+        'badge': "📈 India's Digital Growth Partner",
+        'heading_html': 'We Help Your <em>Business Grow</em> — Online &amp; Beyond',
+        'subtitle': 'Strategy, branding and automation that turn visitors into loyal, paying customers',
+        'cta1_text': 'Grow With Us', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
         'cta2_text': 'Explore Plans', 'cta2_url': '#products', 'cta2_icon': 'fa-chevron-down',
         'stats': [('1200+', 'Happy Clients'), ('500+', 'Projects Done'), ('98%', 'Satisfaction')],
     },
     {
-        'badge': '🔥 Complete Management Plans',
-        'heading_html': 'Complete <em>Website Management</em> — We Handle It All',
-        'subtitle': 'Your website, marketing & growth — in expert hands. Get 1 month + 15 days FREE on first enroll',
+        'badge': '🛠️ Website Management Plans',
+        'heading_html': 'Your Website, <em>Fully Managed</em> — Zero Hassle',
+        'subtitle': 'Updates, security, backups & content handled for you. Get 1 month + 15 days FREE on first enroll',
         'cta1_text': 'Explore Plans', 'cta1_url': '#products', 'cta1_icon': 'fa-arrow-right',
         'cta2_text': 'Book Free Demo', 'cta2_url': '#contact', 'cta2_icon': 'fa-calendar',
         'stats': [('₹2,999', 'From/Month'), ('+15 Days', '1st Month Bonus'), ('24/7', 'Support')],
     },
     {
-        'badge': '🌐 Custom Website Development',
-        'heading_html': 'Custom <em>Websites Built</em> for Real Growth',
-        'subtitle': 'Professional, fast & SEO-ready websites crafted for your specific business goals',
-        'cta1_text': 'Book FREE Demo', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
-        'cta2_text': 'See Our Work', 'cta2_url': '#projects', 'cta2_icon': 'fa-eye',
-        'stats': [('500+', 'Sites Built'), ('SEO', 'Ready'), ('24/7', 'Support')],
+        'badge': '✨ And So Much More',
+        'heading_html': 'One Partner for <em>Everything Digital</em>',
+        'subtitle': 'Logo & design, hosting, apps, e-commerce and AI tools — everything your business needs, under one roof',
+        'cta1_text': 'Talk to Us', 'cta1_url': '#contact', 'cta1_icon': 'fa-arrow-right',
+        'cta2_text': 'View All Services', 'cta2_url': '#services', 'cta2_icon': 'fa-chevron-down',
+        'stats': [('1200+', 'Happy Clients'), ('All-in-One', 'Solutions'), ('24/7', 'Support')],
     },
 ]
 
@@ -104,13 +120,11 @@ def home(request):
 
 
 def ai_redirect(request):
-    """/AI/, /ai/, /aii/ — old in-house AI chat links. Reads the current
-    destination from NavAISettings instead of a hardcoded URL so it stays
-    in sync with the dashboard's Dynamic AI setting. Not a permanent (301)
-    redirect on purpose: that setting is expected to change, and a 301
-    would get cached by browsers pointing at whatever URL was live when
-    they first followed the link."""
-    return redirect(NavAISettings.get_solo().url)
+    """/AI/, /aii/ — old typo'd/legacy links to the AI chat, which now lives
+    at /ai/ (a real in-app page, ai_app.views.ai_page) rather than an
+    external site. Not a permanent (301) redirect, matching the old
+    behavior, in case this destination ever needs to change again."""
+    return redirect('/ai/')
 
 
 def estore(request):
