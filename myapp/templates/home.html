@@ -1345,46 +1345,49 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
   </div>
 </section>
 <!-- ABOUT -->
-<section id="about">
+<section id="about" class="ab-sec">
   <div class="wrap">
+    <span class="ab-eyebrow reveal"><i class="fas fa-building"></i> Who We Are</span>
     <h2 class="reveal">About <span>Us</span></h2>
     <div class="accent reveal d1"></div>
     <p class="sub reveal d2">Your trusted partner in digital success since 2020</p>
-    <div class="about-grid">
-      <div class="about-img-wrap reveal-left">
-        <div class="about-decorative"></div>
-        <div class="about-decorative2"></div>
-        <img src="{% static 'img/aboutus.webp' %}" alt="Our Team" class="about-img" loading="lazy" style="border-radius:20px;height:420px;width:100%;object-fit:cover;object-position:top;display:block">
-        <div class="about-badge"><div class="bn">1200+</div><div class="bt">Happy Clients</div></div>
+    <div class="ab-grid">
+      <div class="ab-media reveal-left">
+        <div class="ab-photo">
+          <img src="{% static 'img/aboutus.webp' %}" alt="The EduTrellis team" loading="lazy">
+        </div>
+        <div class="ab-float ab-float-1"><span><i class="fas fa-users"></i></span><div><strong>1200+</strong><small>Happy Clients</small></div></div>
+        <div class="ab-float ab-float-2"><span><i class="fas fa-calendar-check"></i></span><div><strong>Since 2020</strong><small>Growing businesses</small></div></div>
+        <div class="ab-dots" aria-hidden="true"></div>
       </div>
-      <div class="about-text reveal-right" style="line-height:1.45">
-        <h3 style="margin-bottom:.4rem">Who We Are</h3>
-        <p style="margin-bottom:.5rem">EduTrellis is your complete digital growth partner, specializing in website management and development for educational businesses and coaches across India.</p>
-        <p style="margin-bottom:.5rem">With 1200+ active clients, we deliver real results — more students, more revenue, and a stronger digital presence.</p>
-        <h3 style="margin-top:.9rem;margin-bottom:.4rem">Why Choose Us?</h3>
-        <ul class="about-list" style="margin-bottom:.7rem">
-          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Transparent Pricing — No Hidden Charges</li>
-          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> 1200+ Satisfied Clients Across India</li>
-          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Complete Business Handling — Focus on Your Growth</li>
-          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Free Demo &amp; Consultation — No Commitment</li>
-          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Dedicated Support Team &amp; Personal Manager</li>
-          <li style="padding:.25rem 0"><i class="fas fa-check-circle"></i> Proven Track Record Since 2020</li>
-        </ul>
-        <div class="mission" style="margin-bottom:.9rem">
-          <h4 style="margin-bottom:.3rem">🎯 Our Promise to You</h4>
-          <p style="margin:0">We don't just build websites — we build businesses. Whether you're just starting out or looking to scale, our team handles everything so you can focus on teaching and creating. Your growth is our mission.</p>
+      <div class="ab-text reveal-right">
+        <h3 class="ab-title">Your complete <span>digital growth partner</span></h3>
+        <p>EduTrellis builds, manages and markets websites for businesses, educators and coaches across India — from the first design to everyday updates, SEO and social media.</p>
+        <p>With 1200+ active clients, we deliver real results: more customers, more revenue and a stronger online presence.</p>
+        <div class="ab-feats">
+          <div class="ab-feat"><span><i class="fas fa-receipt"></i></span><div><strong>Transparent Pricing</strong><small>No hidden charges, ever</small></div></div>
+          <div class="ab-feat"><span><i class="fas fa-users"></i></span><div><strong>1200+ Clients</strong><small>Satisfied across India</small></div></div>
+          <div class="ab-feat"><span><i class="fas fa-briefcase"></i></span><div><strong>Complete Handling</strong><small>You focus on growth</small></div></div>
+          <div class="ab-feat"><span><i class="fas fa-handshake"></i></span><div><strong>Free Consultation</strong><small>Demo with no commitment</small></div></div>
+          <div class="ab-feat"><span><i class="fas fa-user-tie"></i></span><div><strong>Personal Manager</strong><small>Dedicated support team</small></div></div>
+          <div class="ab-feat"><span><i class="fas fa-award"></i></span><div><strong>Since 2020</strong><small>Proven track record</small></div></div>
         </div>
-        <div class="about-btns">
-          <a href="#contact" class="cta-btn">Book FREE Consultation <i class="fas fa-arrow-right"></i></a>
-          <a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="cta-btn" style="background:linear-gradient(135deg,#25d366,#1da851);box-shadow:0 8px 26px rgba(37,211,102,.35);"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
-        </div>
-        <div style="margin-top:.9rem">
-          <p style="font-size:.82rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Connect With Us</p>
-          <div style="display:flex;gap:.65rem;flex-wrap:wrap">
-            <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:linear-gradient(135deg,#e1306c,#833ab4);color:#fff;text-decoration:none;padding:.5rem 1.1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 16px rgba(225,48,108,.28)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'"><i class="fab fa-instagram"></i>@edutrellis</a>
-            <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#0077b5;color:#fff;text-decoration:none;padding:.5rem 1.1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 16px rgba(0,119,181,.28)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'"><i class="fab fa-linkedin-in"></i>EduTrellis</a>
-            <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.45rem;background:#1877f2;color:#fff;text-decoration:none;padding:.5rem 1.1rem;border-radius:50px;font-size:.82rem;font-weight:700;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 16px rgba(24,119,242,.28)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'"><i class="fab fa-facebook-f"></i>EduTrellis</a>
+        <blockquote class="ab-promise">
+          <span class="ab-promise-ico"><i class="fas fa-bullseye"></i></span>
+          <div>
+            <h4>Our Promise to You</h4>
+            <p>We don't just build websites — we build businesses. Whether you're just starting out or looking to scale, our team handles everything so you can focus on what you do best. Your growth is our mission.</p>
           </div>
+        </blockquote>
+        <div class="ab-actions">
+          <a href="#contact" class="cta-btn">Book FREE Consultation <i class="fas fa-arrow-right"></i></a>
+          <a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="ab-wa"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+        </div>
+        <div class="ab-social">
+          <span>Follow us</span>
+          <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ab-ig"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="ab-li"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="ab-fb"><i class="fab fa-facebook-f"></i></a>
         </div>
       </div>
     </div>
