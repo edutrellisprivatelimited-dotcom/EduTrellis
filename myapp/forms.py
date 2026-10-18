@@ -376,14 +376,12 @@ BlogGalleryItemFormSet = forms.modelformset_factory(
 
 ProductCardFormSet = forms.modelformset_factory(
     ProductCard,
-    fields=['image', 'badge_text', 'title', 'subtitle', 'price_amount', 'price_suffix', 'features', 'cta_text', 'accent_color', 'order'],
+    fields=['image', 'badge_text', 'title', 'subtitle', 'features', 'cta_text', 'accent_color', 'order'],
     extra=2, min_num=1, validate_min=True, max_num=16, validate_max=True, can_delete=True,
     widgets={
-        'badge_text': forms.TextInput(attrs={'placeholder': 'e.g. ⭐ Most Popular (optional)'}),
+        'badge_text': forms.TextInput(attrs={'placeholder': 'e.g. Most Popular (optional)'}),
         'title': forms.TextInput(attrs={'placeholder': 'e.g. Static Business Website'}),
-        'subtitle': forms.TextInput(attrs={'placeholder': 'One-line tagline shown under the price'}),
-        'price_amount': forms.TextInput(attrs={'placeholder': 'e.g. 8,999'}),
-        'price_suffix': forms.TextInput(attrs={'placeholder': 'e.g. /month (optional)'}),
+        'subtitle': forms.TextInput(attrs={'placeholder': 'One-line tagline shown under the title'}),
         'features': forms.Textarea(attrs={'rows': 6, 'placeholder': 'Label | description\nOne per line'}),
         'cta_text': forms.TextInput(attrs={'placeholder': 'e.g. Get Quote'}),
         'accent_color': forms.TextInput(attrs={'placeholder': '#7c3aed (optional)'}),

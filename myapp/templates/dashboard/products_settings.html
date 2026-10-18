@@ -21,7 +21,7 @@
 
 {% block content %}
 <p class="backup-sub" style="color:var(--text);font-size:.88rem;margin:0 0 1.4rem">
-  Controls the "Our Products" pricing section on the homepage. Add, edit, remove and reorder cards — image, badge, title, price, feature list, CTA button text and accent colour — at least one card must always stay.
+  Controls the "Our Products & Services" section on the homepage. Add, edit, remove and reorder cards — image, badge, title, feature list, CTA button text and accent colour — at least one card must always stay. The first 6 cards show by default; the rest appear under "View all services".
 </p>
 
 {% if saved %}<div class="save-msg"><i class="fas fa-circle-check"></i> Saved — changes are live on the storefront.</div>{% endif %}
@@ -46,8 +46,6 @@
           <div class="pc-field"><label>Badge ribbon</label>{{ f.badge_text }}</div>
           <div class="pc-field"><label>Title</label>{{ f.title }}</div>
           <div class="pc-field"><label>Subtitle</label>{{ f.subtitle }}</div>
-          <div class="pc-field"><label>Price</label>{{ f.price_amount }}</div>
-          <div class="pc-field"><label>Price suffix</label>{{ f.price_suffix }}</div>
           <div class="pc-field"><label>CTA button text</label>{{ f.cta_text }}</div>
           <div class="pc-field"><label>Accent colour</label>{{ f.accent_color }}</div>
           <div class="pc-field"><label>Order</label>{{ f.order }}</div>
@@ -56,8 +54,8 @@
           <label>Features (one per line — "Label | description" to bold the label)</label>
           {{ f.features }}
         </div>
-        {% if f.image.errors or f.title.errors or f.price_amount.errors %}
-          <div class="help" style="color:var(--red)">{{ f.image.errors }} {{ f.title.errors }} {{ f.price_amount.errors }}</div>
+        {% if f.image.errors or f.title.errors %}
+          <div class="help" style="color:var(--red)">{{ f.image.errors }} {{ f.title.errors }}</div>
         {% endif %}
         <div class="pc-row-bottom">
           {% if f.instance.pk %}
@@ -69,7 +67,7 @@
       </div>
       {% endfor %}
     </div>
-    <div class="help">Order controls display sequence, lowest first. Price is just the number (e.g. "8,999") — the ₹ symbol is added automatically. Accent colour is optional (e.g. #7c3aed) and only affects this card's price header &amp; button.</div>
+    <div class="help">Order controls display sequence, lowest first. Accent colour is optional (e.g. #7c3aed) and tints this card's icons &amp; button.</div>
   </div>
 
   <div class="form-actions">

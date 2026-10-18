@@ -607,36 +607,59 @@
 <!-- PRODUCTS -->
 <section id="products">
   <div class="wrap">
-    <h2 class="reveal">Our <span>Products</span></h2>
+    <span class="svc-eyebrow reveal"><i class="fas fa-layer-group"></i> What We Offer</span>
+    <h2 class="reveal">Our <span>Products &amp; Services</span></h2>
     <div class="accent reveal d1"></div>
-    <p class="sub reveal d2">Choose the perfect plan for your digital growth journey</p>
-    <div class="prod-grid">
-
+    <p class="sub reveal d2">Websites, marketing, design and ongoing support — everything your business needs to grow online, under one roof</p>
+    <div class="svc-grid" id="svcGrid">
       {% for card in product_cards %}
-      <div class="prod-card reveal d{{ forloop.counter }}">
-        {% if card.badge_text %}<div class="popular-badge">{{ card.badge_text }}</div>{% endif %}
-        <div class="prod-img-wrap">
-          <img src="{{ card.image.url }}" alt="{{ card.title }}" class="prod-img" loading="lazy">
-          <span class="prod-badge"{% if card.accent_color %} style="background:{{ card.accent_color }}"{% endif %}>₹{{ card.price_amount }}{{ card.price_suffix }}</span>
-        </div>
-        <div class="prod-body">
-          <div class="prod-header"{% if card.accent_color %} style="background:{{ card.accent_color }}"{% endif %}>
+      <article class="svc-card reveal d{% cycle '1' '2' '3' %}{% if forloop.counter > 6 %} svc-more{% endif %}{% if card.badge_text %} is-featured{% endif %}"{% if card.accent_color %} style="--svc-accent:{{ card.accent_color }}"{% endif %}>
+        <div class="svc-media">
+          <img src="{{ card.image.url }}" alt="{{ card.title }}" loading="lazy">
+          <span class="svc-num">{{ forloop.counter|stringformat:"02d" }}</span>
+          {% if card.badge_text %}<span class="svc-ribbon"><i class="fas fa-crown"></i> {{ card.badge_text }}</span>{% endif %}
+          <div class="svc-media-title">
             <h3>{{ card.title }}</h3>
-            <div class="prod-price">₹{{ card.price_amount }}{% if card.price_suffix %}<small>{{ card.price_suffix }}</small>{% endif %}</div>
-            <div class="prod-sub">{{ card.subtitle }}</div>
+            {% if card.subtitle %}<p>{{ card.subtitle }}</p>{% endif %}
           </div>
-          <ul class="feat-list">
-            {% for label, text in card.feature_list %}
-            <li><i class="fas fa-check-circle"></i><span>{% if label %}<strong>{{ label }}</strong> — {{ text }}{% else %}{{ text }}{% endif %}</span></li>
+        </div>
+        <div class="svc-body">
+          <ul class="svc-feats">
+            {% for label, text in card.feature_list|slice:":5" %}
+            <li><i class="fas fa-check"></i><span>{% if label %}<strong>{{ label }}</strong> {{ text }}{% else %}{{ text }}{% endif %}</span></li>
             {% endfor %}
           </ul>
-          <div class="prod-cta"><a href="#contact" class="cta-btn"{% if card.accent_color %} style="background:{{ card.accent_color }};box-shadow:0 8px 26px {{ card.accent_color }}61"{% endif %}>{{ card.cta_text }} <i class="fas fa-arrow-right"></i></a></div>
+          <div class="svc-actions">
+            <a href="#contact" class="svc-btn">{{ card.cta_text }} <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ BIZ.whatsapp_link }}" class="svc-wa" target="_blank" rel="noopener noreferrer" aria-label="Ask about {{ card.title }} on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          </div>
         </div>
-      </div>
+      </article>
       {% endfor %}
-
+    </div>
+    {% if product_cards|length > 6 %}
+    <div class="svc-more-wrap">
+      <button type="button" class="svc-toggle" id="svcToggle" aria-expanded="false"><span>View all {{ product_cards|length }} services</span> <i class="fas fa-chevron-down"></i></button>
+    </div>
+    {% endif %}
+    <div class="svc-cta-band reveal">
+      <div><h3>Not sure what you need?</h3><p>Tell us about your business — we'll suggest the right mix of services. Free consultation, no commitment.</p></div>
+      <a href="#contact" class="cta-btn">Book Free Consultation <i class="fas fa-calendar-check"></i></a>
     </div>
   </div>
+  <script>
+  (function(){
+    var b=document.getElementById('svcToggle'),g=document.getElementById('svcGrid');
+    if(!b||!g)return;
+    b.addEventListener('click',function(){
+      var open=g.classList.toggle('show-all');
+      b.setAttribute('aria-expanded',open);
+      b.querySelector('span').textContent=open?'Show fewer services':'View all {{ product_cards|length }} services';
+      if(open)g.querySelectorAll('.svc-more').forEach(function(c){c.classList.add('vis');});
+      else document.getElementById('products').scrollIntoView({behavior:'smooth'});
+    });
+  })();
+  </script>
 </section>
 
 <!-- E-STORE -->
