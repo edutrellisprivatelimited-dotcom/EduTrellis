@@ -492,13 +492,35 @@ class FeeSettingsForm(forms.ModelForm):
 
 
 class NavAISettingsForm(forms.ModelForm):
+    # Accepts a same-site path like "/ai/" as well as a full URL, so the navbar
+    # link can stay on whatever host the visitor is on (local, staging, live).
+    url = forms.CharField(
+        max_length=300,
+        widget=forms.TextInput(attrs={'placeholder': '/ai/ or https://...'}),
+        help_text='Where the link goes — a path on this site like /ai/, or a full https:// URL.',
+    )
+
     class Meta:
         model = NavAISettings
         fields = ['is_active', 'name', 'url']
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder': 'Vidhyora AI'}),
-            'url': forms.URLInput(attrs={'placeholder': 'https://www.edutrellis.in/ai/'}),
+            'name': forms.TextInput(attrs={'placeholder': 'EduTrellis AI'}),
         }
+
+    def clean_url(self):
+        from django.core.validators import URLValidator
+        value = self.cleaned_data['url'].strip()
+        if value.startswith('/') and not value.startswith('//'):
+            return value
+        URLValidator(schemes=['http', 'https'])(value)
+        return value
+
+    def _get_validation_exclusions(self):
+        # The model field is a URLField; clean_url above already validated it
+        # (allowing site paths), so skip the model-level URL check.
+        exclusions = super()._get_validation_exclusions()
+        exclusions.add('url')
+        return exclusions
 
 
 class EmailSettingsForm(forms.ModelForm):
