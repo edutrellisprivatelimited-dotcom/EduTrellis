@@ -1287,3 +1287,11 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
 /* Impact numbers — team photo under a dark brand overlay (parallax on desktop) */
 .numbers-sec{background:linear-gradient(135deg,rgba(13,17,28,.93) 0%,rgba(26,10,14,.88) 50%,rgba(22,18,40,.93) 100%),url('img/numbers_bg.jpg') center/cover no-repeat fixed}
 @media(max-width:1024px),(hover:none){.numbers-sec{background-attachment:scroll}}
+/* Portfolio — show first 8 under "All" until expanded; categories show all their cards */
+.portfolio-grid:not(.pf-expanded):not(.pf-filtered) .portfolio-card.pf-more{display:none}
+.pf-more-wrap{text-align:center;margin:2rem 0 .5rem}
+.pf-more-btn{display:inline-flex;align-items:center;gap:.55rem;font-family:inherit;font-weight:700;font-size:.9rem;color:var(--dark);background:#fff;border:1.5px solid var(--border);padding:.8rem 1.6rem;border-radius:50px;cursor:pointer;box-shadow:0 6px 18px rgba(15,22,35,.06);transition:all .3s}
+.pf-more-btn:hover{border-color:var(--red);color:var(--red)}
+.pf-more-btn i{transition:transform .35s}
+.pf-more-btn[aria-expanded=true] i{transform:rotate(180deg)}
+.portfolio-tabs{flex-wrap:wrap}
