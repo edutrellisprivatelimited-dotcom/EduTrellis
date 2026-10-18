@@ -1483,3 +1483,61 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
   .ab-actions .cta-btn,.ab-wa{justify-content:center}
 }
 @media(prefers-reduced-motion:reduce){.ab-float{animation:none}}
+
+/* =====================================================================
+   MOBILE COMPACT LAYOUT (≤600px) — denser grids, fewer cards up front
+   ===================================================================== */
+.xs-more-wrap{display:none}
+@media(max-width:600px){
+  /* Why Choose — small boxes, 3 per row */
+  .why-sec .why-grid{grid-template-columns:repeat(3,1fr);gap:.55rem;margin-top:1.6rem}
+  .why-sec .why-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:.9rem .45rem .85rem;border-radius:16px}
+  .why-sec .why-card .why-icon{grid-row:auto;width:40px;height:40px;border-radius:12px;margin:0 0 .55rem}
+  .why-sec .why-card i{font-size:1rem}
+  .why-sec .why-card h3{font-size:.74rem;line-height:1.25;margin:0;padding:0}
+  .why-sec .why-card p,.why-sec .why-num{display:none}
+
+  /* Our Products & Services — 2 per row, first 4 only */
+  #products .svc-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;margin-top:1.6rem}
+  #products .svc-grid:not(.show-all) .svc-card:nth-child(n+5){display:none}
+  #products .svc-card{border-radius:16px}
+  #products .svc-media{height:118px}
+  #products .svc-media-title{padding:.55rem .65rem .6rem}
+  #products .svc-media-title h3{font-size:.8rem;line-height:1.25;margin:0}
+  #products .svc-media-title p,#products .svc-feats,#products .svc-num,#products .svc-wa{display:none}
+  #products .svc-ribbon{top:8px;right:8px;font-size:.52rem;padding:.22rem .5rem}
+  #products .svc-body{padding:.6rem}
+  #products .svc-btn{padding:.5rem .4rem;font-size:.72rem;border-radius:10px;gap:.3rem}
+
+  /* More Services — 2 per row, first 4 only (button reveals the rest) */
+  #services .xs-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;margin-top:1.4rem}
+  #services .xs-grid:not(.xs-expanded):not(.xs-filtered) .xs-card:nth-child(n+5){display:none}
+  #services .xs-card{border-radius:16px}
+  #services .xs-media{height:92px}
+  #services .xs-cat,#services .xs-card p,#services .xs-tags{display:none}
+  #services .xs-body{padding:1.35rem .7rem .75rem}
+  #services .xs-ico{width:36px;height:36px;border-radius:11px;font-size:.85rem;top:-18px;left:.7rem}
+  #services .xs-card h3{font-size:.8rem;margin:0 0 .45rem}
+  #services .xs-link{font-size:.74rem}
+  .xs-more-wrap{display:block;text-align:center;margin-top:1.3rem}
+  .xs-more-wrap.is-off{display:none}
+  #services .xs-tabs{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;padding-bottom:.2rem}
+  #services .xs-tabs::-webkit-scrollbar{display:none}
+  #services .xs-tab{white-space:nowrap}
+
+  /* Portfolio — 2 per row, first 4 under "All" */
+  #portfolio .portfolio-grid{grid-template-columns:repeat(2,1fr);gap:.65rem;margin-top:1.4rem;margin-bottom:0}
+  #portfolio .portfolio-grid:not(.pf-expanded):not(.pf-filtered) .portfolio-card:nth-child(n+5){display:none}
+  #portfolio .portfolio-card{border-radius:16px}
+  #portfolio .pf-img-wrap{aspect-ratio:4/3}
+  #portfolio .pf-tag-img{top:.45rem;left:.45rem;font-size:.5rem;padding:.2rem .45rem}
+  #portfolio .pf-body{padding:.65rem .7rem .7rem}
+  #portfolio .pf-body h3{font-size:.8rem;line-height:1.3;margin:0 0 .4rem}
+  #portfolio .pf-body p,#portfolio .pf-tech,#portfolio .pf-overlay{display:none}
+  .pf-link{font-size:.72rem;padding-top:.5rem}
+
+  /* Blog — 3 images per row */
+  #projects .gallery-grid{grid-template-columns:repeat(3,1fr);gap:.45rem}
+  #projects .gallery-item{border-radius:10px;aspect-ratio:1/1}
+  #projects .gallery-caption{font-size:.6rem;padding:.35rem .4rem}
+}

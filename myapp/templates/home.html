@@ -888,6 +888,7 @@
         </div>
       </article>
     </div>
+    <div class="xs-more-wrap"><button type="button" class="pf-more-btn" id="xsMoreBtn" aria-expanded="false"><span>View all 12 services</span> <i class="fas fa-chevron-down"></i></button></div>
   </div>
   <script>
   (function(){
@@ -896,7 +897,17 @@
       tabs.forEach(function(x){x.classList.toggle('active',x===t);});
       var f=t.dataset.filter;
       cards.forEach(function(c){var show=f==='all'||c.dataset.cat===f;c.classList.toggle('is-hidden',!show);if(show)c.classList.add('vis');});
+      document.getElementById('xsGrid').classList.toggle('xs-filtered',f!=='all');
+      var mw=document.querySelector('.xs-more-wrap');if(mw)mw.classList.toggle('is-off',f!=='all');
     });});
+    var mb=document.getElementById('xsMoreBtn'),g=document.getElementById('xsGrid');
+    if(mb&&g)mb.addEventListener('click',function(){
+      var open=g.classList.toggle('xs-expanded');
+      mb.setAttribute('aria-expanded',open);
+      mb.querySelector('span').textContent=open?'Show fewer':'View all 12 services';
+      if(open)g.querySelectorAll('.xs-card').forEach(function(c){c.classList.add('vis');});
+      else document.getElementById('services').scrollIntoView({behavior:'smooth'});
+    });
   })();
   </script>
 </section>
