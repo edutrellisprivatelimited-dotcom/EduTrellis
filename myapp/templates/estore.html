@@ -27,8 +27,7 @@
 <meta name="twitter:description" content="{% if meta_description %}{{ meta_description }}{% elif site_customization.share_description %}{{ site_customization.share_description }}{% else %}An EduTrellis company store. Audio, wearables, accessories and smart home gadgets with warranty and easy returns.{% endif %}">
 <meta name="twitter:image" content="{% if meta_image %}https://www.edutrellis.in{{ meta_image }}{% elif site_customization.share_image %}https://www.edutrellis.in{{ site_customization.share_image.url }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
 
-<link rel="icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">
-<link rel="shortcut icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">
+{% include "includes/favicon.html" %}
 
 {% if pwa.ready %}
 <link rel="manifest" href="{% url 'pwa_manifest' %}">

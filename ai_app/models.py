@@ -961,12 +961,47 @@ class ChatUser(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(null=True, blank=True)
     photo = models.ImageField(upload_to='support_chat/users/', blank=True)
+    # Banner behind their photo on the EduChats ID card (⋮ → Cover photo).
+    cover = models.ImageField(upload_to='support_chat/covers/', blank=True)
     # Turned off by staff: can't log in, and is logged out of open chats.
     is_active = models.BooleanField(default=True)
     # Chatting without an account; becomes a normal account on sign-up.
     is_guest = models.BooleanField(default=False, db_index=True)
+    # Set for the site superuser's own EduChats account: they log in to EduChats
+    # with their EduTrellis admin email + password (see educhats_admin.py).
+    django_user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='chat_account')
     ip = models.CharField(max_length=64, blank=True, db_index=True)        # where the chat was started
     last_ip = models.CharField(max_length=64, blank=True)
+    # Privacy (EduChats ⋮ → Privacy): what people this user has a direct chat
+    # with may see. Support staff always see everything in the dashboard.
+    show_phone = models.BooleanField(default=False)
+    show_email = models.BooleanField(default=False)
+    show_ip = models.BooleanField(default=False)
+    show_last_seen = models.BooleanField(default=True)    # online dot + "last seen …"
+    show_activity = models.BooleanField(default=True)     # "typing…" + "is here"
+    # Read receipts (blue ticks) work both ways, like WhatsApp: switch them off
+    # and nobody sees that you've read their messages — and you don't see theirs.
+    read_receipts = models.BooleanField(default=True)
+    TICK_CHOICES = [('double', 'Double tick'), ('single', 'Single tick'), ('none', 'No ticks')]
+    tick_style = models.CharField(max_length=8, choices=TICK_CHOICES, default='double')
+    # "Delete chat" on the support chat hides messages up to this id for the
+    # user only; the support team keeps its copy.
+    support_cleared_upto = models.BigIntegerField(default=0)
+    bio = models.CharField(max_length=160, blank=True)    # short "about me" under their name
+    show_bio = models.BooleanField(default=True)
+    # Social links (Profile → Social links), stored as clean https profile URLs
+    # (see educhats_social.py); each shows on their ID card unless hidden in Privacy.
+    snapchat = models.CharField(max_length=200, blank=True)
+    instagram = models.CharField(max_length=200, blank=True)
+    facebook = models.CharField(max_length=200, blank=True)
+    linkedin = models.CharField(max_length=200, blank=True)
+    show_snapchat = models.BooleanField(default=True)
+    show_instagram = models.BooleanField(default=True)
+    show_facebook = models.BooleanField(default=True)
+    show_linkedin = models.BooleanField(default=True)
+    # ⋮ → Customize: accent colour, font, text size and wallpaper (preset keys),
+    # so the look follows the account to other devices.
+    appearance = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -1027,6 +1062,11 @@ class SupportProfile(models.Model):
     photo = models.ImageField(upload_to='support_chat/profile/', blank=True)
     # Shown on /chats "Forgot password" — people write here to get back in.
     support_email = models.EmailField(default='shifn32@gmail.com', blank=True)
+    # Shown on the Support ID card; clean https URLs (see educhats_social.py).
+    snapchat = models.CharField(max_length=200, blank=True)
+    instagram = models.CharField(max_length=200, blank=True)
+    facebook = models.CharField(max_length=200, blank=True)
+    linkedin = models.CharField(max_length=200, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     @classmethod
@@ -1035,3 +1075,139 @@ class SupportProfile(models.Model):
 
     def __str__(self):
         return self.display_name
+
+
+class DirectThread(models.Model):
+    """A one-to-one EduChats conversation between two signed-up chat accounts,
+    found by username. user_a always has the lower pk, so a pair has one thread."""
+    user_a = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='dm_threads_a')
+    user_b = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='dm_threads_b')
+    # Who opened it — an empty thread only shows up for them until a message is sent.
+    started_by = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    # Either side can block the other; nobody can send while it's set.
+    blocked_by = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    # "Delete chat" is per person: each side hides messages up to this id.
+    a_cleared_upto = models.BigIntegerField(default=0)
+    b_cleared_upto = models.BigIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        constraints = [models.UniqueConstraint(fields=['user_a', 'user_b'], name='unique_direct_thread_pair')]
+        verbose_name = 'EduChats direct thread'
+
+    def other(self, user):
+        return self.user_b if self.user_a_id == user.pk else self.user_a
+
+    def cleared_upto(self, user):
+        return self.a_cleared_upto if self.user_a_id == user.pk else self.b_cleared_upto
+
+    def __str__(self):
+        return f'{self.user_a} ↔ {self.user_b}'
+
+
+class DirectMessage(models.Model):
+    thread = models.ForeignKey(DirectThread, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='dm_sent')
+    # 'call' rows are the "Voice call · 2:31" / "Missed video call" lines a call leaves behind;
+    # image / video / file rows carry an attachment (body is the optional caption).
+    KIND_CHOICES = [('text', 'Text'), ('call', 'Call'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File')]
+    kind = models.CharField(max_length=8, choices=KIND_CHOICES, default='text')
+    body = models.TextField(blank=True)
+    # Served only through direct_chat.dm_attachment, which checks who is asking.
+    attachment = models.FileField(upload_to='educhats/dm/%Y/%m/', blank=True)
+    attachment_name = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)   # when the other person loaded it
+
+    class Meta:
+        ordering = ['pk']
+        verbose_name = 'EduChats direct message'
+
+    @property
+    def summary(self):
+        """One line for exports and the admin view: "[Photo: x.jpg] caption", "[Call] …" or the text."""
+        if self.kind in ('image', 'video', 'file'):
+            label = {'image': 'Photo', 'video': 'Video', 'file': 'File'}[self.kind]
+            name = f': {self.attachment_name}' if self.attachment_name else ''
+            return f'[{label}{name}]' + (f' {self.body}' if self.body else '')
+        if self.kind == 'call':
+            return f'[Call] {self.body}'
+        return self.body
+
+
+class EduChatsAIMessage(models.Model):
+    """A turn in a member's EduTrellis AI chat inside EduChats (the pinned
+    "EduTrellis AI" conversation). Separate from /ai/'s AIConversation."""
+    ROLE_USER = 'user'
+    ROLE_ASSISTANT = 'assistant'
+    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='ai_messages')
+    role = models.CharField(max_length=10, choices=[(ROLE_USER, 'User'), (ROLE_ASSISTANT, 'Assistant')])
+    body = models.TextField(blank=True)
+    image_url = models.CharField(max_length=300, blank=True)   # a picture EduTrellis AI created
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['pk']
+        verbose_name = 'EduChats AI message'
+
+
+class ChatGroup(models.Model):
+    """An EduChats group (⋮ → New group): any signed-up members, with admins."""
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=500, blank=True)
+    photo = models.ImageField(upload_to='support_chat/groups/', blank=True)
+    created_by = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    # Group settings (admins only): who may send, and who may change name / photo / description.
+    only_admins_send = models.BooleanField(default=False)
+    only_admins_edit = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(default=timezone.now, db_index=True)   # last message — sorts the chat list
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'EduChats group'
+
+    def __str__(self):
+        return self.name
+
+
+class GroupMember(models.Model):
+    group = models.ForeignKey(ChatGroup, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='group_memberships')
+    is_admin = models.BooleanField(default=False)
+    added_by = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    joined_at = models.DateTimeField(auto_now_add=True)
+    last_read = models.BigIntegerField(default=0)      # newest message id this member has seen
+    cleared_upto = models.BigIntegerField(default=0)   # "Delete chat" hides messages up to here, for them only
+
+    class Meta:
+        ordering = ['joined_at', 'pk']
+        constraints = [models.UniqueConstraint(fields=['group', 'user'], name='unique_group_member')]
+        verbose_name = 'EduChats group member'
+
+
+class GroupMessage(models.Model):
+    KIND_CHOICES = [('text', 'Text'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'), ('system', 'Update')]
+    group = models.ForeignKey(ChatGroup, on_delete=models.CASCADE, related_name='messages')
+    # None for the grey "Rahul added Muskan" lines.
+    sender = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='group_sent')
+    kind = models.CharField(max_length=8, choices=KIND_CHOICES, default='text')
+    body = models.TextField(blank=True)
+    # Served only through group_chat.group_file, which checks membership.
+    attachment = models.FileField(upload_to='educhats/groups/%Y/%m/', blank=True)
+    attachment_name = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['pk']
+        verbose_name = 'EduChats group message'
+
+    @property
+    def summary(self):
+        if self.kind in ('image', 'video', 'file'):
+            label = {'image': 'Photo', 'video': 'Video', 'file': 'File'}[self.kind]
+            name = f': {self.attachment_name}' if self.attachment_name else ''
+            return f'[{label}{name}]' + (f' {self.body}' if self.body else '')
+        return self.body

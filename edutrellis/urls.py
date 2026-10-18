@@ -6,7 +6,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.views.generic import TemplateView, RedirectView
 
 from myapp.sitemaps import StaticViewSitemap, ProductSitemap, PolicySitemap
-from myapp.views import custom_404
+from myapp.views import custom_404, favicon
 
 sitemaps = {
     'static': StaticViewSitemap,
@@ -21,14 +21,20 @@ urlpatterns = [
     # site, just a memorable URL for direct access.
     path('welcomernt/', RedirectView.as_view(url='/admin/', permanent=False), name='welcomernt_admin'),
 
+    path('favicon.ico', favicon, name='favicon'),
+
     # Main App
     path('', include('myapp.urls')),
 
     # EduTrellis AI — public chat/API at /ai/, admin pages nested into the
     # same /store/dashboard/ prefix myapp's own dashboard uses.
     path('ai/', include('ai_app.urls')),
-    # Chats — the support chat, its own product with its own accounts.
-    path('chats/', include('ai_app.chats_urls')),
+    # EduChats — support chat + direct messages, its own product and accounts.
+    path('educhats/', include('ai_app.chats_urls')),
+    # /chat, /chat/, /chats, /chats/ (and anything under them — EduChats'
+    # earlier address) all land on EduChats, keeping any ?query.
+    re_path(r'^chats?/?$', RedirectView.as_view(url='/educhats/', permanent=True, query_string=True)),
+    re_path(r'^chats?/(?P<rest>.+)$', RedirectView.as_view(url='/educhats/%(rest)s', permanent=True, query_string=True)),
     path('store/dashboard/', include('ai_app.dashboard_urls')),
 
     # Sitemap

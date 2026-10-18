@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Page Not Found — EduTrellis</title>
 <meta name="robots" content="noindex, follow">
-<link rel="icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">
+{% include "includes/favicon.html" %}
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -45,6 +45,7 @@ footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
     <a href="/" class="btn-home"><i class="fas fa-home"></i>EduTrellis Homepage</a>
     <a href="/store/" class="btn-ghost"><i class="fas fa-store"></i>EduTrellis Store</a>
     {% if NAV_AI.is_active %}<a href="{{ NAV_AI.url }}" class="btn-ghost"><i class="fas fa-robot"></i>{{ NAV_AI.name }}</a>{% endif %}
+    <a href="/educhats/" class="btn-ghost"><i class="fas fa-comments"></i>EduChats</a>
   </div>
 </main>
 <footer>&copy; 2026 EduTrellis. All rights reserved.</footer>

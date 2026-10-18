@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import ai_calls, api_checker, calls_dashboard, coding_api, coding_dashboard, support_chat, views
+from . import ai_calls, api_checker, calls_dashboard, coding_api, coding_dashboard, educhats_admin, support_chat, views
 from .views import dashboard_staff_required
 
 # Mounted at /store/dashboard/ in edutrellis/urls.py, alongside myapp's own
@@ -15,8 +15,11 @@ urlpatterns = [
     path('chats/users/<int:pk>/action/', dashboard_staff_required(support_chat.dashboard_chat_user_action), name='dashboard_chat_user_action'),
     path('chats/<int:pk>/call/', dashboard_staff_required(support_chat.dashboard_chat_call), name='dashboard_chat_call'),
     path('chats/', dashboard_staff_required(support_chat.dashboard_chats), name='dashboard_chats'),
+    path('chats/conversations/', educhats_admin.dashboard_dm_conversations, name='dashboard_dm_conversations'),
+    path('chats/conversations/<int:pk>/', educhats_admin.dashboard_dm_thread, name='dashboard_dm_thread'),
     path('chats/<int:pk>/', dashboard_staff_required(support_chat.dashboard_chat_thread), name='dashboard_chat_thread'),
     path('chats/<int:pk>/poll/', dashboard_staff_required(support_chat.dashboard_chat_poll), name='dashboard_chat_poll'),
+    path('chats/<int:pk>/typing/', dashboard_staff_required(support_chat.dashboard_chat_typing), name='dashboard_chat_typing'),
     path('ai/', views.dashboard_ai_management, name='dashboard_ai_management'),
     path('ai/message-template/', views.dashboard_ai_message_template_save, name='dashboard_ai_message_template_save'),
     path('ai/grant/', views.dashboard_ai_grant, name='dashboard_ai_grant'),

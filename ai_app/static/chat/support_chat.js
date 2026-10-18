@@ -122,7 +122,8 @@
   }
 
   // ── calls ──────────────────────────────────────────────────────────────────
-  // opts: { url, side: 'user'|'admin', peerName, csrf, onError(text) }
+  // opts: { url, side: 'user'|'admin'|<chat user id>, peerName, csrf, onError(text), keep, photo }
+  // keep: leave other call screens on the page (EduChats has one per chat)
   function Calls(opts) {
     var self = this;
     var pc = null, local = null, call = null, iceSeen = 0, fast = null, timer = null, ringTone = null;
@@ -132,7 +133,7 @@
     function buildUi() {
       // The dashboard swaps pages in place, so an earlier page's (idle) call
       // screen may still be here.
-      document.querySelectorAll('.call-overlay:not(.open)').forEach(function (old) { old.remove(); });
+      if (!opts.keep) document.querySelectorAll('.call-overlay:not(.open)').forEach(function (old) { old.remove(); });
       var o = el('div', 'call-overlay');
       o.innerHTML =
         '<video class="call-remote" autoplay playsinline></video>' +
@@ -146,6 +147,12 @@
         '<button class="call-btn end" title="End"><i class="fas fa-phone-slash"></i></button></div>';
       document.body.appendChild(o);
       o.querySelector('.call-name').textContent = opts.peerName;
+      if (opts.photo) {
+        var av = o.querySelector('.call-avatar'), pic = el('img'); pic.src = opts.photo; pic.alt = '';
+        pic.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+        pic.onerror = function () { pic.remove(); av.innerHTML = '<i class="fas fa-user"></i>'; };
+        av.textContent = ''; av.appendChild(pic);
+      }
       o.querySelector('.end').addEventListener('click', function () { self.hangUp(); });
       o.querySelector('.accept').addEventListener('click', function () { self.answer(); });
       o.querySelector('.mute').addEventListener('click', function () {
@@ -300,6 +307,7 @@
       });
     };
 
+    this.busy = function () { return !!call; };
     this.hangUp = function () {
       if (call && call.id) send({ action: call.status === 'ringing' && call.caller !== opts.side ? 'decline' : 'end', id: call.id });
       cleanup('Call ended');

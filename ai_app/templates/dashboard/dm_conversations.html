@@ -1,0 +1,96 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Conversations{% endblock %}
+{% block page_title %}Conversations{% endblock %}
+
+{% block extra_head %}
+<style>
+.cv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.9rem;margin-bottom:1.2rem}
+.cv-stat{display:flex;align-items:center;gap:.8rem;padding:1rem 1.1rem;border-radius:16px;background:#fff;border:1px solid var(--line)}
+.cv-stat i{width:42px;height:42px;flex:0 0 42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--red-soft);color:var(--red);font-size:1rem}
+.cv-stat b{display:block;font-size:1.35rem;color:var(--head);line-height:1.1}
+.cv-stat small{font-size:.74rem;color:var(--text)}
+.cv-stat.live i{background:#dcfce7;color:#15803d}
+.cv-note{display:flex;gap:.5rem;align-items:flex-start;margin:0 0 1rem;padding:.7rem .9rem;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:.8rem;line-height:1.45}
+.cv-filters{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;padding:1rem 1.4rem;border-bottom:1px solid var(--line)}
+.cv-tab{display:inline-flex;align-items:center;gap:.4rem;padding:.42rem .85rem;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--head);font-size:.8rem;font-weight:700;text-decoration:none}
+.cv-tab b{font-size:.7rem;padding:.05rem .45rem;border-radius:999px;background:var(--bg-alt)}
+.cv-tab.on{background:var(--red);border-color:var(--red);color:#fff}
+.cv-tab.on b{background:rgba(255,255,255,.22)}
+.cv-filters form{margin-left:auto;flex:1;min-width:220px;max-width:380px}
+.cv-filters input{width:100%;height:40px;border:1.5px solid var(--line);border-radius:999px;padding:0 1rem;font:inherit;font-size:.84rem}
+.cv-row{display:flex;align-items:center;gap:1rem;padding:.9rem 1.4rem;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}
+.cv-row:hover{background:var(--bg-alt)}
+.cv-pair{position:relative;flex:0 0 58px;width:58px;height:44px}
+.cv-av{position:absolute;width:38px;height:38px;border-radius:50%;border:2px solid #fff;background:var(--red-soft);color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem}
+.cv-av:last-child{left:20px;top:6px;background:#e0e7ff;color:#4338ca}
+.cv-av .on{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid #fff}
+.cv-main{flex:1;min-width:0}
+.cv-names{font-weight:800;color:var(--head);font-size:.92rem}
+.cv-names small{font-weight:600;color:var(--text);font-size:.74rem}
+.cv-names .sep{color:var(--red);margin:0 .3rem}
+.cv-last{font-size:.82rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.15rem}
+.cv-last b{color:var(--head)}
+.cv-side{flex:0 0 auto;text-align:right;font-size:.74rem;color:var(--text)}
+.cv-pill{display:inline-flex;align-items:center;gap:.3rem;margin-left:.4rem;padding:.1rem .5rem;border-radius:999px;font-size:.66rem;font-weight:800;vertical-align:middle}
+.cv-pill.live{background:#dcfce7;color:#15803d}
+.cv-pill.typing{background:var(--red-soft);color:var(--red);animation:cvBlink 1.2s infinite}
+.cv-pill.here{background:#e0f2fe;color:#0369a1}
+.cv-pill.blocked{background:#fee2e2;color:#b91c1c}
+@keyframes cvBlink{50%{opacity:.45}}
+.cv-empty{padding:2.4rem 1.4rem;text-align:center;font-size:.88rem;color:var(--text)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="cvBoard">
+<div class="cv-stats">
+  <div class="cv-stat live"><i class="fas fa-bolt"></i><div><b>{{ stats.ongoing }}</b><small>Ongoing now (last {{ ongoing_minutes }} min)</small></div></div>
+  <div class="cv-stat"><i class="fas fa-comments"></i><div><b>{{ stats.today }}</b><small>Active chats today</small></div></div>
+  <div class="cv-stat"><i class="fas fa-paper-plane"></i><div><b>{{ stats.messages_today }}</b><small>Messages today</small></div></div>
+  <div class="cv-stat live"><i class="fas fa-signal"></i><div><b>{{ stats.online }}</b><small>Members online</small></div></div>
+  <div class="cv-stat"><i class="fas fa-layer-group"></i><div><b>{{ stats.threads }}</b><small>All direct chats</small></div></div>
+  <div class="cv-stat"><i class="fas fa-ban"></i><div><b>{{ stats.blocked }}</b><small>Blocked</small></div></div>
+</div>
+<p class="cv-note"><i class="fas fa-user-shield"></i><span>Direct chats between members, newest first — visible to the superuser only. Messages members send to the support team are under <a href="{% url 'dashboard_chats' %}">Direct Chats</a>.</span></p>
+<div class="panel">
+  <div class="cv-filters">
+    <a class="cv-tab{% if tab == 'all' %} on{% endif %}" href="?tab=all{% if q %}&q={{ q|urlencode }}{% endif %}">All <b>{{ stats.threads }}</b></a>
+    <a class="cv-tab{% if tab == 'ongoing' %} on{% endif %}" href="?tab=ongoing{% if q %}&q={{ q|urlencode }}{% endif %}"><i class="fas fa-bolt"></i> Ongoing <b>{{ stats.ongoing }}</b></a>
+    <a class="cv-tab{% if tab == 'today' %} on{% endif %}" href="?tab=today{% if q %}&q={{ q|urlencode }}{% endif %}">Today <b>{{ stats.today }}</b></a>
+    <a class="cv-tab{% if tab == 'blocked' %} on{% endif %}" href="?tab=blocked{% if q %}&q={{ q|urlencode }}{% endif %}">Blocked <b>{{ stats.blocked }}</b></a>
+    <form method="get"><input type="hidden" name="tab" value="{{ tab }}"><input type="search" name="q" value="{{ q }}" placeholder="Search name, @username, email or message…" id="cvSearch"></form>
+  </div>
+  {% for r in rows %}
+  <a class="cv-row" href="{% url 'dashboard_dm_thread' r.thread.pk %}">
+    <span class="cv-pair">
+      <span class="cv-av">{{ r.a.name|first|upper }}{% if r.a_online %}<span class="on"></span>{% endif %}</span>
+      <span class="cv-av">{{ r.b.name|first|upper }}{% if r.b_online %}<span class="on"></span>{% endif %}</span>
+    </span>
+    <span class="cv-main">
+      <span class="cv-names">{{ r.a.name }} <small>@{{ r.a.username }}</small><span class="sep"><i class="fas fa-arrow-right-arrow-left"></i></span>{{ r.b.name }} <small>@{{ r.b.username }}</small>
+        {% if r.typing %}<span class="cv-pill typing"><i class="fas fa-keyboard"></i> typing…</span>
+        {% elif r.here %}<span class="cv-pill here"><i class="fas fa-eye"></i> both in chat</span>
+        {% elif r.ongoing %}<span class="cv-pill live"><i class="fas fa-circle"></i> ongoing</span>{% endif %}
+        {% if r.thread.blocked_by_id %}<span class="cv-pill blocked"><i class="fas fa-ban"></i> blocked</span>{% endif %}</span>
+      <span class="cv-last">{% if r.last %}<b>{{ r.last.sender.name }}:</b> {{ r.last.body|truncatechars:120 }}{% endif %}</span>
+    </span>
+    <span class="cv-side">{{ r.last_at|date:"d M, h:i A" }}<br>{{ r.total }} message{{ r.total|pluralize }}</span>
+  </a>
+  {% empty %}
+  <div class="cv-empty">{% if q or tab != 'all' %}No direct chats match. <a href="{% url 'dashboard_dm_conversations' %}">Show all</a>{% else %}No direct chats between members yet.{% endif %}</div>
+  {% endfor %}
+</div>
+</div>
+<script>
+// Stays live: refreshes every 15 s unless you're typing a search.
+(function () {
+  setInterval(function () {
+    if (document.hidden || document.activeElement === document.getElementById('cvSearch')) return;
+    fetch(location.href, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (html) {
+      var fresh = new DOMParser().parseFromString(html, 'text/html').getElementById('cvBoard');
+      if (fresh) document.getElementById('cvBoard').innerHTML = fresh.innerHTML;
+    }).catch(function () {});
+  }, 15000);
+})();
+</script>
+{% endblock %}

@@ -1217,22 +1217,32 @@ def policy_page(request, key):
     return render(request, 'policy_page.html', {'policy': policy})
 
 
+def favicon(request):
+    """/favicon.ico — browsers ask for it on every page (the Django admin
+    included), so send them to the same icon the pages link to."""
+    from django.templatetags.static import static
+    site = PWASettings.get_solo()
+    return redirect(site.favicon.url if site.favicon else static('favicon.ico'))
+
+
 def custom_404(request, exception=None):
     # edutrellis/urls.py adds a catch-all pattern (matching every path, with
     # or without a trailing slash) so this view renders even with DEBUG=True.
     # That catch-all is itself a URL match, though, so it silently defeats
     # Django's normal APPEND_SLASH redirect (which only fires when the
     # un-slashed path doesn't resolve to anything). Reimplement that check
-    # here against myapp.urls directly (which has no catch-all) so e.g.
-    # /store and /store/ both work instead of the former 404ing.
+    # here so e.g. /store, /ai and /educhats work like /store/, /ai/ and
+    # /educhats/ — any slashed path that resolves to a real view (not this
+    # catch-all) gets the redirect.
     path = request.path
     # Only redirect safe methods — a 302 on POST/PUT/etc. gets turned into a
     # GET by the browser, silently dropping the request body.
     if request.method in ('GET', 'HEAD') and not path.endswith('/'):
         try:
-            resolve(path + '/', urlconf='myapp.urls')
-            query = f'?{request.META["QUERY_STRING"]}' if request.META.get('QUERY_STRING') else ''
-            return redirect(path + '/' + query, permanent=True)
+            match = resolve(path + '/')
+            if match.func is not custom_404:
+                query = f'?{request.META["QUERY_STRING"]}' if request.META.get('QUERY_STRING') else ''
+                return redirect(path + '/' + query, permanent=True)
         except Resolver404:
             pass
     return render(request, '404.html', status=404)

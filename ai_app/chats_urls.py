@@ -1,18 +1,24 @@
 from django.urls import path
 
-from . import support_chat
+from . import direct_chat, educhats_admin, educhats_ai, educhats_pwa, group_chat, support_chat
 
-# The support chat ("Chats") — its own product, mounted at /chats/ in
-# edutrellis/urls.py. Separate accounts from the store/AI login (ChatUser).
+# EduChats — its own product, mounted at /educhats/ in edutrellis/urls.py.
+# Separate accounts from the store/AI login (ChatUser): the support chat plus
+# one-to-one direct messages by username (direct_chat.py).
 urlpatterns = [
     path('', support_chat.chats_page, name='chats_page'),
+    path('manifest.json', educhats_pwa.manifest, name='chats_manifest'),
+    path('sw.js', educhats_pwa.service_worker, name='chats_sw'),
+    path('icon-<int:size>.png', educhats_pwa.icon, name='chats_icon'),
     path('reset/<str:token>/', support_chat.reset_page, name='chats_reset'),
     path('api/signup/', support_chat.api_signup, name='chats_signup'),
     path('api/login/', support_chat.api_login, name='chats_login'),
+    path('admin-login/', educhats_admin.admin_login, name='chats_admin_login'),
     path('api/logout/', support_chat.api_logout, name='chats_logout'),
     path('api/forgot/', support_chat.api_forgot, name='chats_forgot'),
     path('api/username/', support_chat.api_username_check, name='chats_username_check'),
     path('api/messages/', support_chat.api_messages, name='chats_messages'),
+    path('api/typing/', support_chat.api_typing, name='chats_typing'),
     path('api/upload/', support_chat.api_upload, name='chats_upload'),
     path('api/location/', support_chat.api_location, name='chats_location'),
     path('api/call/', support_chat.api_call, name='chats_call'),
@@ -20,5 +26,31 @@ urlpatterns = [
     path('api/profile/', support_chat.api_profile, name='chats_profile'),
     path('api/guest/', support_chat.api_guest, name='chats_guest'),
     path('user-photo/<int:pk>/', support_chat.user_photo, name='chats_user_photo'),
+    path('user-cover/<int:pk>/', support_chat.user_cover, name='chats_user_cover'),
+    path('api/cover/', support_chat.api_cover, name='chats_cover'),
     path('support-photo/', support_chat.support_photo, name='chats_support_photo'),
+    path('api/people/', direct_chat.api_user_search, name='chats_user_search'),
+    path('api/dm/', direct_chat.api_threads, name='chats_dm_threads'),
+    path('api/dm/start/', direct_chat.api_start, name='chats_dm_start'),
+    path('api/dm/<int:thread_id>/', direct_chat.api_thread_messages, name='chats_dm_messages'),
+    path('api/dm/<int:thread_id>/block/', direct_chat.api_thread_block, name='chats_dm_block'),
+    path('api/dm/<int:thread_id>/contact/', direct_chat.api_thread_contact, name='chats_dm_contact'),
+    path('api/dm/<int:thread_id>/call/', direct_chat.api_thread_call, name='chats_dm_call'),
+    path('api/dm/<int:thread_id>/upload/', direct_chat.api_thread_upload, name='chats_dm_upload'),
+    path('dm-file/<int:pk>/', direct_chat.dm_attachment, name='chats_dm_file'),
+    path('api/dm/ring/', direct_chat.api_ring, name='chats_dm_ring'),
+    path('api/groups/', group_chat.api_groups, name='chats_groups'),
+    path('api/groups/<int:group_id>/', group_chat.api_group_messages, name='chats_group_messages'),
+    path('api/groups/<int:group_id>/upload/', group_chat.api_group_upload, name='chats_group_upload'),
+    path('api/groups/<int:group_id>/info/', group_chat.api_group_info, name='chats_group_info'),
+    path('api/groups/<int:group_id>/update/', group_chat.api_group_update, name='chats_group_update'),
+    path('api/groups/<int:group_id>/members/', group_chat.api_group_members, name='chats_group_members'),
+    path('api/groups/<int:group_id>/leave/', group_chat.api_group_leave, name='chats_group_leave'),
+    path('group-photo/<int:group_id>/', group_chat.group_photo, name='chats_group_photo'),
+    path('group-file/<int:pk>/', group_chat.group_file, name='chats_group_file'),
+    path('api/privacy/', direct_chat.api_privacy, name='chats_privacy'),
+    path('api/appearance/', direct_chat.api_appearance, name='chats_appearance'),
+    path('api/ai/', educhats_ai.api_ai, name='chats_ai'),
+    path('api/clear/', direct_chat.api_clear, name='chats_clear'),
+    path('api/export/', direct_chat.api_export, name='chats_export'),
 ]

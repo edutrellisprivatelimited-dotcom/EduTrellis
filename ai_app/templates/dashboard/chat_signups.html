@@ -1,6 +1,6 @@
 {% extends "dashboard/base.html" %}
-{% block title %}Chat Signups{% endblock %}
-{% block page_title %}Chat Signups{% endblock %}
+{% block title %}EduChats Signups{% endblock %}
+{% block page_title %}EduChats Signups{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -109,7 +109,7 @@ dialog.cs-dlg::backdrop{background:rgba(15,23,42,.45)}
   </table>
   </div>
   {% else %}
-  <div class="cs-empty">{% if q %}Nobody matches “{{ q }}”.{% else %}No one has signed up on /chats yet.{% endif %}</div>
+  <div class="cs-empty">{% if q %}Nobody matches “{{ q }}”.{% else %}No one has signed up on EduChats yet.{% endif %}</div>
   {% endif %}
 </div>
 

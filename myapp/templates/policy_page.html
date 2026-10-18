@@ -8,7 +8,7 @@
 <meta name="description" content="{{ policy.title }} for EduTrellis Store — read our {{ policy.title|lower }} before you shop.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.edutrellis.in{{ request.path }}">
-<link rel="icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">
+{% include "includes/favicon.html" %}
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>

@@ -57,7 +57,7 @@
   } catch (e) {}
 })();
 </script>
-{% if SITE_FAVICON_URL %}<link rel="icon" href="{{ SITE_FAVICON_URL }}">{% else %}<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">{% endif %}
+{% include "includes/favicon.html" %}
 {% if ai_pwa_ready %}
 <meta name="theme-color" content="{{ ai_pwa.theme_color }}">
 <link rel="manifest" href="{% url 'ai_manifest' %}?v={{ ai_pwa_version }}">
@@ -5224,7 +5224,7 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
   {% if ai_pwa_ready %}
   (function setupInstallPrompt(){
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(){});
+      navigator.serviceWorker.register('{% url "ai_service_worker" %}', { scope: '/ai/' }).catch(function(){});
     }
     var banner = document.getElementById('installBanner');
     var installBtn = document.getElementById('installBannerBtn');

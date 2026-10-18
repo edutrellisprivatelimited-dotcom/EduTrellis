@@ -1,0 +1,3 @@
+{% load static %}{# One browser-tab icon for every page on the site: the favicon uploaded under Dashboard → Customize → Branding & Sharing, else static/favicon.ico. #}
+<link rel="icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">
+<link rel="shortcut icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">

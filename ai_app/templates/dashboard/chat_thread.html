@@ -1,7 +1,7 @@
 {% extends "dashboard/base.html" %}
 {% load static %}
-{% block title %}Chat with {{ chat_user.name }}{% endblock %}
-{% block page_title %}Chats{% endblock %}
+{% block title %}EduChats · {{ chat_user.name }}{% endblock %}
+{% block page_title %}Direct Chats{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'chat/support_chat.css' %}">
@@ -37,6 +37,15 @@
 .th-round.attach{background:var(--bg-alt);color:var(--text)}
 .th-err{display:none;margin:0 1.2rem 1rem;color:#b91c1c;font-size:.82rem;font-weight:600}
 .uploading{opacity:.6}
+.th-live{display:none;align-self:flex-start;align-items:center;gap:.5rem;margin-top:.2rem;padding:.5rem .8rem;border-radius:16px 16px 16px 5px;background:var(--bg-alt);font-size:.78rem;font-weight:700;color:var(--head)}
+.th-live.on{display:inline-flex}
+.th-live .dots{display:inline-flex;gap:4px}
+.th-live .dots i{width:7px;height:7px;border-radius:50%;background:var(--red);animation:thDot 1.1s infinite ease-in-out}
+.th-live .dots i:nth-child(2){animation-delay:.15s}
+.th-live .dots i:nth-child(3){animation-delay:.3s}
+@keyframes thDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.th-live.here .dots{display:none}
+.th-live.here::before{content:"";width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.25)}
 </style>
 {% endblock %}
 
@@ -125,6 +134,30 @@
       document.getElementById('thDot').className = 'th-dot' + (p.online ? ' on' : '');
       document.getElementById('thStatus').textContent = p.online ? 'online' : p.last_seen ? lastSeen(p.last_seen) : 'not seen yet';
     }
+    // the user typing / looking at this chat right now
+    var live = document.createElement('div');
+    live.className = 'th-live';
+    live.innerHTML = '<span class="dots"><i></i><i></i><i></i></span><span class="txt"></span>';
+    var firstName = JSON.parse(document.getElementById('th-name').textContent).split(' ')[0];
+    function showLive(typing, here) {
+      live.classList.toggle('on', !!(typing || here));
+      live.classList.toggle('here', !typing && !!here);
+      live.querySelector('.txt').textContent = typing ? firstName + ' is typing' : firstName + ' is in the chat';
+      if (typing) document.getElementById('thStatus').textContent = 'typing…';
+      if (typing || here) { box.appendChild(live); box.scrollTop = box.scrollHeight; }
+    }
+    // let them see when staff is typing
+    var typedAt = 0;
+    function sendTyping(on) {
+      fetch('{% url "dashboard_chat_typing" chat_user.pk %}', { method: 'POST', credentials: 'same-origin', keepalive: true,
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf }, body: JSON.stringify({ typing: on }) }).catch(function () {});
+    }
+    area.addEventListener('input', function () {
+      var has = !!area.value.trim(), now = Date.now();
+      if (has && now - typedAt > 2000) { typedAt = now; sendTyping(true); }
+      else if (!has && typedAt) { typedAt = 0; sendTyping(false); }
+    });
+    area.addEventListener('blur', function () { if (typedAt) { typedAt = 0; sendTyping(false); } });
     var thread = JSON.parse(document.getElementById('th-thread').textContent);
     if (!thread.length) { var e = document.createElement('p'); e.className = 'th-empty'; e.id = 'thEmpty'; e.textContent = 'No messages yet.'; box.appendChild(e); }
     thread.forEach(function (m) { add(m); });
@@ -148,6 +181,7 @@
             });
           }
           status(res.user);
+          showLive(res.user_typing, res.user_here);
           SupportChat.updateLocations(box, res.locations);
           calls.sync(res.call);
         }).catch(function () {});
@@ -167,7 +201,7 @@
       e.preventDefault();
       var text = area.value.trim();
       if (!text) return;
-      area.value = ''; area.style.height = '';
+      area.value = ''; area.style.height = ''; typedAt = 0;
       var pending = bubble({ from: 'admin', kind: 'text', body: text, at: new Date().toISOString() });
       var data = new FormData(); data.append('body', text);
       sendForm(data, pending, function () { area.value = text; });

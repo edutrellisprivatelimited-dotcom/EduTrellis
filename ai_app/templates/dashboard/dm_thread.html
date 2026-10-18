@@ -1,0 +1,50 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ a.name }} & {{ b.name }} · Conversations{% endblock %}
+{% block page_title %}Conversations{% endblock %}
+
+{% block extra_head %}
+<style>
+.dt-head{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:1rem 1.4rem;border-bottom:1px solid var(--line)}
+.dt-head .back{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg-alt);color:var(--head)}
+.dt-person{display:flex;align-items:center;gap:.6rem}
+.dt-person .av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;background:var(--red-soft);color:var(--red)}
+.dt-person.b .av{background:#e0e7ff;color:#4338ca}
+.dt-person b{display:block;color:var(--head);font-size:.92rem}
+.dt-person small{font-size:.74rem;color:var(--text)}
+.dt-person .on{color:#15803d;font-weight:700}
+.dt-swap{color:var(--red)}
+.dt-info{margin-left:auto;font-size:.76rem;color:var(--text);text-align:right}
+.dt-blocked{padding:.6rem 1.4rem;background:#fee2e2;color:#b91c1c;font-size:.82rem;font-weight:700}
+.dt-msgs{display:flex;flex-direction:column;gap:.4rem;padding:1.2rem 1.4rem;max-height:calc(100vh - 260px);overflow-y:auto;background:var(--bg-alt)}
+.dt-day{align-self:center;margin:.6rem 0;padding:.2rem .8rem;border-radius:999px;background:#fff;font-size:.72rem;font-weight:700;color:var(--text)}
+.dt-msg{max-width:68%;padding:.5rem .8rem;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.dt-msg.b{align-self:flex-end;background:#eef2ff}
+.dt-msg .who{display:block;font-size:.7rem;font-weight:800;color:var(--red)}
+.dt-msg.b .who{color:#4338ca}
+.dt-msg .t{white-space:pre-wrap;word-break:break-word;font-size:.88rem;color:var(--head)}
+.dt-msg time{display:block;text-align:right;font-size:.66rem;color:var(--text);margin-top:.15rem}
+.dt-empty{padding:2rem;text-align:center;color:var(--text)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="dt-head">
+    <a class="back" href="{% url 'dashboard_dm_conversations' %}" aria-label="All conversations"><i class="fas fa-arrow-left"></i></a>
+    <span class="dt-person"><span class="av">{{ a.name|first|upper }}</span><span><b>{{ a.name }}</b><small>@{{ a.username }} · {% if a_presence.online %}<span class="on">online</span>{% elif a.last_seen_at %}last seen {{ a.last_seen_at|date:"d M, h:i A" }}{% else %}not seen yet{% endif %}</small></span></span>
+    <span class="dt-swap"><i class="fas fa-arrow-right-arrow-left"></i></span>
+    <span class="dt-person b"><span class="av">{{ b.name|first|upper }}</span><span><b>{{ b.name }}</b><small>@{{ b.username }} · {% if b_presence.online %}<span class="on">online</span>{% elif b.last_seen_at %}last seen {{ b.last_seen_at|date:"d M, h:i A" }}{% else %}not seen yet{% endif %}</small></span></span>
+    <span class="dt-info">Started {{ thread.created_at|date:"d M Y" }}<br>{{ messages|length }} message{{ messages|length|pluralize }} shown (read-only)</span>
+  </div>
+  {% if thread.blocked_by_id %}<div class="dt-blocked"><i class="fas fa-ban"></i> {{ thread.blocked_by.name }} blocked this chat.</div>{% endif %}
+  <div class="dt-msgs" id="dtMsgs">
+    {% for m in messages %}
+      {% ifchanged m.created_at.date %}<div class="dt-day">{{ m.created_at|date:"l, d M Y" }}</div>{% endifchanged %}
+      <div class="dt-msg{% if m.sender_id == b.pk %} b{% endif %}"><span class="who">{{ m.sender.name }}</span><span class="t">{% if m.attachment %}<a href="{% url 'chats_dm_file' m.pk %}" target="_blank" rel="noopener">{{ m.summary }}</a>{% else %}{{ m.summary }}{% endif %}</span><time>{{ m.created_at|date:"h:i A" }}{% if m.sender_id %} · {% if m.read_at %}seen{% else %}not seen yet{% endif %}{% endif %}</time></div>
+    {% empty %}
+      <p class="dt-empty">No messages.</p>
+    {% endfor %}
+  </div>
+</div>
+<script>var m = document.getElementById('dtMsgs'); if (m) m.scrollTop = m.scrollHeight;</script>
+{% endblock %}

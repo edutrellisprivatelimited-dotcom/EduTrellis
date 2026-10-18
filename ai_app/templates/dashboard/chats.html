@@ -1,6 +1,6 @@
 {% extends "dashboard/base.html" %}
-{% block title %}Chats{% endblock %}
-{% block page_title %}Chats{% endblock %}
+{% block title %}Direct Chats{% endblock %}
+{% block page_title %}Direct Chats{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -136,7 +136,7 @@
     </span>
   </a>
   {% empty %}
-  <div class="ch-empty">{% if filtered %}No chats match these filters. <a href="{% url 'dashboard_chats' %}">Clear all</a>{% else %}No chats yet. People who sign up on <a href="{% url 'chats_page' %}" target="_blank" rel="noopener">/chats</a> appear here.{% endif %}</div>
+  <div class="ch-empty">{% if filtered %}No chats match these filters. <a href="{% url 'dashboard_chats' %}">Clear all</a>{% else %}No chats yet. People who sign up on <a href="{% url 'chats_page' %}" target="_blank" rel="noopener">/educhats</a> appear here.{% endif %}</div>
   {% endfor %}
   </div>
 </div>

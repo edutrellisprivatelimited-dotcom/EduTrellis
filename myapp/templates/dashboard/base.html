@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">
+{% include "includes/favicon.html" %}
 <style>
 :root{
   --red:#e8001e; --red-dark:#c0001a; --red-soft:#fff1f3;
@@ -252,15 +252,16 @@ tbody tr:hover{background:var(--bg-alt)}
           <a href="{% url 'dashboard_ai_settings' %}" class="{% if active == 'ai_settings' %}active{% endif %}"><i class="fas fa-sliders"></i> AI Settings</a>
         </div>
       </details>
-      <details class="dash-nav-group{% if active == 'chats' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %} has-active{% endif %}" {% if active == 'chats' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %}open{% endif %}>
-        <summary><i class="fas fa-comments"></i> Chats{% if pending_chats %} <span class="nav-count" style="margin-left:.4rem" title="{{ pending_chats }} waiting for a reply">{{ pending_chats }}</span>{% endif %} <i class="fas fa-chevron-down chev"></i></summary>
+      <details class="dash-nav-group{% if active == 'chats' or active == 'dm_conversations' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %} has-active{% endif %}" {% if active == 'chats' or active == 'dm_conversations' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %}open{% endif %}>
+        <summary><i class="fas fa-comments"></i> EduChats{% if pending_chats %} <span class="nav-count" style="margin-left:.4rem" title="{{ pending_chats }} waiting for a reply">{{ pending_chats }}</span>{% endif %} <i class="fas fa-chevron-down chev"></i></summary>
         <div class="dash-nav-sub">
-          <a href="{% url 'dashboard_chats' %}" class="{% if active == 'chats' %}active{% endif %}"><i class="fas fa-message"></i> Conversations{% if pending_chats %} <span class="nav-count" title="{{ pending_chats }} waiting for a reply">{{ pending_chats }}</span>{% endif %}</a>
-          <a href="{% url 'dashboard_chat_signups' %}" class="{% if active == 'chat_signups' %}active{% endif %}"><i class="fas fa-user-plus"></i> Chat Signups <span class="nav-count">{{ chat_signup_total|default:0 }}</span></a>
-          <a href="{% url 'dashboard_chat_status' %}" class="{% if active == 'chat_status' %}active{% endif %}"><i class="fas fa-signal"></i> Chat User Status <span class="nav-count" id="navOnline">{{ chat_online_total|default:0 }}</span></a>
-          <a href="{% url 'dashboard_chat_ips' %}" class="{% if active == 'chat_ips' %}active{% endif %}"><i class="fas fa-network-wired"></i> Chat IP Addresses <span class="nav-count">{{ chat_ip_total|default:0 }}</span></a>
-          <a href="{% url 'dashboard_chat_profile' %}" class="{% if active == 'chat_profile' %}active{% endif %}"><i class="fas fa-id-badge"></i> Support Profile</a>
-          <a href="{% url 'chats_page' %}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open Chats page</a>
+          {% if request.user.is_superuser %}<a href="{% url 'dashboard_dm_conversations' %}" class="{% if active == 'dm_conversations' %}active{% endif %}" title="Direct chats between members (superuser only)"><i class="fas fa-comments"></i> Conversations</a>{% endif %}
+          <a href="{% url 'dashboard_chats' %}" class="{% if active == 'chats' %}active{% endif %}" title="Messages members send to the support team"><i class="fas fa-inbox"></i> Direct Chats{% if pending_chats %} <span class="nav-count" title="{{ pending_chats }} waiting for a reply">{{ pending_chats }}</span>{% endif %}</a>
+          <a href="{% url 'dashboard_chat_signups' %}" class="{% if active == 'chat_signups' %}active{% endif %}"><i class="fas fa-user-plus"></i> EduChats Signups <span class="nav-count">{{ chat_signup_total|default:0 }}</span></a>
+          <a href="{% url 'dashboard_chat_status' %}" class="{% if active == 'chat_status' %}active{% endif %}"><i class="fas fa-signal"></i> EduChats User Status <span class="nav-count" id="navOnline">{{ chat_online_total|default:0 }}</span></a>
+          <a href="{% url 'dashboard_chat_ips' %}" class="{% if active == 'chat_ips' %}active{% endif %}"><i class="fas fa-network-wired"></i> EduChats IP Addresses <span class="nav-count">{{ chat_ip_total|default:0 }}</span></a>
+          <a href="{% url 'dashboard_chat_profile' %}" class="{% if active == 'chat_profile' %}active{% endif %}"><i class="fas fa-id-badge"></i> EduChats Support Profile</a>
+          {% if request.user.is_superuser %}<a href="{% url 'chats_admin_login' %}" target="_blank" rel="noopener" title="Use EduChats as yourself, with your admin login"><i class="fas fa-arrow-up-right-from-square"></i> Open EduChats as you</a>{% else %}<a href="{% url 'chats_page' %}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open EduChats</a>{% endif %}
         </div>
       </details>
     </nav>

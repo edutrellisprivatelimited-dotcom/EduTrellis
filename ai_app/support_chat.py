@@ -1,4 +1,4 @@
-"""/chats — a support chat with its own accounts, separate from the main login.
+"""/educhats (EduChats) — a support chat with its own accounts, separate from the main login.
 
 A /chats account (ChatUser) has its own password hash and is remembered in
 the session under SESSION_KEY only; it never becomes a django.contrib.auth
@@ -25,6 +25,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .india_locations import INDIA_LOCATIONS
+from .educhats_social import save_socials, socials_json
 from .models import ChatMessage, ChatPasswordReset, ChatUser, SupportProfile
 
 SESSION_KEY = 'support_chat_user_id'
@@ -137,6 +138,61 @@ def _presence(last_seen):
     }
 
 
+# ── live signals: "typing…" and "in the chat" (Snapchat-style) ──
+# Short-lived cache flags, refreshed by the pages while they're on screen.
+# scope: 's<chat user pk>' for a support chat, 'd<thread pk>' for a direct one;
+# who: 'user' / 'staff' (support) or the chat user's pk (direct).
+TYPING_SECONDS = 5
+HERE_SECONDS = 8
+
+
+def _live_key(kind, scope, who):
+    return f'educhats-{kind}-{scope}-{who}'
+
+
+def set_live(kind, scope, who, on=True):
+    if on:
+        cache.set(_live_key(kind, scope, who), 1, TYPING_SECONDS if kind == 'typing' else HERE_SECONDS)
+    else:
+        cache.delete(_live_key(kind, scope, who))
+
+
+def is_live(kind, scope, who):
+    return bool(cache.get(_live_key(kind, scope, who)))
+
+
+@require_POST
+def api_typing(request):
+    """The chat page says "I'm typing" (or stopped) — to support or in a direct chat."""
+    user = current_user(request)
+    if not user:
+        return _fail('Please log in again.', 401)
+    data = _json_body(request)
+    on = bool(data.get('typing'))
+    to = data.get('to')
+    if to == 'support':
+        set_live('typing', f's{user.pk}', 'user', on)
+        return JsonResponse({'ok': True})
+    if user.is_guest:
+        return _fail('Sign up first.', 403)
+    if isinstance(to, str) and to.startswith('g'):
+        from .group_chat import _membership
+        ms = _membership(user, to[1:])
+        if not ms:
+            return _fail('This chat is not available.', 404)
+        set_live('typing', f'g{ms.group_id}', user.pk, on and user.show_activity)
+        return JsonResponse({'ok': True})
+    from .direct_chat import _my_thread
+    try:
+        thread = _my_thread(user, int(to))
+    except (TypeError, ValueError):
+        thread = None
+    if not thread:
+        return _fail('This chat is not available.', 404)
+    set_live('typing', f'd{thread.pk}', user.pk, on and not thread.blocked_by_id)
+    return JsonResponse({'ok': True})
+
+
 def touch_staff():
     """A staff member has the chats open — shows support as online."""
     cache.set(STAFF_SEEN_KEY, timezone.now(), None)
@@ -149,7 +205,9 @@ def _read_upto(user, sender):
 
 
 def _user_status(user):
-    return {'read_upto': _read_upto(user, ChatMessage.SENDER_USER), 'support': _presence(cache.get(STAFF_SEEN_KEY))}
+    # Blue ticks work both ways: with read receipts off the user doesn't see support's either.
+    read_upto = _read_upto(user, ChatMessage.SENDER_USER) if user.read_receipts else 0
+    return {'read_upto': read_upto, 'support': _presence(cache.get(STAFF_SEEN_KEY))}
 
 
 def _message_json(message):
@@ -427,6 +485,29 @@ def api_call(request):
 
 # ── pages ────────────────────────────────────────────────────────────────────
 
+def _me_card(user):
+    """Your own EduChats ID card (tap your photo): everything, plus which parts others see."""
+    return {
+        'name': user.name, 'username': user.username or '', 'bio': user.bio, 'initial': (user.name[:1] or '?').upper(),
+        'photo': reverse('chats_user_photo', args=[user.pk]) + f'?v={int(timezone.now().timestamp())}' if user.photo else '',
+        'cover': reverse('chats_user_cover', args=[user.pk]) + f'?v={int(timezone.now().timestamp())}' if user.cover else '',
+        'phone': user.phone, 'email': user.email, 'ip': user.last_ip or user.ip, 'city': user.city, 'state': user.state,
+        'joined': timezone.localtime(user.created_at).strftime('%d %b %Y'),
+        'show_phone': user.show_phone, 'show_email': user.show_email, 'show_ip': user.show_ip,
+        'show_last_seen': user.show_last_seen,
+        'socials': socials_json(user, only_shown=False),
+    }
+
+
+def _ai_model_name():
+    try:
+        from . import ai_chat
+        from .educhats_ai import _model_key
+        return ai_chat.MODELS.get(_model_key(), {}).get('label') or 'Zyvion Swift'
+    except Exception:
+        return 'Zyvion Swift'
+
+
 def chats_page(request):
     user = current_user(request)
     stamp = ''
@@ -434,6 +515,15 @@ def chats_page(request):
     return render(request, 'chats.html', {
         'chat_user': user,
         'support': support,
+        'appearance': user.appearance if user and not user.is_guest and isinstance(user.appearance, dict) else {},
+        'me_card': _me_card(user) if user and not user.is_guest else None,
+        'support_socials': socials_json(support),
+        # The superuser's own EduChats account *is* the support team, so it gets a
+        # shortcut to the admin inbox instead of a "Support" chat with itself.
+        'is_support_staff': bool(user and user.django_user_id),
+        'support_waiting': (ChatMessage.objects.filter(sender=ChatMessage.SENDER_USER, read_by_admin=False)
+                            .values('user').distinct().count() if user and user.django_user_id else 0),
+        'ai_model_name': _ai_model_name(),
         'support_name_json': json.dumps(support.display_name).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026'),
         'locations': INDIA_LOCATIONS,
         # Tiled faintly over the chat so any capture shows whose chat it is.
@@ -520,6 +610,8 @@ def api_signup(request):
         return _fail(f'Choose a password of at least {MIN_PASSWORD} characters.', field='password')
     if ChatUser.objects.filter(email__iexact=email).exists():
         return _fail('An account with this email already exists. Log in instead, or use "Forgot password".', field='email')
+    if ChatUser.objects.filter(phone=phone_match.group(1), is_guest=False).exists():
+        return _fail('This mobile number is already linked to another EduChats account. Log in instead, or use "Forgot password".', field='phone')
     fields = dict(name=name, username=username, email=email, phone=phone_match.group(1), state=state, city=city,
                   password=make_password(password))
     guest = current_user(request)
@@ -548,7 +640,12 @@ def api_login(request):
     else:
         user = ChatUser.objects.filter(username__iexact=identifier).first() if identifier else None
     if not user or not check_password(str(data.get('password', '')), user.password):
-        return _fail('Wrong email/username or password.', 400)
+        # The site superuser can log in with their EduTrellis admin email + password.
+        from .educhats_admin import chat_account_for, superuser_from_login
+        admin = superuser_from_login(request, identifier, str(data.get('password', '')))
+        if not admin:
+            return _fail('Wrong email/username or password.', 400)
+        user = chat_account_for(admin)
     if not user.is_active:
         return _fail('This account has been turned off. Please contact us if you think this is a mistake.', 403)
     guest = current_user(request)
@@ -614,6 +711,7 @@ def api_messages(request):
             return _fail('You are sending messages too fast. Please wait a minute.', 429)
         cache.set(key, sent + 1, 60)
         message = ChatMessage.objects.create(user=user, sender=ChatMessage.SENDER_USER, body=body)
+        set_live('typing', f's{user.pk}', 'user', False)
         if cid:
             cache.set(cid_key, message.pk, 24 * 3600)
         return JsonResponse({'ok': True, 'message': _message_json(message), **_user_status(user)})
@@ -626,12 +724,17 @@ def api_messages(request):
     if ip and ip != user.last_ip:
         seen.update(last_ip=ip, **({} if user.ip else {'ip': ip}))
     ChatUser.objects.filter(pk=user.pk).update(**seen)
-    rows = list(user.messages.filter(pk__gt=after).order_by('pk')[:200])
-    # The page only polls while it is on screen, so loading a reply = seeing it.
-    user.messages.filter(sender=ChatMessage.SENDER_ADMIN, read_by_user=False).update(read_by_user=True)
+    rows = list(user.messages.filter(pk__gt=max(after, user.support_cleared_upto)).order_by('pk')[:200])
+    if request.GET.get('here'):   # the support chat is the one open on screen
+        set_live('here', f's{user.pk}', 'user')
+    # Replies count as seen only while the support chat is the one open on screen.
+    if request.GET.get('here'):
+        user.messages.filter(sender=ChatMessage.SENDER_ADMIN, read_by_user=False).update(read_by_user=True)
     return JsonResponse({
         'ok': True, 'messages': [_message_json(m) for m in rows], **_user_status(user),
         'locations': _live_locations(user), 'call': _public_call(_call_state(user), 'user'),
+        'support_typing': is_live('typing', f's{user.pk}', 'staff'),
+        'support_here': is_live('here', f's{user.pk}', 'staff'),
     })
 
 
@@ -823,6 +926,7 @@ def dashboard_chat_thread(request, pk):
             flash.error(request, 'Type a reply first.')
             return redirect('dashboard_chat_thread', pk=user.pk)
         message = ChatMessage.objects.create(user=user, sender=ChatMessage.SENDER_ADMIN, body=body)
+        set_live('typing', f's{user.pk}', 'staff', False)
         # Replying answers everything sent so far.
         user.messages.filter(sender=ChatMessage.SENDER_USER, read_by_admin=False).update(read_by_admin=True)
         if wants_json:
@@ -832,7 +936,7 @@ def dashboard_chat_thread(request, pk):
     user.messages.filter(sender=ChatMessage.SENDER_USER, read_by_admin=False).update(read_by_admin=True)
     return render(request, 'dashboard/chat_thread.html', {
         'active': 'chats', 'chat_user': user, 'same_ip': _chats_per_ip().get(user.ip, 0) if user.ip else 0, 'thread': [_message_json(m) for m in user.messages.order_by('pk')],
-        'presence': _presence(user.last_seen_at), 'seen_upto': _read_upto(user, ChatMessage.SENDER_ADMIN),
+        'presence': _presence(user.last_seen_at), 'seen_upto': _read_upto(user, ChatMessage.SENDER_ADMIN) if user.read_receipts else 0,
         'last_id': user.messages.order_by('-pk').values_list('pk', flat=True).first() or 0,
     })
 
@@ -845,13 +949,24 @@ def dashboard_chat_poll(request, pk):
     except ValueError:
         after = 0
     touch_staff()
+    set_live('here', f's{user.pk}', 'staff')   # this chat is open on a staff screen
     rows = list(user.messages.filter(pk__gt=after).order_by('pk')[:200])
     user.messages.filter(pk__in=[m.pk for m in rows], sender=ChatMessage.SENDER_USER).update(read_by_admin=True)
     return JsonResponse({
         'ok': True, 'messages': [_message_json(m) for m in rows],
-        'seen_upto': _read_upto(user, ChatMessage.SENDER_ADMIN), 'user': _presence(user.last_seen_at),
+        'seen_upto': _read_upto(user, ChatMessage.SENDER_ADMIN) if user.read_receipts else 0, 'user': _presence(user.last_seen_at),
         'locations': _live_locations(user), 'call': _public_call(_call_state(user), 'admin'),
+        'user_typing': is_live('typing', f's{user.pk}', 'user'),
+        'user_here': is_live('here', f's{user.pk}', 'user'),
     })
+
+
+@require_POST
+def dashboard_chat_typing(request, pk):
+    """Staff typing a reply — shown to the user as "typing…"."""
+    user = get_object_or_404(ChatUser, pk=pk)
+    set_live('typing', f's{user.pk}', 'staff', bool(_json_body(request).get('typing')))
+    return JsonResponse({'ok': True})
 
 
 def dashboard_chat_call(request, pk):
@@ -896,7 +1011,7 @@ MAX_PHOTO_MB = 5
 
 
 def support_photo(request):
-    """The support team's picture, shown to everyone on /chats."""
+    """The support team's picture, shown to everyone on /educhats."""
     import os
     from django.http import FileResponse, Http404
     profile = SupportProfile.load()
@@ -941,6 +1056,9 @@ def _save_chat_profile(request, profile):
         except ValidationError:
             return 'Please enter a valid support email address.'
     profile.support_email = email
+    social_field, social_error = save_socials(profile, request.POST)
+    if social_error:
+        return social_error
     if (photo or request.POST.get('remove_photo')) and profile.photo:
         try:
             profile.photo.delete(save=False)
@@ -1007,8 +1125,12 @@ def user_photo(request, pk):
     me = current_user(request)
     staff = request.user.is_authenticated and request.user.is_staff
     ext = os.path.splitext(owner.photo.name or '')[1].lower()
-    if not owner.photo or ext not in PHOTO_TYPES or not (staff or (me and me.pk == owner.pk)):
+    if not owner.photo or ext not in PHOTO_TYPES:
         raise Http404
+    if not (staff or (me and me.pk == owner.pk)):
+        from .direct_chat import shares_thread
+        if not (me and not me.is_guest and shares_thread(me, owner)):
+            raise Http404
     try:
         handle = owner.photo.open('rb')
     except FileNotFoundError:
@@ -1055,10 +1177,15 @@ def api_profile(request):
             return _fail(username_error, field='username')
     if not phone:
         return _fail('Please enter a valid 10-digit Indian mobile number.', field='phone')
+    if ChatUser.objects.filter(phone=phone.group(1), is_guest=False).exclude(pk=user.pk).exists():
+        return _fail('This mobile number is already linked to another EduChats account.', field='phone')
     if state not in INDIA_LOCATIONS:
         return _fail('Please choose your state.', field='state')
     if city not in INDIA_LOCATIONS[state]:
         return _fail('Please choose your city.', field='city')
+    social_field, social_error = save_socials(user, data)   # checked before any photo is touched
+    if social_error:
+        return _fail(social_error, field=social_field)
     new = data.get('new_password', '')
     if new:
         if not check_password(data.get('current_password', ''), user.password):
@@ -1080,11 +1207,13 @@ def api_profile(request):
     if photo:
         user.photo.save(secrets.token_hex(8) + ext, photo, save=False)
     user.name, user.phone, user.state, user.city = name, phone.group(1), state, city
+    user.bio = re.sub(r'\s+', ' ', data.get('bio', '')).strip()[:160]
+    user.show_bio = data.get('show_bio') == '1'
     user.username = username or user.username
     user.save()
     if new:
         _sign_in(request, user)
-    return JsonResponse({'ok': True, 'name': user.name,
+    return JsonResponse({'ok': True, 'name': user.name, 'me_card': _me_card(user),
                          'photo': reverse('chats_user_photo', args=[user.pk]) + f'?v={secrets.token_hex(3)}' if user.photo else ''})
 
 
@@ -1180,7 +1309,7 @@ def _apply_edit(request, user):
 
 
 def dashboard_chat_status(request):
-    """Who is on /chats right now, refreshed live by the page."""
+    """Who is on /educhats right now, refreshed live by the page."""
     users = list(ChatUser.objects.filter(last_seen_at__isnull=False).order_by('-last_seen_at')[:100])
     rows = []
     for user in users:
@@ -1234,3 +1363,71 @@ def dashboard_chat_ips(request):
         'no_ip': ChatUser.objects.filter(ip='').count(),
     }
     return render(request, 'dashboard/chat_ips.html', {'active': 'chat_ips', 'rows': rows, 'stats': stats, 'q': q})
+
+
+def _can_see_pictures(request, owner):
+    """A chat user's photo/cover: that user, staff, or someone they share a direct chat with."""
+    me = current_user(request)
+    if request.user.is_authenticated and request.user.is_staff:
+        return True
+    if me and me.pk == owner.pk:
+        return True
+    from .direct_chat import shares_thread
+    from .group_chat import shares_group
+    return bool(me and not me.is_guest and (shares_thread(me, owner) or shares_group(me, owner)))
+
+
+def user_cover(request, pk):
+    import os
+    from django.http import FileResponse, Http404
+    owner = get_object_or_404(ChatUser, pk=pk)
+    ext = os.path.splitext(owner.cover.name or '')[1].lower()
+    if not owner.cover or ext not in PHOTO_TYPES or not _can_see_pictures(request, owner):
+        raise Http404
+    try:
+        handle = owner.cover.open('rb')
+    except FileNotFoundError:
+        raise Http404
+    response = FileResponse(handle, content_type=PHOTO_TYPES[ext])
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Cache-Control'] = 'private, max-age=300'
+    return response
+
+
+@require_POST
+def api_cover(request):
+    """⋮ → Cover photo: upload a new banner (shrunk to 1600 px, saved as JPEG) or remove it."""
+    import io
+    from django.core.files.base import ContentFile
+    from PIL import Image, ImageOps
+    user = current_user(request)
+    if not user:
+        return _fail('Please log in again.', 401)
+    if user.is_guest:
+        return _fail('Please sign up first to add a cover photo.', 403)
+    upload = request.FILES.get('cover')
+    if not upload and not request.POST.get('remove'):
+        return _fail('Choose a picture first.')
+    if upload:
+        ext, error = _check_photo(upload)
+        if error:
+            return _fail(error, field='cover')
+        try:
+            with Image.open(upload) as source:
+                picture = ImageOps.exif_transpose(source).convert('RGB')
+                picture.thumbnail((1600, 1600))
+                out = io.BytesIO()
+                picture.save(out, format='JPEG', quality=85, optimize=True)
+        except Exception:
+            return _fail('That picture could not be read. Please try another one.', field='cover')
+    if user.cover:
+        try:
+            user.cover.delete(save=False)
+        except OSError:
+            pass
+        user.cover = None
+    if upload:
+        user.cover.save(secrets.token_hex(8) + '.jpg', ContentFile(out.getvalue()), save=False)
+    user.save(update_fields=['cover'])
+    url = reverse('chats_user_cover', args=[user.pk]) + f'?v={secrets.token_hex(3)}' if user.cover else ''
+    return JsonResponse({'ok': True, 'cover': url})

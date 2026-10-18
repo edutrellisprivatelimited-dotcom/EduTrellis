@@ -1,6 +1,6 @@
 {% extends "dashboard/base.html" %}
-{% block title %}Update Profile{% endblock %}
-{% block page_title %}Update Profile{% endblock %}
+{% block title %}EduChats Support Profile{% endblock %}
+{% block page_title %}EduChats Support Profile{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -24,6 +24,8 @@
 .pf-preview .bar small{font-size:.72rem;opacity:.85}
 .pf-preview .wall{background:#efeae2;padding:1rem;text-align:center}
 .pf-preview .wall p{display:inline-block;margin:0;background:#fff;color:#333;border-radius:12px;padding:.7rem 1rem;font-size:.82rem;max-width:280px}
+.pf-socials{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}
+@media (max-width:520px){.pf-socials{grid-template-columns:1fr}}
 .pf-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:1.2rem 0 .4rem}
 </style>
 {% endblock %}
@@ -37,7 +39,7 @@
   <form class="form-card pf-card" method="post" enctype="multipart/form-data">
     {% csrf_token %}<input type="hidden" name="section" value="chat">
     <h3><i class="fas fa-headset"></i> Chat profile</h3>
-    <p class="pf-sub">This is how your team appears to people on the /chats page.</p>
+    <p class="pf-sub">This is how your team appears to people on EduChats (/educhats).</p>
     <div class="pf-photo">
       <span class="pf-av" id="pfAv">{% if profile.photo %}<img src="{% url 'chats_support_photo' %}?v={{ profile.updated_at|date:'U' }}" alt="">{% else %}<i class="fas fa-headset"></i>{% endif %}</span>
       <div class="pf-photo-actions">
@@ -55,6 +57,13 @@
       <textarea id="pfWelcome" name="welcome" rows="3" maxlength="300">{{ profile.welcome }}</textarea></div>
     <div class="form-group"><label for="pfSupportEmail">Support email <span class="pf-hint">(shown when someone forgets their password)</span></label>
       <input type="email" id="pfSupportEmail" name="support_email" value="{{ profile.support_email }}" placeholder="support@example.com"></div>
+    <div class="pf-label">Social links <span class="pf-hint" style="text-transform:none;letter-spacing:0;font-weight:500">(shown on the Support ID card — a username or a profile link)</span></div>
+    <div class="pf-socials">
+      <div class="form-group"><label for="pfSnap"><i class="fab fa-snapchat" style="color:#e6c800"></i> Snapchat</label><input type="text" id="pfSnap" name="snapchat" value="{{ profile.snapchat }}" maxlength="200" placeholder="username or link"></div>
+      <div class="form-group"><label for="pfInsta"><i class="fab fa-instagram" style="color:#d62976"></i> Instagram</label><input type="text" id="pfInsta" name="instagram" value="{{ profile.instagram }}" maxlength="200" placeholder="username or link"></div>
+      <div class="form-group"><label for="pfFb"><i class="fab fa-facebook" style="color:#1877f2"></i> Facebook</label><input type="text" id="pfFb" name="facebook" value="{{ profile.facebook }}" maxlength="200" placeholder="username or link"></div>
+      <div class="form-group"><label for="pfIn"><i class="fab fa-linkedin" style="color:#0a66c2"></i> LinkedIn</label><input type="text" id="pfIn" name="linkedin" value="{{ profile.linkedin }}" maxlength="200" placeholder="linkedin.com/in/… or company/…"></div>
+    </div>
     <button class="btn btn-primary" type="submit"><i class="fas fa-floppy-disk"></i> Save chat profile</button>
 
     <div class="pf-label">Live preview</div>

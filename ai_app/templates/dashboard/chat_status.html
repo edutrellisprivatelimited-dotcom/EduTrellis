@@ -1,6 +1,6 @@
 {% extends "dashboard/base.html" %}
-{% block title %}User Status{% endblock %}
-{% block page_title %}User Status{% endblock %}
+{% block title %}EduChats User Status{% endblock %}
+{% block page_title %}EduChats User Status{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -36,7 +36,7 @@
 
 {% block content %}
 <div class="us-hero">
-  <div class="us-big"><span class="us-pulse"></span><div><span class="n" id="usOnline">{{ online }}</span><small>online on /chats right now</small></div></div>
+  <div class="us-big"><span class="us-pulse"></span><div><span class="n" id="usOnline">{{ online }}</span><small>online on EduChats right now</small></div></div>
   <div class="us-note">Out of {{ total }} account{{ total|pluralize }}. Updates live every 5 seconds — no refresh needed.<br>
     Support is <b id="usSupport">online</b> while someone from your team has the chats open.</div>
 </div>

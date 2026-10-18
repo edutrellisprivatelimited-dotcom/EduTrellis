@@ -36,7 +36,7 @@
 <meta name="twitter:image" content="{% if site_customization.share_image %}https://www.edutrellis.in{{ site_customization.share_image.url }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
 
 <!-- Favicon -->
-<link rel="icon" href="{% if site_customization.favicon %}{{ site_customization.favicon.url }}{% else %}{% static 'favicon.ico' %}{% endif %}">
+{% include "includes/favicon.html" %}
 
 <!-- Local Business Schema -->
 <script type="application/ld+json">

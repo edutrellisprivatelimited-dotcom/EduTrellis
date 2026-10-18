@@ -7,12 +7,12 @@ from .views import dashboard_staff_required
 # Mounted at /ai/ in edutrellis/urls.py — every pattern here is relative to
 # that prefix (e.g. '' -> /ai/, 'api/send/' -> /ai/api/send/). Ported from
 # Vidhyora, where the chat sat at / with its APIs under /AI/api/. The support
-# chat is a separate product at /chats/ (see chats_urls.py).
+# chat is a separate product, EduChats, at /educhats/ (see chats_urls.py).
 urlpatterns = [
     path('', views.ai_page, name='ai_home'),
-    # The support chat moved to /chats/ (ai_app/chats_urls.py); old links redirect.
-    path('chats/', RedirectView.as_view(url='/chats/', permanent=True)),
-    path('chats/<path:rest>', RedirectView.as_view(url='/chats/%(rest)s', permanent=True)),
+    # The support chat moved to /educhats/ (ai_app/chats_urls.py); old links redirect.
+    path('chats/', RedirectView.as_view(url='/educhats/', permanent=True)),
+    path('chats/<path:rest>', RedirectView.as_view(url='/educhats/%(rest)s', permanent=True)),
     path('manifest.json', views.ai_manifest, name='ai_manifest'),
     path('pwa-icon/<int:size>.png', views.ai_pwa_icon, name='ai_pwa_icon'),
     path('sw.js', views.pwa_service_worker, name='ai_service_worker'),
