@@ -1564,7 +1564,8 @@ EduLook.apply(EduLook.get());
   function post(url, data) {
     return fetch(url, {
       method: 'POST', credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': freshCsrf() },
+      // freshCsrf only exists once there's a chat account — a first visit has just `csrf`
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': typeof freshCsrf === 'function' ? freshCsrf() : csrf },
       body: JSON.stringify(data || {})
     }).then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Something went wrong. Please try again.' }; }); });
   }
