@@ -968,26 +968,20 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 @keyframes wtWave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(18deg)}40%,80%{transform:rotate(-10deg)}}
 @media (prefers-reduced-motion:reduce){.welcome-fx *,.edu-toast,.edu-toast *,.edu-toast::before{animation-duration:.01s !important;animation-delay:0s !important}}
 /* ── EduTrellis AI chat (pinned at the top, open by default) ── */
-/* the AI's picture is alive: a turning colour wheel, an orbiting light, a twinkling wand */
-.side-ava.ai-ava,.chat.ai .chat-head .ava{position:relative;isolation:isolate;overflow:visible;background:none !important;font-size:1.1rem;color:#fff;animation:aiBreath 3s ease-in-out infinite}
+/* the AI's picture is alive: a turning colour wheel and a twinkling wand */
+.side-ava.ai-ava,.chat.ai .chat-head .ava{position:relative;isolation:isolate;overflow:visible;background:none !important;font-size:1.1rem;color:#fff}
 .side-ava.ai-ava::before,.chat.ai .chat-head .ava::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:conic-gradient(from 0deg,var(--accent),#7c3aed,#2563eb,#06b6d4,var(--accent));animation:aiSpin 5s linear infinite}
-.side-ava.ai-ava::after,.chat.ai .chat-head .ava::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;border-top-color:rgba(255,255,255,.9);border-right-color:rgba(var(--accent-rgb),.55);animation:aiSpin 1.8s linear infinite reverse}
 .side-ava.ai-ava>i,.chat.ai .chat-head .ava>i{filter:drop-shadow(0 0 6px rgba(255,255,255,.75));animation:aiWand 2.6s ease-in-out infinite}
 @keyframes aiSpin{to{transform:rotate(360deg)}}
-@keyframes aiBreath{0%,100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.0),0 0 12px rgba(124,58,237,.35)}50%{box-shadow:0 0 0 5px rgba(var(--accent-rgb),.12),0 0 22px rgba(124,58,237,.6)}}
 @keyframes aiWand{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-14deg) scale(1.08)}50%{transform:rotate(8deg) scale(.96)}75%{transform:rotate(-4deg) scale(1.1)}}
 @keyframes aiGlow{50%{transform:scale(1.08);opacity:.25}}
-/* my picture without a photo (or a guest): an aurora that turns, an orbiting spark, a floating letter */
-.side-me.me-live{position:relative;isolation:isolate;overflow:visible;background:none;box-shadow:0 0 0 2px rgba(var(--accent-rgb),.25),0 0 16px rgba(var(--accent-rgb),.35)}
-.side-me.me-live::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:conic-gradient(from 90deg,var(--accent),var(--accent-light,#fda4af),#f59e0b,var(--accent-dark),var(--accent));animation:aiSpin 6s linear infinite}
-.side-me.me-live::after{content:"";position:absolute;inset:3px;z-index:-1;border-radius:inherit;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 55%),linear-gradient(160deg,rgba(15,22,35,.15),rgba(15,22,35,.45))}
-.side-me .me-letter{font-weight:900;font-size:1.05rem;text-shadow:0 1px 6px rgba(0,0,0,.35);animation:meFloat 3.2s ease-in-out infinite}
-.side-me.me-live>.fa-user{animation:meFloat 3.2s ease-in-out infinite}
-.me-spark{display:none}
-.side-me.me-live .me-spark{display:block;position:absolute;inset:-4px;border-radius:50%;animation:aiSpin 3s linear infinite;pointer-events:none}
-.side-me.me-live .me-spark::before{content:"";position:absolute;top:-1px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:#fff;box-shadow:0 0 8px 2px rgba(255,255,255,.9),0 0 14px 4px rgba(var(--accent-rgb),.6)}
-@keyframes meFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.08)}}
-@media (prefers-reduced-motion:reduce){.side-ava.ai-ava,.side-ava.ai-ava::before,.side-ava.ai-ava::after,.side-ava.ai-ava>i,.chat.ai .chat-head .ava,.chat.ai .chat-head .ava::before,.chat.ai .chat-head .ava::after,.chat.ai .chat-head .ava>i,.side-me.me-live::before,.side-me .me-letter,.side-me.me-live>.fa-user,.side-me.me-live .me-spark{animation:none}}
+/* my picture without a photo (or a guest): the usual circle with a glossy shine and a shining letter */
+.side-me.me-live{position:relative;isolation:isolate}
+.side-me.me-live::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.38),transparent 52%),linear-gradient(180deg,transparent 55%,rgba(0,0,0,.18))}
+.side-me .me-letter,.side-me.me-live>.fa-user{font-weight:900;font-size:1.1rem;letter-spacing:.01em;background:linear-gradient(110deg,#fff 0%,#fff 36%,#ffe8b0 46%,#fff7e0 50%,#fff 60%,#fff 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));animation:meShine 3.6s ease-in-out infinite}
+.side-me.me-live>.fa-user{font-size:1rem}
+@keyframes meShine{0%{background-position:100% 0}55%,100%{background-position:-60% 0}}
+@media (prefers-reduced-motion:reduce){.side-ava.ai-ava::before,.side-ava.ai-ava>i,.chat.ai .chat-head .ava::before,.chat.ai .chat-head .ava>i,.side-me .me-letter,.side-me.me-live>.fa-user{animation:none}}
 .side-tab[hidden]{display:none}
 .ai-tag{flex:0 0 auto;padding:.05rem .4rem;border-radius:6px;background:linear-gradient(90deg,var(--accent),#7c3aed);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.04em}
 
@@ -1595,7 +1589,7 @@ EduLook.apply(EduLook.get());
 {% if chat_user %}
 <aside class="side" id="side" aria-label="EduChats">
   <div class="side-top">
-    <span class="side-me{% if not chat_user.photo or chat_user.is_guest %} me-live{% endif %}">{% if chat_user.is_guest %}<i class="fas fa-user"></i>{% elif chat_user.photo %}<img src="{% url 'chats_user_photo' chat_user.pk %}" alt="">{% else %}<b class="me-letter">{{ chat_user.name|slice:":1"|upper }}</b>{% endif %}<i class="me-spark" aria-hidden="true"></i></span>
+    <span class="side-me{% if not chat_user.photo or chat_user.is_guest %} me-live{% endif %}">{% if chat_user.is_guest %}<i class="fas fa-user"></i>{% elif chat_user.photo %}<img src="{% url 'chats_user_photo' chat_user.pk %}" alt="">{% else %}<b class="me-letter">{{ chat_user.name|slice:":1"|upper }}</b>{% endif %}</span>
     <div class="side-title"><b>EduChats</b><small>{% if chat_user.is_guest %}Guest · log in to keep your chats{% elif chat_user.username %}@{{ chat_user.username }}{% else %}{{ chat_user.name }}{% endif %}</small></div>
     <div class="side-actions">
       {% if not chat_user.is_guest %}<button class="side-icon side-lock" id="lockNowBtn" type="button" title="Lock EduChats now" aria-label="Lock EduChats now" hidden><i class="fas fa-lock"></i></button>{% endif %}
