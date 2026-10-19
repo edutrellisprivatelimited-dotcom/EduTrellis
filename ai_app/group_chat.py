@@ -70,9 +70,16 @@ def _message_json(message, me, names=None):
         'name': (names or {}).get(message.sender_id) or (message.sender.name if message.sender_id and message.sender else ''),
         'at': timezone.localtime(message.created_at).isoformat(),
     }
-    if message.attachment:
+    if message.attachment and not message.view_once:
         data['url'] = reverse('chats_group_file', args=[message.pk])
         data['file'] = message.attachment_name
+    if message.view_once:
+        from .educhats_share import once_json
+        seen = message.opened_by or []
+        data.update(once_json(message, 'g', bool(seen) if data['mine'] else me.pk in seen))
+    if message.kind == 'location' and message.latitude is not None:
+        from .educhats_share import location_json
+        data.update(location_json(message))
     return data
 
 
@@ -211,8 +218,9 @@ def api_group_messages(request, group_id):
     if newest > ms.last_read:
         GroupMember.objects.filter(pk=ms.pk).update(last_read=newest)
         ms.last_read = newest
+    from .educhats_share import live_locations
     return JsonResponse({
-        'ok': True, 'messages': [_message_json(m, me) for m in rows],
+        'ok': True, 'messages': [_message_json(m, me) for m in rows], 'locations': live_locations(group.messages),
         'read_upto': _read_by_all(group, me), 'typing': _typing(group, me),
         'group': _group_json(group, ms, rows[-1] if rows else None, 0, me),
     })
@@ -244,7 +252,8 @@ def api_group_upload(request, group_id):
         return _fail(error)
     if upload.size > MAX_UPLOAD_MB * 1024 * 1024:
         return _fail(f'Files can be up to {MAX_UPLOAD_MB} MB.')
-    message = GroupMessage(group=ms.group, sender=me, kind=kind, body=caption,
+    from .educhats_share import wants_once
+    message = GroupMessage(group=ms.group, sender=me, kind=kind, body=caption, view_once=wants_once(request, kind),
                            attachment_name=('Voice message' + ext) if kind == 'voice' else os.path.basename(upload.name)[:200])
     upload.name = secrets.token_hex(12) + ext
     message.attachment = upload
@@ -463,6 +472,10 @@ def group_file(request, pk):
     message = GroupMessage.objects.filter(pk=pk).first()
     if not message or not message.attachment or not _member_or_admin(request, message.group_id):
         raise Http404
+    if message.view_once:
+        from .educhats_share import once_link_ok
+        if not once_link_ok(request, 'g', message.pk):
+            raise Http404
     ext = os.path.splitext(message.attachment.name)[1].lower()
     try:
         handle = message.attachment.open('rb')

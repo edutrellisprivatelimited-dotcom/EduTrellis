@@ -17,6 +17,27 @@
       (lng + d) + ',' + (lat + d) + '&layer=mapnik&marker=' + lat + ',' + lng;
   }
 
+  // A clean little map for a chat bubble: OpenStreetMap tiles around the point and a pin
+  // (no embedded page, so no buttons or credits cluttering it, and nothing to load but pictures).
+  function staticMap(box, lat, lng) {
+    var z = 15, n = Math.pow(2, z), r = lat * Math.PI / 180;
+    var px = (lng + 180) / 360 * n * 256, py = (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n * 256;
+    var cx = Math.floor(px / 256), cy = Math.floor(py / 256);
+    box.textContent = '';
+    var layer = el('div', 'sm-layer');
+    for (var dx = -1; dx <= 1; dx++) for (var dy = -1; dy <= 1; dy++) {
+      var tx = cx + dx, ty = cy + dy;
+      if (ty < 0 || ty >= n) continue;
+      var t = el('img', 'sm-tile'); t.alt = ''; t.draggable = false; t.loading = 'lazy';
+      t.src = 'https://tile.openstreetmap.org/' + z + '/' + ((tx % n) + n) % n + '/' + ty + '.png';
+      t.style.left = Math.round(tx * 256 - px) + 'px'; t.style.top = Math.round(ty * 256 - py) + 'px';
+      layer.appendChild(t);
+    }
+    box.appendChild(layer);
+    var pin = el('span', 'sm-pin'); pin.innerHTML = '<i class="fas fa-location-dot"></i>'; box.appendChild(pin);
+    box.appendChild(el('span', 'sm-credit', '© OpenStreetMap'));
+  }
+
   function liveLabel(loc) {
     if (!loc.live_until) return 'Location';
     if (!loc.live) return 'Live location ended';
@@ -27,6 +48,7 @@
   // Fills a bubble's content area for message m.
   function renderBody(box, m) {
     box.textContent = '';
+    if (m.once) { box.appendChild(onceBubble(m)); return; }
     if (m.kind === 'image' && m.url) {
       var img = el('img', 'att-img');
       img.src = m.url; img.alt = m.name || 'Photo'; img.loading = 'lazy'; img.draggable = false;
@@ -51,9 +73,8 @@
     } else if (m.kind === 'location' && m.lat != null) {
       var wrap = el('div', 'att-loc');
       wrap.dataset.locId = m.id;
-      var frame = el('iframe', 'att-map');
-      frame.src = mapSrc(m.lat, m.lng); frame.loading = 'lazy'; frame.title = 'Map';
-      frame.setAttribute('referrerpolicy', 'no-referrer');
+      var frame = el('div', 'att-map');
+      staticMap(frame, m.lat, m.lng);
       wrap.appendChild(frame);
       var row = el('div', 'att-loc-row');
       var label = el('span', 'att-loc-label' + (m.live ? ' live' : ''));
@@ -64,7 +85,9 @@
       row.appendChild(open);
       wrap.appendChild(row);
       box.appendChild(wrap);
-      wrap._loc = { lat: m.lat, lng: m.lng };
+      wrap._loc = { lat: m.lat, lng: m.lng, live: !!m.live, live_until: m.live_until, updated: m.updated, who: m.name || '' };
+      wrap.title = 'Open the map';
+      wrap.addEventListener('click', function (e) { if (!e.target.closest('.att-loc-open')) openMap(wrap); });
     } else if (m.kind === 'sticker' && /^[0-9a-f_]+$/.test(m.body || '')) {
       box.classList.add('is-sticker');
       var st = el('img', 'att-sticker');
@@ -284,12 +307,316 @@
       var label = wrap.querySelector('.att-loc-label');
       label.textContent = liveLabel(loc);
       label.classList.toggle('live', !!loc.live);
-      if (!wrap._loc || wrap._loc.lat !== loc.lat || wrap._loc.lng !== loc.lng) {
-        wrap._loc = { lat: loc.lat, lng: loc.lng };
-        wrap.querySelector('.att-map').src = mapSrc(loc.lat, loc.lng);
+      var old = wrap._loc || {};
+      var moved = old.lat !== loc.lat || old.lng !== loc.lng;
+      wrap._loc = { lat: loc.lat, lng: loc.lng, live: !!loc.live, live_until: loc.live_until, updated: loc.updated, who: old.who || '' };
+      if (moved) {
+        staticMap(wrap.querySelector('.att-map'), loc.lat, loc.lng);
         wrap.querySelector('.att-loc-open').href = 'https://www.google.com/maps?q=' + loc.lat + ',' + loc.lng;
       }
+      if (mapView && mapView.wrap === wrap) mapView.update();
     });
+  }
+
+  function csrfToken() {
+    if (typeof api.csrf === 'function') return api.csrf();
+    if (api.csrf) return api.csrf;
+    var c = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+    if (c) return decodeURIComponent(c[1]);
+    var i = document.querySelector('[name=csrfmiddlewaretoken]');
+    return i ? i.value : '';
+  }
+
+  // ── view once ──────────────────────────────────────────────────────────────
+  // The bubble shows ① Photo / ① Video; the person it was sent to taps it once to
+  // see it full screen. After that (and for the sender) it only says "Opened".
+  function onceMine(node, m) {
+    if (typeof m.mine === 'boolean') return m.mine;
+    var b = node.closest('.msg, .th-msg');
+    if (!b) return false;
+    return b.classList.contains('th-msg') ? b.classList.contains('admin') : b.classList.contains('user');
+  }
+  function onceBubble(m) {
+    var b = el('button', 'att-once'); b.type = 'button';
+    var ic = el('span', 'once-ic'), txt = el('span', 'once-txt'), sub = el('small', 'once-sub');
+    var label = m.kind === 'video' ? 'Video' : 'Photo';
+    function paint(opened) {
+      b.classList.toggle('opened', !!opened);
+      ic.innerHTML = opened ? '<i class="fas fa-eye-slash"></i>' : '<b>1</b>';
+      txt.textContent = opened ? 'Opened' : label;
+      sub.textContent = opened ? 'View once ' + label.toLowerCase() : 'View once';
+    }
+    paint(m.opened);
+    var words = el('span', 'once-words'); words.appendChild(txt); words.appendChild(sub);
+    b.appendChild(ic); b.appendChild(words);
+    setTimeout(function () { if (b.isConnected && onceMine(b, m)) b.classList.add('mine'); }, 0);
+    b.addEventListener('click', function () {
+      if (b.classList.contains('opened') || b.classList.contains('busy')) return;
+      if (onceMine(b, m)) { flashTip(b, 'Only the person you sent it to can open it — one time.'); return; }
+      if (!m.open_url) return;
+      b.classList.add('busy');
+      fetch(m.open_url, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRFToken': csrfToken() } })
+        .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Could not open it. Please try again.' }; }).then(function (j) { j.status = r.status; return j; }); })
+        .then(function (res) {
+          b.classList.remove('busy');
+          if (res.status === 410) { paint(true); return; }
+          if (!res.ok) { flashTip(b, res.error || 'Could not open it.'); return; }
+          showOnce(res, function () { paint(true); });
+        })
+        .catch(function () { b.classList.remove('busy'); flashTip(b, 'Could not reach the server.'); });
+    });
+    return b;
+  }
+  function flashTip(anchor, text) {
+    var t = el('div', 'once-tip', text);
+    document.body.appendChild(t);
+    var r = anchor.getBoundingClientRect();
+    t.style.left = Math.max(8, Math.min(r.left, window.innerWidth - t.offsetWidth - 8)) + 'px';
+    t.style.top = Math.max(8, r.top - t.offsetHeight - 8) + 'px';
+    setTimeout(function () { t.classList.add('gone'); setTimeout(function () { t.remove(); }, 300); }, 2200);
+  }
+  function showOnce(res, done) {
+    var v = el('div', 'once-viewer');
+    var top = el('div', 'once-top');
+    var badge = el('span', 'once-badge'); badge.innerHTML = '<b>1</b>';
+    top.appendChild(badge);
+    top.appendChild(el('span', 'once-title', 'View once ' + (res.kind === 'video' ? 'video' : 'photo')));
+    var x = el('button', 'once-x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.innerHTML = '<i class="fas fa-xmark"></i>';
+    top.appendChild(x);
+    v.appendChild(top);
+    var stage = el('div', 'once-stage'), media;
+    if (res.kind === 'video') {
+      media = el('video'); media.src = res.url; media.controls = true; media.autoplay = true; media.playsInline = true;
+      media.setAttribute('controlsList', 'nodownload noplaybackrate noremoteplayback'); media.disablePictureInPicture = true;
+    } else {
+      media = el('img'); media.src = res.url; media.alt = ''; media.draggable = false;
+    }
+    stage.appendChild(media);
+    v.appendChild(stage);
+    if (res.caption) v.appendChild(el('div', 'once-cap', res.caption));
+    v.appendChild(el('div', 'once-note', 'This ' + (res.kind === 'video' ? 'video' : 'photo') + ' can only be viewed once. When you close it, it\'s gone.'));
+    v.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    document.body.appendChild(v);
+    requestAnimationFrame(function () { v.classList.add('open'); });
+    function close() {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('visibilitychange', onHide);
+      if (media.pause) media.pause();
+      media.removeAttribute('src'); if (media.load) try { media.load(); } catch (e) {}
+      v.remove(); done();
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    function onHide() { if (document.hidden) close(); }   // switching away ends it, like WhatsApp
+    x.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('visibilitychange', onHide);
+  }
+
+  // ── maps (Leaflet + OpenStreetMap, loaded the first time a map opens) ─────────
+  var leafletReady = null;
+  function loadLeaflet() {
+    if (window.L && window.L.map) return Promise.resolve(window.L);
+    if (leafletReady) return leafletReady;
+    leafletReady = new Promise(function (resolve, reject) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+      document.head.appendChild(css);
+      var js = document.createElement('script');
+      js.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+      js.onload = function () { resolve(window.L); };
+      js.onerror = function () { leafletReady = null; reject(new Error('map')); };
+      document.head.appendChild(js);
+    });
+    return leafletReady;
+  }
+  var TILES = {
+    map: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', '&copy; OpenStreetMap contributors', 19],
+    sat: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 'Imagery &copy; Esri', 19]
+  };
+  function pinIcon(L, live) {
+    return L.divIcon({ className: 'mv-pin-wrap', iconSize: [40, 52], iconAnchor: [20, 50],
+      html: '<span class="mv-pin' + (live ? ' live' : '') + '"><i class="fas fa-location-dot"></i></span>' });
+  }
+  function meIcon(L) { return L.divIcon({ className: 'mv-me-wrap', iconSize: [22, 22], iconAnchor: [11, 11], html: '<span class="mv-me"></span>' }); }
+  function km(a, b) {
+    var R = 6371, toR = Math.PI / 180, dLat = (b.lat - a.lat) * toR, dLng = (b.lng - a.lng) * toR;
+    var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * toR) * Math.cos(b.lat * toR) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  function distText(d) { return d < 1 ? Math.round(d * 1000) + ' m away' : (d < 10 ? d.toFixed(1) : Math.round(d)) + ' km away'; }
+  var placeCache = {};
+  function placeName(lat, lng) {
+    var key = lat.toFixed(4) + ',' + lng.toFixed(4);
+    if (placeCache[key]) return placeCache[key];
+    placeCache[key] = fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&lat=' + lat + '&lon=' + lng, { headers: { 'Accept-Language': navigator.language || 'en' } })
+      .then(function (r) { return r.json(); }).then(function (j) { return (j && j.display_name) || ''; })
+      .catch(function () { delete placeCache[key]; return ''; });
+    return placeCache[key];
+  }
+  function agoText(iso) {
+    if (!iso) return '';
+    var s = Math.max(0, (Date.now() - new Date(iso)) / 1000);
+    return s < 60 ? 'Updated just now' : s < 3600 ? 'Updated ' + Math.round(s / 60) + ' min ago'
+      : 'Updated ' + new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // Full-screen map for a location in a chat: pan / zoom, map or satellite, where you
+  // are and how far, directions, open in Maps, share — and a live pin keeps moving.
+  var mapView = null;
+  function openMap(wrap) {
+    if (mapView) mapView.close();
+    var loc = wrap._loc;
+    var v = el('div', 'map-view');
+    v.innerHTML = '<div class="mv-head"><button type="button" class="mv-back" aria-label="Close map"><i class="fas fa-arrow-left"></i></button>' +
+      '<div class="mv-title"><b></b><small></small></div><button type="button" class="mv-x" aria-label="Close"><i class="fas fa-xmark"></i></button></div>' +
+      '<div class="mv-map"><div class="mv-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading map…</div></div>' +
+      '<div class="mv-tools"><button type="button" class="mv-tool" data-t="layers" title="Map / Satellite"><i class="fas fa-layer-group"></i></button>' +
+      '<button type="button" class="mv-tool" data-t="pin" title="Back to the pin"><i class="fas fa-location-dot"></i></button>' +
+      '<button type="button" class="mv-tool" data-t="me" title="Where I am"><i class="fas fa-location-crosshairs"></i></button></div>' +
+      '<div class="mv-card"><div class="mv-place"><span class="mv-ic"><i class="fas fa-location-dot"></i></span><div><b class="mv-addr">Finding the address…</b><small class="mv-meta"></small></div></div>' +
+      '<div class="mv-acts"><a class="mv-btn primary" target="_blank" rel="noopener" data-a="dir"><i class="fas fa-diamond-turn-right"></i> Directions</a>' +
+      '<a class="mv-btn" target="_blank" rel="noopener" data-a="open"><i class="fas fa-map"></i> Open in Maps</a>' +
+      '<button type="button" class="mv-btn" data-a="share"><i class="fas fa-share-nodes"></i> Share</button></div></div>';
+    document.body.appendChild(v);
+    requestAnimationFrame(function () { v.classList.add('open'); });
+    var title = v.querySelector('.mv-title b'), sub = v.querySelector('.mv-title small');
+    var addr = v.querySelector('.mv-addr'), meta = v.querySelector('.mv-meta');
+    var map = null, pin = null, me = null, meRing = null, watch = null, myPos = null, follow = true, layer = null, layerName = 'map', L = null, lastAddrAt = 0, lastAddrPos = null, tick = null;
+    function links() {
+      var p = wrap._loc;
+      v.querySelector('[data-a="dir"]').href = 'https://www.google.com/maps/dir/?api=1&destination=' + p.lat + ',' + p.lng;
+      v.querySelector('[data-a="open"]').href = 'https://www.google.com/maps/search/?api=1&query=' + p.lat + ',' + p.lng;
+    }
+    function texts() {
+      var p = wrap._loc, live = p.live, ended = !live && p.live_until;
+      title.textContent = (p.who ? p.who + ' · ' : '') + (live ? 'Live location' : ended ? 'Live location ended' : 'Location');
+      sub.textContent = live ? liveLabel(p).replace('Live location · ', '') + ' · ' + agoText(p.updated) : ended ? agoText(p.updated) : p.lat.toFixed(5) + ', ' + p.lng.toFixed(5);
+      v.classList.toggle('is-live', !!live);
+      var bits = [];
+      if (myPos) bits.push(distText(km(myPos, p)));
+      bits.push(p.lat.toFixed(5) + ', ' + p.lng.toFixed(5));
+      meta.textContent = bits.join(' · ');
+    }
+    var addrLater = null;
+    function lookUp() {
+      var p = wrap._loc;
+      if (lastAddrPos && km(lastAddrPos, p) < 0.05) return;
+      var wait = lastAddrPos ? 15000 - (Date.now() - lastAddrAt) : 0;   // gentle on the free address service
+      if (wait > 0) { if (!addrLater) addrLater = setTimeout(function () { addrLater = null; if (v.isConnected) lookUp(); }, wait); return; }
+      lastAddrAt = Date.now(); lastAddrPos = { lat: p.lat, lng: p.lng };
+      placeName(p.lat, p.lng).then(function (name) { if (v.isConnected) addr.textContent = name || 'Dropped pin'; });
+    }
+    function update() {
+      var p = wrap._loc;
+      texts(); links(); lookUp();
+      if (pin) { pin.setLatLng([p.lat, p.lng]); pin.setIcon(pinIcon(L, p.live)); if (follow) map.panTo([p.lat, p.lng]); }
+    }
+    function close() {
+      if (watch != null && navigator.geolocation) navigator.geolocation.clearWatch(watch);
+      clearInterval(tick); clearTimeout(addrLater);
+      document.removeEventListener('keydown', onKey);
+      if (map) map.remove();
+      v.remove();
+      if (mapView === api_) mapView = null;
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onKey);
+    v.querySelector('.mv-back').addEventListener('click', close);
+    v.querySelector('.mv-x').addEventListener('click', close);
+    v.querySelector('[data-a="share"]').addEventListener('click', function () {
+      var p = wrap._loc, url = 'https://www.google.com/maps/search/?api=1&query=' + p.lat + ',' + p.lng;
+      if (navigator.share) { navigator.share({ title: 'Location', text: addr.textContent, url: url }).catch(function () {}); return; }
+      var btn = this;
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () {
+        btn.innerHTML = '<i class="fas fa-check"></i> Link copied';
+        setTimeout(function () { btn.innerHTML = '<i class="fas fa-share-nodes"></i> Share'; }, 1800);
+      }, function () { window.prompt('Copy this link', url); });
+    });
+    var api_ = { wrap: wrap, close: close, update: update };
+    mapView = api_;
+    update();
+    tick = setInterval(texts, 30000);
+    loadLeaflet().then(function (Lf) {
+      if (!v.isConnected) return;
+      L = Lf;
+      var box = v.querySelector('.mv-map'); box.textContent = '';
+      var p = wrap._loc;
+      map = L.map(box, { zoomControl: false, attributionControl: true }).setView([p.lat, p.lng], 16);
+      L.control.zoom({ position: 'topright' }).addTo(map);
+      layer = L.tileLayer(TILES.map[0], { attribution: TILES.map[1], maxZoom: TILES.map[2] }).addTo(map);
+      pin = L.marker([p.lat, p.lng], { icon: pinIcon(L, p.live), zIndexOffset: 1000 }).addTo(map);
+      map.on('dragstart', function () { follow = false; });
+      setTimeout(function () { map.invalidateSize(); }, 250);
+      v.querySelectorAll('.mv-tool').forEach(function (t) {
+        t.addEventListener('click', function () {
+          if (t.dataset.t === 'layers') {
+            layerName = layerName === 'map' ? 'sat' : 'map';
+            map.removeLayer(layer);
+            layer = L.tileLayer(TILES[layerName][0], { attribution: TILES[layerName][1], maxZoom: TILES[layerName][2] }).addTo(map);
+            t.classList.toggle('on', layerName === 'sat');
+          } else if (t.dataset.t === 'pin') {
+            follow = true; map.flyTo([wrap._loc.lat, wrap._loc.lng], Math.max(map.getZoom(), 16));
+          } else if (myPos) {
+            follow = false;
+            map.flyToBounds(L.latLngBounds([[myPos.lat, myPos.lng], [wrap._loc.lat, wrap._loc.lng]]).pad(0.35), { maxZoom: 17 });
+          } else watchMe(true);
+        });
+      });
+      watchMe(false);
+    }).catch(function () {
+      var box = v.querySelector('.mv-map');
+      box.innerHTML = '';
+      var f = el('iframe', 'mv-frame'); f.src = mapSrc(wrap._loc.lat, wrap._loc.lng); f.title = 'Map'; box.appendChild(f);
+    });
+    function watchMe(fly) {
+      if (!navigator.geolocation) return;
+      var first = true;
+      watch = navigator.geolocation.watchPosition(function (pos) {
+        myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (map) {
+          if (!me) {
+            meRing = L.circle([myPos.lat, myPos.lng], { radius: pos.coords.accuracy, color: '#2563eb', weight: 1, fillOpacity: .12 }).addTo(map);
+            me = L.marker([myPos.lat, myPos.lng], { icon: meIcon(L) }).addTo(map);
+          } else { me.setLatLng([myPos.lat, myPos.lng]); meRing.setLatLng([myPos.lat, myPos.lng]).setRadius(pos.coords.accuracy); }
+          if (fly && first) map.flyToBounds(L.latLngBounds([[myPos.lat, myPos.lng], [wrap._loc.lat, wrap._loc.lng]]).pad(0.35), { maxZoom: 17 });
+        }
+        first = false;
+        texts();
+      }, function () { if (fly) meta.textContent = 'Allow location access to see how far it is.'; }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
+    }
+  }
+
+  // A small map in the "Share location" sheet: your position (blue dot + accuracy),
+  // and a pin in the middle you can move to send a different place.
+  function pickerMap(box, onPos) {
+    var state = { map: null, me: null, ring: null, pos: null, moved: false, watch: null };
+    box.innerHTML = '<div class="mv-loading"><i class="fas fa-circle-notch fa-spin"></i> Finding where you are…</div>';
+    loadLeaflet().then(function (L) {
+      if (!box.isConnected) return;
+      box.textContent = '';
+      var holder = el('div', 'lp-map'); box.appendChild(holder);
+      var center = el('span', 'lp-center'); center.innerHTML = '<i class="fas fa-location-dot"></i>'; box.appendChild(center);
+      state.map = L.map(holder, { zoomControl: false, attributionControl: false }).setView([22.6, 79.0], 4);
+      L.tileLayer(TILES.map[0], { maxZoom: 19 }).addTo(state.map);
+      state.map.on('dragstart zoomstart', function (e) { if (e.type === 'dragstart') { state.moved = true; box.classList.add('moved'); onPos(state.pos, true); } });
+      if (!navigator.geolocation) return;
+      state.watch = navigator.geolocation.watchPosition(function (p) {
+        state.pos = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy };
+        var ll = [state.pos.lat, state.pos.lng];
+        if (!state.me) {
+          state.ring = L.circle(ll, { radius: state.pos.acc, color: '#2563eb', weight: 1, fillOpacity: .12 }).addTo(state.map);
+          state.me = L.marker(ll, { icon: meIcon(L) }).addTo(state.map);
+          state.map.setView(ll, 17);
+        } else { state.me.setLatLng(ll); state.ring.setLatLng(ll).setRadius(state.pos.acc); if (!state.moved) state.map.panTo(ll); }
+        onPos(state.pos, state.moved);
+      }, function () { onPos(null, false, true); }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+      setTimeout(function () { state.map.invalidateSize(); }, 200);
+    }).catch(function () { box.innerHTML = '<div class="mv-loading">Map unavailable — you can still send your location.</div>'; });
+    return {
+      center: function () { var c = state.map && state.map.getCenter(); return c ? { lat: c.lat, lng: c.lng } : null; },
+      recenter: function () { state.moved = false; box.classList.remove('moved'); if (state.pos && state.map) state.map.flyTo([state.pos.lat, state.pos.lng], 17); onPos(state.pos, false); },
+      destroy: function () { if (state.watch != null) navigator.geolocation.clearWatch(state.watch); if (state.map) state.map.remove(); box.textContent = ''; }
+    };
   }
 
   // Staff only: a "Save" button that downloads the original file.
@@ -1229,5 +1556,5 @@
   }
 
   var api = window.SupportChat = { canSave: false, renderBody: renderBody, updateLocations: updateLocations, Calls: Calls, emojiPicker: emojiPicker,
-    voiceRecorder: voiceRecorder, fmtTime: fmtTime };
+    voiceRecorder: voiceRecorder, fmtTime: fmtTime, openMap: openMap, pickerMap: pickerMap, csrf: null };
 })();

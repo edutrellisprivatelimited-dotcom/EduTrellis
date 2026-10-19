@@ -1058,6 +1058,9 @@ class ChatMessage(models.Model):
     read_by_admin = models.BooleanField(default=False, db_index=True)
     # An admin reply is "seen" (blue ticks) once the user's open chat loads it.
     read_by_user = models.BooleanField(default=False)
+    # View once: the other side can open the photo/video a single time (educhats_share.py).
+    view_once = models.BooleanField(default=False)
+    opened_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1125,12 +1128,19 @@ class DirectMessage(models.Model):
     # 'call' rows are the "Voice call · 2:31" / "Missed video call" lines a call leaves behind;
     # image / video / file rows carry an attachment (body is the optional caption).
     KIND_CHOICES = [('text', 'Text'), ('call', 'Call'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'),
-                    ('sticker', 'Sticker'), ('gif', 'GIF'), ('voice', 'Voice message')]
+                    ('sticker', 'Sticker'), ('gif', 'GIF'), ('voice', 'Voice message'), ('location', 'Location')]
     kind = models.CharField(max_length=8, choices=KIND_CHOICES, default='text')
     body = models.TextField(blank=True)
     # Served only through direct_chat.dm_attachment, which checks who is asking.
     attachment = models.FileField(upload_to='educhats/dm/%Y/%m/', blank=True)
     attachment_name = models.CharField(max_length=200, blank=True)
+    # Location pins (kind 'location'); a live one keeps moving until live_until.
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    live_until = models.DateTimeField(null=True, blank=True)
+    location_updated_at = models.DateTimeField(null=True, blank=True)
+    view_once = models.BooleanField(default=False)
+    opened_at = models.DateTimeField(null=True, blank=True)   # view once: when the other person opened it
     created_at = models.DateTimeField(auto_now_add=True)
     read_at = models.DateTimeField(null=True, blank=True)   # when the other person loaded it
 
@@ -1141,6 +1151,10 @@ class DirectMessage(models.Model):
     @property
     def summary(self):
         """One line for exports and the admin view: "[Photo: x.jpg] caption", "[Call] …" or the text."""
+        if self.view_once:
+            return '[View once ' + ('video' if self.kind == 'video' else 'photo') + ']'
+        if self.kind == 'location' and self.latitude is not None:
+            return f'[Location] https://maps.google.com/?q={self.latitude},{self.longitude}'
         if self.kind in ('image', 'video', 'file'):
             label = {'image': 'Photo', 'video': 'Video', 'file': 'File'}[self.kind]
             name = f': {self.attachment_name}' if self.attachment_name else ''
@@ -1209,7 +1223,7 @@ class GroupMember(models.Model):
 
 class GroupMessage(models.Model):
     KIND_CHOICES = [('text', 'Text'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'), ('system', 'Update'),
-                    ('sticker', 'Sticker'), ('gif', 'GIF'), ('voice', 'Voice message')]
+                    ('sticker', 'Sticker'), ('gif', 'GIF'), ('voice', 'Voice message'), ('location', 'Location')]
     group = models.ForeignKey(ChatGroup, on_delete=models.CASCADE, related_name='messages')
     # None for the grey "Rahul added Muskan" lines.
     sender = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='group_sent')
@@ -1218,6 +1232,13 @@ class GroupMessage(models.Model):
     # Served only through group_chat.group_file, which checks membership.
     attachment = models.FileField(upload_to='educhats/groups/%Y/%m/', blank=True)
     attachment_name = models.CharField(max_length=200, blank=True)
+    # Location pins (kind 'location'); a live one keeps moving until live_until.
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    live_until = models.DateTimeField(null=True, blank=True)
+    location_updated_at = models.DateTimeField(null=True, blank=True)
+    view_once = models.BooleanField(default=False)
+    opened_by = models.JSONField(default=list, blank=True)   # view once: members who have opened it
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1226,6 +1247,10 @@ class GroupMessage(models.Model):
 
     @property
     def summary(self):
+        if self.view_once:
+            return '[View once ' + ('video' if self.kind == 'video' else 'photo') + ']'
+        if self.kind == 'location' and self.latitude is not None:
+            return f'[Location] https://maps.google.com/?q={self.latitude},{self.longitude}'
         if self.kind in ('image', 'video', 'file'):
             label = {'image': 'Photo', 'video': 'Video', 'file': 'File'}[self.kind]
             name = f': {self.attachment_name}' if self.attachment_name else ''

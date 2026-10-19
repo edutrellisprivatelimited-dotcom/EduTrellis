@@ -268,9 +268,12 @@ def _message_json(message):
         'id': message.pk, 'from': message.sender, 'kind': message.kind, 'body': message.body,
         'at': timezone.localtime(message.created_at).isoformat(),
     }
-    if message.attachment:
+    if message.attachment and not message.view_once:
         data['url'] = reverse('chats_attachment', args=[message.pk])
         data['name'] = message.attachment_name
+    if message.view_once:
+        from .educhats_share import once_json
+        data.update(once_json(message, 's', message.opened_at))
     if message.kind == ChatMessage.KIND_LOCATION:
         data.update(_location_json(message))
     return data
@@ -354,7 +357,8 @@ def _message_from_upload(user, sender, request):
         return None, error
     if upload.size > MAX_UPLOAD_MB * 1024 * 1024:
         return None, f'Files can be up to {MAX_UPLOAD_MB} MB.'
-    message = ChatMessage(user=user, sender=sender, kind=kind, body=caption,
+    from .educhats_share import wants_once
+    message = ChatMessage(user=user, sender=sender, kind=kind, body=caption, view_once=wants_once(request, kind),
                           attachment_name=('Voice message' + ext) if kind == 'voice' else os.path.basename(upload.name)[:200])
     upload.name = secrets.token_hex(12) + ext   # never trust the uploaded name on disk
     message.attachment = upload
@@ -372,6 +376,10 @@ def attachment(request, pk):
     staff = _staff_viewer(request, user)
     if not message.attachment or not (staff or (user and user.pk == message.user_id)):
         raise Http404
+    if message.view_once:
+        from .educhats_share import once_link_ok
+        if not once_link_ok(request, 's', message.pk):
+            raise Http404
     ext = os.path.splitext(message.attachment.name)[1].lower()
     try:
         handle = message.attachment.open('rb')
@@ -409,9 +417,12 @@ def api_location(request):
     user = current_user(request)
     if not user:
         return _fail('Please log in again.', 401)
+    data = _json_body(request)
+    if data.get('to') and data.get('to') != 'support':   # a direct chat, a group, or the support team's reply
+        from .educhats_share import send_location
+        return send_location(request, user, data)
     if user.is_guest:
         return _guest_blocked()
-    data = _json_body(request)
     now = timezone.now()
     if data.get('id'):
         message = user.messages.filter(pk=data['id'], kind=ChatMessage.KIND_LOCATION,

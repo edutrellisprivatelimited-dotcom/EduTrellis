@@ -48,11 +48,18 @@ def _peer_json(peer, shares_thread=True):
 
 
 def _message_json(message, me):
-    return {
+    from .educhats_share import location_json, once_json
+    data = {
         'id': message.pk, 'mine': message.sender_id == me.pk, 'body': message.body, 'kind': message.kind,
         'at': timezone.localtime(message.created_at).isoformat(), 'read': bool(message.read_at),
-        **({'url': reverse('chats_dm_file', args=[message.pk]), 'name': message.attachment_name} if message.attachment else {}),
+        **({'url': reverse('chats_dm_file', args=[message.pk]), 'name': message.attachment_name}
+           if message.attachment and not message.view_once else {}),
     }
+    if message.view_once:
+        data.update(once_json(message, 'd', message.opened_at))
+    if message.kind == 'location' and message.latitude is not None:
+        data.update(location_json(message))
+    return data
 
 
 def _receipts(me, peer):
@@ -217,8 +224,9 @@ def api_thread_messages(request, thread_id):
     if not receipts:
         for m in messages:
             m['read'] = False
+    from .educhats_share import live_locations
     return JsonResponse({
-        'ok': True, 'messages': messages, 'read_upto': read_upto,
+        'ok': True, 'messages': messages, 'read_upto': read_upto, 'locations': live_locations(thread.messages),
         'thread': _thread_json(thread, me),
         'peer_typing': _activity(thread, peer, 'typing'),
         'peer_here': _activity(thread, peer, 'here'),
@@ -582,7 +590,8 @@ def api_thread_upload(request, thread_id):
         return _fail(error)
     if upload.size > MAX_UPLOAD_MB * 1024 * 1024:
         return _fail(f'Files can be up to {MAX_UPLOAD_MB} MB.')
-    message = DirectMessage(thread=thread, sender=me, kind=kind, body=caption,
+    from .educhats_share import wants_once
+    message = DirectMessage(thread=thread, sender=me, kind=kind, body=caption, view_once=wants_once(request, kind),
                             attachment_name=('Voice message' + ext) if kind == 'voice' else os.path.basename(upload.name)[:200])
     upload.name = secrets.token_hex(12) + ext   # never trust the uploaded name on disk
     message.attachment = upload
@@ -607,6 +616,10 @@ def dm_attachment(request, pk):
     member = me and message and me.pk in (message.thread.user_a_id, message.thread.user_b_id)
     if not message or not message.attachment or not (member or admin):
         raise Http404
+    if message.view_once:
+        from .educhats_share import once_link_ok
+        if not once_link_ok(request, 'd', message.pk):
+            raise Http404
     ext = os.path.splitext(message.attachment.name)[1].lower()
     try:
         handle = message.attachment.open('rb')

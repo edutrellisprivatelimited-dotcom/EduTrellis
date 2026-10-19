@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import call_rooms, direct_chat, educhats_admin, educhats_ai, educhats_lock, educhats_media, educhats_push, educhats_pwa, educhats_updates, group_chat, support_chat, support_inbox
+from . import call_rooms, direct_chat, educhats_admin, educhats_ai, educhats_lock, educhats_media, educhats_push, educhats_pwa, educhats_share, educhats_updates, group_chat, support_chat, support_inbox
 
 # EduChats — its own product, mounted at /educhats/ in edutrellis/urls.py.
 # Separate accounts from the store/AI login (ChatUser): the support chat plus
@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/location/', support_chat.api_location, name='chats_location'),
     path('api/call/', support_chat.api_call, name='chats_call'),
     path('file/<int:pk>/', support_chat.attachment, name='chats_attachment'),
+    path('api/once/<str:scope>/<int:pk>/', educhats_share.api_once_open, name='chats_once_open'),
     path('api/profile/', support_chat.api_profile, name='chats_profile'),
     path('api/guest/', support_chat.api_guest, name='chats_guest'),
     path('user-photo/<int:pk>/', support_chat.user_photo, name='chats_user_photo'),
