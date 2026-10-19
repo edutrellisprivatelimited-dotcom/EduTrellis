@@ -89,6 +89,26 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .composer-wrap{position:relative;z-index:3;padding:.6rem max(.75rem,calc((100% - 980px)/2)) max(.75rem,env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
 .composer{display:flex;align-items:flex-end;gap:.5rem}
 .composer-wrap.gated>:not(.guest-gate){display:none!important}
+.sup-card{padding-top:1.4rem}
+.sup-top{display:flex;align-items:center;gap:.8rem;padding-right:2rem}
+.sup-top h3{margin:0;font-size:1.08rem}
+.sup-top small{color:var(--text);font-size:.8rem}
+.sup-ava{width:56px;height:56px;flex:0 0 56px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:rgba(var(--accent-rgb),.1);color:var(--accent);font-size:1.4rem}
+.sup-ava img{width:100%;height:100%;object-fit:cover}
+.sup-intro{margin:.9rem 0 .4rem;font-size:.86rem;color:var(--text)}
+.sup-rows{display:flex;flex-direction:column}
+.sup-row{display:flex;align-items:center;gap:.7rem;padding:.7rem .2rem;border-bottom:1px solid var(--line);color:var(--head);text-decoration:none;border-radius:10px}
+.sup-row:hover{background:rgba(var(--accent-rgb),.04)}
+.sup-row>.fa-chevron-right{color:var(--text);font-size:.75rem;opacity:.6}
+.sup-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.sup-txt small{font-size:.72rem;color:var(--text)}
+.sup-txt b{font-size:.92rem;overflow-wrap:anywhere}
+.sup-acts{display:flex;flex-direction:column;gap:.55rem;margin-top:1rem}
+.sup-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;height:46px;border-radius:999px;border:1.5px solid rgba(var(--accent-rgb),.4);background:transparent;color:var(--accent);font:inherit;font-size:.9rem;font-weight:700;text-decoration:none;cursor:pointer}
+.sup-btn.primary{border:none;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;box-shadow:0 8px 18px rgba(var(--accent-rgb),.28)}
+.sup-btn:hover{filter:brightness(1.05)}
+.set-list .pv-row:last-child{border-bottom:none}
+.pv-row.off{opacity:.45;pointer-events:none}
 .guest-gate{display:flex;align-items:center;gap:.75rem;padding:.2rem 0}
 .guest-gate .gg-ico{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);color:var(--accent);font-size:1.05rem}
 .guest-gate .gg-text{flex:1;min-width:0;line-height:1.3}
@@ -1171,6 +1191,8 @@ EduLook.apply(EduLook.get());
           <button type="button" id="openNotif" role="menuitem" hidden><i class="fas fa-bell" id="notifIcon"></i> <span id="notifLabel">Notifications</span></button>
           <button type="button" id="openLook" role="menuitem"><i class="fas fa-palette"></i> Customize</button>
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
+          <button type="button" id="openSupport" role="menuitem"><i class="fas fa-headset"></i> Support / Report us</button>
+          <button type="button" id="openSettings" role="menuitem"><i class="fas fa-gear"></i> Settings</button>
           <button type="button" id="openInstall" role="menuitem" hidden><i class="fas fa-download" id="installIcon"></i> <span id="installLabel">Install app</span></button>
           <a href="{% url 'ai_home' %}" target="_blank" rel="noopener" role="menuitem"><i class="fas fa-wand-magic-sparkles"></i> Explore EduTrellis AI <i class="fas fa-arrow-up-right-from-square ext"></i></a>
           {% if is_superuser_viewer %}<hr>
@@ -1199,7 +1221,7 @@ EduLook.apply(EduLook.get());
       <span class="side-ava ai-ava"><i class="fas fa-wand-magic-sparkles"></i></span>
       <span class="side-txt">
         <span class="side-row"><b>EduTrellis AI</b><span class="ai-tag">AI</span><time id="aiTime"></time></span>
-        <span class="side-row"><span class="side-preview" id="aiPreview"><span>Free · chat &amp; create images</span></span><i class="fas fa-thumbtack side-pin" title="Pinned"></i><button type="button" class="side-more" id="aiMore" aria-label="Chat options" aria-haspopup="true"><i class="fas fa-chevron-down"></i></button></span>
+        <span class="side-row"><span class="side-preview" id="aiPreview"><span>Free · chat &amp; create images</span></span><i class="fas fa-thumbtack side-pin" id="aiPin" title="Pinned"></i><button type="button" class="side-more" id="aiMore" aria-label="Chat options" aria-haspopup="true"><i class="fas fa-chevron-down"></i></button></span>
       </span>
     </div>
     {% if is_support_staff %}<div class="side-item pinned inbox-row" id="inboxRow" role="button" tabindex="0" data-title="support inbox members messages admin">
@@ -1299,7 +1321,7 @@ EduLook.apply(EduLook.get());
   <div class="rm-grid">
     <button type="button" data-act="archive" data-for="support dm group" role="menuitem"><i class="fas fa-box-archive"></i><span>Archive</span></button>
     <button type="button" data-act="mute" data-for="support dm group" role="menuitem"><i class="fas fa-bell-slash"></i><span>Mute</span></button>
-    <button type="button" data-act="pin" data-for="support dm group" role="menuitem"><i class="fas fa-thumbtack"></i><span>Pin</span></button>
+    <button type="button" data-act="pin" data-for="support dm group ai" role="menuitem"><i class="fas fa-thumbtack"></i><span>Pin</span></button>
     <button type="button" data-act="read" data-for="support dm group" role="menuitem"><i class="fas fa-envelope"></i><span>Unread</span></button>
     <button type="button" data-act="voice" data-for="support dm" role="menuitem"><i class="fas fa-phone"></i><span>Voice call</span></button>
     <button type="button" data-act="video" data-for="support dm" role="menuitem"><i class="fas fa-video"></i><span>Video call</span></button>
@@ -1729,6 +1751,38 @@ EduLook.apply(EduLook.get());
     <button class="sheet-opt" type="button" data-close style="justify-content:center">Close</button>
   </div>
 </div>
+{% with sup_mail=support_contact.email sup_phone=support_contact.phone %}
+<div class="sheet pf-sheet" id="supportSheet">
+  <div class="sheet-card sup-card">
+    <div class="sup-top">
+      <span class="sup-ava">{% if support.photo %}<img src="{% url 'chats_support_photo' %}?v={{ support.updated_at|date:'U' }}" alt="">{% else %}<i class="fas fa-headset"></i>{% endif %}</span>
+      <div><h3>{{ support.display_name }}</h3><small>{{ support.about }}</small></div>
+    </div>
+    <p class="sup-intro">Need help, or want to report a problem? Reach the EduTrellis team any way you like.</p>
+    <div class="sup-rows">
+      {% if sup_mail %}<a class="sup-row" href="mailto:{{ sup_mail }}"><span class="pv-ic"><i class="fas fa-envelope"></i></span><span class="sup-txt"><small>Email</small><b>{{ sup_mail }}</b></span><i class="fas fa-chevron-right"></i></a>{% endif %}
+      {% if sup_phone %}<a class="sup-row" href="tel:{{ support_contact.tel }}"><span class="pv-ic"><i class="fas fa-phone"></i></span><span class="sup-txt"><small>Phone</small><b>{{ sup_phone }}</b></span><i class="fas fa-chevron-right"></i></a>{% endif %}
+    </div>
+    <div class="sup-acts">
+      {% if not is_support_staff %}<button type="button" class="sup-btn primary" id="supChatNow"><i class="fas fa-comments"></i> Chat now with support team</button>{% endif %}
+      {% if sup_mail %}<a class="sup-btn" id="supReport" href="mailto:{{ sup_mail }}?subject={{ 'Report a problem on EduChats'|urlencode }}"><i class="fas fa-flag"></i> Report a problem</a>{% endif %}
+    </div>
+  </div>
+</div>
+{% endwith %}
+<div class="sheet pf-sheet" id="settingsSheet">
+  <div class="sheet-card">
+    <h3><i class="fas fa-gear" style="color:var(--accent)"></i> Settings</h3>
+    <p class="pv-intro">Choose which chats show in your chat list. Saved on this device.</p>
+    <div class="set-list">
+      <div class="pv-sec">Chat list</div>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-wand-magic-sparkles"></i></span><span class="pv-txt"><b>Show EduTrellis AI</b><small>The free AI assistant chat</small></span><span class="switch"><input type="checkbox" id="setAI"><span></span></span></label>
+      <label class="pv-row" id="setAIPinRow"><span class="pv-ic"><i class="fas fa-thumbtack"></i></span><span class="pv-txt"><b>Pin EduTrellis AI to the top</b><small>Off: it moves with your other chats</small></span><span class="switch"><input type="checkbox" id="setAIPin"><span></span></span></label>
+      {% if not is_support_staff %}<label class="pv-row"><span class="pv-ic"><i class="fas fa-headset"></i></span><span class="pv-txt"><b>Show {{ support.display_name }}</b><small>Comes back by itself when support replies</small></span><span class="switch"><input type="checkbox" id="setSupport"><span></span></span></label>{% endif %}
+    </div>
+    <button class="sheet-opt" type="button" data-close style="justify-content:center;margin-top:1rem">Done</button>
+  </div>
+</div>
 <div class="ai-pop" id="aiPop" role="dialog" aria-label="About EduTrellis AI" aria-hidden="true">
   <div class="ap-band"><span class="ap-orb"><i class="fas fa-wand-magic-sparkles"></i></span><div><b>EduTrellis AI</b><small><span class="dot"></span> Online · official AI assistant by EduTrellis</small></div></div>
   <div class="ap-body">
@@ -2115,14 +2169,17 @@ EduLook.apply(EduLook.get());
   // Delete chat: hides it for you only
   function deleteChat(chat) {
     if (chat === 'ai') {
-      if (!confirm('Delete your whole chat with EduTrellis AI? This can\'t be undone.')) return;
+      if (!confirm('Delete your chat with EduTrellis AI?\n\nYour messages are erased and EduTrellis AI is removed from your chat list. You can bring it back any time from Menu → Settings.')) return;
       return post('{% url "chats_clear" %}', { chat: 'ai' }).then(function (res) {
         if (!res.ok) return flash(res.error || 'Could not delete the chat.');
         if (aiAfterClear) aiAfterClear();
+        aiTs = 0;
+        if (!aiChat.hidden) showHome();
+        showRow('ai', false);
       });
     }
     var support = chat === 'support', who = support ? supportName : (dmNameOf ? dmNameOf(chat) : 'this person');
-    if (!confirm('Delete your chat with ' + who + '?\n\nMessages are removed for you only — ' + (support ? 'the support team keeps their copy.' : 'they keep their copy.'))) return;
+    if (!confirm('Delete your chat with ' + who + '?\n\nMessages are removed for you only — ' + (support ? 'the support team keeps their copy. It also leaves your chat list; open it again from Menu → Support / Report us.' : 'they keep their copy.'))) return;
     post('{% url "chats_clear" %}', { chat: chat }).then(function (res) {
       if (!res.ok) return flash(res.error || 'Could not delete the chat.');
       if (!support) { if (dmAfterClear) dmAfterClear(chat); return; }
@@ -2132,6 +2189,8 @@ EduLook.apply(EduLook.get());
       list.appendChild(empty);
       lastPreviewAt = 0; supportTs = 0; sideTime.textContent = ''; orderRows();
       sidePreview.textContent = ''; var sp = document.createElement('span'); sp.textContent = supportAbout; sidePreview.appendChild(sp);
+      if (supportVisible()) showHome();
+      showRow('support', false);
     }).catch(function () { flash('Could not reach the server. Please try again.'); });
   }
   var PREF_KEY = 'chats-prefs2-{{ chat_user.pk }}', prefs = { pinned: false, muted: false, archived: false, unread: false };
@@ -2143,11 +2202,27 @@ EduLook.apply(EduLook.get());
     }
     if (savedPrefs) for (var pk in prefs) if (pk in savedPrefs) prefs[pk] = !!savedPrefs[pk];
   } catch (e) {}
+  // EduTrellis AI and Support in the list: AI shows (pinned) unless turned off; Support only once you open it
+  var ROWS_KEY = 'chats-rows-{{ chat_user.pk }}', rowVis = { ai: true, aiPin: true, support: false }, aiTs = 0;
+  try {
+    var savedRows = JSON.parse(localStorage.getItem(ROWS_KEY) || 'null');
+    if (savedRows) for (var rk in rowVis) if (rk in savedRows) rowVis[rk] = !!savedRows[rk];
+  } catch (e) {}
+  function saveRowVis() { try { localStorage.setItem(ROWS_KEY, JSON.stringify(rowVis)); } catch (e) {} }
+  function showRow(which, on) {
+    if (rowVis[which] === on) return;
+    rowVis[which] = on; saveRowVis(); renderUnread();
+  }
   // One list, newest conversation first; pinned chats stay on top.
   var dmOrderItems = null;   // set by the direct-messages code: () => [{el, ts}]
   function orderRows() {
     var sideList = document.getElementById('sideList'), anchor = document.getElementById('sideNoMatch');
-    var items = [{ el: document.getElementById('aiRow'), ts: Infinity, pinned: true }, { el: supportRow, ts: supportTs, pinned: prefs.pinned }];
+    var aiEl = document.getElementById('aiRow');
+    aiEl.dataset.off = rowVis.ai ? '' : '1';
+    aiEl.classList.toggle('pinned', rowVis.aiPin);
+    document.getElementById('aiPin').hidden = !rowVis.aiPin;
+    supportRow.dataset.off = rowVis.support ? '' : '1';
+    var items = [{ el: aiEl, ts: rowVis.aiPin ? Infinity : aiTs, pinned: rowVis.aiPin }, { el: supportRow, ts: supportTs, pinned: prefs.pinned }];
     var inboxRow = document.getElementById('inboxRow');
     if (inboxRow) items.push({ el: inboxRow, ts: 1e15, pinned: true });   // right under EduTrellis AI
     if (dmOrderItems) items = items.concat(dmOrderItems());
@@ -2211,7 +2286,7 @@ EduLook.apply(EduLook.get());
   }
   function noteAdminMessage(id) {
     lastAdmin = Math.max(lastAdmin, id);
-    if (id > seenAdmin) unreadIds[id] = true;
+    if (id > seenAdmin) { unreadIds[id] = true; if (!rowVis.support) { rowVis.support = true; saveRowVis(); } }   // support replied: the chat comes back
     markSeen(false);
     renderUnread();
   }
@@ -2416,7 +2491,10 @@ EduLook.apply(EduLook.get());
   })();
 
   // ── EduTrellis AI chat: pinned at the top and open by default ──
-  var aiChat = document.getElementById('aiChat'), aiRow = document.getElementById('aiRow');
+  var aiChat = document.getElementById('aiChat'), aiRow = document.getElementById('aiRow'), loadAI = null;
+  // opening a chat that's off the list (home screen, notification, Calls tab…) puts it back
+  aiRow.addEventListener('click', function (e) { if (!e.target.closest('.side-more')) showRow('ai', true); });
+  supportRow.addEventListener('click', function (e) { if (!e.target.closest('.side-more')) showRow('support', true); });
   // ── "About EduTrellis AI" card: hover the AI picture, or tap it on a phone ──
   (function () {
     var pop = document.getElementById('aiPop'), showT = null, hideT = null, anchor = null;
@@ -2590,6 +2668,8 @@ EduLook.apply(EduLook.get());
       if (m.image) { var ic = document.createElement('i'); ic.className = 'fas fa-image kind'; prev.appendChild(ic); }
       prev.appendChild(t);
       document.getElementById('aiTime').textContent = shortWhen(m.at);
+      aiTs = Date.parse(m.at) || Date.now();
+      if (!rowVis.aiPin) orderRows();
     }
     function copyText(text, btn) {
       function done() {
@@ -2717,7 +2797,11 @@ EduLook.apply(EduLook.get());
     aiRow.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); aiRow.click(); } });
     supportRow.addEventListener('click', function (e) { if (!e.target.closest('.side-more')) setAIOpen(false); });
     document.getElementById('aiSideOpen').addEventListener('click', function () { document.body.classList.add('side-open'); });
-    document.getElementById('aiMore').addEventListener('click', function (e) { e.stopPropagation(); rowMenuApi.open(this, 'ai'); });
+    document.getElementById('aiMore').addEventListener('click', function (e) {
+      e.stopPropagation();
+      rowMenuApi.label('pin', rowVis.aiPin ? 'Unpin' : 'Pin', 'fa-thumbtack');
+      rowMenuApi.open(this, 'ai');
+    });
     aiAfterClear = function () {
       msgs.textContent = ''; aiLastDay = ''; msgs.appendChild(welcome);
       document.getElementById('aiPreview').innerHTML = '<span>Free · chat &amp; create images</span>';
@@ -2726,7 +2810,10 @@ EduLook.apply(EduLook.get());
     // open by default — unless a ?to= link is about to open a direct chat
     if (new URLSearchParams(location.search).get('to')) setAIOpen(false);
     else if (window.matchMedia('(max-width: 1024px)').matches) showHome();   // phones / tablets: start on the chat list
-    else { setAIOpen(true); load(); }
+    else if (rowVis.ai) { setAIOpen(true); load(); }
+    else showHome();
+    if (rowVis.ai && !rowVis.aiPin) load();
+    loadAI = load;
   })();
 
   // ── Install app: Android, iPhone/iPad or computer, detected automatically ──
@@ -3337,7 +3424,10 @@ EduLook.apply(EduLook.get());
         if (act === 'export') return askExport(ctx);
         if (act === 'delete') return deleteChat(ctx);
         if (act === 'fav') { if (favs[ctx]) delete favs[ctx]; else favs[ctx] = 1; saveFavs(); return apply(); }
-        if (ctx === 'ai') return;
+        if (ctx === 'ai') {
+          if (act === 'pin') { rowVis.aiPin = !rowVis.aiPin; saveRowVis(); if (!rowVis.aiPin && loadAI) loadAI(); renderUnread(); }
+          return;
+        }
         if (ctx.charAt(0) === 'g') { if (gMenuAction) gMenuAction(act, +ctx.slice(1)); return; }
         if (ctx !== 'support') { if (dmMenuAction) dmMenuAction(act, +ctx); return; }
         if (act === 'voice' || act === 'video') { setOpen(false); document.getElementById(act === 'voice' ? 'voiceCall' : 'videoCall').click(); return; }
@@ -3459,7 +3549,7 @@ EduLook.apply(EduLook.get());
       document.getElementById('archivedLabel').textContent = viewArchived ? 'Back to chats' : 'Archived';
       document.getElementById('archivedCount').textContent = viewArchived ? '' : archivedN;
       items.forEach(function (el) {
-        var hit = (!q || el.dataset.title.indexOf(q) !== -1)
+        var hit = el.dataset.off !== '1' && (!q || el.dataset.title.indexOf(q) !== -1)
           && ((el.dataset.archived === '1') === viewArchived || (!!q && !viewArchived))
           && (filter !== 'unread' || el.dataset.unread === '1')
           && (filter !== 'pinned' || el.classList.contains('pinned'))
@@ -3474,7 +3564,7 @@ EduLook.apply(EduLook.get());
         : filter === 'fav' ? 'No favourites yet — tap ˅ on a chat, then Favourite'
         : filter === 'groups' ? 'No groups yet — tap + then New group'
         : filter === 'unread' ? 'No unread chats' : filter === 'pinned' ? 'No pinned chats'
-        : archivedN && !viewArchived ? 'Your chat is archived — open Archived above' : 'No chats found';
+        : archivedN && !viewArchived ? 'Your chat is archived — open Archived above' : 'No chats yet';
     }
     search.addEventListener('input', apply);
     document.querySelectorAll('.chip').forEach(function (c) {
@@ -3486,6 +3576,46 @@ EduLook.apply(EduLook.get());
     });
     var renderUnreadBase = renderUnread;
     renderUnread = function () { renderUnreadBase(); apply(); };
+
+    // Support / Report us: the team's email and phone; "Chat now" puts the Support chat in the list and opens it
+    document.getElementById('openSupport').addEventListener('click', function () {
+      sideMenu.classList.remove('open');
+      document.getElementById('supportSheet').classList.add('open');
+    });
+    var chatNow = document.getElementById('supChatNow');
+    if (chatNow) chatNow.addEventListener('click', function () {
+      document.getElementById('supportSheet').classList.remove('open');
+      var chatsTab = document.querySelector('.side-tab[data-tab="chats"]');
+      if (chatsTab && !chatsTab.classList.contains('on')) chatsTab.click();
+      viewArchived = false; search.value = '';
+      document.querySelector('.chip[data-filter="all"]').click();
+      showRow('support', true);
+      supportRow.click();
+    });
+    // Settings: which built-in chats show in the list
+    var setAI = document.getElementById('setAI'), setAIPin = document.getElementById('setAIPin'), setSupport = document.getElementById('setSupport');
+    function fillSettings() {
+      setAI.checked = rowVis.ai; setAIPin.checked = rowVis.aiPin;
+      document.getElementById('setAIPinRow').classList.toggle('off', !rowVis.ai);
+      if (setSupport) setSupport.checked = rowVis.support;
+    }
+    document.getElementById('openSettings').addEventListener('click', function () {
+      sideMenu.classList.remove('open'); fillSettings();
+      document.getElementById('settingsSheet').classList.add('open');
+    });
+    setAI.addEventListener('change', function () {
+      if (!setAI.checked && !aiChat.hidden) showHome();
+      showRow('ai', setAI.checked); fillSettings();
+    });
+    setAIPin.addEventListener('change', function () {
+      rowVis.aiPin = setAIPin.checked; saveRowVis();
+      if (!rowVis.aiPin && loadAI) loadAI();
+      renderUnread();
+    });
+    if (setSupport) setSupport.addEventListener('change', function () {
+      if (!setSupport.checked && supportVisible()) showHome();
+      showRow('support', setSupport.checked);
+    });
     renderUnread();
   })();
 

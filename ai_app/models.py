@@ -1072,6 +1072,8 @@ class SupportProfile(models.Model):
     photo = models.ImageField(upload_to='support_chat/profile/', blank=True)
     # Shown on /chats "Forgot password" — people write here to get back in.
     support_email = models.EmailField(default='shifn32@gmail.com', blank=True)
+    # Shown in EduChats "Support / Report us" (tap to call); blank uses the site's support number.
+    support_phone = models.CharField(max_length=20, blank=True)
     # Shown on the Support ID card; clean https URLs (see educhats_social.py).
     snapchat = models.CharField(max_length=200, blank=True)
     instagram = models.CharField(max_length=200, blank=True)

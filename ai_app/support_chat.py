@@ -646,6 +646,18 @@ def _ai_model_name():
         return 'Zyvion Swift'
 
 
+def _support_contact(support):
+    """Email and phone shown in "Support / Report us": the chat profile's, else the site's support details."""
+    from .models import AISiteSettings
+    try:
+        site = AISiteSettings.get_solo()
+        email, phone = site.support_email, site.support_whatsapp_number
+    except Exception:
+        email, phone = '', ''
+    phone = support.support_phone or phone or ''
+    return {'email': support.support_email or email or '', 'phone': phone, 'tel': re.sub(r'[^\d+]', '', phone)}
+
+
 def chats_page(request):
     from .educhats_admin import store_sso, superuser_sso
     from .educhats_lock import is_unlocked, lock_enabled
@@ -689,6 +701,7 @@ def chats_page(request):
         'app_lock': json.dumps(lock_status(request, user) if user and not user.is_guest else {'enabled': False}),
         'support_name_json': json.dumps(support.display_name).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026'),
         'locations': INDIA_LOCATIONS,
+        'support_contact': _support_contact(support),
         # Tiled faintly over the chat so any capture shows whose chat it is.
         'watermark': json.dumps(stamp).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026'),
     })
@@ -1229,6 +1242,10 @@ def _save_chat_profile(request, profile):
         except ValidationError:
             return 'Please enter a valid support email address.'
     profile.support_email = email
+    phone = re.sub(r'[^\d+ -]', '', request.POST.get('support_phone', '')).strip()[:20]
+    if phone and len(re.sub(r'\D', '', phone)) < 6:
+        return 'Please enter a valid support phone number.'
+    profile.support_phone = phone
     social_field, social_error = save_socials(profile, request.POST)
     if social_error:
         return social_error

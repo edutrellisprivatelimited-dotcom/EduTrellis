@@ -55,8 +55,10 @@
       <input type="text" id="pfAbout" name="about" value="{{ profile.about }}" maxlength="120"></div>
     <div class="form-group"><label for="pfWelcome">Welcome message <span class="pf-hint">(shown before the first message)</span></label>
       <textarea id="pfWelcome" name="welcome" rows="3" maxlength="300">{{ profile.welcome }}</textarea></div>
-    <div class="form-group"><label for="pfSupportEmail">Support email <span class="pf-hint">(shown when someone forgets their password)</span></label>
+    <div class="form-group"><label for="pfSupportEmail">Support email <span class="pf-hint">(shown in Support / Report us and when someone forgets their password)</span></label>
       <input type="email" id="pfSupportEmail" name="support_email" value="{{ profile.support_email }}" placeholder="support@example.com"></div>
+    <div class="form-group"><label for="pfSupportPhone">Support phone <span class="pf-hint">(shown in EduChats → Support / Report us; leave blank to use the site's WhatsApp number)</span></label>
+      <input type="tel" id="pfSupportPhone" name="support_phone" value="{{ profile.support_phone }}" maxlength="20" placeholder="+91 98765 43210"></div>
     <div class="pf-label">Social links <span class="pf-hint" style="text-transform:none;letter-spacing:0;font-weight:500">(shown on the Support ID card — a username or a profile link)</span></div>
     <div class="pf-socials">
       <div class="form-group"><label for="pfSnap"><i class="fab fa-snapchat" style="color:#e6c800"></i> Snapchat</label><input type="text" id="pfSnap" name="snapchat" value="{{ profile.snapchat }}" maxlength="200" placeholder="username or link"></div>
