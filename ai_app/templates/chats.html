@@ -968,11 +968,29 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 @keyframes wtWave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(18deg)}40%,80%{transform:rotate(-10deg)}}
 @media (prefers-reduced-motion:reduce){.welcome-fx *,.edu-toast,.edu-toast *,.edu-toast::before{animation-duration:.01s !important;animation-delay:0s !important}}
 /* ── EduTrellis AI chat (pinned at the top, open by default) ── */
-.side-ava.ai-ava{background:conic-gradient(from 200deg,var(--accent),#7c3aed,#2563eb,var(--accent));font-size:1.1rem}
-.side-ava.ai-ava::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(var(--accent-rgb),.45);animation:aiGlow 2.4s ease-in-out infinite}
+/* the AI's picture is alive: a turning colour wheel, an orbiting light, a twinkling wand */
+.side-ava.ai-ava,.chat.ai .chat-head .ava{position:relative;isolation:isolate;overflow:visible;background:none !important;font-size:1.1rem;color:#fff;animation:aiBreath 3s ease-in-out infinite}
+.side-ava.ai-ava::before,.chat.ai .chat-head .ava::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:conic-gradient(from 0deg,var(--accent),#7c3aed,#2563eb,#06b6d4,var(--accent));animation:aiSpin 5s linear infinite}
+.side-ava.ai-ava::after,.chat.ai .chat-head .ava::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;border-top-color:rgba(255,255,255,.9);border-right-color:rgba(var(--accent-rgb),.55);animation:aiSpin 1.8s linear infinite reverse}
+.side-ava.ai-ava>i,.chat.ai .chat-head .ava>i{filter:drop-shadow(0 0 6px rgba(255,255,255,.75));animation:aiWand 2.6s ease-in-out infinite}
+@keyframes aiSpin{to{transform:rotate(360deg)}}
+@keyframes aiBreath{0%,100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.0),0 0 12px rgba(124,58,237,.35)}50%{box-shadow:0 0 0 5px rgba(var(--accent-rgb),.12),0 0 22px rgba(124,58,237,.6)}}
+@keyframes aiWand{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-14deg) scale(1.08)}50%{transform:rotate(8deg) scale(.96)}75%{transform:rotate(-4deg) scale(1.1)}}
 @keyframes aiGlow{50%{transform:scale(1.08);opacity:.25}}
+/* my picture without a photo (or a guest): an aurora that turns, an orbiting spark, a floating letter */
+.side-me.me-live{position:relative;isolation:isolate;overflow:visible;background:none;box-shadow:0 0 0 2px rgba(var(--accent-rgb),.25),0 0 16px rgba(var(--accent-rgb),.35)}
+.side-me.me-live::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:conic-gradient(from 90deg,var(--accent),var(--accent-light,#fda4af),#f59e0b,var(--accent-dark),var(--accent));animation:aiSpin 6s linear infinite}
+.side-me.me-live::after{content:"";position:absolute;inset:3px;z-index:-1;border-radius:inherit;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 55%),linear-gradient(160deg,rgba(15,22,35,.15),rgba(15,22,35,.45))}
+.side-me .me-letter{font-weight:900;font-size:1.05rem;text-shadow:0 1px 6px rgba(0,0,0,.35);animation:meFloat 3.2s ease-in-out infinite}
+.side-me.me-live>.fa-user{animation:meFloat 3.2s ease-in-out infinite}
+.me-spark{display:none}
+.side-me.me-live .me-spark{display:block;position:absolute;inset:-4px;border-radius:50%;animation:aiSpin 3s linear infinite;pointer-events:none}
+.side-me.me-live .me-spark::before{content:"";position:absolute;top:-1px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:#fff;box-shadow:0 0 8px 2px rgba(255,255,255,.9),0 0 14px 4px rgba(var(--accent-rgb),.6)}
+@keyframes meFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.side-ava.ai-ava,.side-ava.ai-ava::before,.side-ava.ai-ava::after,.side-ava.ai-ava>i,.chat.ai .chat-head .ava,.chat.ai .chat-head .ava::before,.chat.ai .chat-head .ava::after,.chat.ai .chat-head .ava>i,.side-me.me-live::before,.side-me .me-letter,.side-me.me-live>.fa-user,.side-me.me-live .me-spark{animation:none}}
+.side-tab[hidden]{display:none}
 .ai-tag{flex:0 0 auto;padding:.05rem .4rem;border-radius:6px;background:linear-gradient(90deg,var(--accent),#7c3aed);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.04em}
-.chat.ai .chat-head .ava{background:conic-gradient(from 200deg,var(--accent),#7c3aed,#2563eb,var(--accent));color:#fff}
+
 .ai-free{display:inline-flex;align-items:center;gap:.25rem;margin-left:.35rem;padding:.05rem .45rem;border-radius:999px;background:rgba(255,255,255,.16);font-size:.66rem;font-weight:800}
 .ai-welcome{align-self:center;width:min(460px,92%);margin:1.2rem 0;padding:1.3rem;border-radius:20px;background:var(--card);box-shadow:0 6px 24px rgba(17,24,39,.08);text-align:center}
 .ai-welcome .ai-orb{width:64px;height:64px;margin:0 auto .7rem;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(from 200deg,var(--accent),#7c3aed,#2563eb,var(--accent));color:#fff;font-size:1.6rem;box-shadow:0 10px 28px rgba(var(--accent-rgb),.35)}
@@ -1577,7 +1595,7 @@ EduLook.apply(EduLook.get());
 {% if chat_user %}
 <aside class="side" id="side" aria-label="EduChats">
   <div class="side-top">
-    <span class="side-me">{% if chat_user.is_guest %}<i class="fas fa-user"></i>{% elif chat_user.photo %}<img src="{% url 'chats_user_photo' chat_user.pk %}" alt="">{% else %}{{ chat_user.name|slice:":1"|upper }}{% endif %}</span>
+    <span class="side-me{% if not chat_user.photo or chat_user.is_guest %} me-live{% endif %}">{% if chat_user.is_guest %}<i class="fas fa-user"></i>{% elif chat_user.photo %}<img src="{% url 'chats_user_photo' chat_user.pk %}" alt="">{% else %}<b class="me-letter">{{ chat_user.name|slice:":1"|upper }}</b>{% endif %}<i class="me-spark" aria-hidden="true"></i></span>
     <div class="side-title"><b>EduChats</b><small>{% if chat_user.is_guest %}Guest · log in to keep your chats{% elif chat_user.username %}@{{ chat_user.username }}{% else %}{{ chat_user.name }}{% endif %}</small></div>
     <div class="side-actions">
       {% if not chat_user.is_guest %}<button class="side-icon side-lock" id="lockNowBtn" type="button" title="Lock EduChats now" aria-label="Lock EduChats now" hidden><i class="fas fa-lock"></i></button>{% endif %}
@@ -2211,12 +2229,16 @@ EduLook.apply(EduLook.get());
 <div class="sheet pf-sheet" id="settingsSheet">
   <div class="sheet-card">
     <h3><i class="fas fa-gear" style="color:var(--accent)"></i> Settings</h3>
-    <p class="pv-intro">Choose which chats show in your chat list. Saved on this device.</p>
+    <p class="pv-intro">Choose what shows in EduChats. Saved on this device.</p>
     <div class="set-list">
       <div class="pv-sec">Chat list</div>
       <label class="pv-row"><span class="pv-ic"><i class="fas fa-wand-magic-sparkles"></i></span><span class="pv-txt"><b>Show EduTrellis AI</b><small>The free AI assistant chat</small></span><span class="switch"><input type="checkbox" id="setAI"><span></span></span></label>
       <label class="pv-row" id="setAIPinRow"><span class="pv-ic"><i class="fas fa-thumbtack"></i></span><span class="pv-txt"><b>Pin EduTrellis AI to the top</b><small>Off: it moves with your other chats</small></span><span class="switch"><input type="checkbox" id="setAIPin"><span></span></span></label>
       {% if not is_support_staff %}<label class="pv-row"><span class="pv-ic"><i class="fas fa-headset"></i></span><span class="pv-txt"><b>Show {{ support.display_name }}</b><small>Comes back by itself when support replies</small></span><span class="switch"><input type="checkbox" id="setSupport"><span></span></span></label>{% endif %}
+    </div>
+    <div class="set-list">
+      <div class="pv-sec">Bottom bar</div>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-map-location-dot"></i></span><span class="pv-txt"><b>Show Maps tab</b><small>The map of people on EduChats across India</small></span><span class="switch"><input type="checkbox" id="setMaps" checked><span></span></span></label>
     </div>
     {% if chat_user %}<div class="pv-sec" style="margin-top:.8rem">Calls</div>
     <button type="button" class="sheet-opt" id="setPerms" style="margin-top:.3rem"><span class="pv-ic"><i class="fas fa-shield-heart"></i></span><span style="flex:1">Permissions &amp; ringtone<small style="display:block;font-weight:500;font-size:.75rem;color:var(--text)">Microphone, camera, notifications · call sound</small></span><i class="fas fa-chevron-right" style="font-size:.75rem;color:var(--text)"></i></button>{% endif %}
@@ -2763,12 +2785,14 @@ EduLook.apply(EduLook.get());
     if (savedPrefs) for (var pk in prefs) if (pk in savedPrefs) prefs[pk] = !!savedPrefs[pk];
   } catch (e) {}
   // EduTrellis AI and Support in the list: AI shows (pinned) unless turned off; Support only once you open it
-  var ROWS_KEY = 'chats-rows-{{ chat_user.pk }}', rowVis = { ai: true, aiPin: true, support: false }, aiTs = 0;
+  var ROWS_KEY = 'chats-rows-{{ chat_user.pk }}', rowVis = { ai: true, aiPin: true, support: false, maps: true }, aiTs = 0;
   try {
     var savedRows = JSON.parse(localStorage.getItem(ROWS_KEY) || 'null');
     if (savedRows) for (var rk in rowVis) if (rk in savedRows) rowVis[rk] = !!savedRows[rk];
   } catch (e) {}
   function saveRowVis() { try { localStorage.setItem(ROWS_KEY, JSON.stringify(rowVis)); } catch (e) {} }
+  function paintMapsTab() { var t = document.getElementById('mapsTab'); if (t) t.hidden = !rowVis.maps; }
+  paintMapsTab();
   function showRow(which, on) {
     if (rowVis[which] === on) return;
     rowVis[which] = on; saveRowVis(); renderUnread();
@@ -4440,7 +4464,11 @@ EduLook.apply(EduLook.get());
       setAI.checked = rowVis.ai; setAIPin.checked = rowVis.aiPin;
       document.getElementById('setAIPinRow').classList.toggle('off', !rowVis.ai);
       if (setSupport) setSupport.checked = rowVis.support;
+      document.getElementById('setMaps').checked = rowVis.maps;
     }
+    document.getElementById('setMaps').addEventListener('change', function () {
+      rowVis.maps = this.checked; saveRowVis(); paintMapsTab();
+    });
     document.getElementById('openSettings').addEventListener('click', function () {
       sideMenu.classList.remove('open'); fillSettings();
       document.getElementById('settingsSheet').classList.add('open');
