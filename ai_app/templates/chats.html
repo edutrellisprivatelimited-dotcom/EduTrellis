@@ -1158,7 +1158,97 @@ html[data-theme="neon"] .side-item.active,html[data-theme="aurora"] .side-item.a
 .th-name b{font-size:.86rem;color:var(--head);display:flex;align-items:center;gap:.35rem}
 .th-name small{font-size:.72rem;color:var(--text)}
 .th-crown{position:absolute;top:8px;left:8px;z-index:2;padding:.12rem .45rem;border-radius:999px;background:linear-gradient(135deg,#fcd34d,#b8860b);color:#1c1406;font-size:.6rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.th-free{position:absolute;top:8px;left:8px;z-index:2;padding:.12rem .45rem;border-radius:999px;background:rgba(255,255,255,.9);color:#15803d;font-size:.6rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.th-free{padding:.12rem .45rem;border-radius:999px;background:rgba(255,255,255,.9);color:#15803d;font-size:.6rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+/* ⋮ → Themes, part 2: every theme also reshapes the bubbles, avatars and send button, gives the chat
+   list its own texture, chips and badges, patterns the chat header and adds a gentle animated effect */
+.msg{border-radius:var(--bub-r,18px)}
+.msg.user{border-bottom-right-radius:var(--bub-tail,6px)}
+.msg.admin{border-bottom-left-radius:var(--bub-tail,6px)}
+.side-ava,.side-ava img,.side-me,.chat-head .ava,.chat-head .ava img{border-radius:var(--ava-r,50%)}
+.round.send{background:var(--send-bg,linear-gradient(135deg,var(--accent),var(--accent-dark)));color:var(--send-fg,#fff);border-radius:var(--send-r,50%)}
+.side{background-image:var(--side-img,none);background-size:var(--side-size,auto);border-right-color:var(--side-line,#232b3b)}
+.side-top,.side-tabs{background:var(--side-top,color-mix(in srgb,var(--ink) 74%,#000))}
+.side-item:hover{background:var(--side-hover,color-mix(in srgb,var(--ink),#fff 6%))}
+.side-item.active{background:var(--side-active,color-mix(in srgb,var(--ink),rgb(var(--accent-rgb)) 14%));box-shadow:inset 0 0 0 1px var(--side-active-line,rgba(var(--accent-rgb),.22))}
+.side-chips .chip.active{background:var(--chip-on,rgba(var(--accent-rgb),.16)) !important;border-color:var(--chip-on-line,rgba(var(--accent-rgb),.55)) !important;color:var(--chip-on-fg,#fff) !important;box-shadow:var(--chip-glow,none)}
+.side-tab.on .tab-ic{background:var(--tab-on,rgba(var(--accent-rgb),.22));color:var(--tab-on-fg,var(--accent-light))}
+.side-badge,.chip .chip-n,.tab-badge{background:var(--badge,var(--accent));color:var(--badge-fg,#fff)}
+.chat-head{background-image:var(--head-img,none),var(--head-grad,linear-gradient(115deg,var(--ink) 0%,#1d2130 34%,var(--accent-deep) 72%,var(--accent) 100%));background-size:var(--head-size,auto),auto}
+::selection{background:rgba(var(--accent-rgb),.28)}
+.th-side{background-image:var(--side-img,none);background-size:var(--side-size,auto)}
+/* the animated layer behind the messages (first child of each chat, added by the page) */
+.chat-body>.msgs{position:relative}
+.theme-fx{position:absolute;inset:0;overflow:hidden;pointer-events:none;display:none}
+html[data-fx]:not([data-fx="none"]):not(.fx-off) .theme-fx{display:block}
+.theme-fx::before,.theme-fx::after{content:"";position:absolute;inset:0;will-change:transform,opacity}
+@keyframes fxFall{to{transform:translateY(240px)}}
+@keyframes fxRise{to{transform:translateY(-240px)}}
+@keyframes fxDiag{to{transform:translate(240px,240px)}}
+@keyframes fxTwinkle{0%{opacity:.25}100%{opacity:1}}
+@keyframes fxGlint{0%{opacity:.08}100%{opacity:.6}}
+@keyframes fxDrift{0%{transform:translate(-4%,3%) scale(1)}100%{transform:translate(5%,-4%) scale(1.1)}}
+@keyframes fxSway{0%{transform:translateX(-18%) skewY(-5deg)}100%{transform:translateX(18%) skewY(5deg)}}
+@keyframes fxScan{0%{transform:translateY(-100%)}100%{transform:translateY(260%)}}
+@keyframes fxSpin{to{transform:rotate(360deg)}}
+html[data-fx="snow"] .theme-fx::before{top:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%23fff'%3E%3Ccircle cx='20' cy='30' r='2.6'/%3E%3Ccircle cx='90' cy='80' r='2.0'/%3E%3Ccircle cx='160' cy='20' r='3.0'/%3E%3Ccircle cx='210' cy='120' r='2.2'/%3E%3Ccircle cx='60' cy='170' r='3.2'/%3E%3Ccircle cx='140' cy='200' r='2.0'/%3E%3Ccircle cx='110' cy='140' r='1.6'/%3E%3Ccircle cx='230' cy='220' r='2.4'/%3E%3C/g%3E%3C/svg%3E");filter:drop-shadow(0 0 2px rgba(2,132,199,.55));animation:fxFall 15s linear infinite}
+html[data-fx="snow"] .theme-fx::after{top:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%23e0f2fe' stroke='%237dd3fc' stroke-width='.6'%3E%3Ccircle cx='40' cy='100' r='1.8'/%3E%3Ccircle cx='120' cy='40' r='1.4'/%3E%3Ccircle cx='190' cy='70' r='1.6'/%3E%3Ccircle cx='80' cy='220' r='1.5'/%3E%3Ccircle cx='170' cy='170' r='1.9'/%3E%3Ccircle cx='10' cy='200' r='1.3'/%3E%3C/g%3E%3C/svg%3E");animation:fxFall 9s linear infinite}
+html[data-fx="stars"] .theme-fx::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='%23fff'%3E%3Ccircle cx='87' cy='247' r='0.9'/%3E%3Ccircle cx='106' cy='171' r='0.7'/%3E%3Ccircle cx='23' cy='215' r='0.7'/%3E%3Ccircle cx='98' cy='154' r='0.7'/%3E%3Ccircle cx='237' cy='134' r='0.9'/%3E%3Ccircle cx='14' cy='27' r='1.4'/%3E%3Ccircle cx='112' cy='22' r='0.9'/%3E%3Ccircle cx='28' cy='146' r='1.4'/%3E%3Ccircle cx='20' cy='216' r='0.7'/%3E%3Ccircle cx='247' cy='62' r='0.7'/%3E%3Ccircle cx='152' cy='154' r='1.4'/%3E%3Ccircle cx='17' cy='254' r='0.9'/%3E%3Ccircle cx='16' cy='147' r='0.9'/%3E%3Ccircle cx='79' cy='112' r='0.9'/%3E%3C/g%3E%3C/svg%3E");animation:fxTwinkle 3.2s ease-in-out infinite alternate}
+html[data-fx="stars"] .theme-fx::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23c7d2fe'%3E%3Ccircle cx='143' cy='35' r='1.3'/%3E%3Ccircle cx='83' cy='148' r='1.3'/%3E%3Ccircle cx='51' cy='31' r='1.3'/%3E%3Ccircle cx='151' cy='168' r='0.8'/%3E%3Ccircle cx='100' cy='29' r='1.3'/%3E%3Ccircle cx='21' cy='149' r='0.8'/%3E%3Ccircle cx='163' cy='57' r='1.0'/%3E%3Ccircle cx='141' cy='114' r='1.0'/%3E%3C/g%3E%3C/svg%3E");animation:fxTwinkle 2.4s ease-in-out -1.2s infinite alternate}
+html[data-fx="bubbles"] .theme-fx::before{bottom:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%23fff' fill-opacity='.16' stroke='%23fff' stroke-opacity='.6' stroke-width='1.2'%3E%3Ccircle cx='30' cy='40' r='7'/%3E%3Ccircle cx='120' cy='110' r='11'/%3E%3Ccircle cx='200' cy='30' r='5'/%3E%3Ccircle cx='70' cy='190' r='9'/%3E%3Ccircle cx='180' cy='180' r='6'/%3E%3C/g%3E%3Cg fill='%23fff' fill-opacity='.7'%3E%3Ccircle cx='27' cy='37' r='1.6'/%3E%3Ccircle cx='115' cy='105' r='2.4'/%3E%3Ccircle cx='66' cy='186' r='2'/%3E%3C/g%3E%3C/svg%3E");animation:fxRise 16s linear infinite}
+html[data-fx="bubbles"] .theme-fx::after{bottom:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.5' stroke-width='1'%3E%3Ccircle cx='60' cy='90' r='3'/%3E%3Ccircle cx='150' cy='50' r='4'/%3E%3Ccircle cx='220' cy='140' r='3'/%3E%3Ccircle cx='100' cy='230' r='4'/%3E%3Ccircle cx='20' cy='150' r='2'/%3E%3C/g%3E%3C/svg%3E");animation:fxRise 10s linear infinite}
+html[data-fx="petals"] .theme-fx::before{top:-240px;left:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg transform='translate%2830 40%29 rotate%2820%29 scale%281.00%29' fill='%23f9a8d4' fill-opacity='0.85'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%28150 30%29 rotate%28-40%29 scale%280.80%29' fill='%23fbcfe8' fill-opacity='0.90'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%28210 140%29 rotate%2870%29 scale%281.10%29' fill='%23f472b6' fill-opacity='0.55'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%2890 150%29 rotate%28130%29 scale%280.90%29' fill='%23f9a8d4' fill-opacity='0.80'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%2840 220%29 rotate%28-20%29 scale%280.70%29' fill='%23fbcfe8' fill-opacity='0.90'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3C/svg%3E");animation:fxDiag 20s linear infinite}
+html[data-fx="petals"] .theme-fx::after{top:-240px;left:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg transform='translate%28110 90%29 rotate%2860%29 scale%280.60%29' fill='%23ec4899' fill-opacity='0.45'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%28200 220%29 rotate%28-70%29 scale%280.70%29' fill='%23f9a8d4' fill-opacity='0.70'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%2810 120%29 rotate%2810%29 scale%280.50%29' fill='%23f472b6' fill-opacity='0.50'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3C/svg%3E");animation:fxDiag 13s linear infinite}
+html[data-fx="leaves"] .theme-fx::before{top:-240px;left:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg transform='translate%2840 40%29 rotate%2830%29 scale%281.00%29'%3E%3Cpath d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%2316a34a' fill-opacity='0.35'/%3E%3Cpath d='M-11 0H11' stroke='%23fff' stroke-opacity='.45' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate%28170 60%29 rotate%28-50%29 scale%280.90%29'%3E%3Cpath d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%2365a30d' fill-opacity='0.35'/%3E%3Cpath d='M-11 0H11' stroke='%23fff' stroke-opacity='.45' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate%28110 160%29 rotate%2880%29 scale%281.10%29'%3E%3Cpath d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%2315803d' fill-opacity='0.30'/%3E%3Cpath d='M-11 0H11' stroke='%23fff' stroke-opacity='.45' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate%28210 200%29 rotate%2810%29 scale%280.80%29'%3E%3Cpath d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%234ade80' fill-opacity='0.40'/%3E%3Cpath d='M-11 0H11' stroke='%23fff' stroke-opacity='.45' stroke-width='.8'/%3E%3C/g%3E%3C/svg%3E");animation:fxDiag 26s linear infinite}
+html[data-fx="leaves"] .theme-fx::after{top:-240px;left:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg transform='translate%2880 100%29 rotate%28-20%29 scale%280.60%29'%3E%3Cpath d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%2322c55e' fill-opacity='0.35'/%3E%3Cpath d='M-11 0H11' stroke='%23fff' stroke-opacity='.45' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate%28200 130%29 rotate%2860%29 scale%280.55%29'%3E%3Cpath d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%2384cc16' fill-opacity='0.35'/%3E%3Cpath d='M-11 0H11' stroke='%23fff' stroke-opacity='.45' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate%2830 200%29 rotate%28120%29 scale%280.60%29'%3E%3Cpath d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%2316a34a' fill-opacity='0.30'/%3E%3Cpath d='M-11 0H11' stroke='%23fff' stroke-opacity='.45' stroke-width='.8'/%3E%3C/g%3E%3C/svg%3E");animation:fxDiag 17s linear infinite}
+html[data-fx="sparkle"] .theme-fx::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cpath transform='translate%2830 40%29 scale%281.00%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fcd34d'/%3E%3Cpath transform='translate%28140 30%29 scale%280.70%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fcd34d'/%3E%3Cpath transform='translate%28100 120%29 scale%281.20%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fcd34d'/%3E%3Cpath transform='translate%28180 160%29 scale%280.80%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fcd34d'/%3E%3Cpath transform='translate%2840 170%29 scale%280.60%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fcd34d'/%3E%3C/svg%3E");filter:drop-shadow(0 0 4px rgba(252,211,77,.7));animation:fxGlint 2.6s ease-in-out infinite alternate}
+html[data-fx="sparkle"] .theme-fx::after{background-position:70px 90px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cpath transform='translate%2870 20%29 scale%280.50%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fef3c7'/%3E%3Cpath transform='translate%2820 90%29 scale%280.60%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fef3c7'/%3E%3Cpath transform='translate%28110 100%29 scale%280.45%29' d='M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6z' fill='%23fef3c7'/%3E%3C/svg%3E");animation:fxGlint 1.9s ease-in-out -1s infinite alternate}
+html[data-fx="scan"] .theme-fx::before{background-image:linear-gradient(rgba(34,211,238,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.08) 1px,transparent 1px);background-size:32px 32px;opacity:.9}
+html[data-fx="scan"] .theme-fx::after{bottom:auto;height:40%;background:linear-gradient(180deg,transparent,rgba(255,43,214,.13) 45%,rgba(34,211,238,.10) 55%,transparent);animation:fxScan 7s linear infinite}
+html[data-fx="rain"] .theme-fx::before{top:-240px;opacity:.5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='240'%3E%3Cg font-family='monospace' font-size='13' fill='%234ade80' font-weight='700'%3E%3Ctext x='10' y='132' opacity='1.00'%3E%7D%3C/text%3E%3Ctext x='10' y='116' opacity='0.67'%3E%E3%83%AF%3C/text%3E%3Ctext x='10' y='100' opacity='0.58'%3E%E3%83%A4%3C/text%3E%3Ctext x='10' y='84' opacity='0.50'%3E%E3%83%8F%3C/text%3E%3Ctext x='10' y='68' opacity='0.42'%3E%E3%82%BF%3C/text%3E%3Ctext x='10' y='52' opacity='0.33'%3E%E3%83%8F%3C/text%3E%3Ctext x='10' y='36' opacity='0.25'%3E%E3%82%A2%3C/text%3E%3Ctext x='10' y='20' opacity='0.17'%3E%E3%83%A4%3C/text%3E%3Ctext x='10' y='244' opacity='0.08'%3E%2B%3C/text%3E%3Ctext x='52' y='139' opacity='1.00'%3E%E3%83%A9%3C/text%3E%3Ctext x='52' y='123' opacity='0.67'%3E%7D%3C/text%3E%3Ctext x='52' y='107' opacity='0.58'%3E%E3%83%A4%3C/text%3E%3Ctext x='52' y='91' opacity='0.50'%3E%E3%82%A2%3C/text%3E%3Ctext x='52' y='75' opacity='0.42'%3E%E3%82%AB%3C/text%3E%3Ctext x='52' y='59' opacity='0.33'%3E%2B%3C/text%3E%3Ctext x='52' y='43' opacity='0.25'%3E%7B%3C/text%3E%3Ctext x='52' y='27' opacity='0.17'%3E%E3%82%BF%3C/text%3E%3Ctext x='52' y='251' opacity='0.08'%3E%E3%83%A9%3C/text%3E%3Ctext x='94' y='51' opacity='1.00'%3E=%3C/text%3E%3Ctext x='94' y='35' opacity='0.67'%3E%7B%3C/text%3E%3Ctext x='94' y='19' opacity='0.58'%3E1%3C/text%3E%3Ctext x='94' y='243' opacity='0.50'%3E%E3%82%A2%3C/text%3E%3Ctext x='94' y='227' opacity='0.42'%3E%E3%83%A9%3C/text%3E%3Ctext x='94' y='211' opacity='0.33'%3E%E3%83%A9%3C/text%3E%3Ctext x='94' y='195' opacity='0.25'%3E%E3%83%AF%3C/text%3E%3Ctext x='94' y='179' opacity='0.17'%3E=%3C/text%3E%3Ctext x='94' y='163' opacity='0.08'%3E%7D%3C/text%3E%3C/g%3E%3C/svg%3E");animation:fxFall 5s linear infinite}
+html[data-fx="rain"] .theme-fx::after{top:-240px;opacity:.4;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='240'%3E%3Cg font-family='monospace' font-size='10' fill='%234ade80' font-weight='700'%3E%3Ctext x='24' y='27' opacity='1.00'%3E%E3%82%A2%3C/text%3E%3Ctext x='24' y='14' opacity='0.44'%3E%E3%83%9E%3C/text%3E%3Ctext x='24' y='241' opacity='0.39'%3E=%3C/text%3E%3Ctext x='24' y='228' opacity='0.33'%3E%E3%82%A2%3C/text%3E%3Ctext x='24' y='215' opacity='0.28'%3E1%3C/text%3E%3Ctext x='24' y='202' opacity='0.22'%3E%E3%83%A4%3C/text%3E%3Ctext x='24' y='189' opacity='0.17'%3E%7D%3C/text%3E%3Ctext x='24' y='176' opacity='0.11'%3E%E3%83%A4%3C/text%3E%3Ctext x='24' y='163' opacity='0.06'%3E/%3C/text%3E%3Ctext x='66' y='237' opacity='1.00'%3E%E3%83%AF%3C/text%3E%3Ctext x='66' y='224' opacity='0.44'%3E0%3C/text%3E%3Ctext x='66' y='211' opacity='0.39'%3E%7D%3C/text%3E%3Ctext x='66' y='198' opacity='0.33'%3E%E3%83%AF%3C/text%3E%3Ctext x='66' y='185' opacity='0.28'%3E%E3%82%BF%3C/text%3E%3Ctext x='66' y='172' opacity='0.22'%3E%E3%82%AB%3C/text%3E%3Ctext x='66' y='159' opacity='0.17'%3E=%3C/text%3E%3Ctext x='66' y='146' opacity='0.11'%3E1%3C/text%3E%3Ctext x='66' y='133' opacity='0.06'%3E%E3%83%8A%3C/text%3E%3C/g%3E%3C/svg%3E");background-position:40px 0;animation:fxFall 8s linear infinite}
+html[data-fx="aurora"] .theme-fx::before{inset:-10% -50% 35%;background:linear-gradient(100deg,transparent 22%,rgba(45,212,191,.22) 38%,rgba(167,139,250,.20) 54%,transparent 70%);animation:fxSway 14s ease-in-out infinite alternate}
+html[data-fx="aurora"] .theme-fx::after{inset:-5% -50% 50%;background:linear-gradient(80deg,transparent 30%,rgba(244,114,182,.12) 45%,rgba(94,234,212,.16) 58%,transparent 72%);animation:fxSway 19s ease-in-out -6s infinite alternate-reverse}
+html[data-fx="glow"] .theme-fx::before,html[data-fx="flag"] .theme-fx::before,html[data-fx="float"] .theme-fx::after,html[data-fx="steam"] .theme-fx::after{inset:-20%;background:radial-gradient(circle at 25% 28%,var(--fx-a,rgba(var(--accent-rgb),.10)) 0,transparent 38%),radial-gradient(circle at 76% 74%,var(--fx-b,rgba(var(--accent-rgb),.07)) 0,transparent 42%);animation:fxDrift 16s ease-in-out infinite alternate}
+html[data-fx="glow"] .theme-fx::after{display:none}
+html[data-fx="flag"] .theme-fx::after{inset:auto;left:50%;top:50%;width:220px;height:220px;margin:-110px 0 0 -110px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='none' stroke='%23000080' stroke-opacity='.10' stroke-width='3'%3E%3Ccircle cx='110' cy='110' r='100'/%3E%3Ccircle cx='110' cy='110' r='14' fill='%23000080' fill-opacity='.08'/%3E%3Cpath d='M110 110L210.0 110.0'/%3E%3Cpath d='M110 110L206.6 135.9'/%3E%3Cpath d='M110 110L196.6 160.0'/%3E%3Cpath d='M110 110L180.7 180.7'/%3E%3Cpath d='M110 110L160.0 196.6'/%3E%3Cpath d='M110 110L135.9 206.6'/%3E%3Cpath d='M110 110L110.0 210.0'/%3E%3Cpath d='M110 110L84.1 206.6'/%3E%3Cpath d='M110 110L60.0 196.6'/%3E%3Cpath d='M110 110L39.3 180.7'/%3E%3Cpath d='M110 110L23.4 160.0'/%3E%3Cpath d='M110 110L13.4 135.9'/%3E%3Cpath d='M110 110L10.0 110.0'/%3E%3Cpath d='M110 110L13.4 84.1'/%3E%3Cpath d='M110 110L23.4 60.0'/%3E%3Cpath d='M110 110L39.3 39.3'/%3E%3Cpath d='M110 110L60.0 23.4'/%3E%3Cpath d='M110 110L84.1 13.4'/%3E%3Cpath d='M110 110L110.0 10.0'/%3E%3Cpath d='M110 110L135.9 13.4'/%3E%3Cpath d='M110 110L160.0 23.4'/%3E%3Cpath d='M110 110L180.7 39.3'/%3E%3Cpath d='M110 110L196.6 60.0'/%3E%3Cpath d='M110 110L206.6 84.1'/%3E%3C/g%3E%3C/svg%3E");animation:fxSpin 60s linear infinite}
+html[data-fx="float"] .theme-fx::before{bottom:-240px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%23fff' fill-opacity='.55'%3E%3Ccircle cx='40' cy='60' r='12'/%3E%3Ccircle cx='180' cy='150' r='16'/%3E%3Ccircle cx='110' cy='220' r='8'/%3E%3C/g%3E%3Cg fill='%23c4b5fd' fill-opacity='.35'%3E%3Ccircle cx='150' cy='40' r='7'/%3E%3Ccircle cx='60' cy='170' r='10'/%3E%3Ccircle cx='220' cy='80' r='5'/%3E%3C/g%3E%3C/svg%3E");animation:fxRise 24s linear infinite}
+html[data-fx="steam"] .theme-fx::before{bottom:-240px;opacity:.5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='%2392400e' stroke-opacity='.16' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M50 240c-14-30 14-50 0-80s14-50 0-80'/%3E%3Cpath d='M170 220c-12-26 12-44 0-70s12-44 0-70'/%3E%3C/g%3E%3Cg fill='none' stroke='%23d6a77a' stroke-opacity='.22' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M110 200c-10-22 10-36 0-58s10-36 0-58'/%3E%3C/g%3E%3C/svg%3E");animation:fxRise 18s linear infinite}
+@media (prefers-reduced-motion:reduce){.theme-fx::before,.theme-fx::after{animation:none !important}}
+/* per theme */
+html[data-theme="classic"],.th-card[data-theme="classic"]{--side-active:#1e2635;--side-active-line:#2a3446;--side-hover:#171e2b;--side-top:#0b111c}
+html[data-theme="ocean"],.th-card[data-theme="ocean"]{--bub-r:22px;--bub-tail:8px;--send-bg:linear-gradient(135deg,#22d3ee,#2563eb);--side-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Cpath d='M0 30Q20 10 40 30T80 30T120 30T160 30' fill='none' stroke='%2338bdf8' stroke-opacity='.09' stroke-width='2'/%3E%3C/svg%3E");--head-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Cpath d='M0 30Q20 10 40 30T80 30T120 30T160 30' fill='none' stroke='%23fff' stroke-opacity='.12' stroke-width='2'/%3E%3C/svg%3E");--side-active:rgba(56,189,248,.14);--side-active-line:rgba(56,189,248,.32);--chip-on:var(--accent);--chip-on-line:var(--accent);--fx-a:rgba(255,255,255,.2)}
+html[data-theme="forest"],.th-card[data-theme="forest"]{--bub-r:16px;--bub-tail:4px;--ava-r:34%;--send-r:16px;--send-bg:linear-gradient(135deg,#4ade80,#15803d);--side-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cpath transform='translate%2830 30%29 rotate%2835%29' d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%234ade80' fill-opacity='.06'/%3E%3Cpath transform='translate%2870 72%29 rotate%28-40%29 scale%28.6%29' d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%234ade80' fill-opacity='.06'/%3E%3C/svg%3E");--head-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cpath transform='translate%2830 30%29 rotate%2835%29' d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%23fff' fill-opacity='.08'/%3E%3Cpath transform='translate%2870 72%29 rotate%28-40%29 scale%28.6%29' d='M-11 0C-5-9 7-9 11 0 5 9-7 9-11 0z' fill='%23fff' fill-opacity='.08'/%3E%3C/svg%3E");--side-active:rgba(74,222,128,.12);--side-active-line:rgba(74,222,128,.3);--chip-on:rgba(74,222,128,.2);--chip-on-line:#4ade80;--tab-on:rgba(74,222,128,.2)}
+html[data-theme="sunset"],.th-card[data-theme="sunset"]{--bub-r:20px;--bub-tail:20px;--send-r:16px;--send-bg:linear-gradient(135deg,#fb923c,#db2777);--side-img:radial-gradient(circle at 85% 0%,rgba(251,146,60,.24) 0,transparent 45%),radial-gradient(circle at 0% 100%,rgba(219,39,119,.2) 0,transparent 45%);--side-active:rgba(251,146,60,.14);--side-active-line:rgba(251,146,60,.35);--chip-on:linear-gradient(90deg,#fb923c,#db2777);--chip-on-line:transparent;--badge:linear-gradient(135deg,#fb923c,#db2777);--fx-a:rgba(251,146,60,.26);--fx-b:rgba(244,114,182,.22)}
+html[data-theme="midnight"],.th-card[data-theme="midnight"]{--bub-r:10px;--bub-tail:2px;--ava-r:12px;--send-r:12px;--send-bg:#f8fafc;--send-fg:#000;--side-top:#000;--side-hover:#0b0b0e;--side-active:#141418;--side-active-line:#2c2c33;--side-line:#141418;--chip-on:#f8fafc;--chip-on-fg:#000;--chip-on-line:#f8fafc;--badge:#f8fafc;--badge-fg:#000;--tab-on:#f8fafc;--tab-on-fg:#000}
+html[data-theme="royal"],.th-card[data-theme="royal"]{--bub-r:14px;--bub-tail:3px;--send-bg:linear-gradient(135deg,#fde68a,#b8860b);--send-fg:#1c1406;--side-img:radial-gradient(circle at 50% 0%,rgba(212,160,23,.16) 0,transparent 50%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cpath d='M18 2 34 18 18 34 2 18z' fill='none' stroke='%23d4a017' stroke-opacity='.08' stroke-width='1'/%3E%3C/svg%3E");--side-size:auto,36px 36px;--head-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cpath d='M18 2 34 18 18 34 2 18z' fill='none' stroke='%23d4a017' stroke-opacity='.18' stroke-width='1'/%3E%3C/svg%3E");--head-size:36px 36px;--side-active:rgba(212,160,23,.12);--side-active-line:rgba(212,160,23,.45);--side-line:#2a2210;--chip-on:linear-gradient(135deg,#fcd34d,#b8860b);--chip-on-fg:#1c1406;--chip-on-line:transparent;--badge:linear-gradient(135deg,#fcd34d,#b8860b);--badge-fg:#1c1406}
+html[data-theme="neon"],.th-card[data-theme="neon"]{--bub-r:12px;--bub-tail:0px;--ava-r:10px;--send-r:10px;--send-bg:linear-gradient(135deg,#22d3ee,#ff2bd6);--side-img:radial-gradient(circle at 50% 110%,rgba(255,43,214,.22) 0,transparent 50%),linear-gradient(rgba(34,211,238,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.05) 1px,transparent 1px);--side-size:auto,28px 28px,28px 28px;--head-img:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);--head-size:24px 24px,24px 24px;--side-active:rgba(255,43,214,.12);--side-active-line:rgba(255,43,214,.5);--side-line:#2a1450;--chip-on:rgba(255,43,214,.18);--chip-on-line:#ff2bd6;--chip-glow:0 0 12px rgba(255,43,214,.55);--badge:#ff2bd6}
+html[data-theme="sakura"],.th-card[data-theme="sakura"]{--bub-r:24px;--bub-tail:12px;--send-bg:linear-gradient(135deg,#f9a8d4,#db2777);--side-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg transform='translate%2830 30%29 rotate%2825%29 scale%280.80%29' fill='%23f9a8d4' fill-opacity='0.09'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%2890 85%29 rotate%28-50%29 scale%280.60%29' fill='%23f9a8d4' fill-opacity='0.09'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3C/svg%3E");--head-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg transform='translate%2830 30%29 rotate%2825%29 scale%280.80%29' fill='%23fff' fill-opacity='0.16'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3Cg transform='translate%2890 85%29 rotate%28-50%29 scale%280.60%29' fill='%23fff' fill-opacity='0.16'%3E%3Cpath d='M0-9C6-9 7 0 0 9-7 0-6-9 0-9z'/%3E%3Cpath d='M0-9 2-6 0-4-2-6z' fill='%23fff' fill-opacity='.5'/%3E%3C/g%3E%3C/svg%3E");--side-active:rgba(244,114,182,.14);--side-active-line:rgba(244,114,182,.38);--chip-on:#f472b6;--chip-on-line:#f472b6;--badge:#f472b6}
+html[data-theme="aurora"],.th-card[data-theme="aurora"]{--bub-r:20px;--bub-tail:6px;--send-bg:linear-gradient(135deg,#2dd4bf,#7c3aed);--side-img:radial-gradient(ellipse at 20% 0%,rgba(45,212,191,.22) 0,transparent 50%),radial-gradient(ellipse at 90% 30%,rgba(167,139,250,.18) 0,transparent 50%);--side-active:linear-gradient(90deg,rgba(45,212,191,.16),rgba(167,139,250,.12));--side-active-line:rgba(94,234,212,.3);--chip-on:linear-gradient(90deg,#14b8a6,#7c3aed);--chip-on-line:transparent;--badge:linear-gradient(135deg,#14b8a6,#7c3aed)}
+html[data-theme="tiranga"],.th-card[data-theme="tiranga"]{--bub-r:18px;--bub-tail:6px;--send-bg:linear-gradient(135deg,#ff9933,#138808);--side-img:radial-gradient(circle at 50% 0%,rgba(255,153,51,.2) 0,transparent 45%),radial-gradient(circle at 50% 100%,rgba(19,136,8,.22) 0,transparent 45%);--side-active:rgba(255,153,51,.13);--side-active-line:rgba(255,153,51,.35);--chip-on:#ff9933;--chip-on-line:#ff9933;--badge:#138808;--fx-a:rgba(255,153,51,.16);--fx-b:rgba(19,136,8,.14)}
+html[data-theme="lavender"],.th-card[data-theme="lavender"]{--bub-r:22px;--bub-tail:10px;--send-bg:linear-gradient(135deg,#c4b5fd,#7c3aed);--side-img:radial-gradient(circle at 80% 0%,rgba(196,181,253,.2) 0,transparent 45%),radial-gradient(circle at 10% 90%,rgba(244,114,182,.12) 0,transparent 45%);--side-active:rgba(167,139,250,.15);--side-active-line:rgba(196,181,253,.38);--chip-on:#a78bfa;--chip-on-line:#a78bfa;--badge:#a78bfa;--fx-a:rgba(196,181,253,.3);--fx-b:rgba(249,168,212,.22)}
+html[data-theme="coffee"],.th-card[data-theme="coffee"]{--bub-r:12px;--bub-tail:3px;--ava-r:30%;--send-r:14px;--send-bg:linear-gradient(135deg,#d6a77a,#78350f);--side-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70'%3E%3Cg transform='translate%2822 22%29 rotate%2830%29' fill='%23d6a77a' fill-opacity='.07'%3E%3Cellipse rx='6' ry='9'/%3E%3C/g%3E%3Cpath transform='translate%2822 22%29 rotate%2830%29' d='M0-8C-3-3 3 3 0 8' stroke='%231a120b' stroke-opacity='.5' fill='none'/%3E%3Cg transform='translate%2852 54%29 rotate%28-25%29 scale%28.7%29' fill='%23d6a77a' fill-opacity='.07'%3E%3Cellipse rx='6' ry='9'/%3E%3C/g%3E%3C/svg%3E");--head-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70'%3E%3Cg transform='translate%2822 22%29 rotate%2830%29' fill='%23d6a77a' fill-opacity='.16'%3E%3Cellipse rx='6' ry='9'/%3E%3C/g%3E%3Cpath transform='translate%2822 22%29 rotate%2830%29' d='M0-8C-3-3 3 3 0 8' stroke='%231a120b' stroke-opacity='.5' fill='none'/%3E%3Cg transform='translate%2852 54%29 rotate%28-25%29 scale%28.7%29' fill='%23d6a77a' fill-opacity='.16'%3E%3Cellipse rx='6' ry='9'/%3E%3C/g%3E%3C/svg%3E");--head-size:70px 70px;--side-active:rgba(214,167,122,.13);--side-active-line:rgba(214,167,122,.35);--side-line:#2a1d12;--chip-on:#d6a77a;--chip-on-fg:#1a120b;--chip-on-line:#d6a77a;--badge:#d6a77a;--badge-fg:#1a120b;--fx-a:rgba(214,167,122,.22);--fx-b:rgba(146,64,14,.12)}
+html[data-theme="matrix"],.th-card[data-theme="matrix"]{--bub-r:3px;--bub-tail:3px;--ava-r:4px;--send-r:4px;--send-bg:#22c55e;--send-fg:#000;--side-img:linear-gradient(rgba(34,197,94,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,.07) 1px,transparent 1px);--side-size:22px 22px;--head-img:linear-gradient(rgba(34,197,94,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,.07) 1px,transparent 1px);--head-size:22px 22px,22px 22px;--side-top:#000;--side-active:rgba(34,197,94,.12);--side-active-line:rgba(34,197,94,.5);--side-line:#0a2a14;--chip-on:#22c55e;--chip-on-fg:#000;--chip-on-line:#22c55e;--badge:#22c55e;--badge-fg:#000;--tab-on:rgba(34,197,94,.2);--tab-on-fg:#86efac}
+html[data-theme="frost"],.th-card[data-theme="frost"]{--bub-r:20px;--bub-tail:6px;--send-bg:linear-gradient(135deg,#a5f3fc,#0284c7);--side-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg stroke='%23e0f2fe' stroke-opacity='.08' stroke-width='1.4' stroke-linecap='round' fill='none'%3E%3Cpath transform='translate%2825 25%29' d='M0-8V8M-7-4 7 4M-7 4 7-4'/%3E%3Cpath transform='translate%2868 66%29 scale%28.6%29' d='M0-8V8M-7-4 7 4M-7 4 7-4'/%3E%3C/g%3E%3C/svg%3E");--head-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg stroke='%23fff' stroke-opacity='.16' stroke-width='1.4' stroke-linecap='round' fill='none'%3E%3Cpath transform='translate%2825 25%29' d='M0-8V8M-7-4 7 4M-7 4 7-4'/%3E%3Cpath transform='translate%2868 66%29 scale%28.6%29' d='M0-8V8M-7-4 7 4M-7 4 7-4'/%3E%3C/g%3E%3C/svg%3E");--side-active:rgba(186,230,253,.12);--side-active-line:rgba(186,230,253,.35);--chip-on:#e0f2fe;--chip-on-fg:#0c4a6e;--chip-on-line:#e0f2fe;--badge:#38bdf8}
+/* little extras */
+html[data-theme="royal"] .side-ava,html[data-theme="royal"] .side-me{box-shadow:0 0 0 2px #d4a017}
+html[data-theme="sakura"] .side-ava,html[data-theme="sakura"] .side-me{box-shadow:0 0 0 2px rgba(249,168,212,.75)}
+html[data-theme="neon"] .msg.user{box-shadow:0 0 18px rgba(255,43,214,.45)}
+html[data-theme="neon"] .side-item.active::before{box-shadow:0 0 10px #ff2bd6}
+html[data-theme="matrix"] .msg{border:1px solid rgba(34,197,94,.4);font-family:'JetBrains Mono',monospace}
+html[data-theme="matrix"] .msg.user{box-shadow:0 0 14px rgba(34,197,94,.25)}
+html[data-theme="matrix"] .side-title small,html[data-theme="matrix"] .side-preview{color:#4ade80}
+html[data-theme="tiranga"] .side-item.active::before{background:linear-gradient(#ff9933,#fff,#138808)}
+html[data-theme="aurora"] .side-item.active::before{background:linear-gradient(#2dd4bf,#a78bfa)}
+html[data-theme="sunset"] .side-item.active::before{background:linear-gradient(#fb923c,#db2777)}
+html[data-theme="frost"] .msg.admin{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html[data-theme="midnight"] .msg.user{border:1px solid #2c2c33}
+/* Themes sheet */
+.th-new{padding:.12rem .45rem;border-radius:999px;background:var(--accent);color:#fff;font-size:.6rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.th-tags{display:flex;gap:.3rem;margin-bottom:.3rem}
+.th-tags .th-free{background:rgba(22,163,74,.12)}
+.th-fx{display:flex;align-items:center;gap:.3rem;margin-top:.2rem;font-size:.68rem;font-weight:700;color:var(--accent)}
+.th-free-all{display:inline-flex;align-items:center;gap:.4rem;margin:.1rem 0 .2rem;padding:.3rem .7rem;border-radius:999px;background:rgba(22,163,74,.1);color:#15803d;font-size:.76rem;font-weight:800}
+.th-fx-row{margin-top:.6rem;padding:.7rem .8rem !important;border:1px solid var(--line) !important;border-radius:14px}
 </style>
 {% include "includes/favicon.html" %}
 <link rel="manifest" href="{% url 'chats_manifest' %}">
@@ -1206,7 +1296,8 @@ window.EduLook = (function () {
     aurora: ['Aurora', '#0d9488', '#7c3aed', '#134e4a', '13,148,136', '#5eead4'],
     gold: ['Royal Gold', '#c99a1e', '#a07812', '#5c4307', '201,154,30', '#fcd34d'],
     coffee: ['Coffee', '#92400e', '#78350f', '#451a03', '146,64,14', '#d6a77a'],
-    slate: ['Slate', '#475569', '#334155', '#0f172a', '71,85,105', '#94a3b8']
+    slate: ['Slate', '#475569', '#334155', '#0f172a', '71,85,105', '#94a3b8'],
+    matrix: ['Matrix', '#22c55e', '#15803d', '#052e16', '34,197,94', '#86efac']
   };
   var FONTS = {
     inter: ['Inter', 'Inter', null],
@@ -1244,12 +1335,14 @@ window.EduLook = (function () {
     galaxy: ['Galaxy', '#0a0618', function () { return 'radial-gradient(1px 1px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 120px 80px,rgba(255,255,255,.8),transparent),radial-gradient(1.5px 1.5px at 70px 150px,#fff,transparent),radial-gradient(1px 1px at 170px 170px,rgba(255,255,255,.7),transparent),radial-gradient(circle at 80% 20%,rgba(255,43,214,.25) 0,transparent 45%),radial-gradient(circle at 15% 85%,rgba(34,211,238,.18) 0,transparent 45%)'; }, '200px 200px,200px 200px,200px 200px,200px 200px,cover,cover'],
     carbon: ['Carbon', '#0b0b0d', function () { return 'repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 6px,transparent 6px 12px),linear-gradient(#0b0b0d,#000)'; }, 'auto'],
     royal: ['Royal', '#120e07', function () { return svgUrl("<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><path d='M24 2 46 24 24 46 2 24z' fill='none' stroke='%23d4a017' stroke-opacity='.13' stroke-width='1.2'/></svg>") + ',radial-gradient(circle at 50% 0%,rgba(212,160,23,.18) 0,transparent 55%),linear-gradient(#120e07,#0a0804)'; }, '48px 48px,cover,cover'],
+    matrix: ['Matrix', '#000805', function () { return 'radial-gradient(circle at 50% 0%,rgba(34,197,94,.16) 0,transparent 55%),linear-gradient(rgba(34,197,94,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,.06) 1px,transparent 1px)'; }, 'cover,22px 22px,22px 22px'],
+    frost: ['Frost', '#e8f4fd', function () { return 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'110\' height=\'110\'%3E%3Cg stroke=\'%237dd3fc\' stroke-opacity=\'.45\' stroke-width=\'1.4\' stroke-linecap=\'round\' fill=\'none\'%3E%3Cpath transform=\'translate%2828 30%29\' d=\'M0-9V9M-8-4.5 8 4.5M-8 4.5 8-4.5\'/%3E%3Cpath transform=\'translate%2882 80%29 scale%28.6%29\' d=\'M0-9V9M-8-4.5 8 4.5M-8 4.5 8-4.5\'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(160deg,#f0f9ff 0%,#dbeefe 55%,#e0e7ff 100%)'; }, '110px 110px,cover'],
     custom: ['My photo', '#e5e7eb', function () {
       var img = null; try { img = localStorage.getItem('educhats-wall-custom'); } catch (e) {}
       return img ? 'linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.12)),url("' + img + '")' : 'none';
     }, 'cover']
   };
-  var DARK_WALLS = { night: 1, forest: 1, aurora: 1, galaxy: 1, carbon: 1, royal: 1 };
+  var DARK_WALLS = { night: 1, forest: 1, aurora: 1, galaxy: 1, carbon: 1, royal: 1, matrix: 1 };
   // ⋮ → Customize → message colours. Yours: [label, background, text, tick, read tick]; theirs: [label, background, text]
   var W = 'rgba(255,255,255,.75)';
   var BUBBLES = {
@@ -1266,7 +1359,10 @@ window.EduLook = (function () {
     saffron: ['Saffron', 'linear-gradient(135deg,#ff9933,#e65c00)', '#fff', W, '#bfdbfe'],
     dark: ['Graphite', '#1f2937', '#f9fafb', 'rgba(249,250,251,.6)', '#7dd3fc'],
     sky: ['Sky', '#dbeafe', '#0f172a', 'rgba(15,23,42,.45)', '#2563eb'],
-    lavender: ['Lavender', '#ede9fe', '#1e1b4b', 'rgba(30,27,75,.45)', '#7c3aed']
+    lavender: ['Lavender', '#ede9fe', '#1e1b4b', 'rgba(30,27,75,.45)', '#7c3aed'],
+    coffee: ['Latte', 'linear-gradient(135deg,#b07a45,#78350f)', '#fff8ee', 'rgba(255,248,238,.65)', '#fde68a'],
+    matrix: ['Terminal', '#052e16', '#86efac', 'rgba(134,239,172,.55)', '#22d3ee'],
+    ice: ['Ice', 'linear-gradient(135deg,#a5f3fc,#38bdf8)', '#06283d', 'rgba(6,40,61,.5)', '#1d4ed8']
   };
   var BUBBLES2 = {
     theme: ['White'],
@@ -1283,44 +1379,74 @@ window.EduLook = (function () {
   // chat list, headers, the EduChats name and the main icons their own look.
   var ICONS = { chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone', plus: 'fa-plus', menu: 'fa-ellipsis-vertical', search: 'fa-magnifying-glass' };
   var THEMES = {
-    classic: { name: 'EduTrellis Classic', tag: 'The original red & midnight', look: { accent: 'red', wall: 'doodle', font: 'inter', bubble: 'theme', bubble2: 'theme' },
-      ink: '#0f1623', ink2: '#171f2e', brand: {} , icons: {} },
-    ocean: { name: 'Ocean Breeze', tag: 'Cool blues, calm waves', look: { accent: 'sky', wall: 'ocean', font: 'nunito', bubble: 'theme', bubble2: 'sky' },
+    classic: { name: 'EduTrellis Classic', tag: 'The original red & midnight', fx: 'glow', fxName: 'Soft red glow',
+      look: { accent: 'red', wall: 'doodle', font: 'inter', bubble: 'theme', bubble2: 'theme' },
+      ink: '#0f1623', ink2: '#171f2e', brand: {}, icons: {} },
+    ocean: { name: 'Ocean Breeze', tag: 'Cool blues, calm waves', fx: 'bubbles', fxName: 'Rising bubbles',
+      look: { accent: 'sky', wall: 'ocean', font: 'nunito', bubble: 'theme', bubble2: 'sky' },
       ink: '#071726', ink2: '#0d2236', head: 'linear-gradient(115deg,#071726 0%,#0b3a5c 45%,var(--accent) 100%)',
       brand: { font: "'Comfortaa'", gf: 'Comfortaa:wght@700', grad: 'linear-gradient(90deg,#67e8f9,#60a5fa)' },
       icons: { chats: 'fa-comments', updates: 'fa-water', calls: 'fa-phone-volume', plus: 'fa-pen-to-square', menu: 'fa-bars' } },
-    forest: { name: 'Forest Calm', tag: 'Fresh greens, easy on the eyes', look: { accent: 'green', wall: 'mint', font: 'dmsans', bubble: 'theme', bubble2: 'mint' },
+    forest: { name: 'Forest Calm', tag: 'Fresh greens, easy on the eyes', fx: 'leaves', fxName: 'Drifting leaves',
+      look: { accent: 'green', wall: 'mint', font: 'dmsans', bubble: 'theme', bubble2: 'mint' },
       ink: '#08170f', ink2: '#0f2419', head: 'linear-gradient(115deg,#08170f 0%,#14532d 55%,var(--accent) 100%)',
       brand: { font: "'Baloo 2'", gf: 'Baloo+2:wght@800', grad: 'linear-gradient(90deg,#bbf7d0,#4ade80)' },
-      icons: { chats: 'fa-comment-dots', updates: 'fa-seedling', calls: 'fa-phone-flip', plus: 'fa-feather', menu: 'fa-ellipsis' } },
-    sunset: { name: 'Sunset Glow', tag: 'Warm orange into pink', look: { accent: 'orange', wall: 'sunset', font: 'poppins', bubble: 'sunset', bubble2: 'theme' },
+      icons: { chats: 'fa-comment-dots', updates: 'fa-seedling', calls: 'fa-phone-flip', plus: 'fa-feather', menu: 'fa-ellipsis', search: 'fa-leaf' } },
+    sunset: { name: 'Sunset Glow', tag: 'Warm orange into pink', fx: 'glow', fxName: 'Warm sun glow',
+      look: { accent: 'orange', wall: 'sunset', font: 'poppins', bubble: 'sunset', bubble2: 'theme' },
       ink: '#1f0f1a', ink2: '#2b1524', head: 'linear-gradient(115deg,#1f0f1a 0%,#9d174d 50%,#f97316 100%)',
       brand: { font: "'Righteous'", gf: 'Righteous', grad: 'linear-gradient(90deg,#fdba74,#f472b6)', weight: 400 },
-      icons: { chats: 'fa-message', updates: 'fa-sun', calls: 'fa-phone' } },
-    midnight: { name: 'Midnight AMOLED', tag: 'Pure black, saves battery', look: { accent: 'slate', wall: 'carbon', font: 'inter', bubble: 'dark', bubble2: 'charcoal' },
-      ink: '#000000', ink2: '#0c0c0f', head: 'linear-gradient(115deg,#000 0%,#111827 60%,#1f2937 100%)',
+      icons: { chats: 'fa-message', updates: 'fa-sun', calls: 'fa-phone', plus: 'fa-fire' } },
+    midnight: { name: 'Midnight AMOLED', tag: 'Pure black, saves battery', fx: 'stars', fxName: 'Twinkling stars',
+      look: { accent: 'slate', wall: 'carbon', font: 'inter', bubble: 'dark', bubble2: 'charcoal' },
+      ink: '#000000', ink2: '#0c0c0f', head: 'linear-gradient(115deg,#000 0%,#0b0b0e 60%,#1f2937 100%)',
       brand: { font: "'JetBrains Mono'", gf: 'JetBrains+Mono:wght@800', grad: 'linear-gradient(90deg,#f8fafc,#94a3b8)', upper: true, spacing: '.06em', size: '1rem' },
-      icons: { updates: 'fa-moon', menu: 'fa-grip-vertical' } },
-    royal: { premium: true, name: 'Royal Gold', tag: 'Black & gold, made to impress', look: { accent: 'gold', wall: 'royal', font: 'merriweather', bubble: 'gold', bubble2: 'charcoal' },
+      icons: { updates: 'fa-moon', menu: 'fa-grip-vertical', plus: 'fa-square-plus' } },
+    royal: { name: 'Royal Gold', tag: 'Black & gold, made to impress', fx: 'sparkle', fxName: 'Gold sparkle',
+      look: { accent: 'gold', wall: 'royal', font: 'merriweather', bubble: 'gold', bubble2: 'charcoal' },
       ink: '#0c0a06', ink2: '#17130b', head: 'linear-gradient(115deg,#0c0a06 0%,#3b2a08 50%,#b8860b 100%)',
       brand: { font: "'Playfair Display'", gf: 'Playfair+Display:ital,wght@1,800', grad: 'linear-gradient(90deg,#fde68a,#d4a017 55%,#fef3c7)', italic: true, glow: 'drop-shadow(0 0 10px rgba(212,160,23,.35))', size: '1.3rem' },
-      icons: { chats: 'fa-feather-pointed', updates: 'fa-crown', plus: 'fa-gem' } },
-    neon: { premium: true, name: 'Neon Cyber', tag: 'Glowing magenta & cyan', look: { accent: 'neon', wall: 'galaxy', font: 'poppins', bubble: 'neon', bubble2: 'charcoal' },
+      icons: { chats: 'fa-feather-pointed', updates: 'fa-crown', plus: 'fa-gem', calls: 'fa-bell-concierge' } },
+    neon: { name: 'Neon Cyber', tag: 'Glowing magenta & cyan', fx: 'scan', fxName: 'Neon grid scan',
+      look: { accent: 'neon', wall: 'galaxy', font: 'poppins', bubble: 'neon', bubble2: 'charcoal' },
       ink: '#07041a', ink2: '#110a2b', head: 'linear-gradient(115deg,#07041a 0%,#3b0764 50%,#ff2bd6 100%)',
       brand: { font: "'Orbitron'", gf: 'Orbitron:wght@800', grad: 'linear-gradient(90deg,#22d3ee,#ff2bd6)', upper: true, spacing: '.05em', glow: 'drop-shadow(0 0 8px rgba(255,43,214,.6))', size: '1rem' },
-      icons: { chats: 'fa-bolt', updates: 'fa-satellite-dish', calls: 'fa-headset', menu: 'fa-bars-staggered' } },
-    sakura: { premium: true, name: 'Sakura Bloom', tag: 'Soft pinks & cherry blossoms', look: { accent: 'sakura', wall: 'blossom', font: 'nunito', bubble: 'pink', bubble2: 'blush' },
+      icons: { chats: 'fa-bolt', updates: 'fa-satellite-dish', calls: 'fa-headset', menu: 'fa-bars-staggered', plus: 'fa-microchip' } },
+    sakura: { name: 'Sakura Bloom', tag: 'Soft pinks & cherry blossoms', fx: 'petals', fxName: 'Falling petals',
+      look: { accent: 'sakura', wall: 'blossom', font: 'nunito', bubble: 'pink', bubble2: 'blush' },
       ink: '#24101c', ink2: '#311626', head: 'linear-gradient(115deg,#24101c 0%,#9d174d 55%,#f472b6 100%)',
       brand: { font: "'Pacifico'", gf: 'Pacifico', grad: 'linear-gradient(90deg,#fbcfe8,#f472b6)', weight: 400, size: '1.25rem' },
-      icons: { chats: 'fa-heart', updates: 'fa-spa', plus: 'fa-pen-nib' } },
-    aurora: { premium: true, name: 'Aurora Borealis', tag: 'Northern lights, teal to violet', look: { accent: 'aurora', wall: 'aurora', font: 'dmsans', bubble: 'aurora', bubble2: 'charcoal' },
+      icons: { chats: 'fa-heart', updates: 'fa-spa', plus: 'fa-pen-nib', calls: 'fa-phone-volume' } },
+    aurora: { name: 'Aurora Borealis', tag: 'Northern lights, teal to violet', fx: 'aurora', fxName: 'Moving northern lights',
+      look: { accent: 'aurora', wall: 'aurora', font: 'dmsans', bubble: 'aurora', bubble2: 'charcoal' },
       ink: '#04161a', ink2: '#0a2328', head: 'linear-gradient(115deg,#04161a 0%,#0f766e 45%,#7c3aed 100%)',
       brand: { font: "'Comfortaa'", gf: 'Comfortaa:wght@700', grad: 'linear-gradient(90deg,#5eead4,#a78bfa)', glow: 'drop-shadow(0 0 8px rgba(94,234,212,.4))' },
-      icons: { chats: 'fa-star', updates: 'fa-wand-magic-sparkles', plus: 'fa-plus' } },
-    tiranga: { premium: true, name: 'Tiranga Pride', tag: 'Saffron, white & green — Made in India', look: { accent: 'saffron', wall: 'tiranga', font: 'poppins', bubble: 'saffron', bubble2: 'mint' },
+      icons: { chats: 'fa-star', updates: 'fa-wand-magic-sparkles', plus: 'fa-plus', calls: 'fa-phone-flip' } },
+    tiranga: { name: 'Tiranga Pride', tag: 'Saffron, white & green — Made in India', fx: 'flag', fxName: 'Turning chakra',
+      look: { accent: 'saffron', wall: 'tiranga', font: 'poppins', bubble: 'saffron', bubble2: 'mint' },
       ink: '#0a1033', ink2: '#121a45', head: 'linear-gradient(115deg,#0a1033 0%,#1e3a8a 45%,#ff9933 100%)',
       brand: { font: "'Baloo 2'", gf: 'Baloo+2:wght@800', grad: 'linear-gradient(90deg,#ff9933 0%,#ffffff 50%,#22c55e 100%)' },
-      icons: { updates: 'fa-dharmachakra' } }
+      icons: { updates: 'fa-dharmachakra', chats: 'fa-comments', plus: 'fa-flag' } },
+    lavender: { isNew: true, name: 'Lavender Dream', tag: 'Dreamy lilac & soft pink', fx: 'float', fxName: 'Floating bubbles',
+      look: { accent: 'purple', wall: 'lavender', font: 'nunito', bubble: 'purple', bubble2: 'lilac' },
+      ink: '#16112a', ink2: '#1f1838', head: 'linear-gradient(115deg,#16112a 0%,#4c1d95 55%,#a78bfa 100%)',
+      brand: { font: "'Dancing Script'", gf: 'Dancing+Script:wght@700', grad: 'linear-gradient(90deg,#e9d5ff,#f9a8d4)', size: '1.35rem' },
+      icons: { chats: 'fa-cloud', updates: 'fa-moon', plus: 'fa-wand-magic-sparkles', menu: 'fa-ellipsis' } },
+    coffee: { isNew: true, name: 'Coffee House', tag: 'Cosy browns, warm paper', fx: 'steam', fxName: 'Rising steam',
+      look: { accent: 'coffee', wall: 'paper', font: 'merriweather', bubble: 'coffee', bubble2: 'cream' },
+      ink: '#1a120b', ink2: '#241910', head: 'linear-gradient(115deg,#1a120b 0%,#451a03 50%,#a16207 100%)',
+      brand: { font: "'Lobster'", gf: 'Lobster', grad: 'linear-gradient(90deg,#fde68a,#d6a77a)', weight: 400, size: '1.3rem' },
+      icons: { chats: 'fa-mug-hot', updates: 'fa-mug-saucer', plus: 'fa-pen', menu: 'fa-ellipsis', calls: 'fa-phone-flip' } },
+    matrix: { isNew: true, name: 'Hacker Matrix', tag: 'Green code on black', fx: 'rain', fxName: 'Falling code',
+      look: { accent: 'matrix', wall: 'matrix', font: 'mono', bubble: 'matrix', bubble2: 'charcoal' },
+      ink: '#010b04', ink2: '#04150a', head: 'linear-gradient(115deg,#000 0%,#052e16 60%,#15803d 100%)',
+      brand: { font: "'Share Tech Mono'", gf: 'Share+Tech+Mono', grad: 'linear-gradient(90deg,#bbf7d0,#22c55e)', upper: true, spacing: '.08em', weight: 400, glow: 'drop-shadow(0 0 8px rgba(34,197,94,.6))', size: '1.05rem' },
+      icons: { chats: 'fa-terminal', updates: 'fa-code', calls: 'fa-tower-broadcast', plus: 'fa-hashtag', menu: 'fa-bars' } },
+    frost: { isNew: true, name: 'Arctic Frost', tag: 'Icy blues & falling snow', fx: 'snow', fxName: 'Falling snow',
+      look: { accent: 'cyan', wall: 'frost', font: 'dmsans', bubble: 'ice', bubble2: 'theme' },
+      ink: '#0b1b2b', ink2: '#11263a', head: 'linear-gradient(115deg,#0b1b2b 0%,#0c4a6e 50%,#38bdf8 100%)',
+      brand: { font: "'Quicksand'", gf: 'Quicksand:wght@700', grad: 'linear-gradient(90deg,#f0f9ff,#67e8f9)', glow: 'drop-shadow(0 0 6px rgba(103,232,249,.45))' },
+      icons: { chats: 'fa-comments', updates: 'fa-snowflake', calls: 'fa-phone-volume', plus: 'fa-pen-to-square' } }
   };
   var DEFAULT = { accent: 'red', font: 'inter', size: 'm', wall: 'doodle', theme: 'classic', bubble: 'theme', bubble2: 'theme' };
   function loadFont(id, spec) {
@@ -1368,6 +1494,9 @@ window.EduLook = (function () {
       if (v[1]) root.setProperty(v[0], String(v[1])); else root.removeProperty(v[0]);
     });
     html.classList.toggle('brand-upper', !!br.upper); html.classList.toggle('brand-italic', !!br.italic);
+    html.dataset.fx = t.fx || 'none';
+    var fxOff = false; try { fxOff = localStorage.getItem('educhats-fx') === 'off'; } catch (e) {}
+    html.classList.toggle('fx-off', fxOff);
     loadFont('brand-' + look.theme, br.gf);
     if (document.body) swapIcons(t.icons || {});
     else document.addEventListener('DOMContentLoaded', function () { swapIcons(t.icons || {}); }, { once: true });
@@ -1431,7 +1560,7 @@ EduLook.apply(EduLook.get());
           <button type="button" id="openLock" role="menuitem"><i class="fas fa-lock" id="lockIcon"></i> <span id="lockLabel">App lock</span></button>{% endif %}
           <button type="button" id="openNotif" role="menuitem" hidden><i class="fas fa-bell" id="notifIcon"></i> <span id="notifLabel">Notifications</span></button>
           <button type="button" id="openLook" role="menuitem"><i class="fas fa-palette"></i> Customize</button>
-          <button type="button" id="openThemes" role="menuitem"><i class="fas fa-swatchbook"></i> Themes <span class="menu-new">New</span></button>
+          <button type="button" id="openThemes" role="menuitem"><i class="fas fa-swatchbook"></i> Themes <span class="menu-new">Free</span></button>
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
           <button type="button" id="openSupport" role="menuitem"><i class="fas fa-headset"></i> Support / Report us</button>
           <button type="button" id="openSettings" role="menuitem"><i class="fas fa-gear"></i> Settings</button>
@@ -2109,10 +2238,12 @@ EduLook.apply(EduLook.get());
   <div class="sheet-card themes-card">
     <h3><i class="fas fa-swatchbook" style="color:var(--accent)"></i> Themes</h3>
     <p>Change the whole look of {{ app.app_name|default:"EduChats" }} in one tap — colours, wallpaper, message bubbles, icons and the app name style. {% if chat_user.is_guest %}Saved on this device.{% else %}Saved to your account.{% endif %}</p>
-    <div class="th-sec"><b>Free themes</b></div>
-    <div class="th-grid" id="themesFree"></div>
-    <div class="th-sec"><b><i class="fas fa-crown"></i> Premium themes</b><small>Free for everyone right now</small></div>
-    <div class="th-grid" id="themesPremium"></div>
+    <span class="th-free-all"><i class="fas fa-gift"></i> Every theme is free</span>
+    <label class="pv-row th-fx-row"><span class="pv-ic"><i class="fas fa-wand-magic-sparkles"></i></span><span class="pv-txt"><b>Animated effects</b><small>Snow, petals, stars and more drifting gently behind your messages</small></span><span class="switch"><input type="checkbox" id="themeFxSwitch" checked><span></span></span></label>
+    <div class="th-sec"><b><i class="fas fa-sun"></i> Light chats</b></div>
+    <div class="th-grid" id="themesLight"></div>
+    <div class="th-sec"><b><i class="fas fa-moon"></i> Dark chats</b></div>
+    <div class="th-grid" id="themesDark"></div>
     <div class="look-actions"><button type="button" class="sheet-opt" id="themesCustomize"><i class="fas fa-palette"></i> Fine-tune in Customize</button><button type="button" class="pf-save" data-close>Done</button></div>
   </div>
 </div>
@@ -2792,14 +2923,15 @@ EduLook.apply(EduLook.get());
       var me = EduLook.BUBBLES[t.look.bubble], them = EduLook.BUBBLES2[t.look.bubble2], br = t.brand || {};
       var icons = Object.assign({ chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone' }, t.icons || {});
       var c = document.createElement('button'); c.type = 'button'; c.className = 'th-card'; c.dataset.theme = k;
-      c.innerHTML = '<span class="' + (t.premium ? 'th-crown"><i class="fas fa-crown"></i> Premium' : 'th-free">Free') + '</span>' +
+      c.innerHTML =
         '<span class="th-prev"><span class="th-side"><span class="th-brand">EduChats</span><span class="th-row on"></span><span class="th-row"></span><span class="th-row"></span>' +
         '<span class="th-icons"><i class="fas ' + icons.chats + '"></i><i class="fas ' + icons.updates + '"></i><i class="fas ' + icons.calls + '"></i></span></span>' +
         '<span class="th-main"><span class="th-head"></span><span class="th-wall"><span class="th-b1"></span><span class="th-b2"></span></span></span></span>' +
-        '<span class="th-name"><b></b><small></small></span>';
-      c.querySelector('.th-name b').textContent = t.name;
+        '<span class="th-name"><span class="th-tags"><span class="th-free">Free</span>' + (t.isNew ? '<span class="th-new">New</span>' : '') + '</span><b></b><small></small><span class="th-fx"><i class="fas fa-wand-magic-sparkles"></i> <span></span></span></span>';
+      c.querySelector('.th-name > b').textContent = t.name;
       c.querySelector('.th-name small').textContent = t.tag;
-      c.querySelector('.th-side').style.background = t.ink;
+      c.querySelector('.th-fx span').textContent = t.fxName || '';
+      c.querySelector('.th-side').style.backgroundColor = t.ink;
       c.querySelector('.th-icons').style.color = a[5];
       var brand = c.querySelector('.th-brand');
       brand.style.fontFamily = br.font || 'Inter'; brand.style.fontWeight = br.weight || 800;
@@ -2814,7 +2946,7 @@ EduLook.apply(EduLook.get());
       c.querySelector('.th-b2').style.background = (me && me[1]) || 'linear-gradient(135deg,' + a[1] + ',' + a[2] + ')';
       c.addEventListener('click', function () {
         look = Object.assign({}, look, t.look, { theme: k }); commit(); paintThemes();
-        if (window.eduToast) eduToast({ kind: t.premium ? 'premium' : 'success', icon: t.premium ? 'fa-crown' : 'fa-swatchbook', title: t.name + ' theme on', text: t.tag, ms: 2600 });
+        if (window.eduToast) eduToast({ icon: 'fa-swatchbook', title: t.name + ' theme on', text: t.tag, ms: 2600 });
       });
       themeCards[k] = c;
       return c;
@@ -2823,9 +2955,19 @@ EduLook.apply(EduLook.get());
     function buildThemes() {
       if (Object.keys(themeCards).length) return;
       Object.keys(EduLook.THEMES).forEach(function (k) {
-        document.getElementById(EduLook.THEMES[k].premium ? 'themesPremium' : 'themesFree').appendChild(themeCard(k));
+        document.getElementById(EduLook.DARK_WALLS[EduLook.THEMES[k].look.wall] ? 'themesDark' : 'themesLight').appendChild(themeCard(k));
       });
     }
+    // the moving effect layer behind each chat's messages, and its on/off switch
+    document.querySelectorAll('.chat-body').forEach(function (b) {
+      if (!b.querySelector(':scope > .theme-fx')) { var fx = document.createElement('div'); fx.className = 'theme-fx'; fx.setAttribute('aria-hidden', 'true'); b.insertBefore(fx, b.firstChild); }
+    });
+    var fxSwitch = document.getElementById('themeFxSwitch');
+    fxSwitch.checked = !document.documentElement.classList.contains('fx-off');
+    fxSwitch.addEventListener('change', function () {
+      try { localStorage.setItem('educhats-fx', this.checked ? 'on' : 'off'); } catch (e) {}
+      document.documentElement.classList.toggle('fx-off', !this.checked);
+    });
     function openThemes() {
       document.getElementById('sideMenu').classList.remove('open');
       buildThemes(); paintThemes();
