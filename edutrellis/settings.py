@@ -78,10 +78,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'edutrellis.wsgi.application'
 
+# Railway volume (web service → Volumes, mounted at /media): the database and uploaded
+# files live on it so a redeploy doesn't wipe them — see edutrellis/volume.py.
+# Without the volume (this computer) they stay in the project folder as before.
+VOLUME_DIR = os.environ.get('RAILWAY_VOLUME_MOUNT_PATH', '').strip()
+if VOLUME_DIR:
+    DATABASE_FILE = Path(VOLUME_DIR) / 'data' / 'db.sqlite3'
+    MEDIA_ROOT = Path(VOLUME_DIR) / 'uploads'
+else:
+    DATABASE_FILE = BASE_DIR / 'db.sqlite3'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATABASE_FILE,
         # Chats write constantly (messages, read ticks, "last seen"): wait up to
         # 20 s for another write to finish, and take the write lock at the start
         # of a transaction, so two writes never fail with "database is locked".
@@ -107,7 +118,9 @@ STATICFILES_DIRS = [BASE_DIR / 'myapp' / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if VOLUME_DIR:   # first start on an empty volume: move the database and files onto it
+    from .volume import prepare as _prepare_volume
+    _prepare_volume(BASE_DIR, DATABASE_FILE, MEDIA_ROOT)
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
