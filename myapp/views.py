@@ -1850,7 +1850,7 @@ def dashboard_backup_restore(request):
             messages.error(request, 'Choose a backup to restore first.')
         else:
             try:
-                dropbox_backup.restore_backup(settings_obj, filename)
+                safety = dropbox_backup.restore_backup(settings_obj, filename)
                 # restore_backup just swapped out db.sqlite3 from under this
                 # very request, taking the django_session table — and this
                 # request's own session row — with it. Without recreating it,
@@ -1859,8 +1859,15 @@ def dashboard_backup_restore(request):
                 # must_create=True forces an INSERT into the freshly-restored
                 # table instead, so the admin doesn't get logged out or hit
                 # an error page by restoring a backup.
-                request.session.save(must_create=True)
-                messages.success(request, f'Database restored from "{filename}". Restart the app if you notice anything odd.')
+                # If the backup was taken during this same login it already
+                # has this session's row, so INSERT fails — then UPDATE it.
+                from django.contrib.sessions.backends.base import CreateError
+                try:
+                    request.session.save(must_create=True)
+                except CreateError:
+                    request.session.save()
+                messages.success(request, f'Database restored from "{filename}". Your data from just before the restore '
+                                          f'was saved as "{safety}" — restore that to undo.')
             except dropbox_backup.BackupError as exc:
                 messages.error(request, str(exc))
     return redirect('dashboard_backup')
