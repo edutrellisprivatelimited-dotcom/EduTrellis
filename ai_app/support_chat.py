@@ -583,9 +583,10 @@ def call_action(user, side, data):
         cache.set(call_key(user.pk), state, CALL_STALE_SECONDS)
         from .educhats_push import ring, ring_support_team
         if side == 'user':
-            ring_support_team(user, state['kind'])
+            ring_support_team(user, state['kind'], state['id'])
         else:
-            ring(user, 'support', SupportProfile.load().display_name, state['kind'])
+            ring(user, 'support', SupportProfile.load().display_name, state['kind'],
+                 {'path': 'api/call/', 'body': {'action': 'decline', 'id': state['id']}})
         return state, ''
     if not state or state.get('id') != data.get('id'):
         return None, 'This call has ended.'

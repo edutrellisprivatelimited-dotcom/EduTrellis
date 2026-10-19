@@ -111,12 +111,12 @@ def encrypt(p256dh, auth, plaintext, salt=None, server_key=None):
     return salt + struct.pack('!I', 4096) + bytes([len(as_public)]) + as_public + record
 
 
-def _send(sub, payload):
+def _send(sub, payload, ttl=86400):
     """POST one push. Returns True when delivered; drops subscriptions the service says are gone."""
     key, public = vapid_keys()
     body = encrypt(sub.p256dh, sub.auth, json.dumps(payload, separators=(',', ':')).encode())
     req = urllib.request.Request(sub.endpoint, data=body, method='POST', headers={
-        'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream', 'TTL': '86400',
+        'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream', 'TTL': str(ttl),
         'Urgency': 'high', 'Authorization': _vapid_header(sub.endpoint, key, public),
         'Topic': re.sub(r'[^A-Za-z0-9_-]', '', str(payload.get('tag', 'educhats')))[:32] or 'educhats',
     })
@@ -192,7 +192,7 @@ def preview(kind, body, name=''):
     return body[:160] + ('…' if len(body) > 160 else '')
 
 
-def push_to(user, chat, title, body, call=False):
+def push_to(user, chat, title, body, call=False, decline=None):
     """Every device of this user that allows notifications, unless the chat is muted there."""
     subs = list(PushSubscription.objects.filter(user=user))
     if not subs:
@@ -215,7 +215,10 @@ def push_to(user, chat, title, body, call=False):
                     # Reply / Mark as read buttons — not with the app lock on, which
                     # would let anyone holding the phone answer without unlocking
                     'actions': not call and not user.app_lock_pin and not user.is_guest,
-                    'unread': [key for key in counts if key not in muted][:60]})
+                    # a call: Answer / Decline buttons; Decline posts this from the notification
+                    'decline': decline if call else None,
+                    'unread': [key for key in counts if key not in muted][:60]},
+              ttl=60 if call else 86400)   # a ring that arrives late is no use
 
 
 def _in_background(fn, *args):
@@ -278,20 +281,22 @@ def _group_message(message_id):
             push_to(ms.user, f'g{m.group_id}', m.group.name, text)
 
 
-def ring(user, chat, caller_name, kind):
-    """An incoming call: a notification that stays until it's answered or dismissed."""
+def ring(user, chat, caller_name, kind, decline=None):
+    """An incoming call: a notification that stays until it's answered or dismissed.
+    decline: {'path': <api path under /educhats/>, 'body': {...}} for its Decline button."""
     label = 'video call' if kind == 'video' else 'voice call'
-    _in_background(push_to, user, chat, caller_name, f'📞 Incoming {label}…', True)
+    _in_background(push_to, user, chat, caller_name, f'📞 Incoming {label}…', True, decline)
 
 
-def ring_support_team(member, kind):
+def ring_support_team(member, kind, call_id=''):
     from .support_chat import staff_account
 
     def run():
         for staff in ChatUser.objects.filter(django_user__isnull=False, is_active=True, is_guest=False).exclude(pk=member.pk):
             if staff_account(None, staff):
                 push_to(staff, f'sx{member.pk}', f'{member.name or "Guest"} · Support',
-                        f'📞 Incoming {"video" if kind == "video" else "voice"} call…', True)
+                        f'📞 Incoming {"video" if kind == "video" else "voice"} call…', True,
+                        {'path': f'api/inbox/{member.pk}/call/', 'body': {'action': 'decline', 'id': call_id}})
     _in_background(run)
 
 

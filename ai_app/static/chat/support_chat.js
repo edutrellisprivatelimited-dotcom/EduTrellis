@@ -686,7 +686,7 @@
   }
   var TONES = {
     // someone is calling me: a bright marimba phrase
-    ring: { every: 2400, vibrate: [450, 200, 450], play: function (ctx, t) {
+    ring: { every: 2000, vibrate: [700, 300, 700], play: function (ctx, t) {
       [[659.25, 0], [830.61, 0.15], [987.77, 0.3], [1318.51, 0.45], [987.77, 0.78], [1318.51, 0.93]].forEach(function (n) {
         tone(ctx, n[0], t + n[1], 0.6, 0.2); tone(ctx, n[0] * 2.01, t + n[1], 0.18, 0.04);
       });
@@ -696,21 +696,92 @@
       [0, 0.6].forEach(function (s) { tone(ctx, 400, t + s, 0.4, 0.045, true); tone(ctx, 450, t + s, 0.4, 0.045, true); });
     } }
   };
+  // Incoming-call ringtones: drawn once into a short WAV and played by a looping <audio>,
+  // so they keep ringing in a background tab (timers there slow right down) and sound
+  // the same on every phone. [name, seconds per ring, sample(t)]
+  function sine(f, t) { return Math.sin(6.283185307 * f * t); }
+  var RINGTONES = {
+    classic: ['Classic phone', 3, function (t) {   // the old bell phone: "trrring-trrring"
+      var u = t < 0.42 ? t : (t >= 0.62 && t < 1.04) ? t - 0.62 : -1;
+      if (u < 0) return 0;
+      var env = Math.min(1, u / 0.012) * Math.min(1, (0.42 - u) / 0.04), hammer = 0.62 + 0.38 * sine(22, u);
+      return env * hammer * (0.62 * sine(1046, u) + 0.28 * sine(1568, u) + 0.12 * sine(2637, u));
+    }],
+    digital: ['Digital', 2.4, function (t) {   // quick two-tone beeps, like most phones
+      var k = Math.floor(t / 0.11), u = t - k * 0.11;
+      if (k > 7 || u > 0.075) return 0;
+      var f = k % 2 ? 1046 : 1397, env = Math.min(1, u / 0.006) * Math.min(1, (0.075 - u) / 0.01);
+      return env * (0.8 * sine(f, u) + 0.2 * sine(f * 3, u));
+    }],
+    marimba: ['Marimba', 2.4, function (t) {
+      var out = 0;
+      [[659.25, 0], [830.61, 0.15], [987.77, 0.3], [1318.51, 0.45], [987.77, 0.78], [1318.51, 0.93]].forEach(function (n) {
+        var u = t - n[1];
+        if (u >= 0) out += 0.35 * sine(n[0], u) * Math.exp(-6 * u) + 0.08 * sine(n[0] * 2.01, u) * Math.exp(-20 * u);
+      });
+      return out;
+    }]
+  };
+  var toneUrls = {};
+  function ringtoneUrl(key) {
+    if (toneUrls[key]) return toneUrls[key];
+    var spec = RINGTONES[key], rate = 22050, n = Math.round(rate * spec[1]), pcm = new Float32Array(n), peak = 0.0001;
+    for (var i = 0; i < n; i++) { pcm[i] = spec[2](i / rate); peak = Math.max(peak, Math.abs(pcm[i])); }
+    var buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+    function str(at, s) { for (var j = 0; j < s.length; j++) v.setUint8(at + j, s.charCodeAt(j)); }
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, n * 2, true);
+    for (i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i] / peak * 0.9)) * 32767, true);
+    return (toneUrls[key] = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })));
+  }
+  function ringtone() { try { var k = localStorage.getItem('educhats-ringtone'); return RINGTONES[k] ? k : 'classic'; } catch (e) { return 'classic'; } }
+  var blockedRing = null;   // a ringtone the browser wouldn't start yet: it starts on the next tap
+  ['pointerdown', 'keydown'].forEach(function (ev) { document.addEventListener(ev, function () { if (blockedRing) blockedRing(); }, true); });
   function Ringer(name) {
-    var spec = TONES[name], timer = null;
+    var spec = TONES[name], timer = null, on = false, audio = null;
+    function buzz() { if (spec.vibrate && navigator.vibrate) { try { navigator.vibrate(spec.vibrate); } catch (e) {} } }
     function once() {
       var ctx = actx();
       if (ctx && ctx.state === 'running') spec.play(ctx, ctx.currentTime + 0.05);
-      if (spec.vibrate && navigator.vibrate) { try { navigator.vibrate(spec.vibrate); } catch (e) {} }
+      buzz();
+    }
+    function play() {
+      if (!audio) { audio = new Audio(); audio.loop = true; audio.preload = 'auto'; }
+      audio.src = ringtoneUrl(ringtone());
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () { blockedRing = function () { blockedRing = null; if (on) audio.play().catch(function () {}); }; });
     }
     return {
-      start: function () { if (!timer) { once(); timer = setInterval(once, spec.every); } },
+      start: function () {
+        if (on) return;
+        on = true;
+        if (name === 'ring') { play(); buzz(); timer = setInterval(buzz, spec.every); }
+        else { once(); timer = setInterval(once, spec.every); }
+      },
       stop: function () {
-        if (!timer) return;
+        if (!on) return;
+        on = false; blockedRing = null;
         clearInterval(timer); timer = null;
+        if (audio) { audio.pause(); try { audio.currentTime = 0; } catch (e) {} }
         if (spec.vibrate && navigator.vibrate) { try { navigator.vibrate(0); } catch (e) {} }
       }
     };
+  }
+  var preview = null;
+  function previewRingtone(key) {
+    if (!RINGTONES[key]) return;
+    if (preview) preview.pause();
+    preview = new Audio(ringtoneUrl(key)); preview.play().catch(function () {});
+  }
+  // the tab title blinks while someone is calling, so a call shows even from another tab
+  var blink = null, plainTitle = '';
+  function titleBlink(text) {
+    if (blink) { clearInterval(blink); blink = null; document.title = plainTitle; }
+    if (!text) return;
+    plainTitle = document.title;
+    var lit = false;
+    blink = setInterval(function () { lit = !lit; document.title = lit ? text : plainTitle; }, 1000);
   }
   function blip(kind) {
     var ctx = actx(); if (!ctx || ctx.state !== 'running') return;
@@ -799,7 +870,7 @@
         '<video class="call-local" autoplay playsinline muted></video>' +
         '<div class="call-top"><span class="call-lock"><i class="fas fa-lock"></i> End-to-end encrypted</span>' +
         '<span class="call-rec" hidden><i></i> REC <b>0:00</b></span></div>' +
-        '<div class="call-info"><div class="call-avatar"></div><div class="call-name"></div><div class="call-state"></div>' +
+        '<div class="call-info"><div class="call-ripple"><i></i><i></i><i></i></div><div class="call-avatar"></div><div class="call-name"></div><div class="call-state"></div>' +
         '<div class="call-note" aria-live="polite"></div><div class="call-recnote" hidden></div></div>' +
         '<div class="call-panel call-keys" hidden><button type="button" class="call-x" aria-label="Close"><i class="fas fa-xmark"></i></button>' +
         '<div class="keys-show"></div><div class="keys-grid"></div></div>' +
@@ -810,7 +881,8 @@
         btn('mute', 'fa-microphone', 'Mute') + btn('speaker', 'fa-volume-high', 'Speaker') + btn('cam', 'fa-video', 'Camera') + btn('flip', 'fa-camera-rotate', 'Flip') +
         btn('keypad', 'fa-table-cells', 'Keypad') + btn('rec', 'fa-circle-dot', 'Record') + btn('add', 'fa-user-plus', 'Add') +
         btn('end', 'fa-phone-slash', 'End') + '</div>' +
-        '<div class="call-answer">' + btn('decline', 'fa-phone-slash', 'Decline') + btn('accept', 'fa-phone', 'Accept') + '</div>';
+        '<div class="call-answer">' + btn('decline', 'fa-phone-slash', 'Decline') + btn('accept', 'fa-phone', 'Accept') + '</div>' +
+        '<div class="call-kind"></div>';
       document.body.appendChild(o);
       var grid = o.querySelector('.keys-grid');
       '123456789*0#'.split('').forEach(function (d) {
@@ -853,6 +925,8 @@
         (group ? ' group' : '') + (opts.rooms || opts.roomOnly ? ' can-add' : '') +
         (oneCam ? ' one-cam' : '') + (outputs.length > 1 ? ' can-speaker' : '');
       ui.dataset.n = n;
+      var video = call && call.kind === 'video';
+      ui.querySelector('.call-kind').innerHTML = '<i class="fas ' + (video ? 'fa-video' : 'fa-phone') + '"></i> EduChats ' + (group ? 'group ' : '') + (video ? 'video' : 'voice') + ' call';
     }
     function state(text) { $('.call-state').textContent = text; }
     function note(text) {
@@ -860,7 +934,15 @@
       box.textContent = text; box.classList.add('show');
       clearTimeout(noteTimer); noteTimer = setTimeout(function () { box.classList.remove('show'); }, 3500);
     }
-    function show(p, text) { phase = p; paint(); if (text != null) state(text); }
+    function show(p, text) {
+      phase = p; paint();
+      if (text != null) state(text);
+      titleBlink(p === 'incoming' ? '📞 ' + $('.call-name').textContent + ' is calling…' : null);
+      if (p === 'incoming' && api.autoAnswerUntil > Date.now()) {   // "Answer" was tapped on the notification
+        api.autoAnswerUntil = 0;
+        setTimeout(function () { if (phase === 'incoming') self.answer(); }, 300);
+      }
+    }
 
     // ── people on the call ──
     function addPeer(key, name, photo) {
@@ -932,7 +1014,10 @@
           }).catch(function () {});
         }
         return stream;
-      }, function () { throw new Error('Allow microphone' + (kind === 'video' ? ' and camera' : '') + ' access to call.'); });
+      }, function (err) {
+        if (api.onMediaBlocked && (!err || /NotAllowed|Security|Permission/.test(err.name))) api.onMediaBlocked(kind);
+        throw new Error('Allow microphone' + (kind === 'video' ? ' and camera' : '') + ' access to call.');
+      });
     }
 
     function makePc(p, sendIce) {
@@ -980,9 +1065,16 @@
       var s = Math.floor((Date.now() - startedAt) / 1000);
       return (s >= 3600 ? Math.floor(s / 3600) + ':' + ('0' + Math.floor(s / 60) % 60).slice(-2) : Math.floor(s / 60)) + ':' + ('0' + (s % 60)).slice(-2);
     }
+    var screenLock = null;
+    function keepAwake(on) {
+      if (!on) { if (screenLock) { screenLock.release().catch(function () {}); screenLock = null; } return; }
+      if (screenLock || !navigator.wakeLock) return;
+      navigator.wakeLock.request('screen').then(function (l) { screenLock = l; l.addEventListener('release', function () { if (screenLock === l) screenLock = null; }); }).catch(function () {});
+    }
+    document.addEventListener('visibilitychange', function () { if (!document.hidden && phase === 'active') keepAwake(true); });
     function startTimer() {
       if (timer) return;
-      ringOut.stop(); ringIn.stop();
+      ringOut.stop(); ringIn.stop(); keepAwake(true);
       startedAt = Date.now();
       show('active', '0:00');
       timer = setInterval(function () {
@@ -1253,7 +1345,7 @@
     }
 
     function cleanup(text) {
-      ringIn.stop(); ringOut.stop();
+      ringIn.stop(); ringOut.stop(); keepAwake(false); titleBlink(null);
       if (rec) stopRec();
       clearInterval(fast); fast = null;
       clearInterval(timer); timer = null;
@@ -1561,5 +1653,10 @@
   }
 
   var api = window.SupportChat = { canSave: false, renderBody: renderBody, updateLocations: updateLocations, Calls: Calls, emojiPicker: emojiPicker,
-    voiceRecorder: voiceRecorder, fmtTime: fmtTime, openMap: openMap, pickerMap: pickerMap, loadLeaflet: loadLeaflet, csrf: null };
+    voiceRecorder: voiceRecorder, fmtTime: fmtTime, openMap: openMap, pickerMap: pickerMap, loadLeaflet: loadLeaflet, csrf: null,
+    // ringtone picker (Settings → Permissions & ringtone) and call hooks set by the page
+    ringtones: Object.keys(RINGTONES).map(function (k) { return { key: k, name: RINGTONES[k][0] }; }),
+    ringtone: ringtone, previewRingtone: previewRingtone,
+    setRingtone: function (k) { try { localStorage.setItem('educhats-ringtone', k); } catch (e) {} },
+    autoAnswerUntil: 0, onMediaBlocked: null };
 })();

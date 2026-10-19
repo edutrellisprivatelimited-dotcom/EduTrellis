@@ -27,7 +27,7 @@
 /* call screen */
 .call-overlay{position:fixed;inset:0;z-index:9500;display:none;overflow:hidden;color:#fff;font-family:inherit;background:#0b0d12;-webkit-user-select:none;user-select:none}
 .call-overlay.open{display:block}
-.call-bg{position:absolute;inset:-40px;background:radial-gradient(circle at 50% 28%,#5a0010 0,#1a0a10 45%,#0b0d12 75%) center/cover no-repeat;filter:blur(38px) brightness(.45) saturate(1.2);transform:scale(1.1)}
+.call-bg{position:absolute;inset:-40px;background:radial-gradient(circle at 50% 28%,var(--accent-deep,#5a0010) 0,#14101a 48%,#0b0d12 78%) center/cover no-repeat;filter:blur(38px) brightness(.45) saturate(1.2);transform:scale(1.1)}
 .call-bg[style*="url"]{background-color:#0b0d12}
 .call-overlay::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0,transparent 26%,transparent 62%,rgba(0,0,0,.7) 100%);pointer-events:none;z-index:1}
 /* the people: one big picture for a 1:1 video call, a grid for more */
@@ -66,14 +66,25 @@
 .call-rec i{width:7px;height:7px;border-radius:50%;background:#fff;animation:recBlink 1s infinite}
 @keyframes recBlink{50%{opacity:.25}}
 .call-info{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 15vh);text-align:center;z-index:3}
-.call-avatar{width:132px;height:132px;margin:0 auto 1.1rem;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#334155,#1e293b);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(255,255,255,.06),0 0 0 22px rgba(255,255,255,.03),0 18px 50px rgba(0,0,0,.5)}
-.call-overlay.incoming .call-avatar,.call-overlay.calling .call-avatar{animation:callPulse 1.8s ease-in-out infinite}
-@keyframes callPulse{50%{box-shadow:0 0 0 16px rgba(255,255,255,.09),0 0 0 34px rgba(255,255,255,.04),0 18px 50px rgba(0,0,0,.5)}}
+.call-ripple{position:absolute;left:50%;top:0;width:132px;height:132px;margin-left:-66px;pointer-events:none;display:none}
+.call-ripple i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.32);background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%);animation:callRipple 2.4s cubic-bezier(.2,.6,.35,1) infinite}
+.call-ripple i:nth-child(2){animation-delay:.8s}
+.call-ripple i:nth-child(3){animation-delay:1.6s}
+@keyframes callRipple{from{transform:scale(1);opacity:.75}to{transform:scale(2.15);opacity:0}}
+.call-overlay.incoming .call-ripple,.call-overlay.calling .call-ripple{display:block}
+.call-overlay.group .call-ripple{display:none}
+.call-overlay.incoming .call-ripple i{border-color:rgba(74,222,128,.45)}
+.call-avatar{z-index:1;width:132px;height:132px;margin:0 auto 1.1rem;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#334155,#1e293b);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(255,255,255,.06),0 0 0 22px rgba(255,255,255,.03),0 18px 50px rgba(0,0,0,.5)}
+.call-overlay.incoming .call-avatar,.call-overlay.calling .call-avatar{box-shadow:0 0 0 4px rgba(255,255,255,.14),0 18px 50px rgba(0,0,0,.5)}
 .call-name{font-size:1.6rem;font-weight:800;letter-spacing:-.01em;text-shadow:0 2px 12px rgba(0,0,0,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .call-state{margin-top:.35rem;font-size:.95rem;opacity:.85;font-variant-numeric:tabular-nums}
 .call-note{margin:.6rem auto 0;display:inline-block;padding:.3rem .8rem;border-radius:999px;background:rgba(255,255,255,.12);font-size:.8rem;opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s}
 .call-note.show{opacity:1;transform:none}
 .call-recnote{margin-top:.5rem;font-size:.8rem;font-weight:700;color:#fca5a5}
+.call-kind{position:absolute;left:0;right:0;bottom:calc(max(26px,env(safe-area-inset-bottom)) + 128px);z-index:6;display:none;justify-content:center}
+.call-kind{font-size:.8rem;font-weight:700;letter-spacing:.02em;color:rgba(255,255,255,.8)}
+.call-kind i{margin-right:.4rem;color:#4ade80}
+.call-overlay.incoming .call-kind{display:flex}
 /* video in progress / more people: the name moves up out of the way */
 .call-overlay.is-video.active:not(.group) .call-info,.call-overlay.group .call-info{top:calc(env(safe-area-inset-top) + 36px)}
 .call-overlay.is-video.active .call-avatar,.call-overlay.group .call-avatar{display:none}
@@ -81,25 +92,33 @@
 .call-overlay.is-video.active .call-state,.call-overlay.group .call-state{font-size:.82rem}
 /* buttons */
 .call-bar,.call-answer{position:absolute;left:0;right:0;bottom:max(26px,env(safe-area-inset-bottom));z-index:6;display:flex;justify-content:center;flex-wrap:wrap;gap:14px 10px;padding:0 12px}
-.call-bar{max-width:560px;margin:0 auto;padding:14px 12px;border-radius:28px}
-.call-overlay.active .call-bar,.call-overlay.connecting .call-bar{background:rgba(20,22,30,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);left:10px;right:10px}
-.call-btn{display:flex;flex-direction:column;align-items:center;gap:.35rem;background:none;border:none;color:#fff;cursor:pointer;font:inherit;padding:0;min-width:58px}
-.call-btn .ic{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(255,255,255,.16);transition:background .15s,transform .1s}
-.call-btn:active .ic{transform:scale(.92)}
-.call-btn small{font-size:.68rem;font-weight:600;opacity:.85}
-.call-btn.off .ic{background:#fff;color:#111}
-.call-btn.on .ic{background:#ef4444}
-.call-btn.end .ic,.call-btn.decline .ic{background:#ef4444}
-.call-btn.accept .ic{background:#22c55e;animation:acceptBob 1.4s ease-in-out infinite}
-@keyframes acceptBob{50%{transform:translateY(-4px)}}
-.call-answer{gap:0 26vw;display:none}
-.call-answer .ic{width:66px;height:66px;font-size:1.4rem}
+.call-bar{max-width:600px;margin:0 auto;padding:14px 14px;border-radius:30px;align-items:flex-start}
+.call-overlay.active .call-bar,.call-overlay.connecting .call-bar{background:rgba(15,17,25,.5);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 50px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);left:10px;right:10px}
+.call-btn{display:flex;flex-direction:column;align-items:center;gap:.4rem;background:none;border:none;color:#fff;cursor:pointer;font:inherit;padding:0;min-width:62px;-webkit-tap-highlight-color:transparent}
+.call-btn .ic{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 18px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .18s,color .18s,transform .12s,box-shadow .18s}
+.call-btn:hover .ic{background:rgba(255,255,255,.2)}
+.call-btn:active .ic{transform:scale(.9)}
+.call-btn:focus-visible .ic{outline:2px solid #fff;outline-offset:3px}
+.call-btn small{font-size:.7rem;font-weight:700;opacity:.88;letter-spacing:.01em;white-space:nowrap}
+.call-btn.off .ic{background:#fff;color:#0b0d12;border-color:#fff;box-shadow:0 6px 18px rgba(255,255,255,.18)}
+.call-btn.on .ic{background:#ef4444;border-color:#ef4444}
+.call-btn.end .ic,.call-btn.decline .ic{background:linear-gradient(135deg,#fb7185,#dc2626);border:none;box-shadow:0 10px 26px rgba(239,68,68,.5)}
+.call-btn.end{margin-left:6px}
+.call-btn.end:hover .ic,.call-btn.decline:hover .ic{filter:brightness(1.08)}
+.call-btn.accept .ic{background:linear-gradient(135deg,#4ade80,#16a34a);border:none;animation:acceptRing 1.6s ease-out infinite}
+.call-btn.accept .ic i{animation:acceptShake 1.6s ease-in-out infinite}
+@keyframes acceptRing{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6),0 10px 26px rgba(34,197,94,.45)}100%{box-shadow:0 0 0 24px rgba(34,197,94,0),0 10px 26px rgba(34,197,94,.45)}}
+@keyframes acceptShake{0%,55%,100%{transform:rotate(0)}10%,30%,50%{transform:rotate(-16deg)}20%,40%{transform:rotate(16deg)}}
+.call-answer{gap:0 min(30vw,200px);display:none}
+.call-answer .ic{width:74px;height:74px;font-size:1.5rem}
+.call-answer small{font-size:.82rem;margin-top:.15rem}
 .call-overlay.incoming .call-answer{display:flex}
 .call-overlay.incoming .call-bar,.call-overlay.ended .call-bar{display:none}
 .call-overlay.is-audio .cam,.call-overlay.is-audio .flip,.call-overlay.one-cam .flip,.call-overlay:not(.can-speaker) .speaker{display:none}
 .call-btn.on-alt .ic{background:#fff;color:#111}
 .call-overlay:not(.can-add) .add,.call-overlay:not(.active) .add,.call-overlay:not(.active) .rec,.call-overlay:not(.active) .keypad{display:none}
-@media (max-width:480px){.call-overlay .call-bar{flex-wrap:nowrap;gap:2px;padding:12px 6px;left:8px;right:8px}.call-bar .call-btn{flex:1 1 0;min-width:0}.call-bar .call-btn .ic{width:44px;height:44px;font-size:1rem}.call-btn small{font-size:.62rem}}
+@media (max-width:480px){.call-overlay .call-bar{flex-wrap:nowrap;gap:2px;padding:12px 6px;left:8px;right:8px}.call-bar .call-btn{flex:1 1 0;min-width:0}.call-bar .call-btn .ic{width:46px;height:46px;font-size:1rem}.call-btn.end{margin-left:0}.call-btn small{font-size:.62rem}}
+@media (prefers-reduced-motion:reduce){.call-ripple i,.call-btn.accept .ic,.call-btn.accept .ic i{animation:none}}
 /* keypad and "add to call" panels */
 .call-panel{position:absolute;left:50%;bottom:calc(max(26px,env(safe-area-inset-bottom)) + 104px);transform:translateX(-50%);z-index:7;width:min(340px,calc(100% - 24px));padding:1rem;border-radius:22px;background:rgba(24,26,36,.94);backdrop-filter:blur(16px);box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .call-panel[hidden]{display:none}

@@ -211,7 +211,8 @@ def _room_action(request, me, room, data):
         cache.set(_of_key(tid), room['id'], CALL_STALE_SECONDS)
         cache.set(ring_key(tid), room['id'], CALL_RING_SECONDS + 5)
         from .educhats_push import ring
-        ring(target, str(thread.pk), f'{me.name} (group call)', room['kind'])
+        ring(target, str(thread.pk), f'{me.name} (group call)', room['kind'],
+             {'path': f'api/calls/room/{room["id"]}/', 'body': {'action': 'decline'}})
     elif action == 'join':
         if mine['state'] != 'invited':
             return _fail('This invite has ended.', 409)

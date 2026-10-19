@@ -674,9 +674,44 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .look-upload:hover{border-color:var(--accent);color:var(--accent)}
 .look-preview{margin-top:.8rem;padding:.8rem;border-radius:14px;background-color:var(--wall);background-image:var(--wall-img,none);background-size:var(--wall-size,auto);display:flex;flex-direction:column;gap:.35rem}
 .look-preview .msg{max-width:80%}
-.look-actions{display:flex;gap:.5rem;margin-top:1rem}
-.look-actions .sheet-opt{margin:0;justify-content:center;flex:1}
-.look-actions .pf-save{margin:0;flex:1.4}
+.look-actions{display:flex;gap:.6rem;margin-top:1.1rem;align-items:stretch}
+.look-actions .sheet-opt,.look-actions .pf-save{flex:1;min-width:0;height:48px;margin:0;padding:0 1rem;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-size:.92rem;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.look-actions .sheet-opt{background:transparent;border:1.5px solid rgba(var(--accent-rgb),.4);color:var(--accent)}
+.look-actions .sheet-opt:hover{background:rgba(var(--accent-rgb),.07);border-color:var(--accent)}
+.look-actions .sheet-opt i{font-size:.9rem}
+.look-actions .pf-save{background:linear-gradient(135deg,var(--accent),var(--accent-dark));box-shadow:0 8px 20px rgba(var(--accent-rgb),.3)}
+.look-actions .pf-save:hover{filter:brightness(1.06)}
+/* Settings → Permissions & ringtone */
+.perm-hero{display:flex;align-items:center;gap:.8rem;padding-right:2rem}
+.perm-hero h3{margin:0;font-size:1.1rem}
+.perm-hero small{color:var(--text);font-size:.8rem}
+.perm-orb{width:48px;height:48px;flex:0 0 48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-size:1.25rem;box-shadow:0 8px 20px rgba(var(--accent-rgb),.3)}
+.perm-list{display:flex;flex-direction:column;gap:.5rem;margin-top:1rem}
+.perm-row{display:flex;align-items:center;gap:.7rem;padding:.7rem .75rem;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.perm-row .pv-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.perm-row .pv-txt small{font-size:.75rem;color:var(--text);white-space:normal}
+.perm-st{display:inline-flex;align-items:center;gap:.3rem;margin-top:.2rem;font-size:.7rem;font-weight:800;letter-spacing:.02em;color:var(--text)}
+.perm-st::before{content:"";width:7px;height:7px;border-radius:50%;background:#9ca3af}
+.perm-st.ok{display:inline-flex;margin-top:.2rem;padding:0;background:none;color:#15803d;font-size:.7rem;font-weight:800}.perm-st.ok::before{background:#22c55e}
+.perm-st.no{color:#b91c1c}.perm-st.no::before{background:#ef4444}
+.perm-go{flex:0 0 auto;height:34px;padding:0 .9rem;border-radius:999px;border:none;background:var(--accent);color:#fff;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
+.perm-go.done{background:rgba(22,163,74,.12);color:#15803d;cursor:default}
+.perm-go.help{background:rgba(220,38,38,.1);color:#b91c1c}
+.perm-help{margin-top:.7rem;padding:.7rem .8rem;border-radius:12px;background:rgba(220,38,38,.07);color:#991b1b;font-size:.8rem;line-height:1.5}
+.perm-help[hidden]{display:none}
+.ring-list{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+.ring-opt{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.7rem .4rem;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--head);font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}
+.ring-opt i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(var(--accent-rgb),.09);color:var(--accent);font-size:.8rem}
+.ring-opt.on{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.15)}
+.ring-opt.on i{background:var(--accent);color:#fff}
+.perm-tips{margin-top:.9rem;border:1px solid var(--line);border-radius:14px;padding:.2rem .8rem}
+.perm-tips summary{display:flex;align-items:center;gap:.5rem;padding:.6rem 0;font-size:.85rem;font-weight:800;color:var(--head);cursor:pointer;list-style:none}
+.perm-tips summary::-webkit-details-marker{display:none}
+.perm-tips summary i{color:var(--accent)}
+.perm-tips summary::after{content:"\f078";font-family:"Font Awesome 6 Free";font-weight:900;margin-left:auto;font-size:.7rem;color:var(--text);transition:transform .2s}
+.perm-tips[open] summary::after{transform:rotate(180deg)}
+.perm-tips ol{margin:0 0 .5rem;padding-left:1.15rem;display:flex;flex-direction:column;gap:.35rem;font-size:.8rem;line-height:1.5;color:var(--text)}
+.perm-tips p{margin:0 0 .7rem;font-size:.78rem;color:var(--text)}
 @media (max-width:420px){.look-colors{grid-template-columns:repeat(4,1fr)}.look-walls{grid-template-columns:repeat(3,1fr)}.look-fonts{grid-template-columns:repeat(2,1fr)}}
 .wall-dark .day{background:#1e2635;color:#cbd5e1}
 .wall-dark .empty{background:#1e2635;color:#cbd5e1}
@@ -2183,9 +2218,34 @@ EduLook.apply(EduLook.get());
       <label class="pv-row" id="setAIPinRow"><span class="pv-ic"><i class="fas fa-thumbtack"></i></span><span class="pv-txt"><b>Pin EduTrellis AI to the top</b><small>Off: it moves with your other chats</small></span><span class="switch"><input type="checkbox" id="setAIPin"><span></span></span></label>
       {% if not is_support_staff %}<label class="pv-row"><span class="pv-ic"><i class="fas fa-headset"></i></span><span class="pv-txt"><b>Show {{ support.display_name }}</b><small>Comes back by itself when support replies</small></span><span class="switch"><input type="checkbox" id="setSupport"><span></span></span></label>{% endif %}
     </div>
+    {% if chat_user %}<div class="pv-sec" style="margin-top:.8rem">Calls</div>
+    <button type="button" class="sheet-opt" id="setPerms" style="margin-top:.3rem"><span class="pv-ic"><i class="fas fa-shield-heart"></i></span><span style="flex:1">Permissions &amp; ringtone<small style="display:block;font-weight:500;font-size:.75rem;color:var(--text)">Microphone, camera, notifications · call sound</small></span><i class="fas fa-chevron-right" style="font-size:.75rem;color:var(--text)"></i></button>{% endif %}
     <button class="sheet-opt" type="button" data-close style="justify-content:center;margin-top:1rem">Done</button>
   </div>
 </div>
+{% if chat_user %}
+<div class="sheet pf-sheet" id="permSheet">
+  <div class="sheet-card">
+    <div class="perm-hero"><span class="perm-orb"><i class="fas fa-shield-heart"></i></span><div><h3>Permissions</h3><small>So calls ring, connect and sound right</small></div></div>
+    <div class="perm-list">
+      <div class="perm-row" data-perm="mic"><span class="pv-ic"><i class="fas fa-microphone"></i></span><span class="pv-txt"><b>Microphone</b><small>Voice &amp; video calls, voice messages</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
+      <div class="perm-row" data-perm="cam"><span class="pv-ic"><i class="fas fa-video"></i></span><span class="pv-txt"><b>Camera</b><small>Video calls, photos and stories</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
+      <div class="perm-row" data-perm="notif"><span class="pv-ic"><i class="fas fa-bell"></i></span><span class="pv-txt"><b>Notifications</b><small>Calls and messages ring even when EduChats is closed</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
+      <div class="perm-row" data-perm="loc"><span class="pv-ic"><i class="fas fa-location-dot"></i></span><span class="pv-txt"><b>Location <small style="display:inline">· optional</small></b><small>Share where you are and join the Maps tab</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
+    </div>
+    <div class="perm-help" id="permHelp" hidden><b>Something is blocked.</b> Your browser only lets you turn it back on yourself: tap the <i class="fas fa-lock"></i> or <i class="fas fa-sliders"></i> icon next to the web address → <b>Permissions</b> (or Site settings) → set it to <b>Allow</b>, then come back here.</div>
+    <div class="mm-sec">Ringtone for incoming calls</div>
+    <div class="ring-list" id="ringList"></div>
+    <details class="perm-tips"><summary><i class="fas fa-mobile-screen-button"></i> Show calls on top of other apps</summary>
+      <ol><li>Install EduChats on your phone: ⋮ → <b>Install app</b>.</li>
+        <li>Allow <b>Notifications</b> above.</li>
+        <li>Android: phone <b>Settings → Apps → EduChats</b> (or Chrome) <b>→ Notifications</b> → turn on <b>Pop on screen</b> and <b>Sound</b>.</li>
+        <li>Android: <b>Settings → Apps → EduChats</b> (or Chrome) <b>→ Battery → Unrestricted</b>, so calls aren't held back.</li></ol>
+      <p>iPhone: Safari → Share → <b>Add to Home Screen</b>, open EduChats from there and allow notifications.</p></details>
+    <div class="look-actions"><button type="button" class="sheet-opt" data-close>Later</button><button type="button" class="pf-save" id="permAll"><i class="fas fa-check"></i> Allow all</button></div>
+  </div>
+</div>
+{% endif %}
 <div class="ai-pop" id="aiPop" role="dialog" aria-label="About EduTrellis AI" aria-hidden="true">
   <div class="ap-band"><span class="ap-orb"><i class="fas fa-wand-magic-sparkles"></i></span><div><b>EduTrellis AI</b><small><span class="dot"></span> Online · official AI assistant by EduTrellis</small></div></div>
   <div class="ap-body">
@@ -2247,7 +2307,7 @@ EduLook.apply(EduLook.get());
     <div class="th-grid" id="themesLight"></div>
     <div class="th-sec"><b><i class="fas fa-moon"></i> Dark chats</b></div>
     <div class="th-grid" id="themesDark"></div>
-    <div class="look-actions"><button type="button" class="sheet-opt" id="themesCustomize"><i class="fas fa-palette"></i> Fine-tune in Customize</button><button type="button" class="pf-save" data-close>Done</button></div>
+    <div class="look-actions"><button type="button" class="sheet-opt" id="themesCustomize"><i class="fas fa-sliders"></i> Customize</button><button type="button" class="pf-save" data-close>Done</button></div>
   </div>
 </div>
 {% with sup_mail=support_contact.email sup_phone=support_contact.phone %}
@@ -3810,6 +3870,7 @@ EduLook.apply(EduLook.get());
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', function (e) {
         var d = e.data || {};
+        if (d.type === 'educhats-open' && d.answer) answerFromNotification();
         if (d.type === 'educhats-open' && openChatHook) { openChatHook(d.chat || ''); if (d.reply) focusComposer(d.draft); }
         else if (d.type === 'educhats-push' && pushNudge) pushNudge();
         else if (d.type === 'educhats-resubscribe') subscribe(false);
@@ -3832,9 +3893,16 @@ EduLook.apply(EduLook.get());
       window.__focusOk = false;
     })();
   }
+  // "Answer" on a call notification: pick up the moment the ringing call shows here
+  function answerFromNotification() {
+    SupportChat.autoAnswerUntil = Date.now() + 30000;
+    var ringing = document.querySelector('.call-overlay.open.incoming .call-btn.accept');
+    if (ringing) { SupportChat.autoAnswerUntil = 0; ringing.click(); }
+  }
   // a notification was tapped: /educhats/?chat=<key> opens that chat
   (function () {
     var params = new URLSearchParams(location.search), key = params.get('chat'), reply = params.get('reply') === '1';
+    if (params.get('answer') === '1') answerFromNotification();
     if (!key) return;
     try { history.replaceState(null, '', location.pathname); } catch (e) {}
     var tries = 0;
@@ -4244,6 +4312,100 @@ EduLook.apply(EduLook.get());
       if (f && !f.getAttribute('src')) f.src = f.dataset.src;   // load the page only when asked
       document.getElementById('backupSheet').classList.add('open');
     });
+    // ── Settings → Permissions & ringtone ──
+    (function () {
+      var sheet = document.getElementById('permSheet');
+      if (!sheet) return;
+      var NAMES = { mic: 'microphone', cam: 'camera', notif: 'notifications', loc: 'geolocation' };
+      function state(k) {
+        if (k === 'notif') return Promise.resolve(!('Notification' in window) ? 'unsupported' : Notification.permission === 'default' ? 'prompt' : Notification.permission);
+        if ((k === 'mic' || k === 'cam') && !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return Promise.resolve('unsupported');
+        if (!navigator.permissions || !navigator.permissions.query) return Promise.resolve('prompt');
+        return navigator.permissions.query({ name: NAMES[k] }).then(function (r) { return r.state; }, function () { return 'prompt'; });
+      }
+      function paint() {
+        var rows = sheet.querySelectorAll('[data-perm]');
+        return Promise.all([].map.call(rows, function (row) {
+          return state(row.dataset.perm).then(function (st) {
+            var lab = row.querySelector('.perm-st'), go = row.querySelector('.perm-go');
+            lab.className = 'perm-st' + (st === 'granted' ? ' ok' : st === 'denied' ? ' no' : '');
+            lab.textContent = { granted: 'Allowed', denied: 'Blocked', unsupported: 'Not available in this browser' }[st] || 'Not allowed yet';
+            go.className = 'perm-go' + (st === 'granted' ? ' done' : st === 'denied' ? ' help' : '');
+            go.innerHTML = st === 'granted' ? '<i class="fas fa-check"></i>' : st === 'denied' ? 'How to fix' : 'Allow';
+            go.hidden = st === 'unsupported';
+            return st;
+          });
+        })).then(function (all) { document.getElementById('permHelp').hidden = all.indexOf('denied') < 0; return all; });
+      }
+      function ask(k) {
+        if (k === 'mic' || k === 'cam') {
+          return navigator.mediaDevices.getUserMedia(k === 'mic' ? { audio: true } : { video: true })
+            .then(function (s) { s.getTracks().forEach(function (t) { t.stop(); }); }).catch(function () {});
+        }
+        if (k === 'notif') {
+          if (!('Notification' in window) || Notification.permission !== 'default') return Promise.resolve();
+          document.getElementById('openNotif').click();   // asks, then subscribes this device for call & message alerts
+          return new Promise(function (done) {
+            var n = 0, t = setInterval(function () { if (Notification.permission !== 'default' || ++n > 120) { clearInterval(t); done(); } }, 500);
+          });
+        }
+        return new Promise(function (done) { navigator.geolocation.getCurrentPosition(done, done, { timeout: 15000 }); });
+      }
+      sheet.addEventListener('click', function (e) {
+        var go = e.target.closest('.perm-go');
+        if (!go || go.classList.contains('done')) return;
+        if (go.classList.contains('help')) { document.getElementById('permHelp').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+        ask(go.closest('[data-perm]').dataset.perm).then(paint);
+      });
+      document.getElementById('permAll').addEventListener('click', function () {
+        var btn = this; btn.disabled = true;
+        state('mic').then(function (m) {
+          // microphone + camera in one browser prompt, then notifications
+          if (m === 'prompt' && navigator.mediaDevices) {
+            return navigator.mediaDevices.getUserMedia({ audio: true, video: true }).catch(function () { return navigator.mediaDevices.getUserMedia({ audio: true }); })
+              .then(function (s) { s.getTracks().forEach(function (t) { t.stop(); }); }).catch(function () {});
+          }
+        }).then(function () { return state('cam'); }).then(function (c) { if (c === 'prompt') return ask('cam'); })
+          .then(function () { return ask('notif'); })
+          .then(paint).then(function (all) {
+            btn.disabled = false;
+            if (all.slice(0, 3).every(function (st) { return st === 'granted' || st === 'unsupported'; })) {
+              sheet.classList.remove('open');
+              if (window.eduToast) eduToast({ kind: 'success', icon: 'fa-shield-heart', title: "You're all set for calls", text: 'Microphone, camera and notifications are on.', ms: 3200 });
+            }
+          });
+      });
+      var list = document.getElementById('ringList');
+      function paintRings() {
+        list.textContent = '';
+        SupportChat.ringtones.forEach(function (r) {
+          var b = document.createElement('button');
+          b.type = 'button'; b.className = 'ring-opt' + (SupportChat.ringtone() === r.key ? ' on' : '');
+          b.innerHTML = '<i class="fas fa-play"></i>'; b.appendChild(document.createTextNode(r.name));
+          b.addEventListener('click', function () { SupportChat.setRingtone(r.key); SupportChat.previewRingtone(r.key); paintRings(); });
+          list.appendChild(b);
+        });
+      }
+      window.openPermissions = function () {
+        document.querySelectorAll('.sheet.open').forEach(function (x) { x.classList.remove('open'); });
+        paint(); paintRings();
+        sheet.classList.add('open');
+      };
+      document.getElementById('setPerms').addEventListener('click', window.openPermissions);
+      // a call couldn't use the microphone / camera: show what to allow
+      SupportChat.onMediaBlocked = function () { setTimeout(window.openPermissions, 400); };
+      // first visit on this device: ask once, so the first call doesn't stall on a prompt
+      {% if not chat_user.is_guest %}var ASKED = 'educhats-perms-asked';
+      var asked = false; try { asked = !!localStorage.getItem(ASKED); } catch (e) {}
+      if (!asked) setTimeout(function () {
+        if (document.querySelector('.sheet.open, .call-overlay.open')) return;
+        Promise.all([state('mic'), state('notif')]).then(function (st) {
+          if (st.indexOf('prompt') < 0) return;
+          try { localStorage.setItem(ASKED, '1'); } catch (e) {}
+          window.openPermissions();
+        });
+      }, 6000);{% endif %}
+    })();
     document.getElementById('openSupport').addEventListener('click', function () {
       sideMenu.classList.remove('open');
       document.getElementById('supportSheet').classList.add('open');

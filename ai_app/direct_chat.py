@@ -522,7 +522,8 @@ def api_thread_call(request, thread_id):
         cache.set(_dm_call_key(thread.pk), state, CALL_STALE_SECONDS)
         cache.set(_ring_key(peer.pk), thread.pk, CALL_RING_SECONDS + 5)
         from .educhats_push import ring
-        ring(peer, str(thread.pk), me.name, state['kind'])
+        ring(peer, str(thread.pk), me.name, state['kind'],
+             {'path': f'api/dm/{thread.pk}/call/', 'body': {'action': 'decline', 'id': state['id']}})
     elif not state or state.get('id') != data.get('id'):
         return _fail('This call has ended.', 409)
     elif action == 'answer':

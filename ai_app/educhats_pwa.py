@@ -98,14 +98,15 @@ self.addEventListener('push', (e) => {
     if (typeof d.badge === 'number') await setBadge(d.badge);
     const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     wins.forEach((c) => c.postMessage({ type: 'educhats-push', chat: d.chat || '' }));
-    // EduChats is open and in front: the page shows the message itself (calls still ring)
-    if (!d.call && wins.some((c) => c.focused && c.visibilityState === 'visible')) return;
+    // EduChats is open and in front: the page shows the message (or the full-screen call) itself
+    if (wins.some((c) => c.focused && c.visibilityState === 'visible')) return;
     const opts = {
       body: d.body || 'New message', tag: d.tag || 'educhats', renotify: true, icon: ICON, badge: BADGE,
-      data: { chat: d.chat || '', call: !!d.call, title: d.title || APP }, timestamp: d.ts || Date.now(),
-      vibrate: d.call ? [400, 200, 400, 200, 400] : [120, 60, 120], requireInteraction: !!d.call, silent: false,
+      data: { chat: d.chat || '', call: !!d.call, title: d.title || APP, decline: d.decline || null }, timestamp: d.ts || Date.now(),
+      vibrate: d.call ? [800, 400, 800, 400, 800, 400, 800, 400, 800] : [120, 60, 120], requireInteraction: !!d.call, silent: false,
     };
-    if (d.actions && d.chat) opts.actions = REPLY_ACTIONS(d.title);
+    if (d.call) opts.actions = [{ action: 'answer', title: '📞 Answer' }, { action: 'decline', title: '✖ Decline' }];
+    else if (d.actions && d.chat) opts.actions = REPLY_ACTIONS(d.title);
     await self.registration.showNotification(d.title || APP, opts);
     if (Array.isArray(d.unread)) await tidyTray(d.unread.concat(d.chat ? [d.chat] : []));
   })());
@@ -162,13 +163,13 @@ async function quickReply(chat, text, title) {
   try { await api('api/read/', { chat }); } catch (_) {}   // answering a chat means you've read it
   await syncBadge();
 }
-async function openChat(chat, reply, draft) {
-  const q = (chat ? '?chat=' + encodeURIComponent(chat) : '') + (chat && reply ? '&reply=1' : '');
+async function openChat(chat, reply, draft, answer) {
+  const q = (chat ? '?chat=' + encodeURIComponent(chat) : '') + (chat && reply ? '&reply=1' : '') + (answer ? (chat ? '&' : '?') + 'answer=1' : '');
   const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
   for (const c of wins) {
     if (c.url.startsWith(self.registration.scope)) {
       try { await c.focus(); } catch (_) {}
-      c.postMessage({ type: 'educhats-open', chat, reply: !!reply, draft: draft || '' });
+      c.postMessage({ type: 'educhats-open', chat, reply: !!reply, draft: draft || '', answer: !!answer });
       return;
     }
   }
@@ -180,6 +181,14 @@ self.addEventListener('notificationclick', (e) => {
   n.close();
   if (e.action === 'read') {
     e.waitUntil(api('api/read/', { chat }).catch(() => {}).then(syncBadge));
+    return;
+  }
+  if (data.call) {   // a ringing call: Decline answers "no" from here; Answer (or a tap) opens it
+    if (e.action === 'decline') {
+      if (data.decline && data.decline.path) e.waitUntil(api(data.decline.path, data.decline.body || {}).catch(() => {}));
+      return;
+    }
+    e.waitUntil(openChat(chat, false, '', e.action === 'answer'));
     return;
   }
   const text = typeof e.reply === 'string' ? e.reply.trim() : '';
