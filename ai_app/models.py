@@ -1304,3 +1304,31 @@ class PushSubscription(models.Model):
 
     def __str__(self):
         return f'{self.user} · {self.user_agent[:40]}'
+
+
+class Story(models.Model):
+    """An EduChats update ("story"): a photo, video or coloured text card that the
+    people you chat with can see for 24 hours (educhats_updates.py)."""
+    KIND_CHOICES = [('text', 'Text'), ('image', 'Photo'), ('video', 'Video')]
+    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='stories')
+    kind = models.CharField(max_length=5, choices=KIND_CHOICES, default='text')
+    text = models.CharField(max_length=700, blank=True)   # the text card, or a photo / video caption
+    bg = models.CharField(max_length=7, blank=True)       # text card colour
+    media = models.FileField(upload_to='educhats/stories/%Y/%m/', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'{self.user} · {self.get_kind_display()} · {self.created_at:%d %b %H:%M}'
+
+
+class StoryView(models.Model):
+    story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='views')
+    viewer = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='story_views')
+    seen_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['story', 'viewer'], name='one_view_per_story')]

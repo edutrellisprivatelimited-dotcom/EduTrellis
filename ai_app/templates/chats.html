@@ -25,7 +25,7 @@
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 {% load static %}<link rel="stylesheet" href="{% static 'chat/support_chat.css' %}">
 <style>
@@ -205,6 +205,105 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
    focus (as most capture tools take it) or the Print Screen key is pressed. */
 .watermark{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;opacity:.045}
 .watermark span{position:absolute;white-space:nowrap;font-size:.8rem;font-weight:800;color:var(--head);transform:rotate(-24deg)}
+/* typography and finish */
+body{font-optical-sizing:auto}
+.side-title b{letter-spacing:-.02em}
+.side-row b{font-weight:650;font-size:.97rem;letter-spacing:-.005em}
+.side-preview{font-size:.82rem;color:#939bab}
+.chat-head .who b{font-weight:750}
+.msg{border-radius:18px;line-height:1.5}
+.msg.user{border-bottom-right-radius:6px;box-shadow:0 2px 10px rgba(var(--accent-rgb),.22)}
+.msg.admin{border-bottom-left-radius:6px}
+.msg time{font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.day{border:1px solid rgba(15,22,35,.06);box-shadow:0 2px 8px rgba(15,22,35,.06)}
+.composer textarea{transition:border-color .15s,box-shadow .15s}
+.composer textarea:focus{border-color:rgba(var(--accent-rgb),.55);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
+/* received bubbles stand out on light wallpapers */
+.msg.admin{border:1px solid rgba(15,22,35,.07);box-shadow:0 1px 1px rgba(15,22,35,.06),0 4px 14px rgba(15,22,35,.07)}
+html.wall-dark .msg.admin{border-color:rgba(255,255,255,.06)}
+/* ── bottom tabs: Chats · Updates · Calls ── */
+.side-tabs{display:flex;justify-content:space-around;gap:.25rem;padding:.4rem .6rem max(.45rem,env(safe-area-inset-bottom));border-top:1px solid #1a2130;background:#0b111c}
+.side-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:.22rem;padding:.35rem 0;border:none;background:none;color:#8b93a5;font:inherit;font-size:.7rem;font-weight:700;letter-spacing:.01em;cursor:pointer;border-radius:12px}
+.side-tab .tab-ic{position:relative;width:58px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;transition:background .2s,color .2s}
+.side-tab.on{color:#fff}
+.side-tab.on .tab-ic{background:rgba(var(--accent-rgb),.22);color:var(--accent-light)}
+.tab-badge{position:absolute;top:-4px;right:6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#fff;font-size:.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #0b111c}
+.tab-badge[hidden],.tab-dot[hidden]{display:none}
+.tab-dot{position:absolute;top:2px;right:14px;width:9px;height:9px;border-radius:50%;background:var(--accent);border:2px solid #0b111c}
+.side.tab-updates .side-search,.side.tab-updates .side-chips,.side.tab-updates #sideList,
+.side.tab-calls .side-search,.side.tab-calls .side-chips,.side.tab-calls #sideList{display:none}
+.side-pane[hidden]{display:none}
+.pane-head{padding:.4rem .6rem .7rem}
+.pane-head b{display:block;color:#fff;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
+.pane-head small{color:#7c8596;font-size:.75rem}
+.pane-sec{margin:.9rem .6rem .35rem;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6b7385}
+.pane-empty{margin:1.6rem 1rem;text-align:center;color:#7c8596;font-size:.84rem;line-height:1.5}
+.pane-empty i{display:block;font-size:1.8rem;margin-bottom:.6rem;color:#3a4459}
+.pane-row{display:flex;align-items:center;gap:.85rem;width:100%;padding:.65rem .7rem;border:none;background:none;border-radius:14px;color:#e5e7eb;font:inherit;text-align:left;cursor:pointer;transition:background .15s}
+.pane-row:hover{background:#151d2b}
+.pane-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem}
+.pane-txt b{font-size:.95rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pane-txt small{font-size:.78rem;color:#8b93a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:.35rem}
+.pane-ava{position:relative;width:50px;height:50px;flex:0 0 50px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#334155,#1e293b);color:#fff;font-weight:800;font-size:1.1rem}
+.pane-ava img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* updates: the coloured ring around someone with something new */
+.upd-ring{position:relative;width:58px;height:58px;flex:0 0 58px;border-radius:50%;padding:3px;background:conic-gradient(from 210deg,var(--accent),#ff9933,var(--accent-light),var(--accent))}
+.upd-ring.seen{background:#3a4459}
+.upd-ring.none{background:none;padding:0}
+.upd-ring .pane-ava{width:100%;height:100%;border:2.5px solid var(--ink)}
+.upd-ring.none .pane-ava{border:none}
+.upd-plus{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.62rem;display:flex;align-items:center;justify-content:center;border:2px solid var(--ink)}
+.upd-add{display:flex;gap:.5rem;padding:.2rem .7rem .4rem}
+.upd-add button{flex:1;display:flex;align-items:center;justify-content:center;gap:.45rem;height:40px;border-radius:12px;border:1px solid #232c3e;background:var(--ink-2);color:#d6dbe4;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}
+.upd-add button:hover{border-color:var(--accent);color:#fff}
+.upd-add i{color:var(--accent-light)}
+/* calls */
+.call-dir{font-size:.72rem}
+.call-dir.out{color:#4ade80}.call-dir.in{color:#60a5fa}.call-dir.missed{color:#f87171}
+.pane-row.missed .pane-txt b{color:#fca5a5}
+.call-back{width:40px;height:40px;flex:0 0 40px;border-radius:50%;border:none;background:none;color:var(--accent-light);font-size:1.05rem;cursor:pointer}
+.call-back:hover{background:#1c2535}
+/* story viewer */
+.story-view{position:fixed;inset:0;z-index:9400;background:#000;color:#fff;display:flex;flex-direction:column;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.story-view[hidden]{display:none}
+.sv-frame{position:relative;flex:1;width:min(100%,480px);margin:0 auto;overflow:hidden;background:#000}
+@media (min-width:600px){.sv-frame{margin:16px auto;border-radius:18px}}
+.sv-bars{position:absolute;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 10px);z-index:4;display:flex;gap:4px}
+.sv-bars span{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.3);overflow:hidden}
+.sv-bars span i{display:block;height:100%;width:0;background:#fff}
+.sv-head{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 20px);z-index:4;display:flex;align-items:center;gap:.6rem;padding:.5rem .7rem;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent)}
+.sv-head .pane-ava{width:38px;height:38px;flex-basis:38px;font-size:.9rem}
+.sv-who{flex:1;min-width:0;display:flex;flex-direction:column}
+.sv-who b{font-size:.92rem}.sv-who small{font-size:.74rem;opacity:.8}
+.sv-btn{width:38px;height:38px;border-radius:50%;border:none;background:none;color:#fff;font-size:1.05rem;cursor:pointer}
+.sv-btn[hidden]{display:none}
+.sv-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.sv-stage img,.sv-stage video{max-width:100%;max-height:100%;object-fit:contain}
+.sv-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:2rem 1.6rem;text-align:center;font-size:clamp(1.4rem,6vw,2.1rem);font-weight:800;line-height:1.3;white-space:pre-wrap;word-break:break-word}
+.sv-cap{position:absolute;left:0;right:0;bottom:0;z-index:4;padding:2.4rem 1.2rem calc(env(safe-area-inset-bottom) + 3.6rem);text-align:center;font-size:.95rem;line-height:1.4;background:linear-gradient(0deg,rgba(0,0,0,.65),transparent);white-space:pre-wrap}
+.sv-cap:empty{display:none}
+.sv-nav{position:absolute;top:80px;bottom:80px;z-index:3;width:35%}
+.sv-nav.prev{left:0}.sv-nav.next{right:0;width:65%}
+.sv-views{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 14px);transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:.45rem;padding:.45rem 1rem;border-radius:999px;border:none;background:rgba(255,255,255,.15);color:#fff;font:inherit;font-size:.85rem;font-weight:700;cursor:pointer;backdrop-filter:blur(8px)}
+.sv-views[hidden]{display:none}
+.sv-viewers{position:absolute;left:0;right:0;bottom:0;z-index:6;max-height:60%;overflow-y:auto;padding:1rem 1rem calc(env(safe-area-inset-bottom) + 1rem);border-radius:20px 20px 0 0;background:#111827}
+.sv-viewers[hidden]{display:none}
+.sv-viewers > b{display:block;margin:0 2.4rem .6rem 0}
+.sv-viewers .sheet-x{background:rgba(255,255,255,.1);color:#fff}
+/* story composer */
+.story-make{position:fixed;inset:0;z-index:9450;display:flex;flex-direction:column;background:#000;color:#fff}
+.story-make[hidden]{display:none}
+.sm-top{display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 10px) 12px 8px;position:relative;z-index:2}
+.sm-stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background .25s}
+.sm-stage img,.sm-stage video{max-width:100%;max-height:100%;object-fit:contain}
+.sm-stage textarea{width:100%;height:60%;padding:1rem 1.5rem;border:none;background:none;color:#fff;font:inherit;font-size:clamp(1.4rem,6vw,2.1rem);font-weight:800;line-height:1.3;text-align:center;resize:none;outline:none}
+.sm-stage textarea::placeholder{color:rgba(255,255,255,.6)}
+.sm-bottom{display:flex;gap:.6rem;align-items:center;padding:10px 12px calc(env(safe-area-inset-bottom) + 12px);background:rgba(0,0,0,.6)}
+.sm-bottom input{flex:1;height:46px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;padding:0 1rem;font:inherit;font-size:.92rem}
+.sm-bottom input:focus{outline:none;border-color:rgba(255,255,255,.5)}
+.sm-post{width:50px;height:50px;flex:0 0 50px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:1.1rem;cursor:pointer}
+.sm-post:disabled{opacity:.6}
+.sm-hint{position:absolute;left:0;right:0;bottom:.6rem;text-align:center;font-size:.72rem;opacity:.7}
 /* the opening screen while EduChats loads */
 .boot{position:fixed;inset:0;z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(120% 70% at 50% 0%,rgba(232,0,30,.22) 0,transparent 55%),radial-gradient(90% 60% at 50% 110%,rgba(19,136,8,.14) 0,transparent 60%),#0b111c;color:#fff;transition:opacity .4s ease,visibility .4s}
 .boot.gone{opacity:0;visibility:hidden;pointer-events:none}
@@ -1075,7 +1174,32 @@ EduLook.apply(EduLook.get());
     <div id="dmList"></div>
     <p class="side-empty" id="sideNoMatch" hidden><i class="fas fa-comment-slash"></i><span id="sideNoMatchText">No chats found</span></p>
   </div>
-  <div class="side-foot"><i class="fas fa-lock"></i> Your chats stay with your EduChats account.</div>
+  <div class="side-scroll side-pane" id="updPane" hidden>
+    <div class="pane-head"><b>Updates</b><small>Photos, videos and text that disappear after 24 hours</small></div>
+    {% if chat_user.is_guest %}
+    <p class="pane-empty"><i class="fas fa-circle-notch"></i>Sign up or log in to share updates and see the ones from people you chat with.</p>
+    {% else %}
+    <button type="button" class="pane-row" id="updMine">
+      <span class="upd-ring none" id="updMineRing"><span class="pane-ava">{% if chat_user.photo %}<img src="{% url 'chats_user_photo' chat_user.pk %}" alt="">{% else %}{{ chat_user.name|slice:":1"|upper }}{% endif %}</span><i class="fas fa-plus upd-plus" id="updMinePlus"></i></span>
+      <span class="pane-txt"><b>My update</b><small id="updMineSub">Tap to share a photo, video or text</small></span>
+    </button>
+    <div class="upd-add"><button type="button" id="updAddMedia"><i class="fas fa-camera"></i> Photo / video</button><button type="button" id="updAddText"><i class="fas fa-pen"></i> Text</button></div>
+    <input type="file" id="updFile" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" hidden>
+    <div class="pane-sec" id="updNewLbl" hidden>Recent updates</div><div id="updNew"></div>
+    <div class="pane-sec" id="updSeenLbl" hidden>Viewed updates</div><div id="updSeen"></div>
+    <p class="pane-empty" id="updEmpty"><i class="fas fa-circle-notch"></i>No updates from your chats yet. When someone you chat with shares one, it shows here.</p>
+    {% endif %}
+  </div>
+  <div class="side-scroll side-pane" id="callsPane" hidden>
+    <div class="pane-head"><b>Calls</b><small>Your voice and video calls</small></div>
+    <div id="callsList"></div>
+    <p class="pane-empty" id="callsEmpty" hidden><i class="fas fa-phone"></i>No calls yet. Tap <i class="fas fa-phone" style="display:inline;font-size:.8rem;margin:0;color:inherit"></i> in a chat to call.</p>
+  </div>
+  <nav class="side-tabs" id="sideTabs" role="tablist" aria-label="EduChats">
+    <button type="button" class="side-tab on" data-tab="chats" role="tab" aria-selected="true"><span class="tab-ic"><i class="fas fa-message"></i><b class="tab-badge" id="tabChatsN" hidden></b></span>Chats</button>
+    <button type="button" class="side-tab" data-tab="updates" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-circle-notch"></i><b class="tab-dot" id="tabUpdDot" hidden></b></span>Updates</button>
+    <button type="button" class="side-tab" data-tab="calls" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-phone"></i><b class="tab-badge" id="tabCallsN" hidden></b></span>Calls</button>
+  </nav>
   <div class="new-panel" id="newPanel" aria-hidden="true">
     <div class="new-head"><button class="side-icon" id="newBack" type="button" aria-label="Back"><i class="fas fa-arrow-left"></i></button><b>New chat</b></div>
     {% if chat_user.is_guest %}
@@ -1607,6 +1731,26 @@ EduLook.apply(EduLook.get());
     <button class="pf-save" type="button" data-close>Got it</button>
   </div>
 </div>
+<div class="story-view" id="storyView" hidden role="dialog" aria-modal="true" aria-label="Update">
+  <div class="sv-frame">
+    <div class="sv-stage" id="svStage"></div>
+    <div class="sv-bars" id="svBars"></div>
+    <div class="sv-head"><span class="pane-ava" id="svAva"></span><span class="sv-who"><b id="svName"></b><small id="svWhen"></small></span>
+      <button type="button" class="sv-btn" id="svSound" hidden aria-label="Sound"><i class="fas fa-volume-high"></i></button>
+      <button type="button" class="sv-btn" id="svDel" hidden aria-label="Delete update"><i class="fas fa-trash-can"></i></button>
+      <button type="button" class="sv-btn" id="svClose" aria-label="Close"><i class="fas fa-xmark"></i></button></div>
+    <div class="sv-nav prev" id="svPrev"></div><div class="sv-nav next" id="svNext"></div>
+    <div class="sv-cap" id="svCap"></div>
+    <button type="button" class="sv-views" id="svViews" hidden><i class="fas fa-eye"></i> <span></span></button>
+    <div class="sv-viewers" id="svViewers" hidden><button type="button" class="sheet-x" id="svViewersX" aria-label="Close"><i class="fas fa-xmark"></i></button><b>Viewed by</b><div id="svViewersList"></div></div>
+  </div>
+</div>
+<div class="story-make" id="storyMake" hidden role="dialog" aria-modal="true" aria-label="New update">
+  <div class="sm-top"><button type="button" class="sv-btn" id="smClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+    <button type="button" class="sv-btn" id="smColor" aria-label="Change colour"><i class="fas fa-palette"></i></button></div>
+  <div class="sm-stage" id="smStage"><textarea id="smText" maxlength="700" placeholder="Type an update"></textarea></div>
+  <div class="sm-bottom"><input type="text" id="smCap" maxlength="700" placeholder="Add a caption…" autocomplete="off"><button type="button" class="sm-post" id="smPost" aria-label="Share update"><i class="fas fa-paper-plane"></i></button></div>
+</div>
 {% if app.bars_mode == 'custom' %}<div class="nav-strip" style="background:{{ app.nav_color }}"></div>{% endif %}
 {% else %}
 <div class="starting" id="starting"><i class="fas fa-comments"></i><span>Starting chat…</span></div>
@@ -1870,6 +2014,23 @@ EduLook.apply(EduLook.get());
   var gMenuAction = null, gSendFile = null, gHide = null, gUnreadTotal = 0, gUnreadChats = 0;   // groups
   var sxHide = null, sxSendFile = null, sxWaiting = 0;   // support inbox (support team only)
   var openChatHook = null, pushNudge = null;   // notifications: open a chat by key / refresh lists now
+  var callBackHook = null;                      // Calls tab: ring someone back
+  // A tap outside an open menu just closes the menu — it never also opens the
+  // chat (or presses the button) underneath, which on a phone looked like a
+  // random chat opening by itself.
+  (function () {
+    var MENUS = '#sideMenu.open, #rowMenu.open, #headMenu.open, #attachMenu.open, #ctxMenu.open, #dmMenu.open, #dmAttachMenu.open, #sxMenu.open, #sxAttachMenu.open, #gMenu.open, #gAttachMenu.open';
+    var TOGGLES = '#sideMenuBtn, .side-more, #meBtn, #dmMenuBtn, #gMenuBtn, #sxMenuBtn, #attachBtn, #dmAttach, #gAttach, #sxAttach';
+    document.addEventListener('click', function (e) {
+      var open = document.querySelectorAll(MENUS);
+      if (!open.length) return;
+      for (var k = 0; k < open.length; k++) if (open[k].contains(e.target)) return;   // a choice in the menu
+      if (e.target.closest && e.target.closest(TOGGLES)) return;                     // its own button
+      e.stopPropagation(); e.preventDefault();
+      open.forEach(function (m) { m.classList.remove('open'); });
+      document.querySelectorAll('.side-more.open').forEach(function (b) { b.classList.remove('open'); });
+    }, true);
+  })();
   var FAV_KEY = 'chats-favs-{{ chat_user.pk }}', favs = {};   // ♥ Favourites: chat keys ('ai', 'support', thread id, 'g<id>')
   try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '{}') || {}; } catch (e) {}
   function saveFavs() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {} }
@@ -2194,7 +2355,7 @@ EduLook.apply(EduLook.get());
       look = { accent: 'red', font: 'inter', size: 'm', wall: 'doodle' }; commit();
     });
     document.getElementById('openLook').addEventListener('click', function () {
-      document.getElementById('sideMenu').classList.remove('open'); document.body.classList.remove('side-open');
+      document.getElementById('sideMenu').classList.remove('open');
       paint(); document.getElementById('lookSheet').classList.add('open');
     });
   })();
@@ -2556,7 +2717,7 @@ EduLook.apply(EduLook.get());
       var n = document.getElementById('instNote'); n.hidden = !note; n.innerHTML = note || '';
     }
     btn.addEventListener('click', function () {
-      document.getElementById('sideMenu').classList.remove('open'); document.body.classList.remove('side-open');
+      document.getElementById('sideMenu').classList.remove('open');
       if (runPrompt()) return;   // Chrome / Edge / Samsung Internet: the real "Install" dialog
       document.getElementById('instTitle').textContent = PLATFORMS[platform][0].replace('Install app', 'Install ' + APP_NAME);
       document.getElementById('instNow').hidden = !offer();
@@ -3146,7 +3307,7 @@ EduLook.apply(EduLook.get());
     document.addEventListener('click', function (e) { if (!e.target.closest('.side-menu-wrap')) sideMenu.classList.remove('open'); });
     sideMenu.querySelectorAll('[data-proxy]').forEach(function (b) {
       b.addEventListener('click', function (e) {
-        e.stopPropagation(); sideMenu.classList.remove('open'); setOpen(false);
+        e.stopPropagation(); sideMenu.classList.remove('open');   // the sheet opens over the list; the chat behind stays as it was
         var target = document.getElementById(b.dataset.proxy);
         if (target) target.click();
       });
@@ -3158,7 +3319,7 @@ EduLook.apply(EduLook.get());
     var inviteUrl = location.origin + '{% url "chats_page" %}' + (myUsername ? '?to=' + encodeURIComponent(myUsername) : '');
     var inviteText = myUsername ? 'Chat with me on EduChats — I\'m @' + myUsername + ': ' : 'Join me on EduChats: ';
     document.getElementById('openInvite').addEventListener('click', function () {
-      sideMenu.classList.remove('open'); setOpen(false);
+      sideMenu.classList.remove('open');
       document.getElementById('invLink').value = inviteUrl;
       document.getElementById('invWa').href = 'https://wa.me/?text=' + encodeURIComponent(inviteText + inviteUrl);
       document.getElementById('invTg').href = 'https://t.me/share/url?url=' + encodeURIComponent(inviteUrl) + '&text=' + encodeURIComponent(inviteText.replace(/: $/, ''));
@@ -3197,7 +3358,7 @@ EduLook.apply(EduLook.get());
       });
     }
     document.getElementById('openPrivacy').addEventListener('click', function () {
-      sideMenu.classList.remove('open'); setOpen(false);
+      sideMenu.classList.remove('open');
       pvSaved.classList.remove('show'); pvErr.classList.remove('show');
       document.getElementById('privacySheet').classList.add('open');
       fetch('{% url "chats_privacy" %}', { credentials: 'same-origin' }).then(function (r) { return r.json(); })
@@ -4958,6 +5119,13 @@ EduLook.apply(EduLook.get());
       return true;
     };
     pushNudge = function () { loadThreads(); loadGroups(); pollGroup(); if (typeof loadInbox === 'function') loadInbox(); };
+    callBackHook = function (key, kind) {
+      key = String(key || '');
+      if (window.educhatsTab) window.educhatsTab('chats');
+      if (key === 'support') { supportRow.click(); proxyClick(kind === 'video' ? 'videoCall' : 'voiceCall'); return; }
+      if (/^sx\d+$/.test(key)) { openChatHook(key); setTimeout(function () { proxyClick(kind === 'video' ? 'sxVideo' : 'sxVoice'); }, 700); return; }
+      if (/^\d+$/.test(key)) dmCall(+key, kind === 'video' ? 'video' : 'audio');
+    };
 
     // /educhats/?to=username opens (or starts) that chat straight away
     var to = new URLSearchParams(location.search).get('to');
@@ -4966,6 +5134,295 @@ EduLook.apply(EduLook.get());
     // A guest arriving from someone's invite link: sign up first, then the chat opens.
     if (new URLSearchParams(location.search).get('to')) document.getElementById('openSignup').click();
     {% endif %}
+  })();
+
+  // ── bottom tabs: Chats · Updates · Calls ──
+  (function () {
+    var side = document.getElementById('side'), tabs = document.querySelectorAll('#sideTabs .side-tab');
+    var updPane = document.getElementById('updPane'), callsPane = document.getElementById('callsPane');
+    var ME_PK = '{{ chat_user.pk }}', IS_GUEST = {{ chat_user.is_guest|yesno:"true,false" }};
+    var CALLS_SEEN = 'educhats-calls-seen-' + ME_PK;
+    function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+    function ava(box, p) {
+      box.textContent = '';
+      box.appendChild(document.createTextNode(p.initial || (p.name || '?').slice(0, 1).toUpperCase()));
+      if (p.photo) { var i = document.createElement('img'); i.alt = ''; i.src = p.photo; i.onerror = function () { i.remove(); }; box.appendChild(i); }
+    }
+    function when(iso) {
+      var d = new Date(iso), now = new Date(), t = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      var day = new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (day === 0) return 'Today, ' + t;
+      if (day === 86400000) return 'Yesterday, ' + t;
+      return d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ', ' + t;
+    }
+    function ago(iso) {
+      var m = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
+      if (m < 1) return 'Just now';
+      if (m < 60) return m + ' min ago';
+      return Math.floor(m / 60) + ' h ago';
+    }
+    function getJ(url) { return fetch(url, { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); }); }
+    function form(url, fd) {
+      return fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRFToken': freshCsrf() }, body: fd })
+        .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Something went wrong. Please try again.' }; }); });
+    }
+
+    var tab = 'chats';
+    function setTab(name) {
+      tab = name;
+      side.classList.toggle('tab-updates', name === 'updates');
+      side.classList.toggle('tab-calls', name === 'calls');
+      updPane.hidden = name !== 'updates'; callsPane.hidden = name !== 'calls';
+      tabs.forEach(function (t) { var on = t.dataset.tab === name; t.classList.toggle('on', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      if (name === 'updates') loadStories();
+      if (name === 'calls') loadCalls(true);
+      try { sessionStorage.setItem('educhats-tab', name); } catch (e) {}
+    }
+    tabs.forEach(function (t) { t.addEventListener('click', function () { setTab(t.dataset.tab); }); });
+    window.educhatsTab = setTab;
+
+    // Chats badge: how many chats have something unread (the "Unread" chip's number)
+    var chip = document.getElementById('chipUnread'), chatsN = document.getElementById('tabChatsN');
+    function mirror() { var n = +chip.textContent || 0; chatsN.textContent = n > 99 ? '99+' : n; chatsN.hidden = chip.hidden || !n; }
+    new MutationObserver(mirror).observe(chip, { childList: true, characterData: true, subtree: true, attributes: true });
+    mirror();
+
+    // ── Calls ──
+    var callsList = document.getElementById('callsList'), callsN = document.getElementById('tabCallsN');
+    function loadCalls(viewing) {
+      return getJ('{% url "chats_calls" %}').then(function (res) {
+        if (!res || !res.ok) return;
+        var seen = 0; try { seen = +localStorage.getItem(CALLS_SEEN) || 0; } catch (e) {}
+        var missed = res.calls.filter(function (c) { return c.missed && new Date(c.at).getTime() > seen; }).length;
+        if (viewing) { missed = 0; try { localStorage.setItem(CALLS_SEEN, String(Date.now())); } catch (e) {} }
+        callsN.textContent = missed; callsN.hidden = !missed;
+        if (!viewing && tab !== 'calls') return;
+        callsList.textContent = '';
+        document.getElementById('callsEmpty').hidden = !!res.calls.length;
+        res.calls.forEach(function (c) {
+          var row = document.createElement('div');
+          row.className = 'pane-row' + (c.missed ? ' missed' : ''); row.setAttribute('role', 'button'); row.tabIndex = 0;
+          var dir = c.missed ? 'missed' : c.out ? 'out' : 'in';
+          var arrow = c.out ? 'fa-arrow-up' : 'fa-arrow-down';   // tilted: ↗ out, ↙ in (red when missed)
+          var label = c.missed ? 'Missed' : c.out ? (c.unanswered ? 'No answer' : 'Outgoing') : (c.unanswered ? 'Declined' : 'Incoming');
+          row.innerHTML = '<span class="pane-ava"></span><span class="pane-txt"><b>' + esc(c.name) + '</b><small><i class="fas ' + arrow + ' call-dir ' + dir + '" style="transform:rotate(45deg)"></i>' +
+            esc(label + (c.length ? ' · ' + c.length : '') + ' · ' + when(c.at)) + '</small></span>' +
+            '<button type="button" class="call-back" aria-label="' + (c.kind === 'video' ? 'Video call' : 'Voice call') + '"><i class="fas ' + (c.kind === 'video' ? 'fa-video' : 'fa-phone') + '"></i></button>';
+          ava(row.querySelector('.pane-ava'), c);
+          row.addEventListener('click', function (e) {
+            if (e.target.closest('.call-back')) {
+              (callBackHook || function (k, kind) {   // guests: only the support chat
+                setTab('chats'); document.getElementById('supportRow').click(); proxyClick(kind === 'video' ? 'videoCall' : 'voiceCall');
+              })(c.chat, c.kind);
+              return;
+            }
+            setTab('chats');
+            if (openChatHook) openChatHook(c.chat); else if (c.chat === 'support') document.getElementById('supportRow').click();
+          });
+          callsList.appendChild(row);
+        });
+      }).catch(function () {});
+    }
+    loadCalls(false);
+    setInterval(function () { loadCalls(tab === 'calls'); }, 60000);
+
+    // ── Updates ──
+    var stories = { mine: null, people: [] }, updDot = document.getElementById('tabUpdDot');
+    function loadStories() {
+      return getJ('{% url "chats_stories" %}').then(function (res) {
+        if (!res || !res.ok) return;
+        stories = res;
+        updDot.hidden = !res.people.some(function (p) { return !p.all_seen; });
+        if (!IS_GUEST) renderStories();
+      }).catch(function () {});
+    }
+    function renderStories() {
+      var mine = stories.mine && stories.mine.stories || [];
+      var ring = document.getElementById('updMineRing');
+      ring.className = 'upd-ring' + (mine.length ? '' : ' none');
+      document.getElementById('updMinePlus').hidden = !!mine.length;
+      var views = mine.reduce(function (n, s) { return n + (s.views || 0); }, 0);
+      document.getElementById('updMineSub').textContent = mine.length
+        ? mine.length + (mine.length === 1 ? ' update' : ' updates') + ' · ' + ago(mine[mine.length - 1].at) + (views ? ' · ' + views + ' view' + (views === 1 ? '' : 's') : '')
+        : 'Tap to share a photo, video or text';
+      var fresh = document.getElementById('updNew'), old = document.getElementById('updSeen');
+      fresh.textContent = ''; old.textContent = '';
+      stories.people.forEach(function (p, i) {
+        var row = document.createElement('button'); row.type = 'button'; row.className = 'pane-row';
+        row.innerHTML = '<span class="upd-ring' + (p.all_seen ? ' seen' : '') + '"><span class="pane-ava"></span></span><span class="pane-txt"><b>' + esc(p.user.name) +
+          '</b><small>' + esc(ago(p.latest) + (p.stories.length > 1 ? ' · ' + p.stories.length + ' updates' : '')) + '</small></span>';
+        ava(row.querySelector('.pane-ava'), p.user);
+        row.addEventListener('click', function () { viewer.open(stories.people, i); });
+        (p.all_seen ? old : fresh).appendChild(row);
+      });
+      document.getElementById('updNewLbl').hidden = !fresh.children.length;
+      document.getElementById('updSeenLbl').hidden = !old.children.length;
+      document.getElementById('updEmpty').hidden = !!stories.people.length;
+    }
+    loadStories();
+    setInterval(loadStories, 120000);
+
+    // the story viewer: tap right = next, left = back, hold = pause
+    var viewer = (function () {
+      var box = document.getElementById('storyView'), stage = document.getElementById('svStage'), bars = document.getElementById('svBars');
+      var queue = [], u = 0, i = 0, started = 0, spent = 0, length = 5000, paused = false, raf = null, video = null, mineMode = false, muted = false;
+      function current() { return queue[u] && queue[u].stories[i]; }
+      function open(list, start, own) {
+        queue = list; mineMode = !!own; u = start || 0;
+        var first = queue[u].stories.findIndex ? queue[u].stories.findIndex(function (s) { return !s.seen; }) : -1;
+        i = own || first < 0 ? 0 : first;
+        box.hidden = false; document.body.style.overflow = 'hidden';
+        show();
+      }
+      function close() {
+        cancelAnimationFrame(raf); raf = null;
+        if (video) { video.pause(); video = null; }
+        stage.textContent = ''; box.hidden = true; document.body.style.overflow = '';
+        document.getElementById('svViewers').hidden = true;
+        loadStories();
+      }
+      function show() {
+        var p = queue[u], s = current();
+        if (!s) return close();
+        cancelAnimationFrame(raf);
+        if (video) { video.pause(); video = null; }
+        bars.innerHTML = p.stories.map(function (x, k) { return '<span><i style="width:' + (k < i ? 100 : 0) + '%"></i></span>'; }).join('');
+        ava(document.getElementById('svAva'), p.user);
+        document.getElementById('svName').textContent = mineMode ? 'My update' : p.user.name;
+        document.getElementById('svWhen').textContent = ago(s.at);
+        document.getElementById('svDel').hidden = !mineMode;
+        var views = document.getElementById('svViews');
+        views.hidden = !mineMode; views.querySelector('span').textContent = (s.views || 0) + ' view' + (s.views === 1 ? '' : 's');
+        document.getElementById('svCap').textContent = s.kind === 'text' ? '' : (s.text || '');
+        document.getElementById('svSound').hidden = s.kind !== 'video';
+        stage.textContent = ''; stage.style.background = '';
+        spent = 0; length = 5000; paused = false;
+        if (s.kind === 'text') {
+          var t = document.createElement('div'); t.className = 'sv-text'; t.textContent = s.text; stage.style.background = s.bg || '#7c3aed';
+          stage.appendChild(t); length = Math.min(12000, Math.max(5000, s.text.length * 70)); begin();
+        } else if (s.kind === 'image') {
+          var img = document.createElement('img'); img.alt = ''; img.src = s.url;
+          paused = true; img.onload = img.onerror = function () { paused = false; begin(); };
+          stage.appendChild(img);
+        } else {
+          video = document.createElement('video'); video.src = s.url; video.playsInline = true; video.muted = muted; video.autoplay = true;
+          paused = true;
+          video.onloadedmetadata = function () { length = Math.min(60, video.duration || 15) * 1000; paused = false; begin(); };
+          video.onerror = function () { paused = false; begin(); };
+          stage.appendChild(video); video.play().catch(function () { video.muted = muted = true; video.play().catch(function () {}); });
+        }
+        if (!mineMode && !s.seen) {
+          s.seen = true;
+          post('{% url "chats_story" 0 "seen" %}'.replace('/0/', '/' + s.id + '/'), {}).catch(function () {});
+        }
+      }
+      function begin() { started = performance.now(); tick(); }
+      function tick() {
+        raf = requestAnimationFrame(tick);
+        if (paused) { started = performance.now() - spent; return; }
+        spent = performance.now() - started;
+        var bar = bars.children[i] && bars.children[i].firstChild;
+        if (bar) bar.style.width = Math.min(100, spent / length * 100) + '%';
+        if (spent >= length) next();
+      }
+      function next() { cancelAnimationFrame(raf); if (i < queue[u].stories.length - 1) i++; else if (!mineMode && u < queue.length - 1) { u++; i = 0; } else return close(); show(); }
+      function prev() { cancelAnimationFrame(raf); if (i > 0) i--; else if (!mineMode && u > 0) { u--; i = queue[u].stories.length - 1; } show(); }
+      function pause(on) { paused = on; if (video) { if (on) video.pause(); else video.play().catch(function () {}); } }
+      // tap vs hold
+      ['svPrev', 'svNext'].forEach(function (id) {
+        var el = document.getElementById(id), down = 0;
+        el.addEventListener('pointerdown', function () { down = Date.now(); pause(true); });
+        el.addEventListener('pointerup', function () { var held = Date.now() - down; pause(false); if (held < 250) (id === 'svNext' ? next : prev)(); });
+        el.addEventListener('pointerleave', function () { if (down) pause(false); down = 0; });
+      });
+      document.getElementById('svClose').addEventListener('click', close);
+      document.getElementById('svSound').addEventListener('click', function () {
+        muted = !muted; if (video) video.muted = muted;
+        this.querySelector('i').className = 'fas ' + (muted ? 'fa-volume-xmark' : 'fa-volume-high');
+      });
+      document.addEventListener('keydown', function (e) {
+        if (box.hidden) return;
+        if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') next(); else if (e.key === 'ArrowLeft') prev();
+      });
+      document.getElementById('svDel').addEventListener('click', function () {
+        var s = current(); if (!s) return;
+        pause(true);
+        if (!confirm('Delete this update?')) return pause(false);
+        post('{% url "chats_story" 0 "delete" %}'.replace('/0/', '/' + s.id + '/'), {}).then(function (res) {
+          if (!res.ok) { pause(false); return flash(res.error || 'Could not delete it.'); }
+          queue[u].stories.splice(i, 1);
+          if (!queue[u].stories.length) return close();
+          if (i >= queue[u].stories.length) i = queue[u].stories.length - 1;
+          show();
+        });
+      });
+      document.getElementById('svViews').addEventListener('click', function () {
+        var s = current(); if (!s) return;
+        pause(true);
+        var list = document.getElementById('svViewersList'), panel = document.getElementById('svViewers');
+        list.innerHTML = '<p class="pane-empty" style="margin:.6rem 0">Loading…</p>'; panel.hidden = false;
+        getJ('{% url "chats_story" 0 "viewers" %}'.replace('/0/', '/' + s.id + '/')).then(function (res) {
+          list.textContent = '';
+          if (!res.ok || !res.viewers.length) { list.innerHTML = '<p class="pane-empty" style="margin:.6rem 0">No views yet.</p>'; return; }
+          res.viewers.forEach(function (v) {
+            var row = document.createElement('div'); row.className = 'pane-row'; row.style.cursor = 'default';
+            row.innerHTML = '<span class="pane-ava"></span><span class="pane-txt"><b>' + esc(v.name) + '</b><small>' + esc(when(v.at)) + '</small></span>';
+            ava(row.querySelector('.pane-ava'), v); list.appendChild(row);
+          });
+        });
+      });
+      document.getElementById('svViewersX').addEventListener('click', function () { document.getElementById('svViewers').hidden = true; pause(false); });
+      return { open: open };
+    })();
+
+    // sharing an update: a photo / video with a caption, or a coloured text card
+    if (!IS_GUEST) {
+      var COLORS = ['#7c3aed', '#e8001e', '#0d9488', '#2563eb', '#ea580c', '#db2777', '#111827', '#16a34a', '#a16207'];
+      var make = document.getElementById('storyMake'), smStage = document.getElementById('smStage'), smText = document.getElementById('smText');
+      var smCap = document.getElementById('smCap'), smPost = document.getElementById('smPost'), file = document.getElementById('updFile');
+      var chosen = null, color = 0, preview = null;
+      function openMake(withFile) {
+        chosen = withFile || null;
+        smStage.querySelectorAll('img, video').forEach(function (m) { m.remove(); });
+        if (preview) { URL.revokeObjectURL(preview); preview = null; }
+        smText.hidden = !!chosen; smCap.hidden = !chosen; smCap.value = ''; smText.value = '';
+        document.getElementById('smColor').hidden = !!chosen;
+        smStage.style.background = chosen ? '#000' : COLORS[color];
+        if (chosen) {
+          preview = URL.createObjectURL(chosen);
+          var m = document.createElement(/^video\//.test(chosen.type) ? 'video' : 'img');
+          m.src = preview; if (m.tagName === 'VIDEO') { m.controls = true; m.playsInline = true; m.muted = true; m.autoplay = true; m.loop = true; }
+          smStage.appendChild(m);
+        }
+        make.hidden = false; smPost.disabled = false; smPost.innerHTML = '<i class="fas fa-paper-plane"></i>';
+      }
+      function closeMake() { make.hidden = true; if (preview) { URL.revokeObjectURL(preview); preview = null; } smStage.querySelectorAll('video').forEach(function (v) { v.pause(); }); }
+      document.getElementById('updAddText').addEventListener('click', function () { openMake(null); });
+      document.getElementById('updAddMedia').addEventListener('click', function () { file.value = ''; file.click(); });
+      file.addEventListener('change', function () {
+        var f = file.files && file.files[0]; if (!f) return;
+        if (f.size > 25 * 1024 * 1024) return flash('Updates can be up to 25 MB.');
+        openMake(f);
+      });
+      document.getElementById('updMine').addEventListener('click', function () {
+        var mine = stories.mine && stories.mine.stories || [];
+        if (mine.length) viewer.open([stories.mine], 0, true); else openMake(null);
+      });
+      document.getElementById('smColor').addEventListener('click', function () { color = (color + 1) % COLORS.length; smStage.style.background = COLORS[color]; });
+      document.getElementById('smClose').addEventListener('click', closeMake);
+      smPost.addEventListener('click', function () {
+        var fd = new FormData();
+        if (chosen) { fd.append('file', chosen); fd.append('text', smCap.value); }
+        else { if (!smText.value.trim()) return flash('Type something first.'); fd.append('text', smText.value); fd.append('bg', COLORS[color]); }
+        smPost.disabled = true; smPost.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        form('{% url "chats_stories" %}', fd).then(function (res) {
+          if (!res.ok) { smPost.disabled = false; smPost.innerHTML = '<i class="fas fa-paper-plane"></i>'; return flash(res.error || 'Could not share it.'); }
+          closeMake(); flash('Update shared — the people you chat with can see it for 24 hours.');
+          loadStories();
+        }).catch(function () { smPost.disabled = false; smPost.innerHTML = '<i class="fas fa-paper-plane"></i>'; flash('Could not share it. Check your connection.'); });
+      });
+    }
+    try { var saved = sessionStorage.getItem('educhats-tab'); if (saved && saved !== 'chats') setTab(saved); } catch (e) {}
   })();
 
   // calls
