@@ -224,7 +224,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .guest-auth{display:flex;gap:.45rem;flex:0 0 auto}
 .chat-head .who b,.chat-head .who .status{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-head .who .status{display:flex;align-items:center;gap:.3rem}
-.chat-head .who .status #supportText{overflow:hidden;text-overflow:ellipsis}
+.chat-head .who .status{overflow:visible}
+/* "@name · last seen …" too long for the header: it glides across instead of being cut off */
+.chat-head .who .status .dot{flex:0 0 8px;margin-left:3px}
+.st-clip{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.st-clip>span{display:inline-block;white-space:nowrap}
+.st-clip.st-run{-webkit-mask-image:linear-gradient(90deg,#000 86%,transparent);mask-image:linear-gradient(90deg,#000 86%,transparent)}
+.st-clip.st-run>span{animation:stRun var(--st-dur,8s) ease-in-out infinite}
+@keyframes stRun{0%,16%{transform:translateX(0)}46%,62%{transform:translateX(var(--st-shift,0))}92%,100%{transform:translateX(0)}}
+@media (prefers-reduced-motion:reduce){.st-clip.st-run>span{animation:none}.st-clip.st-run{-webkit-mask-image:none;mask-image:none;text-overflow:ellipsis}}
 @media (max-width:520px){.chat-head{gap:.45rem}.chat-head .ava{width:36px;height:36px;flex-basis:36px}.chat-head .head-btn{width:34px;height:34px;flex-basis:34px;font-size:.85rem}}
 .auth-btn{height:38px;padding:0 1rem;border-radius:999px;border:none;background:#fff;color:var(--accent-dark);font:inherit;font-size:.85rem;font-weight:800;cursor:pointer}
 .auth-btn.ghost{background:rgba(255,255,255,.16);color:#fff;border:1.5px solid rgba(255,255,255,.5)}
@@ -1760,7 +1768,7 @@ EduLook.apply(EduLook.get());
   <div class="chat-head">
     <button class="head-btn side-toggle" id="sideOpen" type="button" title="All chats" aria-label="All chats"><i class="fas fa-bars"></i></button>
     <span class="ava">{% if support.photo %}<img src="{% url 'chats_support_photo' %}?v={{ support.updated_at|date:'U' }}" alt="">{% else %}<i class="fas fa-headset"></i>{% endif %}</span>
-    <div class="who"><b>{{ support.display_name }}</b><small class="status" id="supportStatus"><span class="dot" id="supportDot"></span><span id="supportText">{{ support.about }}</span></small></div>
+    <div class="who"><b>{{ support.display_name }}</b><small class="status" id="supportStatus"><span class="dot" id="supportDot"></span><span class="st-clip"><span id="supportText">{{ support.about }}</span></span></small></div>
     <button class="head-btn" id="voiceCall" title="Voice call" aria-label="Voice call"><i class="fas fa-phone"></i></button>
     <button class="head-btn" id="videoCall" title="Video call" aria-label="Video call"><i class="fas fa-video"></i></button>
     {% if chat_user.is_guest %}
@@ -1815,7 +1823,7 @@ EduLook.apply(EduLook.get());
   <div class="chat-head">
     <button class="head-btn side-toggle" id="aiSideOpen" type="button" title="All chats" aria-label="All chats"><i class="fas fa-bars"></i></button>
     <span class="ava"><i class="fas fa-wand-magic-sparkles"></i></span>
-    <div class="who"><b>EduTrellis AI <span class="ai-free"><i class="fas fa-infinity"></i> Free</span></b><small class="status"><span class="dot on"></span><span id="aiStatus">Ask anything · create images</span></small></div>
+    <div class="who"><b>EduTrellis AI <span class="ai-free"><i class="fas fa-infinity"></i> Free</span></b><small class="status"><span class="dot on"></span><span class="st-clip"><span id="aiStatus">Ask anything · create images</span></span></small></div>
   </div>
   <div class="chat-body">
     <div class="peer-live typing" id="aiLive" hidden aria-live="polite"><span class="pl-ava"><i class="fas fa-wand-magic-sparkles"></i></span><span class="pl-bubble"><span class="pl-dots" aria-label="thinking"><i></i><i></i><i></i></span><span class="pl-text"></span></span></div>
@@ -1861,7 +1869,7 @@ EduLook.apply(EduLook.get());
   <div class="chat-head">
     <button class="head-btn side-toggle" id="dmSideOpen" type="button" title="All chats" aria-label="All chats"><i class="fas fa-bars"></i></button>
     <span class="ava" id="dmAva"></span>
-    <div class="who" id="dmWho" role="button" tabindex="0" title="Contact info"><b id="dmName"></b><small class="status"><span class="dot" id="dmDot"></span><span id="dmStatus"></span></small></div>
+    <div class="who" id="dmWho" role="button" tabindex="0" title="Contact info"><b id="dmName"></b><small class="status"><span class="dot" id="dmDot"></span><span class="st-clip"><span id="dmStatus"></span></span></small></div>
     <button class="head-btn" id="dmVoice" type="button" title="Voice call" aria-label="Voice call"><i class="fas fa-phone"></i></button>
     <button class="head-btn" id="dmVideo" type="button" title="Video call" aria-label="Video call"><i class="fas fa-video"></i></button>
     <div class="menu-wrap">
@@ -1901,7 +1909,7 @@ EduLook.apply(EduLook.get());
   <div class="chat-head">
     <button class="head-btn side-toggle" id="sxSideOpen" type="button" title="All chats" aria-label="All chats"><i class="fas fa-bars"></i></button>
     <span class="ava" id="sxAva"></span>
-    <div class="who" id="sxWho" role="button" tabindex="0" title="Contact info"><b id="sxName"></b><small class="status"><span class="dot" id="sxDot"></span><span id="sxStatus"></span></small></div>
+    <div class="who" id="sxWho" role="button" tabindex="0" title="Contact info"><b id="sxName"></b><small class="status"><span class="dot" id="sxDot"></span><span class="st-clip"><span id="sxStatus"></span></span></small></div>
     <button class="head-btn" id="sxVoice" type="button" title="Voice call" aria-label="Voice call"><i class="fas fa-phone"></i></button>
     <button class="head-btn" id="sxVideo" type="button" title="Video call" aria-label="Video call"><i class="fas fa-video"></i></button>
     <div class="menu-wrap">
@@ -2042,7 +2050,7 @@ EduLook.apply(EduLook.get());
   <div class="chat-head">
     <button class="head-btn side-toggle" id="gSideOpen" type="button" title="All chats" aria-label="All chats"><i class="fas fa-bars"></i></button>
     <span class="ava g-ava" id="gAva"></span>
-    <div class="who" id="gWho" role="button" tabindex="0" title="Group info"><b id="gName"></b><small class="status"><span id="gStatus"></span></small></div>
+    <div class="who" id="gWho" role="button" tabindex="0" title="Group info"><b id="gName"></b><small class="status"><span class="st-clip"><span id="gStatus"></span></span></small></div>
     <div class="menu-wrap">
       <button class="head-btn" id="gMenuBtn" type="button" title="Menu" aria-label="Group menu" aria-haspopup="true"><i class="fas fa-ellipsis-vertical"></i></button>
       <div class="head-menu" id="gMenu" role="menu">
@@ -3896,6 +3904,25 @@ EduLook.apply(EduLook.get());
     }
     render();
     if (supported() && perm() === 'granted') subscribe(false);   // keep this device's subscription fresh
+  })();
+  // header status lines that don't fit glide back and forth (see .st-clip)
+  (function () {
+    function fit(clip) {
+      var inner = clip.firstElementChild, w = clip.clientWidth;
+      if (!inner || !w) return;
+      var over = inner.scrollWidth - w;
+      clip.classList.toggle('st-run', over > 4);
+      if (over > 4) {
+        clip.style.setProperty('--st-shift', -(over + 14) + 'px');
+        clip.style.setProperty('--st-dur', Math.min(20, Math.max(7, (over + 14) / 22 + 5)).toFixed(1) + 's');
+      }
+    }
+    var sizes = window.ResizeObserver ? new ResizeObserver(function (list) { list.forEach(function (e) { fit(e.target); }); }) : null;
+    document.querySelectorAll('.st-clip').forEach(function (clip) {
+      new MutationObserver(function () { fit(clip); }).observe(clip.firstElementChild, { childList: true, characterData: true, subtree: true });
+      if (sizes) sizes.observe(clip); else window.addEventListener('resize', function () { fit(clip); });
+      fit(clip);
+    });
   })();
   // a notification's Reply: once the chat is open, put the cursor (and any
   // unsent reply) in its message box so the keyboard comes up
