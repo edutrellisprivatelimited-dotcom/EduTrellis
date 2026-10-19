@@ -295,10 +295,16 @@ def api_privacy(request):
 
 # ⋮ → Customize. Preset keys only; a custom wallpaper photo stays on the device.
 APPEARANCE_CHOICES = {
-    'accent': {'red', 'blue', 'green', 'purple', 'orange', 'pink', 'teal', 'black'},
+    'accent': {'red', 'blue', 'green', 'purple', 'orange', 'pink', 'teal', 'black', 'indigo', 'cyan', 'sky', 'lime', 'amber',
+               'saffron', 'coral', 'crimson', 'sakura', 'magenta', 'neon', 'aurora', 'gold', 'coffee', 'slate'},
     'font': {'inter', 'poppins', 'nunito', 'dmsans', 'merriweather', 'mono'},
     'size': {'s', 'm', 'l'},
-    'wall': {'doodle', 'plain', 'sunset', 'ocean', 'mint', 'night', 'dots', 'grid', 'custom'},
+    'wall': {'doodle', 'plain', 'sunset', 'ocean', 'mint', 'night', 'dots', 'grid', 'custom', 'peach', 'lavender', 'paper',
+             'blossom', 'waves', 'hearts', 'tiranga', 'forest', 'aurora', 'galaxy', 'carbon', 'royal'},
+    # ⋮ → Themes, and the message colours in Customize
+    'theme': {'classic', 'ocean', 'forest', 'sunset', 'midnight', 'royal', 'neon', 'sakura', 'aurora', 'tiranga'},
+    'bubble': {'theme', 'mint', 'teal', 'blue', 'purple', 'pink', 'sunset', 'gold', 'neon', 'aurora', 'saffron', 'dark', 'sky', 'lavender'},
+    'bubble2': {'theme', 'grey', 'cream', 'mint', 'sky', 'blush', 'lilac', 'dark', 'charcoal'},
 }
 
 

@@ -71,7 +71,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .chat-head .ava img{width:100%;height:100%;object-fit:cover}
 .head-btn{width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;font-size:.95rem;flex:0 0 40px}
 .head-btn:hover{background:rgba(255,255,255,.26)}
-.chat-body{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--wall) var(--wall-img,none);background-size:var(--wall-size,auto);background-position:center;transition:background-color .25s}
+.chat-body{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background-color:var(--wall);background-image:var(--wall-img,none);background-size:var(--wall-size,auto);background-position:center;transition:background-color .25s}
 .msgs{flex:1;overflow-y:auto;padding:1.2rem max(1rem,calc((100% - 980px)/2));display:flex;flex-direction:column;gap:.45rem}
 .msgs>*{flex-shrink:0}
 .day{align-self:center;margin:.6rem 0;padding:.25rem .8rem;border-radius:999px;background:var(--card);color:var(--text);font-size:.72rem;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -672,7 +672,7 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .look-wall.on{border-color:var(--accent);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.35)}
 .look-upload{display:flex !important;align-items:center;justify-content:center;gap:.45rem;margin:.6rem 0 0 !important;padding:.6rem;border:1.5px dashed var(--line);border-radius:11px;color:var(--head);font-size:.82rem;font-weight:700;cursor:pointer}
 .look-upload:hover{border-color:var(--accent);color:var(--accent)}
-.look-preview{margin-top:.8rem;padding:.8rem;border-radius:14px;background:var(--wall) var(--wall-img,none);background-size:var(--wall-size,auto);display:flex;flex-direction:column;gap:.35rem}
+.look-preview{margin-top:.8rem;padding:.8rem;border-radius:14px;background-color:var(--wall);background-image:var(--wall-img,none);background-size:var(--wall-size,auto);display:flex;flex-direction:column;gap:.35rem}
 .look-preview .msg{max-width:80%}
 .look-actions{display:flex;gap:.5rem;margin-top:1rem}
 .look-actions .sheet-opt{margin:0;justify-content:center;flex:1}
@@ -1079,6 +1079,67 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
   .side-toggle i::before{content:"\f060"}   /* ← back to the chat list */
   .home-pane{display:none !important}
 }
+/* message colours (⋮ → Customize) and themes (⋮ → Themes) */
+.msg.user{background:var(--bub-me,linear-gradient(135deg,var(--accent),var(--accent-dark)));color:var(--bub-me-fg,#fff)}
+.msg.admin{background:var(--bub-them,var(--card));color:var(--bub-them-fg,var(--head))}
+.msg.user .tick{color:var(--bub-me-tick,rgba(255,255,255,.75))}
+.msg.user .tick.read{color:var(--bub-me-read,#7dd3fc)}
+.chat-head{background:var(--head-grad,linear-gradient(115deg,var(--ink) 0%,#1d2130 34%,var(--accent-deep) 72%,var(--accent) 100%))}
+html.brand-styled .side-title b{font-family:var(--brand-font,inherit);font-size:var(--brand-size,1.18rem);font-weight:var(--brand-weight,800);letter-spacing:var(--brand-spacing,-.01em);background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:var(--brand-glow,none);line-height:1.25;width:max-content;max-width:100%}
+html.brand-upper .side-title b{text-transform:uppercase}
+/* dark wallpapers (Night, Galaxy, Royal, Carbon, Forest, Aurora): the typing bar and cards go dark too */
+html.wall-dark .chat .composer-wrap{background:#0e131d;border-top-color:#1e2533}
+html.wall-dark .chat .composer textarea{background:#1a2130;border-color:#263044;color:#e5e7eb}
+html.wall-dark .chat .composer textarea::placeholder{color:#7a8396}
+html.wall-dark .chat .round.attach{background:#1a2130;color:#cbd5e1}
+html.wall-dark .chat .sx-as{color:#9aa3b2}
+html.wall-dark .dm-intro,html.wall-dark .g-intro,html.wall-dark .ai-welcome{background:rgba(21,27,40,.92);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+html.wall-dark .dm-intro b,html.wall-dark .g-intro b,html.wall-dark .ai-welcome b{color:#f3f4f6}
+html.wall-dark .dm-intro p,html.wall-dark .dm-intro .di-facts,html.wall-dark .dm-intro small,html.wall-dark .g-intro small,html.wall-dark .ai-welcome p{color:#aab1bf}
+html.wall-dark .dm-intro button{background:#1f2738;border-color:#2c3750;color:#e5e7eb}
+html.wall-dark .dm-intro .ava-in{border-color:#151b28}
+html.brand-italic .side-title b{font-style:italic}
+html[data-theme] .side-tab.on .tab-ic{transition:background .2s}
+html[data-theme="neon"] .side-tab.on .tab-ic,html[data-theme="aurora"] .side-tab.on .tab-ic{box-shadow:0 0 16px rgba(var(--accent-rgb),.55)}
+html[data-theme="royal"] .side-tab.on .tab-ic{box-shadow:inset 0 0 0 1px rgba(212,160,23,.6)}
+html[data-theme="neon"] .side-item.active,html[data-theme="aurora"] .side-item.active{box-shadow:inset 3px 0 0 var(--accent),0 0 18px rgba(var(--accent-rgb),.15)}
+.menu-new{margin-left:auto;padding:.05rem .4rem;border-radius:999px;background:var(--accent);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.look-bubbles{display:grid;grid-template-columns:repeat(7,1fr);gap:.45rem}
+.look-bubble{position:relative;height:38px;border-radius:14px 14px 5px 14px;border:2px solid transparent;cursor:pointer;font:inherit;font-size:.78rem;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.look-bubbles#lookBubbles2 .look-bubble{border-radius:14px 14px 14px 5px;box-shadow:inset 0 0 0 1px rgba(15,22,35,.1),0 2px 6px rgba(0,0,0,.08)}
+.look-bubble.on{border-color:var(--head);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--accent)}
+@media (max-width:420px){.look-bubbles{grid-template-columns:repeat(5,1fr)}}
+.look-themes-link{display:flex;align-items:center;gap:.75rem;width:100%;margin:.2rem 0 .4rem;padding:.75rem .9rem;border-radius:14px;border:1.5px solid rgba(var(--accent-rgb),.35);background:linear-gradient(135deg,rgba(var(--accent-rgb),.08),rgba(var(--accent-rgb),.02));color:var(--head);font:inherit;text-align:left;cursor:pointer}
+.look-themes-link>i:first-child{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--accent);color:#fff}
+.look-themes-link span{flex:1;display:flex;flex-direction:column}
+.look-themes-link small{color:var(--text);font-size:.74rem}
+.themes-card{width:min(640px,100%)}
+.th-sec{display:flex;align-items:baseline;gap:.6rem;margin:.9rem 0 .5rem}
+.th-sec b{font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;color:var(--text)}
+.th-sec b i{color:#d4a017}
+.th-sec small{font-size:.72rem;color:#16a34a;font-weight:700}
+.th-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.7rem}
+.th-card{position:relative;display:flex;flex-direction:column;padding:0;border-radius:16px;border:2px solid var(--line);background:var(--card);cursor:pointer;overflow:hidden;font:inherit;text-align:left;transition:transform .15s,border-color .15s,box-shadow .15s}
+.th-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,22,35,.12)}
+.th-card.on{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.25)}
+.th-card.on::after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:.7rem;z-index:2}
+.th-prev{display:flex;height:112px}
+.th-side{width:38%;display:flex;flex-direction:column;gap:6px;padding:9px 7px}
+.th-brand{font-size:.78rem;line-height:1.1;white-space:nowrap;overflow:hidden;-webkit-background-clip:text;background-clip:text;color:transparent}
+.th-row{height:9px;border-radius:5px;background:rgba(255,255,255,.12)}
+.th-row.on{background:rgba(255,255,255,.22)}
+.th-icons{margin-top:auto;display:flex;justify-content:space-around;font-size:.62rem}
+.th-main{flex:1;display:flex;flex-direction:column}
+.th-head{height:22px}
+.th-wall{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:6px 8px;background-size:cover}
+.th-b1,.th-b2{height:12px;border-radius:7px}
+.th-b1{width:62%}
+.th-b2{width:55%;align-self:flex-end}
+.th-name{display:flex;flex-direction:column;padding:.55rem .7rem .65rem}
+.th-name b{font-size:.86rem;color:var(--head);display:flex;align-items:center;gap:.35rem}
+.th-name small{font-size:.72rem;color:var(--text)}
+.th-crown{position:absolute;top:8px;left:8px;z-index:2;padding:.12rem .45rem;border-radius:999px;background:linear-gradient(135deg,#fcd34d,#b8860b);color:#1c1406;font-size:.6rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.th-free{position:absolute;top:8px;left:8px;z-index:2;padding:.12rem .45rem;border-radius:999px;background:rgba(255,255,255,.9);color:#15803d;font-size:.6rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
 </style>
 {% include "includes/favicon.html" %}
 <link rel="manifest" href="{% url 'chats_manifest' %}">
@@ -1111,7 +1172,22 @@ window.EduLook = (function () {
     orange: ['Sunset Orange', '#ea580c', '#c2410c', '#7c2d12', '234,88,12', '#fb923c'],
     pink: ['Rose Pink', '#db2777', '#be185d', '#831843', '219,39,119', '#f472b6'],
     teal: ['Teal', '#0d9488', '#0f766e', '#134e4a', '13,148,136', '#2dd4bf'],
-    black: ['Midnight', '#1f2937', '#111827', '#030712', '31,41,55', '#9ca3af']
+    black: ['Midnight', '#1f2937', '#111827', '#030712', '31,41,55', '#9ca3af'],
+    indigo: ['Indigo', '#4f46e5', '#4338ca', '#312e81', '79,70,229', '#818cf8'],
+    cyan: ['Cyan', '#0891b2', '#0e7490', '#164e63', '8,145,178', '#22d3ee'],
+    sky: ['Sky', '#0284c7', '#0369a1', '#0c4a6e', '2,132,199', '#38bdf8'],
+    lime: ['Lime', '#65a30d', '#4d7c0f', '#365314', '101,163,13', '#a3e635'],
+    amber: ['Amber', '#d97706', '#b45309', '#78350f', '217,119,6', '#fbbf24'],
+    saffron: ['Saffron', '#ff8a1f', '#e86a00', '#7c2d12', '255,138,31', '#fdba74'],
+    coral: ['Coral', '#f26b5b', '#d9503f', '#8a2a1f', '242,107,91', '#fda4af'],
+    crimson: ['Crimson', '#be123c', '#9f1239', '#4c0519', '190,18,60', '#fb7185'],
+    sakura: ['Sakura', '#ec4899', '#db2777', '#831843', '236,72,153', '#f9a8d4'],
+    magenta: ['Magenta', '#c026d3', '#a21caf', '#701a75', '192,38,211', '#e879f9'],
+    neon: ['Neon', '#e11cc8', '#7c3aed', '#3b0764', '225,28,200', '#f0abfc'],
+    aurora: ['Aurora', '#0d9488', '#7c3aed', '#134e4a', '13,148,136', '#5eead4'],
+    gold: ['Royal Gold', '#c99a1e', '#a07812', '#5c4307', '201,154,30', '#fcd34d'],
+    coffee: ['Coffee', '#92400e', '#78350f', '#451a03', '146,64,14', '#d6a77a'],
+    slate: ['Slate', '#475569', '#334155', '#0f172a', '71,85,105', '#94a3b8']
   };
   var FONTS = {
     inter: ['Inter', 'Inter', null],
@@ -1126,6 +1202,7 @@ window.EduLook = (function () {
     var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='none' stroke='" + hex + "' stroke-opacity='.06' stroke-width='1.6'><path d='M18 22h22a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H28l-8 6v-6h-2a6 6 0 0 1-6-6V28a6 6 0 0 1 6-6z'/><circle cx='88' cy='30' r='9'/><path d='M80 86l8-14 8 14z'/><path d='M22 92c6-10 14-10 20 0s14 10 20 0'/><path d='M96 60l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6-4.5-4 6-1z'/></g></svg>";
     return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
   }
+  function svgUrl(svg) { return 'url("data:image/svg+xml,' + svg.replace(/</g, '%3C').replace(/>/g, '%3E').replace(/"/g, "'") + '")'; }
   // [label, background colour, image(accent), size]
   var WALLS = {
     doodle: ['Doodles', '#f6f6f8', function (a) { return 'radial-gradient(circle at 12% 18%,rgba(' + a[4] + ',.13) 0,transparent 40%),radial-gradient(circle at 88% 82%,rgba(15,22,35,.07) 0,transparent 42%),' + doodle(a[1]); }, 'auto,auto,120px 120px'],
@@ -1136,12 +1213,106 @@ window.EduLook = (function () {
     night: ['Night', '#0f1623', function (a) { return 'radial-gradient(circle at 20% 15%,rgba(' + a[4] + ',.28) 0,transparent 45%),radial-gradient(circle at 85% 85%,rgba(99,102,241,.18) 0,transparent 45%)'; }, 'cover'],
     dots: ['Dots', '#fafafa', function (a) { return 'radial-gradient(rgba(' + a[4] + ',.16) 1.3px,transparent 1.5px)'; }, '18px 18px'],
     grid: ['Grid', '#fbfbfc', function () { return 'linear-gradient(rgba(15,22,35,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,22,35,.05) 1px,transparent 1px)'; }, '24px 24px'],
+    peach: ['Peach', '#ffe8d6', function () { return 'linear-gradient(160deg,#fff4ec 0%,#ffe1cc 50%,#ffd0d7 100%)'; }, 'cover'],
+    lavender: ['Lavender', '#ede9fe', function () { return 'linear-gradient(160deg,#f5f3ff 0%,#e9d5ff 55%,#dbeafe 100%)'; }, 'cover'],
+    paper: ['Paper', '#f7f1e3', function () { return 'repeating-linear-gradient(0deg,rgba(120,90,40,.05) 0 1px,transparent 1px 28px),linear-gradient(#fbf6ea,#f3ead6)'; }, 'auto'],
+    blossom: ['Blossom', '#fff0f6', function () { return svgUrl("<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><g fill='%23f472b6' fill-opacity='.16'><g transform='translate(30 34)'><ellipse rx='5' ry='9' transform='rotate(0)'/><ellipse rx='5' ry='9' transform='rotate(72)'/><ellipse rx='5' ry='9' transform='rotate(144)'/><ellipse rx='5' ry='9' transform='rotate(216)'/><ellipse rx='5' ry='9' transform='rotate(288)'/></g><g transform='translate(104 98) scale(.7)'><ellipse rx='5' ry='9'/><ellipse rx='5' ry='9' transform='rotate(72)'/><ellipse rx='5' ry='9' transform='rotate(144)'/><ellipse rx='5' ry='9' transform='rotate(216)'/><ellipse rx='5' ry='9' transform='rotate(288)'/></g><circle cx='100' cy='26' r='3'/><circle cx='36' cy='110' r='2.5'/></g></svg>") + ',linear-gradient(160deg,#fff5f9,#fde2ef)'; }, '140px 140px,cover'],
+    waves: ['Waves', '#eef6ff', function (a) { return svgUrl("<svg xmlns='http://www.w3.org/2000/svg' width='160' height='60'><path d='M0 30 Q 20 10 40 30 T 80 30 T 120 30 T 160 30' fill='none' stroke='rgb(" + a[4] + ")' stroke-opacity='.14' stroke-width='2'/></svg>"); }, '160px 60px'],
+    hearts: ['Hearts', '#fff5f7', function (a) { return svgUrl("<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><path d='M20 30c-4-6-14-4-14 4 0 7 14 14 14 14s14-7 14-14c0-8-10-10-14-4z' fill='rgb(" + a[4] + ")' fill-opacity='.10'/><path d='M60 66c-3-4-9-3-9 2.5 0 4.5 9 9 9 9s9-4.5 9-9c0-5.5-6-6.5-9-2.5z' fill='rgb(" + a[4] + ")' fill-opacity='.08'/></svg>"); }, '80px 80px'],
+    tiranga: ['Tiranga', '#fffaf2', function () { return 'radial-gradient(circle at 50% 50%,rgba(0,0,128,.06) 0,transparent 18%),linear-gradient(180deg,rgba(255,153,51,.20) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(19,136,8,.18) 100%)'; }, 'cover'],
+    forest: ['Forest', '#0b1f16', function () { return 'radial-gradient(circle at 15% 20%,rgba(74,222,128,.18) 0,transparent 42%),radial-gradient(circle at 85% 80%,rgba(20,184,166,.16) 0,transparent 45%),linear-gradient(180deg,#0b1f16,#071510)'; }, 'cover'],
+    aurora: ['Aurora', '#06202a', function () { return 'radial-gradient(ellipse at 20% 0%,rgba(45,212,191,.35) 0,transparent 50%),radial-gradient(ellipse at 85% 30%,rgba(167,139,250,.30) 0,transparent 50%),linear-gradient(180deg,#06202a,#120c2c)'; }, 'cover'],
+    galaxy: ['Galaxy', '#0a0618', function () { return 'radial-gradient(1px 1px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 120px 80px,rgba(255,255,255,.8),transparent),radial-gradient(1.5px 1.5px at 70px 150px,#fff,transparent),radial-gradient(1px 1px at 170px 170px,rgba(255,255,255,.7),transparent),radial-gradient(circle at 80% 20%,rgba(255,43,214,.25) 0,transparent 45%),radial-gradient(circle at 15% 85%,rgba(34,211,238,.18) 0,transparent 45%)'; }, '200px 200px,200px 200px,200px 200px,200px 200px,cover,cover'],
+    carbon: ['Carbon', '#0b0b0d', function () { return 'repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 6px,transparent 6px 12px),linear-gradient(#0b0b0d,#000)'; }, 'auto'],
+    royal: ['Royal', '#120e07', function () { return svgUrl("<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><path d='M24 2 46 24 24 46 2 24z' fill='none' stroke='%23d4a017' stroke-opacity='.13' stroke-width='1.2'/></svg>") + ',radial-gradient(circle at 50% 0%,rgba(212,160,23,.18) 0,transparent 55%),linear-gradient(#120e07,#0a0804)'; }, '48px 48px,cover,cover'],
     custom: ['My photo', '#e5e7eb', function () {
       var img = null; try { img = localStorage.getItem('educhats-wall-custom'); } catch (e) {}
       return img ? 'linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.12)),url("' + img + '")' : 'none';
     }, 'cover']
   };
-  var DEFAULT = { accent: 'red', font: 'inter', size: 'm', wall: 'doodle' };
+  var DARK_WALLS = { night: 1, forest: 1, aurora: 1, galaxy: 1, carbon: 1, royal: 1 };
+  // ⋮ → Customize → message colours. Yours: [label, background, text, tick, read tick]; theirs: [label, background, text]
+  var W = 'rgba(255,255,255,.75)';
+  var BUBBLES = {
+    theme: ['Theme colour'],
+    mint: ['Mint', '#d9fdd3', '#111b21', 'rgba(17,27,33,.45)', '#1d9bf0'],
+    teal: ['Deep teal', '#005c4b', '#e9edef', 'rgba(233,237,239,.6)', '#53bdeb'],
+    blue: ['Blue', 'linear-gradient(135deg,#3b82f6,#1d4ed8)', '#fff', W, '#bae6fd'],
+    purple: ['Purple', 'linear-gradient(135deg,#8b5cf6,#6d28d9)', '#fff', W, '#c4b5fd'],
+    pink: ['Pink', 'linear-gradient(135deg,#f472b6,#db2777)', '#fff', W, '#fde68a'],
+    sunset: ['Sunset', 'linear-gradient(135deg,#fb923c,#db2777)', '#fff', W, '#fef08a'],
+    gold: ['Gold', 'linear-gradient(135deg,#fcd34d,#b8860b)', '#1c1406', 'rgba(28,20,6,.5)', '#1d4ed8'],
+    neon: ['Neon', 'linear-gradient(135deg,#ff2bd6,#7c3aed)', '#fff', W, '#67e8f9'],
+    aurora: ['Aurora', 'linear-gradient(135deg,#14b8a6,#7c3aed)', '#fff', W, '#a7f3d0'],
+    saffron: ['Saffron', 'linear-gradient(135deg,#ff9933,#e65c00)', '#fff', W, '#bfdbfe'],
+    dark: ['Graphite', '#1f2937', '#f9fafb', 'rgba(249,250,251,.6)', '#7dd3fc'],
+    sky: ['Sky', '#dbeafe', '#0f172a', 'rgba(15,23,42,.45)', '#2563eb'],
+    lavender: ['Lavender', '#ede9fe', '#1e1b4b', 'rgba(30,27,75,.45)', '#7c3aed']
+  };
+  var BUBBLES2 = {
+    theme: ['White'],
+    grey: ['Grey', '#f1f5f9', '#0f172a'],
+    cream: ['Cream', '#fff7e6', '#3b2f1e'],
+    mint: ['Mint', '#dcfce7', '#052e16'],
+    sky: ['Sky', '#e0f2fe', '#0c4a6e'],
+    blush: ['Blush', '#fce7f3', '#500724'],
+    lilac: ['Lilac', '#ede9fe', '#2e1065'],
+    dark: ['Dark', '#1f2937', '#f3f4f6'],
+    charcoal: ['Glass', 'rgba(17,24,39,.82)', '#e5e7eb']
+  };
+  // ⋮ → Themes: each one sets the colours, wallpaper, font and message colours, and gives the
+  // chat list, headers, the EduChats name and the main icons their own look.
+  var ICONS = { chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone', plus: 'fa-plus', menu: 'fa-ellipsis-vertical', search: 'fa-magnifying-glass' };
+  var THEMES = {
+    classic: { name: 'EduTrellis Classic', tag: 'The original red & midnight', look: { accent: 'red', wall: 'doodle', font: 'inter', bubble: 'theme', bubble2: 'theme' },
+      ink: '#0f1623', ink2: '#171f2e', brand: {} , icons: {} },
+    ocean: { name: 'Ocean Breeze', tag: 'Cool blues, calm waves', look: { accent: 'sky', wall: 'ocean', font: 'nunito', bubble: 'theme', bubble2: 'sky' },
+      ink: '#071726', ink2: '#0d2236', head: 'linear-gradient(115deg,#071726 0%,#0b3a5c 45%,var(--accent) 100%)',
+      brand: { font: "'Comfortaa'", gf: 'Comfortaa:wght@700', grad: 'linear-gradient(90deg,#67e8f9,#60a5fa)' },
+      icons: { chats: 'fa-comments', updates: 'fa-water', calls: 'fa-phone-volume', plus: 'fa-pen-to-square', menu: 'fa-bars' } },
+    forest: { name: 'Forest Calm', tag: 'Fresh greens, easy on the eyes', look: { accent: 'green', wall: 'mint', font: 'dmsans', bubble: 'theme', bubble2: 'mint' },
+      ink: '#08170f', ink2: '#0f2419', head: 'linear-gradient(115deg,#08170f 0%,#14532d 55%,var(--accent) 100%)',
+      brand: { font: "'Baloo 2'", gf: 'Baloo+2:wght@800', grad: 'linear-gradient(90deg,#bbf7d0,#4ade80)' },
+      icons: { chats: 'fa-comment-dots', updates: 'fa-seedling', calls: 'fa-phone-flip', plus: 'fa-feather', menu: 'fa-ellipsis' } },
+    sunset: { name: 'Sunset Glow', tag: 'Warm orange into pink', look: { accent: 'orange', wall: 'sunset', font: 'poppins', bubble: 'sunset', bubble2: 'theme' },
+      ink: '#1f0f1a', ink2: '#2b1524', head: 'linear-gradient(115deg,#1f0f1a 0%,#9d174d 50%,#f97316 100%)',
+      brand: { font: "'Righteous'", gf: 'Righteous', grad: 'linear-gradient(90deg,#fdba74,#f472b6)', weight: 400 },
+      icons: { chats: 'fa-message', updates: 'fa-sun', calls: 'fa-phone' } },
+    midnight: { name: 'Midnight AMOLED', tag: 'Pure black, saves battery', look: { accent: 'slate', wall: 'carbon', font: 'inter', bubble: 'dark', bubble2: 'charcoal' },
+      ink: '#000000', ink2: '#0c0c0f', head: 'linear-gradient(115deg,#000 0%,#111827 60%,#1f2937 100%)',
+      brand: { font: "'JetBrains Mono'", gf: 'JetBrains+Mono:wght@800', grad: 'linear-gradient(90deg,#f8fafc,#94a3b8)', upper: true, spacing: '.06em', size: '1rem' },
+      icons: { updates: 'fa-moon', menu: 'fa-grip-vertical' } },
+    royal: { premium: true, name: 'Royal Gold', tag: 'Black & gold, made to impress', look: { accent: 'gold', wall: 'royal', font: 'merriweather', bubble: 'gold', bubble2: 'charcoal' },
+      ink: '#0c0a06', ink2: '#17130b', head: 'linear-gradient(115deg,#0c0a06 0%,#3b2a08 50%,#b8860b 100%)',
+      brand: { font: "'Playfair Display'", gf: 'Playfair+Display:ital,wght@1,800', grad: 'linear-gradient(90deg,#fde68a,#d4a017 55%,#fef3c7)', italic: true, glow: 'drop-shadow(0 0 10px rgba(212,160,23,.35))', size: '1.3rem' },
+      icons: { chats: 'fa-feather-pointed', updates: 'fa-crown', plus: 'fa-gem' } },
+    neon: { premium: true, name: 'Neon Cyber', tag: 'Glowing magenta & cyan', look: { accent: 'neon', wall: 'galaxy', font: 'poppins', bubble: 'neon', bubble2: 'charcoal' },
+      ink: '#07041a', ink2: '#110a2b', head: 'linear-gradient(115deg,#07041a 0%,#3b0764 50%,#ff2bd6 100%)',
+      brand: { font: "'Orbitron'", gf: 'Orbitron:wght@800', grad: 'linear-gradient(90deg,#22d3ee,#ff2bd6)', upper: true, spacing: '.05em', glow: 'drop-shadow(0 0 8px rgba(255,43,214,.6))', size: '1rem' },
+      icons: { chats: 'fa-bolt', updates: 'fa-satellite-dish', calls: 'fa-headset', menu: 'fa-bars-staggered' } },
+    sakura: { premium: true, name: 'Sakura Bloom', tag: 'Soft pinks & cherry blossoms', look: { accent: 'sakura', wall: 'blossom', font: 'nunito', bubble: 'pink', bubble2: 'blush' },
+      ink: '#24101c', ink2: '#311626', head: 'linear-gradient(115deg,#24101c 0%,#9d174d 55%,#f472b6 100%)',
+      brand: { font: "'Pacifico'", gf: 'Pacifico', grad: 'linear-gradient(90deg,#fbcfe8,#f472b6)', weight: 400, size: '1.25rem' },
+      icons: { chats: 'fa-heart', updates: 'fa-spa', plus: 'fa-pen-nib' } },
+    aurora: { premium: true, name: 'Aurora Borealis', tag: 'Northern lights, teal to violet', look: { accent: 'aurora', wall: 'aurora', font: 'dmsans', bubble: 'aurora', bubble2: 'charcoal' },
+      ink: '#04161a', ink2: '#0a2328', head: 'linear-gradient(115deg,#04161a 0%,#0f766e 45%,#7c3aed 100%)',
+      brand: { font: "'Comfortaa'", gf: 'Comfortaa:wght@700', grad: 'linear-gradient(90deg,#5eead4,#a78bfa)', glow: 'drop-shadow(0 0 8px rgba(94,234,212,.4))' },
+      icons: { chats: 'fa-star', updates: 'fa-wand-magic-sparkles', plus: 'fa-plus' } },
+    tiranga: { premium: true, name: 'Tiranga Pride', tag: 'Saffron, white & green — Made in India', look: { accent: 'saffron', wall: 'tiranga', font: 'poppins', bubble: 'saffron', bubble2: 'mint' },
+      ink: '#0a1033', ink2: '#121a45', head: 'linear-gradient(115deg,#0a1033 0%,#1e3a8a 45%,#ff9933 100%)',
+      brand: { font: "'Baloo 2'", gf: 'Baloo+2:wght@800', grad: 'linear-gradient(90deg,#ff9933 0%,#ffffff 50%,#22c55e 100%)' },
+      icons: { updates: 'fa-dharmachakra' } }
+  };
+  var DEFAULT = { accent: 'red', font: 'inter', size: 'm', wall: 'doodle', theme: 'classic', bubble: 'theme', bubble2: 'theme' };
+  function loadFont(id, spec) {
+    if (!spec || document.getElementById('font-' + id)) return;
+    var l = document.createElement('link'); l.rel = 'stylesheet'; l.id = 'font-' + id;
+    l.href = 'https://fonts.googleapis.com/css2?family=' + spec + '&display=swap';
+    document.head.appendChild(l);
+  }
+  function swapIcons(set) {
+    document.querySelectorAll('[data-ico]').forEach(function (i) { i.className = 'fas ' + (set[i.dataset.ico] || ICONS[i.dataset.ico]); });
+  }
   function get() {
     var local = {}, server = {};
     try { local = JSON.parse(localStorage.getItem('educhats-look') || '{}') || {}; } catch (e) {}
@@ -1158,15 +1329,33 @@ window.EduLook = (function () {
     root.setProperty('--accent-rgb', a[4]); root.setProperty('--accent-light', a[5]);
     root.setProperty('--wall', w[1]); root.setProperty('--wall-img', w[2](a)); root.setProperty('--wall-size', w[3]);
     root.setProperty('--font', f[1]); root.setProperty('--msg-size', z[1]);
-    document.documentElement.classList.toggle('wall-dark', look.wall === 'night');
-    if (f[2] && !document.getElementById('font-' + look.font)) {
-      var l = document.createElement('link'); l.rel = 'stylesheet'; l.id = 'font-' + look.font;
-      l.href = 'https://fonts.googleapis.com/css2?family=' + f[2] + '&display=swap';
-      document.head.appendChild(l);
-    }
+    document.documentElement.classList.toggle('wall-dark', !!DARK_WALLS[look.wall]);
+    loadFont(look.font, f[2]);
+    // message colours
+    var me = BUBBLES[look.bubble], them = BUBBLES2[look.bubble2];
+    [['--bub-me', me && me[1]], ['--bub-me-fg', me && me[2]], ['--bub-me-tick', me && me[3]], ['--bub-me-read', me && me[4]],
+     ['--bub-them', them && them[1]], ['--bub-them-fg', them && them[2]]].forEach(function (v) {
+      if (v[1]) root.setProperty(v[0], v[1]); else root.removeProperty(v[0]);
+    });
+    // theme: chat list, headers, the EduChats name, icons
+    var t = THEMES[look.theme] || THEMES.classic, br = t.brand || {};
+    root.setProperty('--ink', t.ink); root.setProperty('--ink-2', t.ink2);
+    if (t.head) root.setProperty('--head-grad', t.head); else root.removeProperty('--head-grad');
+    var html = document.documentElement;
+    html.dataset.theme = look.theme in THEMES ? look.theme : 'classic';
+    html.classList.toggle('brand-styled', !!br.grad);
+    [['--brand-font', br.font], ['--brand-grad', br.grad], ['--brand-glow', br.glow], ['--brand-size', br.size],
+     ['--brand-weight', br.weight], ['--brand-spacing', br.spacing]].forEach(function (v) {
+      if (v[1]) root.setProperty(v[0], String(v[1])); else root.removeProperty(v[0]);
+    });
+    html.classList.toggle('brand-upper', !!br.upper); html.classList.toggle('brand-italic', !!br.italic);
+    loadFont('brand-' + look.theme, br.gf);
+    if (document.body) swapIcons(t.icons || {});
+    else document.addEventListener('DOMContentLoaded', function () { swapIcons(t.icons || {}); }, { once: true });
   }
   function save(look) { try { localStorage.setItem('educhats-look', JSON.stringify(look)); } catch (e) {} }
-  return { ACCENTS: ACCENTS, FONTS: FONTS, SIZES: SIZES, WALLS: WALLS, DEFAULT: DEFAULT, get: get, apply: apply, save: save };
+  return { ACCENTS: ACCENTS, FONTS: FONTS, SIZES: SIZES, WALLS: WALLS, BUBBLES: BUBBLES, BUBBLES2: BUBBLES2, THEMES: THEMES,
+           DARK_WALLS: DARK_WALLS, DEFAULT: DEFAULT, get: get, apply: apply, save: save };
 })();
 EduLook.apply(EduLook.get());
 </script>
@@ -1209,9 +1398,9 @@ EduLook.apply(EduLook.get());
     <div class="side-title"><b>EduChats</b><small>{% if chat_user.is_guest %}Guest · log in to keep your chats{% elif chat_user.username %}@{{ chat_user.username }}{% else %}{{ chat_user.name }}{% endif %}</small></div>
     <div class="side-actions">
       {% if not chat_user.is_guest %}<button class="side-icon side-lock" id="lockNowBtn" type="button" title="Lock EduChats now" aria-label="Lock EduChats now" hidden><i class="fas fa-lock"></i></button>{% endif %}
-      <button class="side-icon side-plus" id="newChatBtn" type="button" title="New chat" aria-label="New chat"><i class="fas fa-plus"></i></button>
+      <button class="side-icon side-plus" id="newChatBtn" type="button" title="New chat" aria-label="New chat"><i class="fas fa-plus" data-ico="plus"></i></button>
       <div class="side-menu-wrap">
-        <button class="side-icon" id="sideMenuBtn" type="button" title="Menu" aria-label="Menu" aria-haspopup="true"><i class="fas fa-ellipsis-vertical"></i></button>
+        <button class="side-icon" id="sideMenuBtn" type="button" title="Menu" aria-label="Menu" aria-haspopup="true"><i class="fas fa-ellipsis-vertical" data-ico="menu"></i></button>
         <div class="side-menu" id="sideMenu" role="menu">
           {% if chat_user.is_guest %}
           <button type="button" data-proxy="openLogin" role="menuitem"><i class="fas fa-right-to-bracket"></i> Log in</button>
@@ -1223,6 +1412,7 @@ EduLook.apply(EduLook.get());
           <button type="button" id="openLock" role="menuitem"><i class="fas fa-lock" id="lockIcon"></i> <span id="lockLabel">App lock</span></button>{% endif %}
           <button type="button" id="openNotif" role="menuitem" hidden><i class="fas fa-bell" id="notifIcon"></i> <span id="notifLabel">Notifications</span></button>
           <button type="button" id="openLook" role="menuitem"><i class="fas fa-palette"></i> Customize</button>
+          <button type="button" id="openThemes" role="menuitem"><i class="fas fa-swatchbook"></i> Themes <span class="menu-new">New</span></button>
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
           <button type="button" id="openSupport" role="menuitem"><i class="fas fa-headset"></i> Support / Report us</button>
           <button type="button" id="openSettings" role="menuitem"><i class="fas fa-gear"></i> Settings</button>
@@ -1240,7 +1430,7 @@ EduLook.apply(EduLook.get());
       <button class="side-icon side-x" id="sideClose" type="button" aria-label="Close"><i class="fas fa-xmark"></i></button>
     </div>
   </div>
-  <label class="side-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="sideSearch" placeholder="Search chats" autocomplete="off"></label>
+  <label class="side-search"><i class="fas fa-magnifying-glass" data-ico="search"></i><input type="search" id="sideSearch" placeholder="Search chats" autocomplete="off"></label>
   <div class="side-chips" role="tablist">
     <button type="button" class="chip active" data-filter="all" role="tab">All</button>
     <button type="button" class="chip" data-filter="unread" role="tab">Unread <span class="chip-n" id="chipUnread" hidden>0</span></button>
@@ -1298,9 +1488,9 @@ EduLook.apply(EduLook.get());
     <p class="pane-empty" id="callsEmpty" hidden><i class="fas fa-phone"></i>No calls yet. Tap <i class="fas fa-phone" style="display:inline;font-size:.8rem;margin:0;color:inherit"></i> in a chat to call.</p>
   </div>
   <nav class="side-tabs" id="sideTabs" role="tablist" aria-label="EduChats">
-    <button type="button" class="side-tab on" data-tab="chats" role="tab" aria-selected="true"><span class="tab-ic"><i class="fas fa-message"></i><b class="tab-badge" id="tabChatsN" hidden></b></span>Chats</button>
-    <button type="button" class="side-tab" data-tab="updates" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-circle-notch"></i><b class="tab-dot" id="tabUpdDot" hidden></b></span>Updates</button>
-    <button type="button" class="side-tab" data-tab="calls" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-phone"></i><b class="tab-badge" id="tabCallsN" hidden></b></span>Calls</button>
+    <button type="button" class="side-tab on" data-tab="chats" role="tab" aria-selected="true"><span class="tab-ic"><i class="fas fa-message" data-ico="chats"></i><b class="tab-badge" id="tabChatsN" hidden></b></span>Chats</button>
+    <button type="button" class="side-tab" data-tab="updates" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-circle-notch" data-ico="updates"></i><b class="tab-dot" id="tabUpdDot" hidden></b></span>Updates</button>
+    <button type="button" class="side-tab" data-tab="calls" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-phone" data-ico="calls"></i><b class="tab-badge" id="tabCallsN" hidden></b></span>Calls</button>
   </nav>
   <div class="new-panel" id="newPanel" aria-hidden="true">
     <div class="new-head"><button class="side-icon" id="newBack" type="button" aria-label="Back"><i class="fas fa-arrow-left"></i></button><b>New chat</b></div>
@@ -1884,13 +2074,27 @@ EduLook.apply(EduLook.get());
   <div class="sheet-card look-card">
     <h3><i class="fas fa-palette" style="color:var(--accent)"></i> Customize</h3>
     <p>Pick your colours, font and chat wallpaper. {% if chat_user.is_guest %}Saved on this device.{% else %}Saved to your account, so it follows you to other devices.{% endif %}</p>
+    <button type="button" class="look-themes-link" id="lookToThemes"><i class="fas fa-swatchbook"></i><span><b>Browse themes</b><small>10 ready-made looks — colours, icons and more</small></span><i class="fas fa-chevron-right"></i></button>
     <div class="look-sec"><b>Theme colour</b><div class="look-colors" id="lookColors"></div></div>
     <div class="look-sec"><b>Font</b><div class="look-fonts" id="lookFonts"></div></div>
+    <div class="look-sec"><b>Your messages</b><div class="look-bubbles" id="lookBubbles"></div></div>
+    <div class="look-sec"><b>Their messages</b><div class="look-bubbles" id="lookBubbles2"></div></div>
     <div class="look-sec"><b>Message text size</b><div class="look-seg" id="lookSizes"></div></div>
     <div class="look-sec"><b>Chat wallpaper</b><div class="look-walls" id="lookWalls"></div>
       <label class="look-upload"><i class="fas fa-image"></i> Use my own photo<input type="file" id="lookWallFile" accept="image/*" hidden></label></div>
     <div class="look-sec"><b>Preview</b><div class="look-preview"><div class="msg admin">Hi! How can we help? 👋<time>10:30 AM</time></div><div class="msg user" style="align-self:flex-end">Loving the new look!<time>10:31 AM</time></div></div></div>
     <div class="look-actions"><button type="button" class="sheet-opt" id="lookReset"><i class="fas fa-rotate-left"></i> Reset</button><button type="button" class="pf-save" data-close>Done</button></div>
+  </div>
+</div>
+<div class="sheet pf-sheet" id="themesSheet">
+  <div class="sheet-card themes-card">
+    <h3><i class="fas fa-swatchbook" style="color:var(--accent)"></i> Themes</h3>
+    <p>Change the whole look of {{ app.app_name|default:"EduChats" }} in one tap — colours, wallpaper, message bubbles, icons and the app name style. {% if chat_user.is_guest %}Saved on this device.{% else %}Saved to your account.{% endif %}</p>
+    <div class="th-sec"><b>Free themes</b></div>
+    <div class="th-grid" id="themesFree"></div>
+    <div class="th-sec"><b><i class="fas fa-crown"></i> Premium themes</b><small>Free for everyone right now</small></div>
+    <div class="th-grid" id="themesPremium"></div>
+    <div class="look-actions"><button type="button" class="sheet-opt" id="themesCustomize"><i class="fas fa-palette"></i> Fine-tune in Customize</button><button type="button" class="pf-save" data-close>Done</button></div>
   </div>
 </div>
 <div class="sheet pf-sheet" id="installSheet">
@@ -2509,6 +2713,15 @@ EduLook.apply(EduLook.get());
       chip(fonts, 'look-chip', 'font', k, f[0], function (b) { b.textContent = f[0]; b.style.fontFamily = f[1]; });
     });
     Object.keys(EduLook.SIZES).forEach(function (k) { chip(sizes, 'look-chip', 'size', k, EduLook.SIZES[k][0]); });
+    var bubbles = document.getElementById('lookBubbles'), bubbles2 = document.getElementById('lookBubbles2');
+    Object.keys(EduLook.BUBBLES).forEach(function (k) {
+      var bb = EduLook.BUBBLES[k];
+      chip(bubbles, 'look-bubble', 'bubble', k, bb[0], function (b) { b.textContent = 'Aa'; b.setAttribute('aria-label', bb[0]); if (bb[1]) { b.style.background = bb[1]; b.style.color = bb[2]; } });
+    });
+    Object.keys(EduLook.BUBBLES2).forEach(function (k) {
+      var bb = EduLook.BUBBLES2[k];
+      chip(bubbles2, 'look-bubble', 'bubble2', k, bb[0], function (b) { b.textContent = 'Aa'; b.setAttribute('aria-label', bb[0]); b.style.background = bb[1] || '#fff'; b.style.color = bb[2] || '#111827'; });
+    });
     function wallTile(k) {
       var w = EduLook.WALLS[k];
       chip(walls, 'look-wall', 'wall', k, w[0], function (b) {
@@ -2521,7 +2734,9 @@ EduLook.apply(EduLook.get());
     });
     function paint() {
       var a = EduLook.ACCENTS[look.accent] || EduLook.ACCENTS.red;
-      [[colors, 'accent'], [fonts, 'font'], [sizes, 'size'], [walls, 'wall']].forEach(function (pair) {
+      bubbles.querySelector('[data-value="theme"]').style.background = 'linear-gradient(135deg,' + a[1] + ',' + a[2] + ')';
+      bubbles.querySelector('[data-value="theme"]').style.color = '#fff';
+      [[colors, 'accent'], [fonts, 'font'], [sizes, 'size'], [walls, 'wall'], [bubbles, 'bubble'], [bubbles2, 'bubble2']].forEach(function (pair) {
         pair[0].querySelectorAll('[data-value]').forEach(function (b) { b.classList.toggle('on', b.dataset.value === look[pair[1]]); });
       });
       walls.querySelectorAll('.look-wall').forEach(function (b) {
@@ -2548,7 +2763,59 @@ EduLook.apply(EduLook.get());
       this.value = '';
     });
     document.getElementById('lookReset').addEventListener('click', function () {
-      look = { accent: 'red', font: 'inter', size: 'm', wall: 'doodle' }; commit();
+      look = { accent: 'red', font: 'inter', size: 'm', wall: 'doodle', theme: 'classic', bubble: 'theme', bubble2: 'theme' }; commit(); paintThemes();
+    });
+
+    // ── Themes: one tap changes the whole look ──
+    var themeCards = {};
+    function themeCard(k) {
+      var t = EduLook.THEMES[k], a = EduLook.ACCENTS[t.look.accent], w = EduLook.WALLS[t.look.wall];
+      var me = EduLook.BUBBLES[t.look.bubble], them = EduLook.BUBBLES2[t.look.bubble2], br = t.brand || {};
+      var icons = Object.assign({ chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone' }, t.icons || {});
+      var c = document.createElement('button'); c.type = 'button'; c.className = 'th-card'; c.dataset.theme = k;
+      c.innerHTML = '<span class="' + (t.premium ? 'th-crown"><i class="fas fa-crown"></i> Premium' : 'th-free">Free') + '</span>' +
+        '<span class="th-prev"><span class="th-side"><span class="th-brand">EduChats</span><span class="th-row on"></span><span class="th-row"></span><span class="th-row"></span>' +
+        '<span class="th-icons"><i class="fas ' + icons.chats + '"></i><i class="fas ' + icons.updates + '"></i><i class="fas ' + icons.calls + '"></i></span></span>' +
+        '<span class="th-main"><span class="th-head"></span><span class="th-wall"><span class="th-b1"></span><span class="th-b2"></span></span></span></span>' +
+        '<span class="th-name"><b></b><small></small></span>';
+      c.querySelector('.th-name b').textContent = t.name;
+      c.querySelector('.th-name small').textContent = t.tag;
+      c.querySelector('.th-side').style.background = t.ink;
+      c.querySelector('.th-icons').style.color = a[5];
+      var brand = c.querySelector('.th-brand');
+      brand.style.fontFamily = br.font || 'Inter'; brand.style.fontWeight = br.weight || 800;
+      brand.style.backgroundImage = br.grad || 'linear-gradient(#fff,#fff)';
+      if (br.upper) { brand.style.textTransform = 'uppercase'; brand.style.fontSize = '.66rem'; }
+      if (br.italic) brand.style.fontStyle = 'italic';
+      if (br.gf) { var fl = document.getElementById('font-brand-' + k); if (!fl) { fl = document.createElement('link'); fl.rel = 'stylesheet'; fl.id = 'font-brand-' + k; fl.href = 'https://fonts.googleapis.com/css2?family=' + br.gf + '&display=swap'; document.head.appendChild(fl); } }
+      c.querySelector('.th-head').style.background = (t.head || 'linear-gradient(115deg,var(--ink) 0%,#1d2130 34%,' + a[3] + ' 72%,' + a[1] + ' 100%)').replace(/var\(--accent\)/g, a[1]).replace(/var\(--ink\)/g, t.ink);
+      var wall = c.querySelector('.th-wall');
+      wall.style.backgroundColor = w[1]; wall.style.backgroundImage = w[2](a);
+      c.querySelector('.th-b1').style.background = (them && them[1]) || (EduLook.DARK_WALLS[t.look.wall] ? '#1f2937' : '#fff');
+      c.querySelector('.th-b2').style.background = (me && me[1]) || 'linear-gradient(135deg,' + a[1] + ',' + a[2] + ')';
+      c.addEventListener('click', function () {
+        look = Object.assign({}, look, t.look, { theme: k }); commit(); paintThemes();
+      });
+      themeCards[k] = c;
+      return c;
+    }
+    function paintThemes() { Object.keys(themeCards).forEach(function (k) { themeCards[k].classList.toggle('on', k === look.theme); }); }
+    function buildThemes() {
+      if (Object.keys(themeCards).length) return;
+      Object.keys(EduLook.THEMES).forEach(function (k) {
+        document.getElementById(EduLook.THEMES[k].premium ? 'themesPremium' : 'themesFree').appendChild(themeCard(k));
+      });
+    }
+    function openThemes() {
+      document.getElementById('sideMenu').classList.remove('open');
+      buildThemes(); paintThemes();
+      document.getElementById('themesSheet').classList.add('open');
+    }
+    document.getElementById('openThemes').addEventListener('click', openThemes);
+    document.getElementById('lookToThemes').addEventListener('click', function () { document.getElementById('lookSheet').classList.remove('open'); openThemes(); });
+    document.getElementById('themesCustomize').addEventListener('click', function () {
+      document.getElementById('themesSheet').classList.remove('open');
+      paint(); document.getElementById('lookSheet').classList.add('open');
     });
     document.getElementById('openLook').addEventListener('click', function () {
       document.getElementById('sideMenu').classList.remove('open');
