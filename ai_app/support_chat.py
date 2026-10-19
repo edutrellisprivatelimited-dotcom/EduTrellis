@@ -638,6 +638,13 @@ def chats_page(request):
         'support_waiting': (ChatMessage.objects.filter(sender=ChatMessage.SENDER_USER, read_by_admin=False)
                             .exclude(user=user).values('user').distinct().count() if is_staff else 0),
         'ai_model_name': _ai_model_name(),
+        # ⋮ → Admin panel: the site superuser only — logged in to the dashboard in this
+        # browser, or using their own linked EduChats account.
+        'is_superuser_viewer': bool((request.user.is_authenticated and request.user.is_active and request.user.is_superuser)
+                                    or (user and user.django_user_id and user.django_user.is_active and user.django_user.is_superuser)),
+        # dashboard login without the matching EduChats account: offer to switch to it
+        'can_admin_login': bool(request.user.is_authenticated and request.user.is_active and request.user.is_superuser
+                                and not (user and user.django_user_id == request.user.pk)),
         'app_lock': json.dumps(lock_status(request, user) if user and not user.is_guest else {'enabled': False}),
         'support_name_json': json.dumps(support.display_name).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026'),
         'locations': INDIA_LOCATIONS,

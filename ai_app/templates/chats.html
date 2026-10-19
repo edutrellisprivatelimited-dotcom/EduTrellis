@@ -963,6 +963,9 @@ EduLook.apply(EduLook.get());
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
           <button type="button" id="openInstall" role="menuitem" hidden><i class="fas fa-download" id="installIcon"></i> <span id="installLabel">Install app</span></button>
           <a href="{% url 'ai_home' %}" target="_blank" rel="noopener" role="menuitem"><i class="fas fa-wand-magic-sparkles"></i> Explore EduTrellis AI <i class="fas fa-arrow-up-right-from-square ext"></i></a>
+          {% if is_superuser_viewer %}<hr>
+          <a href="{% url 'dashboard_home' %}" target="_blank" rel="noopener" role="menuitem" class="admin-item"><i class="fas fa-user-shield"></i> Admin panel <i class="fas fa-arrow-up-right-from-square ext"></i></a>
+          {% if can_admin_login %}<a href="{% url 'chats_admin_login' %}" role="menuitem" class="admin-item"><i class="fas fa-right-to-bracket"></i> Use EduChats as admin</a>{% endif %}{% endif %}
           <hr>
           <button type="button" id="markAllRead" role="menuitem"><i class="fas fa-check-double"></i> Mark all as read</button>
           {% if not chat_user.is_guest %}<button type="button" data-proxy="logoutBtn" class="danger" role="menuitem"><i class="fas fa-right-from-bracket"></i> Log out</button>{% endif %}
