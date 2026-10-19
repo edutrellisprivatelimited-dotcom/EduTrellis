@@ -1561,5 +1561,5 @@
   }
 
   var api = window.SupportChat = { canSave: false, renderBody: renderBody, updateLocations: updateLocations, Calls: Calls, emojiPicker: emojiPicker,
-    voiceRecorder: voiceRecorder, fmtTime: fmtTime, openMap: openMap, pickerMap: pickerMap, csrf: null };
+    voiceRecorder: voiceRecorder, fmtTime: fmtTime, openMap: openMap, pickerMap: pickerMap, loadLeaflet: loadLeaflet, csrf: null };
 })();

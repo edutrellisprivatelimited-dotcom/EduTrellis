@@ -9,6 +9,7 @@ from functools import wraps
 
 import requests
 
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
@@ -1796,6 +1797,7 @@ def dashboard_payments(request):
     })
 
 
+@xframe_options_sameorigin   # EduChats ⋮ → Backup shows this page in a pop-up
 @dashboard_staff_required
 def dashboard_backup(request):
     settings_obj = DropboxSettings.get_solo()
@@ -1814,6 +1816,7 @@ def dashboard_backup(request):
     })
 
 
+@xframe_options_sameorigin   # EduChats ⋮ → Backup shows this page in a pop-up
 @dashboard_staff_required
 def dashboard_backup_settings(request):
     settings_obj = DropboxSettings.get_solo()

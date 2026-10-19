@@ -26,7 +26,7 @@ from django.views.decorators.http import require_POST
 
 from .india_locations import INDIA_LOCATIONS
 from .educhats_social import save_socials, socials_json
-from .models import ChatMessage, ChatPasswordReset, ChatUser, SupportProfile
+from .models import ChatMessage, ChatPasswordReset, ChatUser, MapSpot, SupportProfile
 
 SESSION_KEY = 'support_chat_user_id'
 MIN_PASSWORD = 8
@@ -111,6 +111,13 @@ def _cookie_guest(request):
     except (KeyError, ValueError, TypeError, Exception):
         return None
     return ChatUser.objects.filter(pk=guest_id, is_guest=True, is_active=True).first()
+
+
+def is_superuser_viewer(request, user):
+    """The site superuser: logged in to the dashboard in this browser, or using
+    their own linked EduChats account."""
+    return bool((request.user.is_authenticated and request.user.is_active and request.user.is_superuser)
+                or (user and user.django_user_id and user.django_user.is_active and user.django_user.is_superuser))
 
 
 def current_user(request, allow_locked=False):
@@ -704,8 +711,10 @@ def chats_page(request):
         'ai_model_name': _ai_model_name(),
         # ⋮ → Admin panel: the site superuser only — logged in to the dashboard in this
         # browser, or using their own linked EduChats account.
-        'is_superuser_viewer': bool((request.user.is_authenticated and request.user.is_active and request.user.is_superuser)
-                                    or (user and user.django_user_id and user.django_user.is_active and user.django_user.is_superuser)),
+        'is_superuser_viewer': is_superuser_viewer(request, user),
+        'dashboard_logged_in': bool(request.user.is_authenticated and request.user.is_active and request.user.is_staff),
+        'maps_config': {'api': reverse('chats_map'), 'me': reverse('chats_map_me'), 'demo': reverse('chats_map_demo'),
+                        'guest': bool(user and user.is_guest)},
         # dashboard login without the matching EduChats account: offer to switch to it
         'can_admin_login': bool(request.user.is_authenticated and request.user.is_active and request.user.is_superuser
                                 and not (user and user.django_user_id == request.user.pk)),
@@ -1331,7 +1340,8 @@ def user_photo(request, pk):
     if not (staff or (me and me.pk == owner.pk)):
         from .call_rooms import share_call
         from .direct_chat import shares_thread
-        if not (me and not me.is_guest and (shares_thread(me, owner) or share_call(me.pk, owner.pk))):
+        on_map = MapSpot.objects.filter(user=owner, visible=True, show_photo=True).exists()   # chose to show it on Maps
+        if not (me and (on_map or (not me.is_guest and (shares_thread(me, owner) or share_call(me.pk, owner.pk))))):
             raise Http404
     try:
         handle = owner.photo.open('rb')

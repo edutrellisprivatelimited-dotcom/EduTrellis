@@ -1011,6 +1011,10 @@ class ChatUser(models.Model):
     # ⋮ → Customize: accent colour, font, text size and wallpaper (preset keys),
     # so the look follows the account to other devices.
     appearance = models.JSONField(default=dict, blank=True)
+    # Sample accounts that fill the Maps tab until real people join (exampleN@gmail.com).
+    # Turned off, so they never log in or show up in search; delete them with
+    # `python manage.py educhats_demo_users --delete` or from the Maps tab.
+    is_demo = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -1018,6 +1022,31 @@ class ChatUser(models.Model):
 
     def __str__(self):
         return f'{self.name} <{self.email}>'
+
+
+class MapSpot(models.Model):
+    """EduChats → Maps: where someone shows up on the India map and what others
+    may see about them. The spot is rounded to about 1 km when it is saved."""
+    user = models.OneToOneField(ChatUser, on_delete=models.CASCADE, related_name='map_spot')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    city = models.CharField(max_length=80, blank=True)
+    state = models.CharField(max_length=60, blank=True)
+    visible = models.BooleanField(default=True)
+    show_name = models.BooleanField(default=False)
+    show_username = models.BooleanField(default=False)
+    show_email = models.BooleanField(default=False)
+    show_city = models.BooleanField(default=True)
+    show_photo = models.BooleanField(default=False)
+    show_bio = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['pk']
+        verbose_name = 'Map spot'
+
+    def __str__(self):
+        return f'User {self.pk} · {self.city or self.state}'
 
 
 class ChatPasswordReset(models.Model):

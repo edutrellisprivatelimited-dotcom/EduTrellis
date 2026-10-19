@@ -196,6 +196,9 @@ tbody tr:hover{background:var(--bg-alt)}
 .dash-nav-sub .nav-count{margin-left:auto;font-size:.68rem;font-weight:800;min-width:20px;height:18px;padding:0 .4rem;display:inline-grid;place-items:center;border-radius:50px;background:rgba(232,0,30,.12);color:var(--red)}
 </style>
 {% block extra_head %}{% endblock %}
+<!-- shown inside EduChats (⋮ → Backup): just the page, no admin menus -->
+<script>if (window.self !== window.top) document.documentElement.classList.add('dash-embed');</script>
+<style>.dash-embed .dash-sidebar,.dash-embed .dash-scrim,.dash-embed .dash-topbar{display:none !important}.dash-embed .dash-body{padding:1rem}.dash-embed body{background:#fff}</style>
 <!-- no blue flash when tapping buttons on phones -->
 <style>*{-webkit-tap-highlight-color:transparent}:focus:not(:focus-visible){outline:none}</style>
 </head>

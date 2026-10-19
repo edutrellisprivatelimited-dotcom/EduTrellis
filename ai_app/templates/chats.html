@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Poppins:wght@800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-{% load static asset_version %}<link rel="stylesheet" href="{% versioned_static 'chat/support_chat.css' %}">
+{% load static asset_version %}<link rel="stylesheet" href="{% versioned_static 'chat/support_chat.css' %}"><link rel="stylesheet" href="{% versioned_static 'chat/educhats_map.css' %}">
 <style>
 :root{--bg:#f4f7f6;--card:#fff;--head:#111827;--text:#4b5563;--line:#e5e7eb;--accent:#e8001e;--accent-dark:#b8001a;--accent-deep:#8f0014;--accent-rgb:232,0,30;--accent-light:#ff4d63;--bubble:rgba(var(--accent-rgb),.08);--ink:#0f1623;--ink-2:#171f2e;--side-w:380px;--danger:#dc2626;--wall:#f6f6f8;--wall-glow:rgba(var(--accent-rgb),.13)}
 :root{color-scheme:light}
@@ -1377,7 +1377,7 @@ window.EduLook = (function () {
   };
   // ⋮ → Themes: each one sets the colours, wallpaper, font and message colours, and gives the
   // chat list, headers, the EduChats name and the main icons their own look.
-  var ICONS = { chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone', plus: 'fa-plus', menu: 'fa-ellipsis-vertical', search: 'fa-magnifying-glass' };
+  var ICONS = { chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone', maps: 'fa-map-location-dot', plus: 'fa-plus', menu: 'fa-ellipsis-vertical', search: 'fa-magnifying-glass' };
   var THEMES = {
     classic: { name: 'EduTrellis Classic', tag: 'The original red & midnight', fx: 'glow', fxName: 'Soft red glow',
       look: { accent: 'red', wall: 'doodle', font: 'inter', bubble: 'theme', bubble2: 'theme' },
@@ -1563,12 +1563,14 @@ EduLook.apply(EduLook.get());
           <button type="button" id="openThemes" role="menuitem"><i class="fas fa-swatchbook"></i> Themes <span class="menu-new">Free</span></button>
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
           <button type="button" id="openSupport" role="menuitem"><i class="fas fa-headset"></i> Support / Report us</button>
+          <button type="button" id="openLegal" role="menuitem"><i class="fas fa-scale-balanced"></i> Data privacy</button>
           <button type="button" id="openSettings" role="menuitem"><i class="fas fa-gear"></i> Settings</button>
           <button type="button" id="openAiFeatures" role="menuitem"><i class="fas fa-wand-magic-sparkles"></i> More AI features</button>
           <button type="button" id="openInstall" role="menuitem" hidden><i class="fas fa-download" id="installIcon"></i> <span id="installLabel">Install app</span></button>
           <a href="{% url 'ai_home' %}" target="_blank" rel="noopener" role="menuitem"><i class="fas fa-wand-magic-sparkles"></i> Explore EduTrellis AI <i class="fas fa-arrow-up-right-from-square ext"></i></a>
           {% if is_superuser_viewer %}<hr>
           <a href="{% url 'dashboard_home' %}" target="_blank" rel="noopener" role="menuitem" class="admin-item"><i class="fas fa-user-shield"></i> Admin panel <i class="fas fa-arrow-up-right-from-square ext"></i></a>
+          <button type="button" id="openBackup" role="menuitem" class="admin-item"><i class="fas fa-database"></i> Backup</button>
           {% if can_admin_login %}<a href="{% url 'chats_admin_login' %}" role="menuitem" class="admin-item"><i class="fas fa-right-to-bracket"></i> Use EduChats as admin</a>{% endif %}{% endif %}
           <hr>
           <button type="button" id="markAllRead" role="menuitem"><i class="fas fa-check-double"></i> Mark all as read</button>
@@ -1639,6 +1641,7 @@ EduLook.apply(EduLook.get());
     <button type="button" class="side-tab on" data-tab="chats" role="tab" aria-selected="true"><span class="tab-ic"><i class="fas fa-message" data-ico="chats"></i><b class="tab-badge" id="tabChatsN" hidden></b></span>Chats</button>
     <button type="button" class="side-tab" data-tab="updates" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-circle-notch" data-ico="updates"></i><b class="tab-dot" id="tabUpdDot" hidden></b></span>Updates</button>
     <button type="button" class="side-tab" data-tab="calls" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-phone" data-ico="calls"></i><b class="tab-badge" id="tabCallsN" hidden></b></span>Calls</button>
+    <button type="button" class="side-tab" data-tab="maps" id="mapsTab" aria-haspopup="dialog"><span class="tab-ic"><i class="fas fa-map-location-dot" data-ico="maps"></i></span>Maps</button>
   </nav>
   <div class="new-panel" id="newPanel" aria-hidden="true">
     <div class="new-head"><button class="side-icon" id="newBack" type="button" aria-label="Back"><i class="fas fa-arrow-left"></i></button><b>New chat</b></div>
@@ -2247,6 +2250,64 @@ EduLook.apply(EduLook.get());
     <div class="look-actions"><button type="button" class="sheet-opt" id="themesCustomize"><i class="fas fa-palette"></i> Fine-tune in Customize</button><button type="button" class="pf-save" data-close>Done</button></div>
   </div>
 </div>
+{% with sup_mail=support_contact.email sup_phone=support_contact.phone %}
+<div class="sheet pf-sheet" id="legalSheet">
+  <div class="sheet-card legal-card">
+    <div class="lg-hero">
+      <span class="lg-flag" aria-hidden="true"><i></i><i><b class="fas fa-dharmachakra"></b></i><i></i></span>
+      <div><h3>Data privacy</h3><small>Made in India · for Indian users</small></div>
+    </div>
+    <div class="lg-badges"><span><i class="fas fa-location-dot"></i> Built in India</span><span><i class="fas fa-building"></i> Indian-owned</span><span><i class="fas fa-lock"></i> Encrypted in transit</span><span><i class="fas fa-ban"></i> We never sell your data</span></div>
+    <section class="lg-sec"><h4><i class="fas fa-flag"></i> Made in India, for India</h4>
+      <p>{{ app.app_name|default:"EduChats" }} is designed, built and run in India for Indian users. It is created, maintained and owned by <b>EduTrellis Private Limited</b>, an Indian company, and works under Indian law.</p></section>
+    <section class="lg-sec"><h4><i class="fas fa-shield-halved"></i> Your data is safe with us</h4>
+      <p>Your messages, photos and account details travel over secure HTTPS connections, only you and the people you chat with can open your chats, and the system is backed up regularly. We never sell your personal data or share it with advertisers.</p></section>
+    <section class="lg-sec"><h4><i class="fas fa-list-check"></i> What we keep</h4>
+      <ul><li>The account details you give us: name, email, phone, state and city.</li>
+        <li>What you send: messages, photos, videos, files and locations you choose to share.</li>
+        <li>Basic technical details (IP address, device, last seen) to keep accounts safe and stop misuse.</li></ul></section>
+    <section class="lg-sec"><h4><i class="fas fa-user-check"></i> Your choices and rights</h4>
+      <p>Under India's Digital Personal Data Protection Act, 2023 you can ask us to show, correct or erase your personal data, withdraw your consent, and raise a complaint. Use ⋮ → Privacy to control what others see about you, and Maps to choose what shows on the map.</p></section>
+    <section class="lg-sec"><h4><i class="fas fa-headset"></i> Complaints and grievances</h4>
+      <p>For any complaint about your data, a chat or another user, contact our grievance team. We aim to reply within 24 hours and settle complaints within 15 days.</p>
+      <div class="sup-rows">
+        {% if sup_mail %}<a class="sup-row" href="mailto:{{ sup_mail }}?subject={{ 'Data privacy complaint – EduChats'|urlencode }}"><span class="pv-ic"><i class="fas fa-envelope"></i></span><span class="sup-txt"><small>Email</small><b>{{ sup_mail }}</b></span><i class="fas fa-chevron-right"></i></a>{% endif %}
+        {% if sup_phone %}<a class="sup-row" href="tel:{{ support_contact.tel }}"><span class="pv-ic"><i class="fas fa-phone"></i></span><span class="sup-txt"><small>Phone</small><b>{{ sup_phone }}</b></span><i class="fas fa-chevron-right"></i></a>{% endif %}
+      </div></section>
+    <div class="lg-links"><a href="{% url 'policy_page' 'privacy' %}" target="_blank" rel="noopener"><i class="fas fa-file-shield"></i> Full privacy policy</a><a href="{% url 'policy_page' 'terms' %}" target="_blank" rel="noopener"><i class="fas fa-file-contract"></i> Terms &amp; conditions</a></div>
+    <p class="lg-foot">© EduTrellis Private Limited · India</p>
+  </div>
+</div>
+{% endwith %}
+<div class="sheet pf-sheet" id="mapMeSheet">
+  <div class="sheet-card">
+    <h3><i class="fas fa-map-pin" style="color:var(--accent)"></i> You on the map</h3>
+    <p class="pv-intro">Show up on the EduChats map of India. Your spot is rounded to about 1 km, so nobody sees your exact home.</p>
+    <button type="button" class="mm-loc" id="mmLocate"><span class="pv-ic"><i class="fas fa-location-crosshairs"></i></span><span class="pv-txt"><b id="mmLocTitle">Use my current location</b><small id="mmLocSub">Allow location when your browser asks</small></span><i class="fas fa-chevron-right"></i></button>
+    <div class="mm-sec">What others can see</div>
+    <div class="set-list">
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-eye"></i></span><span class="pv-txt"><b>Show me on the map</b><small>Turn off to hide your pin for now</small></span><span class="switch"><input type="checkbox" data-mm="visible" checked><span></span></span></label>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-id-card"></i></span><span class="pv-txt"><b>My name</b><small>{{ chat_user.name }}</small></span><span class="switch"><input type="checkbox" data-mm="show_name"><span></span></span></label>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-at"></i></span><span class="pv-txt"><b>My username</b><small>{% if chat_user.username %}@{{ chat_user.username }}{% else %}You haven't picked one yet{% endif %}</small></span><span class="switch"><input type="checkbox" data-mm="show_username"><span></span></span></label>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-envelope"></i></span><span class="pv-txt"><b>My email</b><small>{{ chat_user.email }}</small></span><span class="switch"><input type="checkbox" data-mm="show_email"><span></span></span></label>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-city"></i></span><span class="pv-txt"><b>My city &amp; state</b><small>{{ chat_user.city }}{% if chat_user.state %}, {{ chat_user.state }}{% endif %}</small></span><span class="switch"><input type="checkbox" data-mm="show_city" checked><span></span></span></label>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-image"></i></span><span class="pv-txt"><b>My profile photo</b><small>Anyone on EduChats can see it on the map</small></span><span class="switch"><input type="checkbox" data-mm="show_photo"><span></span></span></label>
+      <label class="pv-row"><span class="pv-ic"><i class="fas fa-quote-left"></i></span><span class="pv-txt"><b>My bio</b><small>{{ chat_user.bio|default:"Your short about line" }}</small></span><span class="switch"><input type="checkbox" data-mm="show_bio"><span></span></span></label>
+    </div>
+    <p class="mm-err" id="mmErr" hidden></p>
+    <div class="look-actions"><button type="button" class="sheet-opt" id="mmRemove" hidden><i class="fas fa-trash"></i> Remove me</button><button type="button" class="pf-save" id="mmSave">Save</button></div>
+  </div>
+</div>
+{% if is_superuser_viewer %}
+<div class="sheet pf-sheet" id="backupSheet">
+  <div class="sheet-card backup-pop">
+    <div class="bk-head"><span class="bk-ic"><i class="fas fa-database"></i></span><div><h3>Backup &amp; restore</h3><small>Same page as Admin panel → Backup</small></div>
+      <a class="bk-open" href="{% url 'dashboard_backup' %}" target="_blank" rel="noopener" title="Open the full page"><i class="fas fa-arrow-up-right-from-square"></i></a></div>
+    {% if dashboard_logged_in %}<iframe class="bk-frame" id="backupFrame" title="Backup and restore" data-src="{% url 'dashboard_backup' %}"></iframe>
+    {% else %}<div class="bk-login"><i class="fas fa-user-lock"></i><b>Log in to the admin panel first</b><p>Backups are managed from the EduTrellis admin panel. Log in there in this browser, then open Backup again.</p><a class="pf-save" href="{% url 'dashboard_home' %}" target="_blank" rel="noopener">Open admin panel</a></div>{% endif %}
+  </div>
+</div>
+{% endif %}
 <div class="sheet pf-sheet" id="installSheet">
   <div class="sheet-card">
     <div class="inst-head"><img src="{{ app.icon_192 }}" alt="{{ app.app_name }} app icon"><div><h3 id="instTitle">Install {{ app.app_name }}</h3><p>{{ app.description|default:"Opens full-screen from your home screen, just like an app." }}</p></div></div>
@@ -2365,7 +2426,26 @@ EduLook.apply(EduLook.get());
 {% if chat_user and not chat_user.is_guest %}{{ me_card|json_script:"me-card" }}{% endif %}
 {{ support_socials|json_script:"support-socials" }}
 
-{% if chat_user %}<script src="{% versioned_static 'chat/support_chat.js' %}"></script>{% endif %}
+<div class="maps-view" id="mapsView" role="dialog" aria-modal="true" aria-label="EduChats map" hidden>
+  <div class="mp-map" id="mpMap"></div>
+  <div class="mp-top">
+    <button type="button" class="mp-btn" id="mpBack" aria-label="Close map"><i class="fas fa-arrow-left"></i></button>
+    <div class="mp-title"><b>EduChats Map</b><small>People across India</small></div>
+    <div class="mp-seg" role="group" aria-label="Map style">
+      <button type="button" data-style="dark" title="Dark"><i class="fas fa-moon"></i></button><button type="button" data-style="light" title="Light"><i class="fas fa-sun"></i></button><button type="button" data-style="sat" title="Satellite"><i class="fas fa-earth-asia"></i></button>
+    </div>
+  </div>
+  <div class="mp-card" id="mpCard">
+    <div class="mp-stats"><div><b id="mpTotal">0</b><small>people</small></div><div><b id="mpStates">0</b><small>states</small></div><div><b id="mpCities">0</b><small>cities</small></div></div>
+    <div class="mp-legend" id="mpLegend"></div>
+    <div class="mp-demo" id="mpDemo" hidden><span><i class="fas fa-flask"></i> <b id="mpDemoN">0</b> demo users</span><button type="button" id="mpDemoDel">Remove demo users</button></div>
+  </div>
+  <div class="mp-load" id="mpLoad"><span></span>Loading the map…</div>
+  <button type="button" class="mp-btn mp-locate" id="mpLocate" aria-label="Show where I am"><i class="fas fa-location-crosshairs"></i></button>
+  <button type="button" class="mp-join" id="mpJoin"><i class="fas fa-map-pin"></i> <span id="mpJoinLabel">Add me to the map</span></button>
+</div>
+{{ maps_config|json_script:"maps-config" }}
+{% if chat_user %}<script src="{% versioned_static 'chat/support_chat.js' %}"></script><script src="{% versioned_static 'chat/educhats_map.js' %}" defer></script>{% endif %}
 <script>
 (function () {
   var csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -4153,6 +4233,17 @@ EduLook.apply(EduLook.get());
     renderUnread = function () { renderUnreadBase(); apply(); };
 
     // Support / Report us: the team's email and phone; "Chat now" puts the Support chat in the list and opens it
+    document.getElementById('openLegal').addEventListener('click', function () {
+      sideMenu.classList.remove('open');
+      document.getElementById('legalSheet').classList.add('open');
+    });
+    var openBackup = document.getElementById('openBackup');
+    if (openBackup) openBackup.addEventListener('click', function () {
+      sideMenu.classList.remove('open');
+      var f = document.getElementById('backupFrame');
+      if (f && !f.getAttribute('src')) f.src = f.dataset.src;   // load the page only when asked
+      document.getElementById('backupSheet').classList.add('open');
+    });
     document.getElementById('openSupport').addEventListener('click', function () {
       sideMenu.classList.remove('open');
       document.getElementById('supportSheet').classList.add('open');
@@ -5983,12 +6074,17 @@ EduLook.apply(EduLook.get());
       side.classList.toggle('tab-updates', name === 'updates');
       side.classList.toggle('tab-calls', name === 'calls');
       updPane.hidden = name !== 'updates'; callsPane.hidden = name !== 'calls';
-      tabs.forEach(function (t) { var on = t.dataset.tab === name; t.classList.toggle('on', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      tabs.forEach(function (t) { if (t.dataset.tab === 'maps') return; var on = t.dataset.tab === name; t.classList.toggle('on', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
       if (name === 'updates') loadStories();
       if (name === 'calls') loadCalls(true);
       try { sessionStorage.setItem('educhats-tab', name); } catch (e) {}
     }
-    tabs.forEach(function (t) { t.addEventListener('click', function () { setTab(t.dataset.tab); }); });
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        if (t.dataset.tab === 'maps') { if (window.EduMaps) EduMaps.open(); return; }   // full-screen map, the tab stays as it was
+        setTab(t.dataset.tab);
+      });
+    });
     window.educhatsTab = setTab;
 
     // Chats badge: how many chats have something unread (the "Unread" chip's number)
