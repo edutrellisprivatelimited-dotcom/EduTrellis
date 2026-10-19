@@ -45,6 +45,7 @@ urlpatterns = [
     path('api/push/', educhats_push.api_push, name='chats_push'),
     path('api/lock/', educhats_lock.api_lock, name='chats_lock'),
     path('api/badge/', educhats_push.api_badge, name='chats_badge'),
+    path('api/read/', educhats_push.api_mark_read, name='chats_mark_read'),
     path('badge-96.png', educhats_pwa.badge_icon, name='chats_badge_icon'),
     path('api/inbox/', support_inbox.api_inbox, name='chats_inbox'),
     path('api/inbox/<int:pk>/', support_inbox.api_inbox_chat, name='chats_inbox_chat'),

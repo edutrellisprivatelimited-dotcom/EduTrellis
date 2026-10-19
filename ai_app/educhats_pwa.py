@@ -100,29 +100,94 @@ self.addEventListener('push', (e) => {
     wins.forEach((c) => c.postMessage({ type: 'educhats-push', chat: d.chat || '' }));
     // EduChats is open and in front: the page shows the message itself (calls still ring)
     if (!d.call && wins.some((c) => c.focused && c.visibilityState === 'visible')) return;
-    await self.registration.showNotification(d.title || APP, {
+    const opts = {
       body: d.body || 'New message', tag: d.tag || 'educhats', renotify: true, icon: ICON, badge: BADGE,
-      data: { chat: d.chat || '', call: !!d.call }, timestamp: d.ts || Date.now(), vibrate: d.call ? [400, 200, 400, 200, 400] : [120, 60, 120],
-      requireInteraction: !!d.call, silent: false,
-    });
+      data: { chat: d.chat || '', call: !!d.call, title: d.title || APP }, timestamp: d.ts || Date.now(),
+      vibrate: d.call ? [400, 200, 400, 200, 400] : [120, 60, 120], requireInteraction: !!d.call, silent: false,
+    };
+    if (d.actions && d.chat) opts.actions = REPLY_ACTIONS(d.title);
+    await self.registration.showNotification(d.title || APP, opts);
     if (Array.isArray(d.unread)) await tidyTray(d.unread.concat(d.chat ? [d.chat] : []));
   })());
 });
-self.addEventListener('notificationclick', (e) => {
-  e.notification.close();
-  const chat = (e.notification.data || {}).chat || '';
-  const url = self.registration.scope + (chat ? '?chat=' + encodeURIComponent(chat) : '');
-  e.waitUntil((async () => {
-    const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const c of wins) {
-      if (c.url.startsWith(self.registration.scope)) {
-        try { await c.focus(); } catch (_) {}
-        c.postMessage({ type: 'educhats-open', chat });
-        return;
-      }
+// ── Reply / Mark as read, straight from the notification ──
+// Where the browser can type into the notification (type: 'text') the reply is
+// sent from here without opening EduChats; elsewhere "Reply" opens the chat
+// with the keyboard up.
+const REPLY_ACTIONS = (title) => [
+  { action: 'reply', type: 'text', title: 'Reply', placeholder: 'Reply to ' + String(title || '').slice(0, 40) + '…' },
+  { action: 'read', title: 'Mark as read' },
+];
+function sendPath(chat) {
+  if (chat === 'support') return 'api/messages/';
+  if (/^\d+$/.test(chat)) return 'api/dm/' + chat + '/';
+  if (/^g\d+$/.test(chat)) return 'api/groups/' + chat.slice(1) + '/';
+  if (/^sx\d+$/.test(chat)) return 'api/inbox/' + chat.slice(2) + '/';
+  return '';
+}
+async function api(path, body) {
+  const t = await (await fetch(self.registration.scope + 'api/csrf/', { credentials: 'include', cache: 'no-store' })).json();
+  const r = await fetch(self.registration.scope + path, {
+    method: 'POST', credentials: 'include', cache: 'no-store',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': t.csrf || '' }, body: JSON.stringify(body),
+  });
+  let d = {};
+  try { d = await r.json(); } catch (_) {}
+  if (!r.ok || d.ok === false) { const err = new Error(d.error || 'HTTP ' + r.status); err.status = r.status; throw err; }
+  return d;
+}
+async function quickReply(chat, text, title) {
+  const path = sendPath(chat);
+  const cid = 'nr' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);   // a retry can't post it twice
+  let error = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      if (!path) throw new Error('chat');
+      await api(path, { body: text, cid });
+      error = null;
+      break;
+    } catch (err) {
+      error = err;
+      if (err.status && err.status < 500 && err.status !== 429) break;   // won't get better by retrying
+      await new Promise((ok) => setTimeout(ok, 1200 * (attempt + 1)));
     }
-    await self.clients.openWindow(url);
-  })());
+  }
+  if (error) {
+    await self.registration.showNotification('Reply not sent', {
+      body: (error.status === 401 ? 'Open EduChats to send: ' : 'Tap to try again: ') + text.slice(0, 120),
+      tag: 'chat-' + chat, icon: ICON, badge: BADGE, data: { chat, draft: text, title },
+    });
+    return;
+  }
+  try { await api('api/read/', { chat }); } catch (_) {}   // answering a chat means you've read it
+  await syncBadge();
+}
+async function openChat(chat, reply, draft) {
+  const q = (chat ? '?chat=' + encodeURIComponent(chat) : '') + (chat && reply ? '&reply=1' : '');
+  const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  for (const c of wins) {
+    if (c.url.startsWith(self.registration.scope)) {
+      try { await c.focus(); } catch (_) {}
+      c.postMessage({ type: 'educhats-open', chat, reply: !!reply, draft: draft || '' });
+      return;
+    }
+  }
+  const w = await self.clients.openWindow(self.registration.scope + q);
+  if (w && draft) setTimeout(() => w.postMessage({ type: 'educhats-open', chat, reply: true, draft }), 2500);
+}
+self.addEventListener('notificationclick', (e) => {
+  const n = e.notification, data = n.data || {}, chat = data.chat || '';
+  n.close();
+  if (e.action === 'read') {
+    e.waitUntil(api('api/read/', { chat }).catch(() => {}).then(syncBadge));
+    return;
+  }
+  const text = typeof e.reply === 'string' ? e.reply.trim() : '';
+  if (e.action === 'reply' && text) {
+    e.waitUntil(quickReply(chat, text, data.title));
+    return;
+  }
+  e.waitUntil(openChat(chat, e.action === 'reply' || !!data.draft, data.draft));
 });
 // the page tells the worker the badge number; on a fresh start it asks the server
 self.addEventListener('message', (e) => {

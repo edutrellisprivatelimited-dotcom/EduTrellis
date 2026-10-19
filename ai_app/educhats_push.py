@@ -212,6 +212,9 @@ def push_to(user, chat, title, body, call=False):
         # `unread` lets the device clear notifications of chats read elsewhere
         _send(sub, {'title': title[:80], 'body': text[:200], 'chat': chat, 'tag': f'chat-{chat}',
                     'badge': badge, 'call': call, 'ts': int(time.time() * 1000),
+                    # Reply / Mark as read buttons — not with the app lock on, which
+                    # would let anyone holding the phone answer without unlocking
+                    'actions': not call and not user.app_lock_pin,
                     'unread': [key for key in counts if key not in muted][:60]})
 
 
@@ -314,6 +317,46 @@ def _on_group_message(sender, instance, created, raw=False, **kwargs):
 
 
 # ── the page: subscribe / unsubscribe / muted chats ──────────────────────────
+
+def mark_read(user, chat):
+    """A notification's "Mark as read": reads that chat on the server without
+    opening it (and without counting as being in the chat)."""
+    chat = str(chat or '')
+    if chat == 'support' and not _is_staff(user):
+        user.messages.filter(sender=ChatMessage.SENDER_ADMIN, read_by_user=False).update(read_by_user=True)
+    elif chat.isdigit():
+        thread = DirectThread.objects.filter(Q(user_a=user) | Q(user_b=user), pk=int(chat)).first()
+        if not thread:
+            return False
+        thread.messages.filter(read_at__isnull=True).exclude(sender=user).update(read_at=timezone.now())
+    elif re.fullmatch(r'g\d+', chat):
+        ms = GroupMember.objects.filter(user=user, group_id=int(chat[1:])).first()
+        if not ms:
+            return False
+        newest = GroupMessage.objects.filter(group_id=ms.group_id).order_by('-pk').values_list('pk', flat=True).first()
+        if newest and newest > ms.last_read:
+            GroupMember.objects.filter(pk=ms.pk).update(last_read=newest)
+    elif re.fullmatch(r'sx\d+', chat) and _is_staff(user):
+        ChatMessage.objects.filter(user_id=int(chat[2:]), sender=ChatMessage.SENDER_USER,
+                                   read_by_admin=False).update(read_by_admin=True)
+    else:
+        return False
+    return True
+
+
+def api_mark_read(request):
+    """POST {chat} from the service worker (a notification's Mark as read / after a quick reply)."""
+    from .support_chat import _fail, _json_body, current_user
+    if request.method != 'POST':
+        return _fail('POST only.', 405)
+    user = current_user(request)
+    if not user:
+        return _fail('Open EduChats to continue.', 401)
+    data = _json_body(request)
+    if not mark_read(user, data.get('chat')):
+        return _fail('Chat not found.', 404)
+    return JsonResponse({'ok': True})
+
 
 def api_push(request):
     """GET → the public key. POST {action: subscribe|unsubscribe|muted, subscription|endpoint, muted}."""

@@ -2855,7 +2855,7 @@ EduLook.apply(EduLook.get());
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', function (e) {
         var d = e.data || {};
-        if (d.type === 'educhats-open' && openChatHook) openChatHook(d.chat || '');
+        if (d.type === 'educhats-open' && openChatHook) { openChatHook(d.chat || ''); if (d.reply) focusComposer(d.draft); }
         else if (d.type === 'educhats-push' && pushNudge) pushNudge();
         else if (d.type === 'educhats-resubscribe') subscribe(false);
       });
@@ -2863,15 +2863,27 @@ EduLook.apply(EduLook.get());
     render();
     if (supported() && perm() === 'granted') subscribe(false);   // keep this device's subscription fresh
   })();
+  // a notification's Reply: once the chat is open, put the cursor (and any
+  // unsent reply) in its message box so the keyboard comes up
+  function focusComposer(draft) {
+    var tries = 0;
+    (function go() {
+      var box = ['dmBody', 'gBody', 'sxBody', 'body'].map(function (id) { return document.getElementById(id); })
+        .filter(function (el) { return el && el.offsetParent !== null && !el.disabled; })[0];
+      if (!box) { if (++tries < 20) setTimeout(go, 250); return; }
+      if (draft && !box.value) { box.value = draft; box.dispatchEvent(new Event('input', { bubbles: true })); }
+      try { box.focus(); box.setSelectionRange(box.value.length, box.value.length); } catch (e) {}
+    })();
+  }
   // a notification was tapped: /educhats/?chat=<key> opens that chat
   (function () {
-    var key = new URLSearchParams(location.search).get('chat');
+    var params = new URLSearchParams(location.search), key = params.get('chat'), reply = params.get('reply') === '1';
     if (!key) return;
     try { history.replaceState(null, '', location.pathname); } catch (e) {}
     var tries = 0;
     (function go() {
-      if (key === 'support' && !openChatHook) { var r = document.getElementById('supportRow'); if (r) r.click(); return; }
-      if (openChatHook && openChatHook(key)) return;
+      if (key === 'support' && !openChatHook) { var r = document.getElementById('supportRow'); if (r) r.click(); if (reply) focusComposer(); return; }
+      if (openChatHook && openChatHook(key)) { if (reply) focusComposer(); return; }
       if (++tries < 25) setTimeout(go, 300);
     })();
   })();
