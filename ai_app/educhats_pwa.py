@@ -44,7 +44,7 @@ def manifest(request):
         'display': 'standalone',
         'orientation': 'portrait',
         'background_color': app.background_color,
-        'theme_color': app.theme_color,
+        'theme_color': app.status_bar_color,
         'categories': ['social', 'communication'],
         'prefer_related_applications': False,
         'icons': [
@@ -358,6 +358,11 @@ def dashboard_app_settings(request):
         app.app_name, app.short_name = name, short or name
         app.description = data.get('description', '').strip()[:200]
         app.theme_color, app.background_color = theme.lower(), background.lower()
+        if data.get('bars_mode') in dict(EduChatsAppSettings.BARS_MODES):
+            app.bars_mode = data['bars_mode']
+        nav = data.get('nav_color', '').strip()
+        if _HEX.match(nav):
+            app.nav_color = nav.lower()
         if data.get('gif_provider') in dict(EduChatsAppSettings.GIF_PROVIDERS):
             app.gif_provider = data['gif_provider']
         if data.get('remove_gif_key'):

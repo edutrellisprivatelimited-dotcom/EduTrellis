@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EduChats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
@@ -185,9 +185,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
    focus (as most capture tools take it) or the Print Screen key is pressed. */
 .watermark{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;opacity:.045}
 .watermark span{position:absolute;white-space:nowrap;font-size:.8rem;font-weight:800;color:var(--head);transform:rotate(-24deg)}
-.shield{position:fixed;inset:0;z-index:8000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:.6rem;background:var(--wall);color:var(--head);font-weight:700;text-align:center;padding:24px}
-.shield i{font-size:2rem;color:var(--accent)}
-body.shielded .shield{display:flex}
+/* the strip behind the phone's navigation bar (custom colour; with "match" the screen shows through) */
+.nav-strip{position:fixed;left:0;right:0;bottom:0;height:env(safe-area-inset-bottom);z-index:9000;pointer-events:none}
 @media print{body *{display:none!important}}
 @media (max-width:600px){.msg{max-width:86%}.chat-head{padding:.65rem .8rem}.head-btn{width:36px;height:36px;flex-basis:36px}}
 /* ── direct messages ── */
@@ -851,7 +850,7 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
     document.dispatchEvent(new Event('educhats-installable'));
   });
 </script>
-<meta name="theme-color" content="{{ app.theme_color|default:'#0f1623' }}">
+<meta name="theme-color" id="barTop" content="{{ app.status_bar_color|default:'#0f1623' }}">
 <meta name="apple-mobile-web-app-title" content="{{ app.short_name|default:'EduChats' }}">
 <meta name="application-name" content="{{ app.short_name|default:'EduChats' }}">
 <link rel="apple-touch-icon" href="{{ app.icon_180 }}">
@@ -1541,7 +1540,7 @@ EduLook.apply(EduLook.get());
     <button class="pf-save" type="button" data-close>Got it</button>
   </div>
 </div>
-<div class="shield" id="shield"><i class="fas fa-shield-halved"></i>Chat hidden for privacy<br><small>Click or tap to continue</small></div>
+{% if app.bars_mode == 'custom' %}<div class="nav-strip" style="background:{{ app.nav_color }}"></div>{% endif %}
 {% else %}
 <div class="starting" id="starting"><i class="fas fa-comments"></i><span>Starting chat…</span></div>
 {% endif %}
@@ -4879,14 +4878,39 @@ EduLook.apply(EduLook.get());
   document.getElementById('voiceCall').addEventListener('click', function () { calls.start('audio'); });
   document.getElementById('videoCall').addEventListener('click', function () { calls.start('video'); });
 
+  // the phone's status bar takes the colour of whatever is at the top of the
+  // screen right now (dark chat list, a chat's header, a sheet…), so the app
+  // looks like one piece (Admin → EduChats → App Settings → "Match the chat screen")
+  {% if app.bars_mode != 'custom' %}(function () {
+    var meta = document.getElementById('barTop'), last = meta.content, timer = null;
+    function solid(el) {
+      for (; el && el.nodeType === 1; el = el.parentElement) {
+        var cs = getComputedStyle(el), c = cs.backgroundColor, m = c.match(/rgba?\(([^)]+)\)/);
+        if (m) {
+          var p = m[1].split(',').map(parseFloat);
+          if (p.length < 4 || p[3] > 0.85) return p;
+        }
+        var g = cs.backgroundImage.match(/gradient\([^]*?(rgba?\([^)]+\))/);   // a gradient header: its first colour
+        if (g) { var q = g[1].match(/rgba?\(([^)]+)\)/)[1].split(',').map(parseFloat); if (q.length < 4 || q[3] > 0.85) return q; }
+      }
+      return null;
+    }
+    function hex(p) { return '#' + p.slice(0, 3).map(function (v) { return ('0' + Math.round(v).toString(16)).slice(-2); }).join(''); }
+    function sync() {
+      timer = null;
+      var p = solid(document.elementFromPoint(Math.round(innerWidth / 2), 2)) || solid(document.body);
+      var c = p ? hex(p) : '{{ app.status_bar_color }}';
+      if (c !== last) { meta.content = last = c; }
+    }
+    function soon() { if (!timer) timer = setTimeout(sync, 120); }
+    new MutationObserver(soon).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden', 'class', 'style', 'open'] });
+    addEventListener('resize', soon); document.addEventListener('click', function () { setTimeout(soon, 350); });
+    document.addEventListener('visibilitychange', soon);
+    sync();
+  })();{% endif %}
+
   // screenshot / recording deterrents
   (function () {
-    function hide() { document.body.classList.add('shielded'); }
-    function unhide() { document.body.classList.remove('shielded'); }
-    window.addEventListener('blur', hide);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) hide(); });
-    document.getElementById('shield').addEventListener('click', unhide);
-    window.addEventListener('focus', function () { setTimeout(unhide, 150); });
     document.addEventListener('contextmenu', function (e) { if (!e.target.closest('textarea, #aiChat')) e.preventDefault(); });
     document.addEventListener('dragstart', function (e) { e.preventDefault(); });
     document.addEventListener('copy', function (e) {
@@ -4894,7 +4918,7 @@ EduLook.apply(EduLook.get());
       if (!el || !el.closest || !el.closest('textarea, input, #aiChat')) e.preventDefault();
     });
     document.addEventListener('keyup', function (e) {
-      if (e.key === 'PrintScreen') { hide(); try { navigator.clipboard.writeText(''); } catch (err) {} }
+      if (e.key === 'PrintScreen') { try { navigator.clipboard.writeText(''); } catch (err) {} }
     });
     document.addEventListener('keydown', function (e) {
       var k = (e.key || '').toLowerCase();

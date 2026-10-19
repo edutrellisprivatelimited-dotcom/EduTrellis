@@ -47,6 +47,23 @@
 .as-splash img{width:58px;height:58px;border-radius:50%;object-fit:cover}
 .as-splash b{font-size:.78rem;color:#fff;max-width:120px;text-align:center}
 .as-cap{text-align:center;font-size:.74rem;color:var(--text);margin-top:.4rem}
+/* status / navigation bars */
+.as-modes{display:grid;gap:.55rem}
+.as-mode{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem .9rem;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;margin:0}
+.as-mode:has(input:checked){border-color:var(--red);background:rgba(232,0,30,.04)}
+.as-mode input{margin-top:.2rem;accent-color:var(--red)}
+.as-mode b{display:block;color:var(--head);font-size:.86rem}
+.as-mode small{display:block;font-size:.75rem;color:var(--text);line-height:1.45;margin-top:.15rem}
+.as-custom{margin-top:.8rem}
+.as-custom[hidden]{display:none}
+.as-appview{margin:0 auto;width:170px;height:300px;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;box-shadow:inset 0 0 0 5px #0b0f17,0 12px 28px rgba(15,22,35,.22);background:#0f1623}
+.as-bar{height:20px;flex:0 0 20px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:.55rem;font-weight:700}
+.as-bar.nav{height:26px;flex:0 0 26px;justify-content:space-around;font-size:.7rem}
+.as-list{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+.as-list .hd{height:12px;width:60%;border-radius:4px;background:#e5e7eb33}
+.as-list .rw{display:flex;gap:8px;align-items:center}
+.as-list .rw i{width:24px;height:24px;border-radius:50%;background:#ffffff22;flex:0 0 24px}
+.as-list .rw span{flex:1;height:8px;border-radius:4px;background:#ffffff1f}
 </style>
 {% endblock %}
 
@@ -80,12 +97,25 @@
     <div class="form-group"><label for="asDesc">Description <span class="as-count" id="asDescN"></span></label>
       <textarea id="asDesc" name="description" rows="3" maxlength="200">{{ app.description }}</textarea></div>
 
-    <div class="as-colors">
-      <div><label class="as-label" style="margin-top:0">Title bar colour</label>
+    <div class="as-label" style="margin-top:.4rem"><i class="fas fa-mobile"></i> Phone status &amp; navigation bars</div>
+    <div class="as-modes">
+      {% for value, label in app.BARS_MODES %}
+      <label class="as-mode"><input type="radio" name="bars_mode" value="{{ value }}"{% if app.bars_mode == value %} checked{% endif %}>
+        <span><b>{{ label }}{% if value == 'match' %} (recommended){% endif %}</b>
+        <small>{% if value == 'match' %}The bar at the top takes the colour of what's on screen — the dark chat list, a chat's header — and the bottom bar shows the app behind it, so the app looks like one piece.{% else %}Pick a fixed colour for the top status bar and the bottom navigation bar.{% endif %}</small></span></label>
+      {% endfor %}
+    </div>
+    <div class="as-colors as-custom" id="asCustom"{% if app.bars_mode != 'custom' %} hidden{% endif %}>
+      <div><label class="as-label" style="margin-top:0">Status bar (top)</label>
         <div class="as-color"><input type="color" id="asTheme" name="theme_color" value="{{ app.theme_color }}"><code id="asThemeT">{{ app.theme_color }}</code></div></div>
+      <div><label class="as-label" style="margin-top:0">Navigation bar (bottom)</label>
+        <div class="as-color"><input type="color" id="asNav" name="nav_color" value="{{ app.nav_color }}"><code id="asNavT">{{ app.nav_color }}</code></div></div>
+    </div>
+    <div class="as-colors" style="margin-top:.8rem">
       <div><label class="as-label" style="margin-top:0">Splash background</label>
         <div class="as-color"><input type="color" id="asBg" name="background_color" value="{{ app.background_color }}"><code id="asBgT">{{ app.background_color }}</code></div></div>
     </div>
+    <div class="as-hint" style="margin-top:.45rem"><i class="fas fa-circle-info"></i> The bottom bar follows on phones where Chrome draws apps edge to edge (Android 15 and newer Chrome); on older ones Android keeps its own colour there.</div>
 
     <div class="as-label"><i class="fas fa-film"></i> GIFs in the emoji panel</div>
     <div class="as-colors">
@@ -121,6 +151,14 @@
         <div class="as-cap">Install dialog</div>
       </div>
       <div>
+        <div class="as-appview">
+          <div class="as-bar" id="asBarTop"><span>10:16</span><span><i class="fas fa-signal"></i> <i class="fas fa-battery-half"></i></span></div>
+          <div class="as-list"><div class="hd"></div><div class="rw"><i></i><span></span></div><div class="rw"><i></i><span></span></div><div class="rw"><i></i><span></span></div><div class="rw"><i></i><span></span></div></div>
+          <div class="as-bar nav" id="asBarNav"><i class="fas fa-chevron-left"></i><i class="far fa-circle"></i><i class="fas fa-bars"></i></div>
+        </div>
+        <div class="as-cap">The installed app on a phone</div>
+      </div>
+      <div>
         <div class="as-splash" id="asSplash" style="background:{{ app.background_color }}"><img class="asPrevIcon" src="{{ icon_maskable }}" alt=""><b id="asPrevName2">{{ app.app_name }}</b></div>
         <div class="as-cap">Splash screen while it opens</div>
       </div>
@@ -140,7 +178,24 @@
   bind('asName', 'asNameN', 45, ['asPrevName', 'asPrevName2']);
   bind('asShort', 'asShortN', 24, ['asPrevShort']);
   bind('asDesc', 'asDescN', 200, ['asPrevDesc']);
-  document.getElementById('asTheme').addEventListener('input', function () { document.getElementById('asThemeT').textContent = this.value; });
+  // phone bars preview: white or dark icons depending on how light the bar is
+  function ink(hex) {
+    var n = parseInt(hex.slice(1), 16), r = n >> 16, g = n >> 8 & 255, b = n & 255;
+    return (r * 299 + g * 587 + b * 114) / 1000 > 150 ? '#111827' : '#ffffff';
+  }
+  function bars() {
+    var custom = document.querySelector('input[name=bars_mode]:checked').value === 'custom';
+    document.getElementById('asCustom').hidden = !custom;
+    var top = custom ? document.getElementById('asTheme').value : '#0f1623';
+    var nav = custom ? document.getElementById('asNav').value : '#0f1623';
+    var t = document.getElementById('asBarTop'), n = document.getElementById('asBarNav');
+    t.style.background = top; t.style.color = ink(top);
+    n.style.background = nav; n.style.color = ink(nav);
+  }
+  document.querySelectorAll('input[name=bars_mode]').forEach(function (r) { r.addEventListener('change', bars); });
+  document.getElementById('asNav').addEventListener('input', function () { document.getElementById('asNavT').textContent = this.value; bars(); });
+  bars();
+  document.getElementById('asTheme').addEventListener('input', function () { document.getElementById('asThemeT').textContent = this.value; bars(); });
   document.getElementById('asBg').addEventListener('input', function () {
     document.getElementById('asBgT').textContent = this.value;
     document.getElementById('asSplash').style.background = this.value;

@@ -1237,6 +1237,9 @@ class GroupMessage(models.Model):
         return self.body
 
 
+MATCH_BAR_COLOR = '#0f1623'   # the chat list's colour (--ink in chats.html)
+
+
 class EduChatsAppSettings(models.Model):
     """How the installed EduChats app looks (Admin → EduChats → App Settings): one row."""
     app_name = models.CharField(max_length=45, default='EduChats')
@@ -1245,8 +1248,14 @@ class EduChatsAppSettings(models.Model):
     description = models.CharField(max_length=200, default='Chat with the EduTrellis support team and people you know.')
     # Square picture, at least 512×512; the install icons are cut from it. Empty = the built-in red chat icon.
     icon = models.ImageField(upload_to='support_chat/app/', blank=True)
-    theme_color = models.CharField(max_length=7, default='#0f1623')        # status bar / title bar
+    theme_color = models.CharField(max_length=7, default='#0f1623')        # status bar / title bar (custom mode)
     background_color = models.CharField(max_length=7, default='#0f1623')   # splash screen while it opens
+    # The phone's status bar (top) and navigation bar (bottom) in the installed app:
+    # 'match' follows whatever is on screen there (dark chat list, a chat's header…),
+    # 'custom' uses theme_color on top and nav_color at the bottom.
+    BARS_MODES = [('match', 'Match the chat screen'), ('custom', 'Custom colours')]
+    bars_mode = models.CharField(max_length=8, choices=BARS_MODES, default='match')
+    nav_color = models.CharField(max_length=7, default='#0f1623')
     # GIFs in the emoji panel: a free key from developers.giphy.com or Google's Tenor API.
     GIF_PROVIDERS = [('giphy', 'GIPHY'), ('tenor', 'Tenor')]
     gif_provider = models.CharField(max_length=8, choices=GIF_PROVIDERS, default='giphy')
@@ -1266,6 +1275,11 @@ class EduChatsAppSettings(models.Model):
     @property
     def version(self):
         return int(self.updated_at.timestamp()) if self.updated_at else 0
+
+    @property
+    def status_bar_color(self):
+        """What the status bar starts as (the app opens on the dark chat list)."""
+        return self.theme_color if self.bars_mode == 'custom' else MATCH_BAR_COLOR
 
     def __str__(self):
         return self.app_name
