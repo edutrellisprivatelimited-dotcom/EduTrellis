@@ -304,6 +304,39 @@ html.wall-dark .msg.admin{border-color:rgba(255,255,255,.06)}
 .sm-post{width:50px;height:50px;flex:0 0 50px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:1.1rem;cursor:pointer}
 .sm-post:disabled{opacity:.6}
 .sm-hint{position:absolute;left:0;right:0;bottom:.6rem;text-align:center;font-size:.72rem;opacity:.7}
+/* State / City: a searchable picker instead of the long native list */
+.fs{position:relative}
+.fs select.fs-native{position:absolute;inset:0;opacity:0;pointer-events:none;width:100%;height:100%}
+.fs-btn{width:100%;height:44px;display:flex;align-items:center;gap:.5rem;padding:0 .8rem;border:1.5px solid var(--line);border-radius:11px;background:var(--bg);color:var(--head);font:inherit;font-size:.92rem;text-align:left;cursor:pointer}
+.fs-btn span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fs-btn span.ph{color:#9ca3af}
+.fs-btn i{color:#9ca3af;font-size:.75rem;transition:transform .2s}
+.fs.open .fs-btn{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
+.fs.open .fs-btn i{transform:rotate(180deg)}
+.fs-btn:disabled{opacity:.55;cursor:not-allowed}
+.fs-pop{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;min-width:240px;padding:.5rem;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:0 18px 44px rgba(15,22,35,.2);display:none}
+.fs.open .fs-pop{display:block;animation:fsIn .15s ease-out}
+.fs.up .fs-pop{top:auto;bottom:calc(100% + 6px)}
+@keyframes fsIn{from{opacity:0;transform:translateY(-4px)}}
+.fs-pop .fs-q{display:flex;align-items:center;gap:.5rem;height:40px;margin:0 0 .4rem;padding:0 .75rem;border-radius:10px;background:var(--bg);border:1.5px solid var(--line);color:#9ca3af;font-size:.85rem;font-weight:400}
+.fs-pop .fs-q:focus-within{border-color:var(--accent)}
+.fs-pop .fs-q input{flex:1;width:auto;min-width:0;height:100%;border:none;border-radius:0;background:none;padding:0;font:inherit;font-size:.9rem;color:var(--head)}
+.fs-pop .fs-q input:focus{outline:none;border:none}
+.fs-list{max-height:240px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.fs-opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:.55rem .7rem;border:none;border-radius:9px;background:none;color:var(--head);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
+.fs-opt:hover,.fs-opt.hl{background:rgba(var(--accent-rgb),.08)}
+.fs-opt.on{color:var(--accent);font-weight:700}
+.fs-opt.on::after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;font-size:.75rem}
+.fs-empty{padding:.8rem;text-align:center;font-size:.82rem;color:#9ca3af}
+@media (max-width:600px){
+  .fs.open .fs-pop{position:fixed;left:0;right:0;top:auto;bottom:0;min-width:0;padding:.8rem .8rem max(.8rem,env(safe-area-inset-bottom));border-radius:20px 20px 0 0;animation:fsUp .2s ease-out;z-index:9000}
+  .fs.open::before{content:"";position:fixed;inset:0;z-index:8999;background:rgba(0,0,0,.45)}
+  .fs-list{max-height:52vh}
+  .fs-opt{padding:.75rem .8rem;font-size:.95rem}
+  .fs-pop .fs-title{display:block}
+}
+.fs-title{display:none;margin:.1rem .2rem .6rem;font-weight:800;color:var(--head);font-size:1rem}
+@keyframes fsUp{from{transform:translateY(30px);opacity:0}}
 /* the opening screen while EduChats loads */
 .boot{position:fixed;inset:0;z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(120% 70% at 50% 0%,rgba(232,0,30,.22) 0,transparent 55%),radial-gradient(90% 60% at 50% 110%,rgba(19,136,8,.14) 0,transparent 60%),#0b111c;color:#fff;transition:opacity .4s ease,visibility .4s}
 .boot.gone{opacity:0;visibility:hidden;pointer-events:none}
@@ -1442,15 +1475,15 @@ EduLook.apply(EduLook.get());
     <p>{{ chat_user.email }}</p>
     <div class="pf-cols">
       <div class="pf-left">
-        <label for="pfName">Full name</label><input id="pfName" name="name" value="{{ chat_user.name }}" maxlength="120">
+        <label for="pfName">Full name</label><input id="pfName" name="name" value="{{ chat_user.name }}" maxlength="120" autocomplete="name">
         <label for="pfUsername">Username</label><div class="uname"><span class="uname-at">@</span><input id="pfUsername" name="username" value="{{ chat_user.username|default:'' }}" maxlength="30" autocapitalize="none" spellcheck="false" placeholder="choose_a_username"></div>
         <p class="uname-hint" id="pfUsernameHint">Others see you by this name. You can also log in with it.</p>
         <label for="pfBio">Bio</label><textarea id="pfBio" name="bio" class="pf-bio" maxlength="160" rows="2" placeholder="A line about you — e.g. Web designer · Lucknow">{{ chat_user.bio }}</textarea>
         <div class="pf-bio-row"><label><span class="switch"><input type="checkbox" name="show_bio" value="1"{% if chat_user.show_bio %} checked{% endif %}><span></span></span> Show my bio to people I chat with</label><span id="pfBioCount">{{ chat_user.bio|length }}/160</span></div>
-        <label for="pfPhone">Mobile number</label><input id="pfPhone" name="phone" value="{{ chat_user.phone }}" inputmode="tel">
+        <label for="pfPhone">Mobile number</label><input id="pfPhone" name="phone" value="{{ chat_user.phone }}" inputmode="tel" autocomplete="tel-national" maxlength="14" placeholder="10-digit mobile number">
         <div class="pf-row">
-          <div><label for="pfState">State</label><select id="pfState" name="state"></select></div>
-          <div><label for="pfCity">City</label><select id="pfCity" name="city"></select></div>
+          <div><label for="pfState">State</label><select id="pfState" name="state" autocomplete="off"></select></div>
+          <div><label for="pfCity">City</label><select id="pfCity" name="city" autocomplete="off"></select></div>
         </div>
         <p class="pf-sep">Social links — your username or a profile link.</p>
         <div class="pf-socials">
@@ -5476,9 +5509,78 @@ EduLook.apply(EduLook.get());
     document.addEventListener('keydown', function (e) {
       var k = (e.key || '').toLowerCase();
       if (e.key === 'PrintScreen' || ((e.ctrlKey || e.metaKey) && (k === 'p' || k === 's')) ||
-          (e.metaKey && e.shiftKey && ['3', '4', '5', 's'].indexOf(k) !== -1)) { e.preventDefault(); hide(); }
+          (e.metaKey && e.shiftKey && ['3', '4', '5', 's'].indexOf(k) !== -1)) e.preventDefault();
     });
   })();
+
+  // State / City: a searchable picker over the real <select> (which still holds the value)
+  function fancySelect(select, title) {
+    if (!select || select._fs) return;
+    var wrap = document.createElement('div'); wrap.className = 'fs';
+    select.parentNode.insertBefore(wrap, select); wrap.appendChild(select);
+    select.classList.add('fs-native'); select.tabIndex = -1;
+    var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'fs-btn';
+    btn.innerHTML = '<span></span><i class="fas fa-chevron-down"></i>';
+    if (select.id) { var lab = document.querySelector('label[for="' + select.id + '"]'); if (lab) { btn.id = select.id + 'Btn'; lab.htmlFor = btn.id; } }
+    var pop = document.createElement('div'); pop.className = 'fs-pop';
+    pop.innerHTML = '<b class="fs-title"></b><label class="fs-q"><i class="fas fa-magnifying-glass"></i><input type="search" autocomplete="off" spellcheck="false"></label><div class="fs-list" role="listbox"></div>';
+    pop.querySelector('.fs-title').textContent = title;
+    var q = pop.querySelector('input'), list = pop.querySelector('.fs-list'), hl = -1;
+    q.placeholder = 'Search ' + title.toLowerCase();
+    wrap.appendChild(btn); wrap.appendChild(pop);
+    function label() {
+      var o = select.options[select.selectedIndex], span = btn.firstChild;
+      span.textContent = o && o.value ? o.text : (o ? o.text : 'Select');
+      span.className = o && o.value ? '' : 'ph';
+      btn.disabled = select.disabled;
+    }
+    function render() {
+      var term = q.value.trim().toLowerCase(), opts = [].filter.call(select.options, function (o) { return o.value && o.text.toLowerCase().indexOf(term) >= 0; });
+      list.textContent = ''; hl = -1;
+      if (!opts.length) { var e = document.createElement('div'); e.className = 'fs-empty'; e.textContent = 'Nothing found'; list.appendChild(e); return; }
+      opts.forEach(function (o) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'fs-opt' + (o.value === select.value ? ' on' : '');
+        b.textContent = o.text; b.dataset.v = o.value; b.setAttribute('role', 'option');
+        b.addEventListener('click', function () { choose(o.value); });
+        list.appendChild(b);
+      });
+    }
+    function choose(v) {
+      select.value = v; label(); close();
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function open() {
+      if (select.disabled) return;
+      document.querySelectorAll('.fs.open').forEach(function (w) { if (w !== wrap) w.classList.remove('open'); });
+      q.value = ''; render();
+      var r = btn.getBoundingClientRect();
+      wrap.classList.toggle('up', window.innerHeight - r.bottom < 320 && r.top > 320);
+      wrap.classList.add('open');
+      var on = list.querySelector('.fs-opt.on'); if (on) on.scrollIntoView({ block: 'center' });
+      q.focus();   // desktop: type to search straight away (phones: only when tapped)
+    }
+    function close() { wrap.classList.remove('open'); }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); if (wrap.classList.contains('open')) close(); else open(); });
+    pop.addEventListener('click', function (e) { e.stopPropagation(); });
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });   // the dimmed background on phones
+    document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
+    q.addEventListener('input', render);
+    q.addEventListener('keydown', function (e) {
+      var items = list.querySelectorAll('.fs-opt');
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault(); if (!items.length) return;
+        hl = (hl + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items.forEach(function (it, k) { it.classList.toggle('hl', k === hl); });
+        items[hl].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') { e.preventDefault(); var pick = items[hl >= 0 ? hl : 0]; if (pick) choose(pick.dataset.v); }
+      else if (e.key === 'Escape') { e.stopPropagation(); close(); btn.focus(); }
+    });
+    select.addEventListener('change', label);
+    new MutationObserver(label).observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+    select._fs = { refresh: label, close: close };
+    label();
+  }
+  function fsRefresh(select) { if (select && select._fs) select._fs.refresh(); }
 
   {% if not chat_user.is_guest %}
   // header menu + profile
@@ -5487,16 +5589,26 @@ EduLook.apply(EduLook.get());
   document.addEventListener('click', function (e) { if (!e.target.closest('.menu-wrap')) headMenu.classList.remove('open'); });
   var pfLoc = JSON.parse(document.getElementById('india-locations').textContent);
   var pfState = document.getElementById('pfState'), pfCity = document.getElementById('pfCity');
+  pfState.add(new Option('Select state', ''));
   Object.keys(pfLoc).sort().forEach(function (s) { pfState.add(new Option(s, s)); });
   function fillCities(pick) {
     pfCity.innerHTML = '';
+    pfCity.add(new Option(pfState.value ? 'Select city' : 'Select state first', ''));
     (pfLoc[pfState.value] || []).slice().sort().forEach(function (c) { pfCity.add(new Option(c, c)); });
-    if (pick) pfCity.value = pick;
+    pfCity.disabled = !pfState.value;
+    pfCity.value = pick && (pfLoc[pfState.value] || []).indexOf(pick) >= 0 ? pick : '';
+    fsRefresh(pfCity);
   }
+  fancySelect(pfState, 'State'); fancySelect(pfCity, 'City');
   pfState.addEventListener('change', function () { fillCities(); });
   document.getElementById('openProfile').addEventListener('click', function () {
     headMenu.classList.remove('open');
-    pfState.value = '{{ chat_user.state|escapejs }}'; fillCities('{{ chat_user.city|escapejs }}');
+    var me = {};
+    try { me = JSON.parse(document.getElementById('me-card').textContent) || {}; } catch (e) {}
+    pfState.value = pfLoc[me.state] ? me.state : ''; fsRefresh(pfState);
+    fillCities(me.city);
+    var phone = document.getElementById('pfPhone');
+    phone.value = /^[6-9]\d{9}$/.test(me.phone || '') ? me.phone : '';   // never show something that isn't a number
     profileSheet.classList.add('open');
   });
   (function () {   // cover photo: uploads and removals save straight away
@@ -5587,6 +5699,7 @@ EduLook.apply(EduLook.get());
   var locations = JSON.parse(document.getElementById('india-locations').textContent);
   var state = document.getElementById('suState'), city = document.getElementById('suCity');
   Object.keys(locations).sort().forEach(function (s) { state.add(new Option(s, s)); });
+  fancySelect(state, 'State'); fancySelect(city, 'City');
   state.addEventListener('change', function () {
     city.innerHTML = '';
     if (!state.value) { city.add(new Option('Select state first', '')); city.disabled = true; return; }

@@ -50,12 +50,38 @@ def superuser_from_login(request, identifier, password):
     return user if user and user.is_superuser else None
 
 
+def fill_from_store(account, admin):
+    """Mobile number, state and city the superuser gave when signing up to the
+    store, copied into their EduChats account wherever it has none (or an
+    invalid one) — so the profile doesn't ask for them again."""
+    from .india_locations import INDIA_LOCATIONS
+    from .support_chat import _PHONE_RE
+    store = getattr(admin, 'store_profile', None)
+    if not store:
+        return account
+    changed = []
+    if not _PHONE_RE.match(account.phone or ''):
+        phone = _PHONE_RE.match(re.sub(r'[\s-]', '', store.phone or ''))
+        if phone and not ChatUser.objects.filter(phone=phone.group(1), is_guest=False).exclude(pk=account.pk).exists():
+            account.phone = phone.group(1)
+            changed.append('phone')
+    if account.state not in INDIA_LOCATIONS or account.city not in INDIA_LOCATIONS.get(account.state, []):
+        state = next((s for s in INDIA_LOCATIONS if s.lower() == (store.state or '').strip().lower()), None)
+        city = state and next((c for c in INDIA_LOCATIONS[state] if c.lower() == (store.city or '').strip().lower()), None)
+        if state and city:
+            account.state, account.city = state, city
+            changed += ['state', 'city']
+    if changed:
+        account.save(update_fields=changed)
+    return account
+
+
 def chat_account_for(admin):
     """The superuser's own EduChats account, created on first use. Never takes
     over an existing member's account, even one using the same email."""
     account = ChatUser.objects.filter(django_user=admin).first()
     if account:
-        return account
+        return fill_from_store(account, admin)
     email = (admin.email or admin.username or 'admin@edutrellis.in').lower()
     if '@' not in email:
         email = f'{email}@edutrellis.in'
@@ -73,10 +99,10 @@ def chat_account_for(admin):
     name = admin.get_full_name().strip()
     if not name or '@' in name:
         name = 'EduTrellis Admin'
-    return ChatUser.objects.create(
+    return fill_from_store(ChatUser.objects.create(
         name=name, username=username, email=email, phone='', state='', city='',
         password=make_password(None), is_verified=True, django_user=admin,
-    )
+    ), admin)
 
 
 def linked_superuser(chat_user):
