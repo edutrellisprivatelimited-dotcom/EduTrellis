@@ -903,16 +903,35 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 @keyframes wfUp{to{opacity:1;transform:none}}
 .wf-spark{position:absolute;left:50%;top:42%;width:8px;height:8px;border-radius:50%;background:var(--c);opacity:0;animation:wfSpark .9s .65s ease-out forwards}
 @keyframes wfSpark{0%{opacity:1;transform:translate(-50%,-50%) rotate(var(--a)) translateY(0)}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-150px)}}
-.welcome-toast{position:fixed;top:18px;left:50%;z-index:9000;display:flex;align-items:center;gap:.7rem;padding:.55rem 1.1rem .55rem .55rem;border-radius:999px;background:var(--ink);color:#fff;box-shadow:0 16px 40px rgba(0,0,0,.35);transform:translate(-50%,-140%);animation:wtIn .55s cubic-bezier(.2,1.3,.4,1) .15s forwards,wtOut .4s ease-in 3.4s forwards}
-.welcome-toast .wt-ava{width:38px;height:38px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent),var(--accent-dark));font-weight:800}
-.welcome-toast .wt-ava img{width:100%;height:100%;object-fit:cover}
-.welcome-toast b{display:block;font-size:.92rem}
-.welcome-toast small{display:block;font-size:.74rem;color:#9aa3b0}
-.welcome-toast .wave{display:inline-block;transform-origin:70% 70%;animation:wtWave 1.2s .7s ease-in-out 2}
-@keyframes wtIn{to{transform:translate(-50%,0)}}
-@keyframes wtOut{to{transform:translate(-50%,-140%);opacity:0}}
+.edu-toasts{position:fixed;top:max(14px,env(safe-area-inset-top));left:50%;z-index:9500;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.6rem;width:min(420px,calc(100% - 24px));pointer-events:none}
+.edu-toast{--tint:var(--accent-rgb);position:relative;isolation:isolate;display:flex;align-items:center;gap:.8rem;width:100%;padding:.75rem .8rem .85rem .75rem;border-radius:20px;overflow:hidden;color:#fff;pointer-events:auto;background:rgba(15,22,35,.58);background:color-mix(in srgb,var(--ink) 58%,transparent);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 50px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.18);animation:etIn .6s cubic-bezier(.16,1,.3,1) both}
+.edu-toast::before{content:'';position:absolute;inset:-40%;z-index:-1;background:radial-gradient(circle at 18% 30%,rgba(var(--tint),.55) 0,transparent 38%),radial-gradient(circle at 85% 70%,rgba(var(--tint),.28) 0,transparent 42%),radial-gradient(circle at 60% 10%,rgba(255,255,255,.10) 0,transparent 30%);filter:blur(18px);animation:etDrift 6s ease-in-out infinite alternate}
+.edu-toast::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0) 45%)}
+.edu-toast.out{animation:etOut .45s cubic-bezier(.4,0,1,1) forwards}
+.edu-toast.success{--tint:34,197,94}.edu-toast.error{--tint:239,68,68}.edu-toast.info{--tint:56,189,248}.edu-toast.premium{--tint:212,160,23}
+.et-ava{position:relative;flex:0 0 44px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.05rem;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-dark));box-shadow:0 0 0 2px rgba(255,255,255,.22),0 0 18px rgba(var(--tint),.55)}
+.et-ava img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.et-ava>i{font-size:1.1rem}
+.edu-toast.success .et-ava{background:linear-gradient(135deg,#22c55e,#15803d)}.edu-toast.error .et-ava{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+.edu-toast.info .et-ava{background:linear-gradient(135deg,#38bdf8,#2563eb)}.edu-toast.premium .et-ava{background:linear-gradient(135deg,#fcd34d,#b8860b);color:#1c1406}
+.et-badge{position:absolute;right:-3px;bottom:-3px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#22c55e;color:#fff;font-size:.55rem;border:2px solid rgba(15,22,35,.9);animation:etPop .45s .45s cubic-bezier(.2,1.6,.4,1) both}
+.et-txt{flex:1;min-width:0;line-height:1.3}
+.et-txt b{display:block;font-size:.95rem;font-weight:800;letter-spacing:-.01em;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.et-txt small{display:block;margin-top:.1rem;font-size:.78rem;color:rgba(255,255,255,.72)}
+.et-x{flex:0 0 30px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);font-size:.8rem;cursor:pointer;transition:background .15s}
+.et-x:hover{background:rgba(255,255,255,.2);color:#fff}
+.et-bar{position:absolute;left:14px;right:14px;bottom:5px;height:3px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.et-bar i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(var(--tint),1),rgba(255,255,255,.9));transform-origin:left;animation:etTime var(--et-ms,4000ms) linear forwards}
+.edu-toast:hover .et-bar i,.edu-toast:hover::before{animation-play-state:paused}
+.edu-toast .wave{display:inline-block;margin-left:.3em;transform-origin:70% 70%;animation:wtWave 1.2s .7s ease-in-out 2}
+@keyframes etIn{from{opacity:0;transform:translateY(-18px) scale(.94);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+@keyframes etOut{to{opacity:0;transform:translateY(-12px) scale(.97);filter:blur(6px)}}
+@keyframes etDrift{to{transform:translate(6%,4%) rotate(8deg)}}
+@keyframes etPop{from{transform:scale(0)}}
+@keyframes etTime{to{transform:scaleX(0)}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.edu-toast{background:rgba(15,22,35,.94)}}
 @keyframes wtWave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(18deg)}40%,80%{transform:rotate(-10deg)}}
-@media (prefers-reduced-motion:reduce){.welcome-fx *,.welcome-toast,.welcome-toast *{animation-duration:.01s !important;animation-delay:0s !important}}
+@media (prefers-reduced-motion:reduce){.welcome-fx *,.edu-toast,.edu-toast *,.edu-toast::before{animation-duration:.01s !important;animation-delay:0s !important}}
 /* ── EduTrellis AI chat (pinned at the top, open by default) ── */
 .side-ava.ai-ava{background:conic-gradient(from 200deg,var(--accent),#7c3aed,#2563eb,var(--accent));font-size:1.1rem}
 .side-ava.ai-ava::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(var(--accent-rgb),.45);animation:aiGlow 2.4s ease-in-out infinite}
@@ -2795,6 +2814,7 @@ EduLook.apply(EduLook.get());
       c.querySelector('.th-b2').style.background = (me && me[1]) || 'linear-gradient(135deg,' + a[1] + ',' + a[2] + ')';
       c.addEventListener('click', function () {
         look = Object.assign({}, look, t.look, { theme: k }); commit(); paintThemes();
+        if (window.eduToast) eduToast({ kind: t.premium ? 'premium' : 'success', icon: t.premium ? 'fa-crown' : 'fa-swatchbook', title: t.name + ' theme on', text: t.tag, ms: 2600 });
       });
       themeCards[k] = c;
       return c;
@@ -3222,19 +3242,44 @@ EduLook.apply(EduLook.get());
     });
   })();
 
+  // Frosted-glass notice at the top: eduToast({title, text, kind: success|error|info|premium, icon | avatar, badge, ms})
+  function eduToast(o) {
+    var host = document.querySelector('.edu-toasts');
+    if (!host) { host = document.createElement('div'); host.className = 'edu-toasts'; host.setAttribute('aria-live', 'polite'); document.body.appendChild(host); }
+    var t = document.createElement('div'), ms = o.ms || 3800;
+    t.className = 'edu-toast' + (o.kind ? ' ' + o.kind : ''); t.setAttribute('role', o.kind === 'error' ? 'alert' : 'status');
+    t.style.setProperty('--et-ms', ms + 'ms');
+    t.innerHTML = '<span class="et-ava">' + (o.avatar || '<i class="fas ' + (o.icon || 'fa-bell') + '"></i>') + (o.badge ? '<span class="et-badge"><i class="fas fa-check"></i></span>' : '') + '</span>' +
+      '<span class="et-txt"><b></b><small></small></span><button type="button" class="et-x" aria-label="Dismiss"><i class="fas fa-xmark"></i></button><span class="et-bar"><i></i></span>';
+    var b = t.querySelector('b'); b.textContent = o.title || '';
+    if (o.wave) { var w = document.createElement('span'); w.className = 'wave'; w.textContent = ' \uD83D\uDC4B'; b.appendChild(w); }
+    var sm = t.querySelector('small'); if (o.text) sm.textContent = o.text; else sm.remove();
+    host.appendChild(t);
+    while (host.children.length > 3) host.firstChild.remove();
+    var gone = false;
+    function close() {
+      if (gone) return; gone = true;
+      t.classList.add('out');
+      setTimeout(function () { t.remove(); if (!host.children.length) host.remove(); }, 460);
+    }
+    t.querySelector('.et-x').addEventListener('click', close);
+    t.querySelector('.et-bar i').addEventListener('animationend', close);   // the timer pauses while hovered
+    return close;
+  }
+  window.eduToast = eduToast;
+
   {% if not chat_user.is_guest %}
   // Welcome toast right after logging in or signing up (set by the log-in animation)
   (function () {
     var kind = null;
     try { kind = sessionStorage.getItem('educhats-welcome'); sessionStorage.removeItem('educhats-welcome'); } catch (e) {}
     if (!kind) return;
-    var t = document.createElement('div'); t.className = 'welcome-toast'; t.setAttribute('role', 'status');
-    t.innerHTML = '<span class="wt-ava">{% if chat_user.photo %}<img src="{% url "chats_user_photo" chat_user.pk %}" alt="">{% else %}{{ chat_user.name|slice:":1"|upper }}{% endif %}</span><span><b></b><small></small></span>';
-    t.querySelector('b').innerHTML = (kind === 'signup' ? 'Welcome to EduChats, ' : 'Welcome back, ') + '<span class="nm"></span> <span class="wave">👋</span>';
-    t.querySelector('.nm').textContent = '{{ chat_user.name|escapejs }}'.split(' ')[0];
-    t.querySelector('small').textContent = kind === 'signup' ? 'Your account is ready — say hi to someone!' : 'You\'re logged in.';
-    document.body.appendChild(t);
-    setTimeout(function () { t.remove(); }, 4200);
+    var first = '{{ chat_user.name|escapejs }}'.split(' ')[0];
+    setTimeout(function () {
+      eduToast({ avatar: '{% if chat_user.photo %}<img src="{% url "chats_user_photo" chat_user.pk %}" alt="">{% else %}{{ chat_user.name|slice:":1"|upper }}{% endif %}', badge: true,
+        title: (kind === 'signup' ? 'Welcome to EduChats, ' : 'Welcome back, ') + first, wave: true,
+        text: kind === 'signup' ? 'Your account is ready — say hi to someone!' : "You're logged in. Your chats are up to date.", ms: 4500 });
+    }, 150);
   })();
   {% endif %}
 
