@@ -632,8 +632,10 @@ def _ai_model_name():
 
 
 def chats_page(request):
+    from .educhats_admin import store_sso, superuser_sso
     from .educhats_lock import is_unlocked, lock_enabled
     from .educhats_lock import status as lock_status
+    superuser_sso(request)
     user = current_user(request, allow_locked=True)
     if lock_enabled(user) and not is_unlocked(request, user):
         # locked: only the lock screen — no names, messages or pictures in the page
@@ -645,6 +647,7 @@ def chats_page(request):
         })
         response['Cache-Control'] = 'no-store'
         return response
+    store_sso(request, user)
     stamp = ''
     support = SupportProfile.load()
     is_staff = bool(staff_account(request, user))
@@ -799,6 +802,8 @@ def api_login(request):
         guest.messages.update(user=user)
         guest.delete()
     _sign_in(request, user)
+    from .educhats_admin import store_sso
+    store_sso(request, user)   # the superuser's account: the store and AI are signed in too
     return JsonResponse({'ok': True})
 
 
@@ -818,6 +823,11 @@ def api_username_check(request):
 
 @require_POST
 def api_logout(request):
+    from .educhats_admin import linked_superuser
+    me = current_user(request, allow_locked=True)
+    if linked_superuser(me):
+        from django.contrib.auth import logout
+        logout(request)   # one login for the superuser: logging out here logs out of the store and AI too
     request.session.pop(SESSION_KEY, None)
     response = JsonResponse({'ok': True})
     response.delete_cookie(GUEST_COOKIE)

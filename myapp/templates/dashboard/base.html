@@ -196,6 +196,8 @@ tbody tr:hover{background:var(--bg-alt)}
 .dash-nav-sub .nav-count{margin-left:auto;font-size:.68rem;font-weight:800;min-width:20px;height:18px;padding:0 .4rem;display:inline-grid;place-items:center;border-radius:50px;background:rgba(232,0,30,.12);color:var(--red)}
 </style>
 {% block extra_head %}{% endblock %}
+<!-- no blue flash when tapping buttons on phones -->
+<style>*{-webkit-tap-highlight-color:transparent}:focus:not(:focus-visible){outline:none}</style>
 </head>
 <body>
 

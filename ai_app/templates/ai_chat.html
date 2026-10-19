@@ -1748,6 +1748,8 @@ footer{flex:none;border-top:1px solid var(--line);background:var(--surface);padd
 }
 @media (prefers-reduced-motion:reduce){.rs-steps li[data-state="active"] .rs-mark{animation:none;border-top-color:rgba(var(--accent-rgb),.22);background:var(--red)}}
 </style>
+<!-- no blue flash when tapping buttons on phones -->
+<style>*{-webkit-tap-highlight-color:transparent}:focus:not(:focus-visible){outline:none}</style>
 </head>
 <body>
 {# Guests chat right away; the inline Log in / Sign up card appears after AI_GUEST_LIMIT messages or from the header button. #}

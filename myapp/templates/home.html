@@ -279,6 +279,8 @@
 }
 </style>
 
+<!-- no blue flash when tapping buttons on phones -->
+<style>*{-webkit-tap-highlight-color:transparent}:focus:not(:focus-visible){outline:none}</style>
 <body>
 <script id="navUserBoot" type="application/json">{{ nav_user_json|safe }}</script>
 

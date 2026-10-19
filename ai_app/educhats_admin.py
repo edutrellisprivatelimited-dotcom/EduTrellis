@@ -3,6 +3,11 @@
 - The superuser (e.g. rnt@gmail.com) can log in to EduChats with their
   EduTrellis admin email + password and use it like any other member; their
   EduChats account is created and linked on first use.
+- One login for the superuser across the store, EduTrellis AI and EduChats:
+  signed in to the store / AI → EduChats signs in as their linked account;
+  signed in to EduChats with that account → the store and AI are signed in
+  too; logging out of EduChats logs out of all three. Everyone else keeps
+  separate store and EduChats accounts.
 - Dashboard → EduChats → Conversations: a live overview of the direct chats
   members have with each other. Superuser only.
 """
@@ -10,7 +15,7 @@ import re
 from datetime import timedelta
 from functools import wraps
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Count, Max, Q
@@ -72,6 +77,35 @@ def chat_account_for(admin):
         name=name, username=username, email=email, phone='', state='', city='',
         password=make_password(None), is_verified=True, django_user=admin,
     )
+
+
+def linked_superuser(chat_user):
+    """The active site superuser this EduChats account belongs to, or None."""
+    admin = chat_user.django_user if chat_user and chat_user.django_user_id and not chat_user.is_guest else None
+    return admin if admin and admin.is_active and admin.is_superuser else None
+
+
+def superuser_sso(request):
+    """Superuser signed in to the store / AI with no EduChats account open here
+    (or only a guest chat): open their own EduChats account. It isn't unlocked —
+    with an app lock on, the lock screen still asks for the PIN."""
+    from .support_chat import SESSION_KEY, current_user
+    admin = request.user
+    if not (admin.is_authenticated and admin.is_active and admin.is_superuser):
+        return
+    me = current_user(request, allow_locked=True)
+    if me and not me.is_guest:
+        return   # someone chose to log in to a particular account here: leave it
+    account = chat_account_for(admin)
+    if account.is_active:
+        request.session[SESSION_KEY] = account.pk
+
+
+def store_sso(request, chat_user):
+    """Signed in to EduChats with the superuser's account: sign in to the store and AI too."""
+    admin = linked_superuser(chat_user)
+    if admin and not request.user.is_authenticated:
+        auth_login(request, admin, backend='django.contrib.auth.backends.ModelBackend')
 
 
 def admin_login(request):
