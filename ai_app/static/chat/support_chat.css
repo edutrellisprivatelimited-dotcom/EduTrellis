@@ -92,7 +92,8 @@
 .call-answer .ic{width:66px;height:66px;font-size:1.4rem}
 .call-overlay.incoming .call-answer{display:flex}
 .call-overlay.incoming .call-bar,.call-overlay.ended .call-bar{display:none}
-.call-overlay.is-audio .cam,.call-overlay.is-audio .flip,.call-overlay.one-cam .flip{display:none}
+.call-overlay.is-audio .cam,.call-overlay.is-audio .flip,.call-overlay.one-cam .flip,.call-overlay:not(.can-speaker) .speaker{display:none}
+.call-btn.on-alt .ic{background:#fff;color:#111}
 .call-overlay:not(.can-add) .add,.call-overlay:not(.active) .add,.call-overlay:not(.active) .rec,.call-overlay:not(.active) .keypad{display:none}
 @media (max-width:480px){.call-overlay .call-bar{flex-wrap:nowrap;gap:2px;padding:12px 6px;left:8px;right:8px}.call-bar .call-btn{flex:1 1 0;min-width:0}.call-bar .call-btn .ic{width:44px;height:44px;font-size:1rem}.call-btn small{font-size:.62rem}}
 /* keypad and "add to call" panels */

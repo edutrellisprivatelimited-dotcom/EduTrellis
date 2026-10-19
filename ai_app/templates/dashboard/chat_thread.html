@@ -4,7 +4,7 @@
 {% block page_title %}Direct Chats{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'chat/support_chat.css' %}">
+{% load asset_version %}<link rel="stylesheet" href="{% versioned_static 'chat/support_chat.css' %}">
 <style>
 .th-panel{overflow:hidden}
 .th-head{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.9rem 1.2rem;background:linear-gradient(120deg,#b8001a,#e8001e 55%,#18b383);color:#fff}
@@ -228,7 +228,7 @@
   if (window.SupportChat) init();
   else {
     var s = document.createElement('script');
-    s.src = '{% static "chat/support_chat.js" %}';
+    s.src = '{% versioned_static "chat/support_chat.js" %}';
     s.onload = init;
     document.head.appendChild(s);
   }

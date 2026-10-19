@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-{% load static %}<link rel="stylesheet" href="{% static 'chat/support_chat.css' %}">
+{% load static asset_version %}<link rel="stylesheet" href="{% versioned_static 'chat/support_chat.css' %}">
 <style>
 :root{--bg:#f4f7f6;--card:#fff;--head:#111827;--text:#4b5563;--line:#e5e7eb;--accent:#e8001e;--accent-dark:#b8001a;--accent-deep:#8f0014;--accent-rgb:232,0,30;--accent-light:#ff4d63;--bubble:rgba(var(--accent-rgb),.08);--ink:#0f1623;--ink-2:#171f2e;--side-w:380px;--danger:#dc2626;--wall:#f6f6f8;--wall-glow:rgba(var(--accent-rgb),.13)}
 :root{color-scheme:light}
@@ -1842,7 +1842,7 @@ EduLook.apply(EduLook.get());
 {% if chat_user and not chat_user.is_guest %}{{ me_card|json_script:"me-card" }}{% endif %}
 {{ support_socials|json_script:"support-socials" }}
 
-{% if chat_user %}<script src="{% static 'chat/support_chat.js' %}"></script>{% endif %}
+{% if chat_user %}<script src="{% versioned_static 'chat/support_chat.js' %}"></script>{% endif %}
 <script>
 (function () {
   var csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;

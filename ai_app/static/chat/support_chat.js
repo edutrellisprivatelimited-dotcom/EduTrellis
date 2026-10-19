@@ -429,6 +429,7 @@
     var peers = {};         // 'main' = the 1:1 link; room members by user id
     var room = null;        // { id, after, members, mySeq, poll }
     var fast = null, timer = null, startedAt = 0, noteTimer = null, rec = null, mainEnded = false;
+    var oneCam = false, outputs = [], output = 0;   // sound outputs (loudspeaker / earpiece / Bluetooth) where the browser can switch them
     var ringIn = Ringer('ring'), ringOut = Ringer('back');
     var ui = buildUi(), $ = function (sel) { return ui.querySelector(sel); };
     setWho(opts.peerName, opts.photo);
@@ -474,7 +475,7 @@
         '<b class="people-title">Add to call</b><input type="search" class="people-q" placeholder="Search your chats" autocomplete="off">' +
         '<div class="people-list"></div><small class="people-hint"></small></div>' +
         '<div class="call-bar">' +
-        btn('mute', 'fa-microphone', 'Mute') + btn('cam', 'fa-video', 'Camera') + btn('flip', 'fa-camera-rotate', 'Flip') +
+        btn('mute', 'fa-microphone', 'Mute') + btn('speaker', 'fa-volume-high', 'Speaker') + btn('cam', 'fa-video', 'Camera') + btn('flip', 'fa-camera-rotate', 'Flip') +
         btn('keypad', 'fa-table-cells', 'Keypad') + btn('rec', 'fa-circle-dot', 'Record') + btn('add', 'fa-user-plus', 'Add') +
         btn('end', 'fa-phone-slash', 'End') + '</div>' +
         '<div class="call-answer">' + btn('decline', 'fa-phone-slash', 'Decline') + btn('accept', 'fa-phone', 'Accept') + '</div>';
@@ -490,6 +491,7 @@
       on('decline', function () { self.hangUp(); });
       on('accept', function () { self.answer(); });
       on('mute', function () { toggleTrack('audio'); });
+      on('speaker', nextOutput);
       on('cam', function () { toggleTrack('video'); });
       on('flip', flip);
       on('keypad', function () { panel('keys'); });
@@ -516,7 +518,8 @@
     function paint() {
       var n = Object.keys(peers).length, group = n > 1 || !!(call && call.roomOnly);
       ui.className = 'call-overlay' + (phase ? ' open ' + phase : '') + (call && call.kind === 'video' ? ' is-video' : ' is-audio') +
-        (group ? ' group' : '') + (opts.rooms || opts.roomOnly ? ' can-add' : '');
+        (group ? ' group' : '') + (opts.rooms || opts.roomOnly ? ' can-add' : '') +
+        (oneCam ? ' one-cam' : '') + (outputs.length > 1 ? ' can-speaker' : '');
       ui.dataset.n = n;
     }
     function state(text) { $('.call-state').textContent = text; }
@@ -535,6 +538,7 @@
         '<div class="tile-name"><i class="fas fa-microphone-slash"></i> <span></span></div>';
       avatar(t.querySelector('.tile-ava'), name, photo);
       $('.call-stage').appendChild(t);
+      if (outputs[output] && t.querySelector('video').setSinkId) t.querySelector('video').setSinkId(outputs[output].deviceId).catch(function () {});
       peers[key] = { key: key, name: name || 'Someone', photo: photo || '', tile: t, pc: null, stream: null,
                      pending: [], iceSeen: 0, flags: {}, connected: false, invited: false };
       refresh();
@@ -589,9 +593,10 @@
         stream.getVideoTracks().forEach(function (t) { if ('contentHint' in t) t.contentHint = 'motion'; });
         local = stream; facing = 'user';
         var me = $('.call-local'); me.srcObject = stream; me.classList.remove('back'); me.dataset.live = '1';
+        findOutputs();
         if (kind === 'video' && navigator.mediaDevices.enumerateDevices) {
           navigator.mediaDevices.enumerateDevices().then(function (list) {
-            ui.classList.toggle('one-cam', list.filter(function (d) { return d.kind === 'videoinput'; }).length < 2);
+            oneCam = list.filter(function (d) { return d.kind === 'videoinput'; }).length < 2; paint();
           }).catch(function () {});
         }
         return stream;
@@ -690,6 +695,36 @@
           var me = $('.call-local'); me.srcObject = null; me.srcObject = local; me.classList.toggle('back', want === 'environment');
         }).catch(function () { opts.onError("Couldn't switch the camera."); });
     }
+    // Speaker: the microphone keeps working whichever way the sound comes out
+    function findOutputs() {
+      if (!navigator.mediaDevices.enumerateDevices || !('setSinkId' in HTMLMediaElement.prototype)) return;
+      navigator.mediaDevices.enumerateDevices().then(function (list) {
+        outputs = list.filter(function (d) { return d.kind === 'audiooutput' && d.deviceId !== 'communications'; });
+        output = 0;
+        paint();
+      }).catch(function () {});
+    }
+    function outputName(d) {
+      var l = (d.label || '').toLowerCase();
+      if (/speaker/.test(l)) return 'Speaker';
+      if (/earpiece|receiver|handset/.test(l)) return 'Earpiece';
+      if (/bluetooth|bt|airpods|buds/.test(l)) return 'Bluetooth';
+      if (/headset|headphone|wired/.test(l)) return 'Headphones';
+      return d.deviceId === 'default' ? 'Default' : (d.label || 'Output').split('(')[0].trim().slice(0, 14);
+    }
+    function nextOutput() {
+      if (outputs.length < 2) return;
+      output = (output + 1) % outputs.length;
+      var d = outputs[output];
+      Object.keys(peers).forEach(function (k) {
+        var v = peers[k].tile.querySelector('video');
+        if (v.setSinkId) v.setSinkId(d.deviceId).catch(function () {});
+      });
+      $('.call-btn.speaker small').textContent = outputName(d);
+      $('.call-btn.speaker').classList.toggle('on-alt', output !== 0);
+      note('Sound: ' + outputName(d));
+    }
+
     function press(d) {
       var ctx = actx();
       if (ctx && ctx.state === 'running') { var t = ctx.currentTime + 0.01; tone(ctx, DTMF[d][0], t, 0.16, 0.08, true); tone(ctx, DTMF[d][1], t, 0.16, 0.08, true); }
