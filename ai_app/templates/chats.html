@@ -1895,12 +1895,26 @@ EduLook.apply(EduLook.get());
     orderRows();
   }
   // the number on the installed app's icon (Windows / Mac / ChromeOS / iPhone home screen)
-  var lastBadge = -1;
+  var lastBadge = -1, syncTimer = null;
   function setAppBadge(n) {
-    if (n === lastBadge || !('setAppBadge' in navigator)) return;
+    if (n === lastBadge) return;
+    var fewer = n < lastBadge;
     lastBadge = n;
-    try { (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(function () {}); } catch (e) {}
+    if ('setAppBadge' in navigator) {
+      try { (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(function () {}); } catch (e) {}
+    }
+    // something was read: once the server has it, the worker clears those chats'
+    // notifications (that's what clears the badge on Android) and re-counts
+    if (fewer) syncWorkerBadge(1500);
   }
+  function syncWorkerBadge(delay) {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () {
+      try { if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'educhats-sync' }); } catch (e) {}
+    }, delay);
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) syncWorkerBadge(2500); });
+  syncWorkerBadge(4000);
   function supportVisible() {
     var g = document.getElementById('gChat'), sx = document.getElementById('sxChat');
     return document.getElementById('dmChat').hidden && document.getElementById('aiChat').hidden && (!g || g.hidden) && (!sx || sx.hidden)

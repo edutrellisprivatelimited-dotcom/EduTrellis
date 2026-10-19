@@ -73,6 +73,24 @@ self.addEventListener('fetch', (e) => {
 async function setBadge(n) {
   try { if (n > 0) await self.navigator.setAppBadge(n); else await self.navigator.clearAppBadge(); } catch (_) {}
 }
+// Android shows the app-icon badge from the notifications that are still in
+// the tray, so a chat's notification has to go once that chat is read —
+// here or on another device — or the icon keeps a stale badge.
+async function tidyTray(unread) {
+  const keep = new Set((unread || []).map(String));
+  const list = await self.registration.getNotifications();
+  list.forEach((n) => { const d = n.data || {}; if (!d.call && !keep.has(String(d.chat || ''))) n.close(); });
+}
+async function syncBadge() {
+  try {
+    const sub = await self.registration.pushManager.getSubscription();
+    const r = await fetch(BADGE_URL + (sub ? '?ep=' + encodeURIComponent(sub.endpoint) : ''), { credentials: 'include', cache: 'no-store' });
+    const d = await r.json();
+    if (!d.ok) return;
+    await setBadge(d.badge || 0);
+    await tidyTray(d.chats);
+  } catch (_) {}
+}
 self.addEventListener('push', (e) => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
@@ -84,9 +102,10 @@ self.addEventListener('push', (e) => {
     if (!d.call && wins.some((c) => c.focused && c.visibilityState === 'visible')) return;
     await self.registration.showNotification(d.title || APP, {
       body: d.body || 'New message', tag: d.tag || 'educhats', renotify: true, icon: ICON, badge: BADGE,
-      data: { chat: d.chat || '' }, timestamp: d.ts || Date.now(), vibrate: d.call ? [400, 200, 400, 200, 400] : [120, 60, 120],
+      data: { chat: d.chat || '', call: !!d.call }, timestamp: d.ts || Date.now(), vibrate: d.call ? [400, 200, 400, 200, 400] : [120, 60, 120],
       requireInteraction: !!d.call, silent: false,
     });
+    if (Array.isArray(d.unread)) await tidyTray(d.unread.concat(d.chat ? [d.chat] : []));
   })());
 });
 self.addEventListener('notificationclick', (e) => {
@@ -108,6 +127,7 @@ self.addEventListener('notificationclick', (e) => {
 // the page tells the worker the badge number; on a fresh start it asks the server
 self.addEventListener('message', (e) => {
   if (e.data && e.data.type === 'educhats-badge') e.waitUntil(setBadge(+e.data.n || 0));
+  else if (e.data && e.data.type === 'educhats-sync') e.waitUntil(syncBadge());
 });
 self.addEventListener('pushsubscriptionchange', (e) => {
   e.waitUntil(self.clients.matchAll({ type: 'window' }).then((wins) => wins.forEach((c) => c.postMessage({ type: 'educhats-resubscribe' }))));

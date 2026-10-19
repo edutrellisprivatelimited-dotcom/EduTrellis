@@ -203,10 +203,16 @@ def push_to(user, chat, title, body, call=False):
         if chat in muted and not call:
             continue
         badge = sum(n for key, n in counts.items() if key not in muted)
+        count = counts.get(chat, 0)
+        text = body
         if user.app_lock_pin and not call:   # app lock on: don't show the message on the lock screen
-            body = '🔒 New message'
-        _send(sub, {'title': title[:80], 'body': body[:200], 'chat': chat, 'tag': f'chat-{chat}',
-                    'badge': badge, 'call': call, 'ts': int(time.time() * 1000)})
+            text = f'🔒 {count} new messages' if count > 1 else '🔒 New message'
+        elif count > 1 and not chat.startswith('sx'):   # one notification per chat, like WhatsApp
+            text = f'{count} new messages · {body}'
+        # `unread` lets the device clear notifications of chats read elsewhere
+        _send(sub, {'title': title[:80], 'body': text[:200], 'chat': chat, 'tag': f'chat-{chat}',
+                    'badge': badge, 'call': call, 'ts': int(time.time() * 1000),
+                    'unread': [key for key in counts if key not in muted][:60]})
 
 
 def _in_background(fn, *args):
@@ -354,5 +360,10 @@ def api_badge(request):
     from .support_chat import current_user
     user = current_user(request)
     if not user:
-        return JsonResponse({'ok': False, 'badge': 0})
-    return JsonResponse({'ok': True, 'badge': sum(unread_by_chat(user).values())})
+        return JsonResponse({'ok': False, 'badge': 0, 'chats': []})
+    counts = unread_by_chat(user)
+    # this device's muted chats don't count, the same as in its notifications
+    sub = PushSubscription.objects.filter(user=user, endpoint=request.GET.get('ep', '')[:500]).first()
+    muted = set(str(m) for m in (sub.muted or [])) if sub else set()
+    counts = {key: n for key, n in counts.items() if key not in muted}
+    return JsonResponse({'ok': True, 'badge': sum(counts.values()), 'chats': list(counts)})
