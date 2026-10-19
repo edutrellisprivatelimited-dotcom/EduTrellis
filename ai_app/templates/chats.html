@@ -560,6 +560,8 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .inst-head img{width:60px;height:60px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.18)}
 .inst-head h3{margin:0}
 .inst-head p{margin:.2rem 0 0;font-size:.8rem}
+.inst-now{width:100%;margin:0 0 .8rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.inst-now[hidden]{display:none}
 .inst-steps{list-style:none;margin:.8rem 0;padding:0;counter-reset:st}
 .inst-steps li{counter-increment:st;display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-top:1px solid var(--line);font-size:.86rem;color:var(--head);line-height:1.4}
 .inst-steps li::before{content:counter(st);width:28px;height:28px;flex:0 0 28px;border-radius:50%;background:var(--accent);color:#fff;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center}
@@ -749,19 +751,28 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .side-item[hidden],.side-empty[hidden]{display:none}
 .side-toggle{display:none}
 .side-dim{display:none}
-@media (max-width:900px){
+@media (max-width:1024px){
   .chat{left:0}
-  .side{width:min(380px,92vw);transform:translateX(-100%);transition:transform .25s ease;box-shadow:12px 0 40px rgba(0,0,0,.35)}
+  .side{width:100%;border-right:none;transform:translateX(-100%);transition:transform .25s ease}
   body.side-open .side{transform:none}
-  .side-x{display:inline-flex}
   .side-toggle{display:inline-block}
-  body.side-open .side-dim{display:block;position:fixed;inset:0;z-index:39;background:rgba(10,13,19,.5)}
+  .side-toggle i::before{content:"\f060"}   /* ← back to the chat list */
+  .home-pane{display:none !important}
 }
 </style>
 {% include "includes/favicon.html" %}
 <link rel="manifest" href="{% url 'chats_manifest' %}">
-<meta name="theme-color" content="#0f1623">
-<link rel="apple-touch-icon" href="{% url 'chats_icon' 180 %}">
+<script>
+  window.__installPrompt = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); window.__installPrompt = e;
+    document.dispatchEvent(new Event('educhats-installable'));
+  });
+</script>
+<meta name="theme-color" content="{{ app.theme_color|default:'#0f1623' }}">
+<meta name="apple-mobile-web-app-title" content="{{ app.short_name|default:'EduChats' }}">
+<meta name="application-name" content="{{ app.short_name|default:'EduChats' }}">
+<link rel="apple-touch-icon" href="{{ app.icon_180 }}">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="EduChats">
@@ -841,6 +852,10 @@ EduLook.apply(EduLook.get());
 </script>
 </head>
 <body>
+<script>
+  // Phones and tablets open on the chat list (like WhatsApp), unless a link points at a chat.
+  if (window.matchMedia('(max-width: 1024px)').matches && !/[?&]to=/.test(location.search)) document.body.classList.add('side-open');
+</script>
 {% csrf_token %}
 {% if chat_user %}
 <aside class="side" id="side" aria-label="EduChats">
@@ -1040,7 +1055,7 @@ EduLook.apply(EduLook.get());
 <div class="chat home-pane" id="homePane" hidden>
   <button class="head-btn side-toggle home-side" id="homeSideOpen" type="button" title="All chats" aria-label="All chats"><i class="fas fa-bars"></i></button>
   <div class="home-in">
-    <img class="home-logo" src="{% url 'chats_icon' 192 %}" alt="" width="96" height="96">
+    <img class="home-logo" src="{{ app.icon_192 }}" alt="" width="96" height="96">
     <h2>EduChats</h2>
     <p>Pick a chat on the left to carry on — or start a new one.</p>
     <div class="home-acts">
@@ -1345,7 +1360,8 @@ EduLook.apply(EduLook.get());
 </div>
 <div class="sheet pf-sheet" id="installSheet">
   <div class="sheet-card">
-    <div class="inst-head"><img src="{% url 'chats_icon' 192 %}" alt="EduChats app icon"><div><h3 id="instTitle">Install EduChats</h3><p>Opens full-screen from your home screen, just like an app.</p></div></div>
+    <div class="inst-head"><img src="{{ app.icon_192 }}" alt="{{ app.app_name }} app icon"><div><h3 id="instTitle">Install {{ app.app_name }}</h3><p>{{ app.description|default:"Opens full-screen from your home screen, just like an app." }}</p></div></div>
+    <button class="pf-save inst-now" type="button" id="instNow" hidden><i class="fas fa-download"></i> Install now</button>
     <ol class="inst-steps" id="instSteps"></ol>
     <p class="inst-note" id="instNote" hidden></p>
     <button class="pf-save" type="button" data-close>Got it</button>
@@ -1579,8 +1595,10 @@ EduLook.apply(EduLook.get());
   var supportRow = document.getElementById('supportRow');
   var SEEN_KEY = 'chats-seen-{{ chat_user.pk }}', seenAdmin = 0, lastAdmin = 0, unreadIds = {}, baseTitle = document.title;
   try { seenAdmin = parseInt(localStorage.getItem(SEEN_KEY) || '0', 10) || 0; } catch (e) {}
-  var KIND_ICON = { image: 'fa-camera', video: 'fa-video', file: 'fa-file-lines', location: 'fa-location-dot', call: 'fa-phone' };
-  var KIND_TEXT = { image: 'Photo', video: 'Video', location: 'Location', call: 'Call' };
+  var KIND_ICON = { image: 'fa-camera', video: 'fa-video', file: 'fa-file-lines', location: 'fa-location-dot', call: 'fa-phone', sticker: 'fa-note-sticky', gif: 'fa-film' };
+  var KIND_TEXT = { image: 'Photo', video: 'Video', location: 'Location', call: 'Call', sticker: 'Sticker', gif: 'GIF' };
+  var GIFS_URL = '{% url "chats_gifs" %}';
+  function newCid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
   function shortWhen(iso) {
     var d = new Date(iso), label = dayLabel(d);
     return label === 'Today' ? when(iso) : label === 'Yesterday' ? label : d.toLocaleDateString([], { day: 'numeric', month: 'short' });
@@ -1601,7 +1619,7 @@ EduLook.apply(EduLook.get());
     }
     if (KIND_ICON[m.kind]) { var ic = document.createElement('i'); ic.className = 'fas ' + KIND_ICON[m.kind] + ' kind'; sidePreview.appendChild(ic); }
     var t = document.createElement('span');
-    t.textContent = (m.kind === 'location' ? '' : (m.body || '').replace(/\s+/g, ' ').trim())
+    t.textContent = (m.kind === 'location' || m.kind === 'sticker' || m.kind === 'gif' ? '' : (m.body || '').replace(/\s+/g, ' ').trim())
       || (m.kind === 'file' ? (m.name || 'Document') : KIND_TEXT[m.kind] || '');
     sidePreview.appendChild(t);
   }
@@ -1967,12 +1985,28 @@ EduLook.apply(EduLook.get());
     aiChat.hidden = true; aiRow.classList.remove('active'); supportRow.classList.remove('active');
     document.getElementById('homePane').hidden = false;
     try { history.replaceState(null, '', location.pathname); } catch (e) {}
-    if (window.matchMedia('(max-width: 900px)').matches) document.body.classList.add('side-open');
+    if (window.matchMedia('(max-width: 1024px)').matches) document.body.classList.add('side-open');
   }
   document.getElementById('homeAI').addEventListener('click', function () { aiRow.click(); });
   var homeNew = document.getElementById('homeNew');
   if (homeNew) homeNew.addEventListener('click', function () { document.getElementById('newChatBtn').click(); document.body.classList.add('side-open'); });
   document.getElementById('homeSideOpen').addEventListener('click', function () { document.body.classList.add('side-open'); });
+
+  // phones / tablets: opening a chat adds a history step, so the phone's Back button returns to the list
+  (function () {
+    var mobile = window.matchMedia('(max-width: 1024px)');
+    var wasOpen = document.body.classList.contains('side-open');
+    new MutationObserver(function () {
+      var open = document.body.classList.contains('side-open');
+      if (open === wasOpen || !mobile.matches) { wasOpen = open; return; }
+      wasOpen = open;
+      if (!open) { try { history.pushState({ educhat: 1 }, '', location.href); } catch (e) {} }
+      else if (history.state && history.state.educhat) history.back();
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('popstate', function () {
+      if (mobile.matches) showHome();   // back to the list closes the chat behind it
+    });
+  })();
 
   // right-click on a chat's background: info / export / delete / close
   (function () {
@@ -2200,12 +2234,15 @@ EduLook.apply(EduLook.get());
       document.getElementById('aiTime').textContent = '';
     };
     // open by default — unless a ?to= link is about to open a direct chat
-    if (new URLSearchParams(location.search).get('to')) setAIOpen(false); else { setAIOpen(true); load(); }
+    if (new URLSearchParams(location.search).get('to')) setAIOpen(false);
+    else if (window.matchMedia('(max-width: 1024px)').matches) showHome();   // phones / tablets: start on the chat list
+    else { setAIOpen(true); load(); }
   })();
 
   // ── Install app: Android, iPhone/iPad or computer, detected automatically ──
   (function () {
-    var btn = document.getElementById('openInstall'), deferred = null;
+    var btn = document.getElementById('openInstall'), APP_NAME = '{{ app.app_name|escapejs }}';
+    function offer() { return window.__installPrompt; }
     var ua = navigator.userAgent || '';
     var isIPad = /ipad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     var isIOS = isIPad || /iphone|ipod/i.test(ua), isAndroid = /android/i.test(ua);
@@ -2221,9 +2258,22 @@ EduLook.apply(EduLook.get());
     document.getElementById('installLabel').textContent = PLATFORMS[platform][0];
     document.getElementById('installIcon').className = PLATFORMS[platform][1];
     btn.hidden = false;
-    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; });
+    // Chrome may offer the install a few seconds after the page loads — light up "Install now" when it does
+    document.addEventListener('educhats-installable', function () { document.getElementById('instNow').hidden = false; });
+    document.getElementById('instNow').addEventListener('click', function () { runPrompt(); });
+    function runPrompt() {
+      var o = offer();
+      if (!o) return false;
+      o.prompt();
+      o.userChoice.then(function (c) {
+        if (c.outcome === 'accepted') { btn.hidden = true; document.getElementById('installSheet').classList.remove('open'); }
+      }).catch(function () {});
+      window.__installPrompt = null;   // a prompt can only be shown once
+      document.getElementById('instNow').hidden = true;
+      return true;
+    }
     window.addEventListener('appinstalled', function () {
-      btn.hidden = true; deferred = null;
+      btn.hidden = true; window.__installPrompt = null;
       document.getElementById('installSheet').classList.remove('open');
     });
     function steps(list, note) {
@@ -2233,12 +2283,9 @@ EduLook.apply(EduLook.get());
     }
     btn.addEventListener('click', function () {
       document.getElementById('sideMenu').classList.remove('open'); document.body.classList.remove('side-open');
-      if (deferred) {   // Chrome / Edge / Samsung Internet: the real install prompt
-        deferred.prompt();
-        deferred.userChoice.then(function (c) { if (c.outcome === 'accepted') btn.hidden = true; deferred = null; }).catch(function () {});
-        return;
-      }
-      document.getElementById('instTitle').textContent = PLATFORMS[platform][0].replace('Install app', 'Install EduChats');
+      if (runPrompt()) return;   // Chrome / Edge / Samsung Internet: the real "Install" dialog
+      document.getElementById('instTitle').textContent = PLATFORMS[platform][0].replace('Install app', 'Install ' + APP_NAME);
+      document.getElementById('instNow').hidden = !offer();
       if (platform === 'ios') {
         var notSafari = /crios|fxios|edgios/i.test(ua);
         steps([
@@ -2250,8 +2297,10 @@ EduLook.apply(EduLook.get());
         steps([
           'Tap the <b>⋮ menu</b> <i class="fas fa-ellipsis-vertical"></i> at the top-right of Chrome.',
           'Tap <b>Install app</b> or <b>Add to Home screen</b>.',
-          'Tap <b>Install</b> — EduChats opens like any other app.'
-        ], 'Using Samsung Internet? Tap the menu <i class="fas fa-bars"></i>, then <b>Add page to</b> → <b>Home screen</b>.');
+          'Tap <b>Install</b> — ' + APP_NAME + ' opens like any other app.'
+        ], !window.isSecureContext
+          ? '<b>Installing needs a secure link.</b> This page was opened over plain <code>http://</code>, so Android only allows a shortcut. Open the <b>https://</b> address of the site to install the full app.'
+          : 'Using Samsung Internet? Tap the menu <i class="fas fa-bars"></i>, then <b>Add page to</b> → <b>Home screen</b>.');
       } else {
         steps([
           'Look for the install icon <i class="fas fa-download"></i> at the right end of the address bar (Chrome or Edge).',
@@ -2365,8 +2414,8 @@ EduLook.apply(EduLook.get());
     return m ? decodeURIComponent(m[1]) : csrf;
   }
   function queue(item) {
-    item.el = item.el || bubble({ from: 'user', kind: 'text', body: item.body, at: item.at });
-    setPreview({ from: 'user', kind: 'text', body: item.body, at: item.at });
+    item.el = item.el || bubble({ from: 'user', kind: item.kind || 'text', body: item.body, at: item.at });
+    setPreview({ from: 'user', kind: item.kind || 'text', body: item.body, at: item.at });
     item.el.addEventListener('click', function () {
       if (item.failed) { item.failed = false; setTick(item.el.querySelector('.tick'), 'sending'); outbox.push(item); saveOutbox(); flush(); }
     });
@@ -2384,7 +2433,7 @@ EduLook.apply(EduLook.get());
     fetch('{% url "chats_messages" %}', {
       method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': freshCsrf() },
-      body: JSON.stringify({ body: item.body, cid: item.cid })
+      body: JSON.stringify({ body: item.body, cid: item.cid, kind: item.kind, code: item.code, url: item.url })
     }).then(function (r) {
       if (r.status === 401) { location.reload(); return null; }
       return r.json().then(function (res) { return { status: r.status, res: res }; }, function () { return { status: r.status, res: null }; });
@@ -2434,7 +2483,11 @@ EduLook.apply(EduLook.get());
     if (capture) pick.setAttribute('capture', capture); else pick.removeAttribute('capture');
     pick.click();
   };
-  SupportChat.emojiPicker(document.getElementById('emojiBtn'), box);
+  SupportChat.emojiPicker(document.getElementById('emojiBtn'), box, {
+    gifUrl: GIFS_URL,
+    onSticker: function (code) { queue({ cid: newCid(), kind: 'sticker', code: code, body: code, at: new Date().toISOString() }); },
+    onGif: function (g) { queue({ cid: newCid(), kind: 'gif', url: g.url, body: g.url, at: new Date().toISOString() }); }
+  });
   document.getElementById('attachBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('open'); });
   document.addEventListener('click', function (e) { if (!menu.contains(e.target)) menu.classList.remove('open'); });
   menu.querySelectorAll('[data-pick]').forEach(function (b) {
@@ -2792,10 +2845,11 @@ EduLook.apply(EduLook.get());
           k.className = tickClass(t.last.read); k.hidden = !k.className;
           el.appendChild(k);
         }
-        var att = { image: ['fa-camera', 'Photo'], video: ['fa-video', 'Video'], file: ['fa-file-lines', t.last.name || 'File'] }[t.last.kind];
+        var att = { image: ['fa-camera', 'Photo'], video: ['fa-video', 'Video'], file: ['fa-file-lines', t.last.name || 'File'],
+                    sticker: ['fa-note-sticky', 'Sticker'], gif: ['fa-film', 'GIF'] }[t.last.kind];
         if (att) {
           var ai = document.createElement('i'); ai.className = 'fas ' + att[0] + ' kind'; el.appendChild(ai);
-          text.textContent = (t.last.body || att[1]).replace(/\s+/g, ' ');
+          text.textContent = (t.last.kind === 'sticker' || t.last.kind === 'gif' ? att[1] : (t.last.body || att[1])).replace(/\s+/g, ' ');
           el.appendChild(text);
           return;
         }
@@ -2940,6 +2994,7 @@ EduLook.apply(EduLook.get());
       var content = document.createElement('div'); content.className = 'msg-text'; content.textContent = m.body;
       if (m.kind === 'call') { content.className = ''; SupportChat.renderBody(content, { kind: 'call', body: m.body }); }
       else if (m.url && (m.kind === 'image' || m.kind === 'video' || m.kind === 'file')) { content.className = ''; SupportChat.renderBody(content, m); }
+      else if (m.kind === 'sticker' || m.kind === 'gif') { content.className = ''; SupportChat.renderBody(content, m); }
       div.appendChild(content);
       var t = document.createElement('time');
       t.appendChild(document.createTextNode(when(m.at)));
@@ -3052,7 +3107,21 @@ EduLook.apply(EduLook.get());
     dmBody.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); dmComposer.requestSubmit(); }
     });
-    SupportChat.emojiPicker(document.getElementById('dmEmoji'), dmBody);
+    function dmSendRich(payload) {   // a sticker or GIF in the open direct chat
+      if (!active) return;
+      var id = active, el = dmBubble({ mine: true, kind: payload.kind, body: payload.code || payload.url, at: new Date().toISOString() });
+      el.classList.add('uploading');
+      postJSON(DM + id + '/', Object.assign({ cid: newCid() }, payload)).then(function (res) {
+        if (!res.ok) { el.remove(); return dmFlash(res.error || 'Could not send that.'); }
+        if (active === id) dmAdd(res.message, el); else el.remove();
+        var t = threads[id]; if (t) { t.last = res.message; renderList(); }
+      }).catch(function () { el.remove(); dmFlash('Could not reach the server. Please try again.'); });
+    }
+    SupportChat.emojiPicker(document.getElementById('dmEmoji'), dmBody, {
+      gifUrl: GIFS_URL,
+      onSticker: function (code) { dmSendRich({ kind: 'sticker', code: code }); },
+      onGif: function (g) { dmSendRich({ kind: 'gif', url: g.url }); }
+    });
 
     // header menu: block / unblock, close
     document.getElementById('dmMenuBtn').addEventListener('click', function (e) { e.stopPropagation(); dmMenu.classList.toggle('open'); });
@@ -3282,9 +3351,10 @@ EduLook.apply(EduLook.get());
       } else {
         var who = document.createElement('span'); who.className = 'who-said'; who.textContent = (m.name || '').split(' ')[0] + ': '; el.appendChild(who);
       }
-      var att = { image: ['fa-camera', 'Photo'], video: ['fa-video', 'Video'], file: ['fa-file-lines', m.file || 'File'] }[m.kind];
+      var att = { image: ['fa-camera', 'Photo'], video: ['fa-video', 'Video'], file: ['fa-file-lines', m.file || 'File'],
+                  sticker: ['fa-note-sticky', 'Sticker'], gif: ['fa-film', 'GIF'] }[m.kind];
       if (att) { var ai = document.createElement('i'); ai.className = 'fas ' + att[0] + ' kind'; el.appendChild(ai); }
-      text.textContent = (m.body || (att ? att[1] : '')).replace(/\s+/g, ' ');
+      text.textContent = (m.kind === 'sticker' || m.kind === 'gif' ? att[1] : (m.body || (att ? att[1] : ''))).replace(/\s+/g, ' ');
       el.appendChild(text);
     }
     function makeGRow(id) {
@@ -3403,7 +3473,7 @@ EduLook.apply(EduLook.get());
         var content = document.createElement('div'); content.className = 'msg-text'; content.textContent = m.body;
         if (m.url && (m.kind === 'image' || m.kind === 'video' || m.kind === 'file')) {
           content.className = ''; SupportChat.renderBody(content, { kind: m.kind, url: m.url, name: m.file, body: m.body });
-        }
+        } else if (m.kind === 'sticker' || m.kind === 'gif') { content.className = ''; SupportChat.renderBody(content, m); }
         div.appendChild(content);
         var t = document.createElement('time'); t.appendChild(document.createTextNode(when(m.at)));
         if (m.mine) { var k = document.createElement('span'); setTick(k, 'sending'); t.appendChild(k); }
@@ -3512,7 +3582,21 @@ EduLook.apply(EduLook.get());
     });
     gBody.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); gComposer.requestSubmit(); } });
     gBody.addEventListener('input', function () { gBody.style.height = ''; gBody.style.height = Math.min(gBody.scrollHeight, 140) + 'px'; });
-    SupportChat.emojiPicker(document.getElementById('gEmoji'), gBody);
+    function gSendRich(payload) {   // a sticker or GIF in the open group
+      if (gActive === null) return;
+      var id = gActive, el = gBubble({ mine: true, kind: payload.kind, body: payload.code || payload.url, sender: +ME, at: new Date().toISOString() });
+      el.classList.add('uploading');
+      postJSON(GROUPS + id + '/', Object.assign({ cid: newCid() }, payload)).then(function (res) {
+        if (!res.ok) { el.remove(); return gFlash(res.error || 'Could not send that.'); }
+        if (gActive === id) gAdd(res.message, el); else el.remove();
+        var g = groups[id]; if (g) { g.last = res.message; renderGroups(); }
+      }).catch(function () { el.remove(); gFlash('Could not reach the server. Please try again.'); });
+    }
+    SupportChat.emojiPicker(document.getElementById('gEmoji'), gBody, {
+      gifUrl: GIFS_URL,
+      onSticker: function (code) { gSendRich({ kind: 'sticker', code: code }); },
+      onGif: function (g) { gSendRich({ kind: 'gif', url: g.url }); }
+    });
     var gAttachMenu = document.getElementById('gAttachMenu');
     document.getElementById('gAttach').addEventListener('click', function (e) { e.stopPropagation(); gAttachMenu.classList.toggle('open'); });
     document.addEventListener('click', function (e) { if (!gAttachMenu.contains(e.target)) gAttachMenu.classList.remove('open'); });

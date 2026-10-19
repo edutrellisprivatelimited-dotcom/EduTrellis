@@ -1029,8 +1029,10 @@ class ChatMessage(models.Model):
     KIND_FILE = 'file'
     KIND_LOCATION = 'location'
     KIND_CALL = 'call'
+    KIND_STICKER = 'sticker'   # body = animated Noto emoji code (educhats_media.py)
+    KIND_GIF = 'gif'           # body = GIF URL on GIPHY / Tenor's media server
     KIND_CHOICES = [(KIND_TEXT, 'Text'), (KIND_IMAGE, 'Photo'), (KIND_VIDEO, 'Video'), (KIND_FILE, 'File'),
-                    (KIND_LOCATION, 'Location'), (KIND_CALL, 'Call')]
+                    (KIND_LOCATION, 'Location'), (KIND_CALL, 'Call'), (KIND_STICKER, 'Sticker'), (KIND_GIF, 'GIF')]
 
     user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='messages')
     sender = models.CharField(max_length=5, choices=SENDER_CHOICES)
@@ -1112,7 +1114,8 @@ class DirectMessage(models.Model):
     sender = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='dm_sent')
     # 'call' rows are the "Voice call · 2:31" / "Missed video call" lines a call leaves behind;
     # image / video / file rows carry an attachment (body is the optional caption).
-    KIND_CHOICES = [('text', 'Text'), ('call', 'Call'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File')]
+    KIND_CHOICES = [('text', 'Text'), ('call', 'Call'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'),
+                    ('sticker', 'Sticker'), ('gif', 'GIF')]
     kind = models.CharField(max_length=8, choices=KIND_CHOICES, default='text')
     body = models.TextField(blank=True)
     # Served only through direct_chat.dm_attachment, which checks who is asking.
@@ -1134,6 +1137,10 @@ class DirectMessage(models.Model):
             return f'[{label}{name}]' + (f' {self.body}' if self.body else '')
         if self.kind == 'call':
             return f'[Call] {self.body}'
+        if self.kind == 'sticker':
+            return '[Sticker]'
+        if self.kind == 'gif':
+            return f'[GIF] {self.body}'
         return self.body
 
 
@@ -1189,7 +1196,8 @@ class GroupMember(models.Model):
 
 
 class GroupMessage(models.Model):
-    KIND_CHOICES = [('text', 'Text'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'), ('system', 'Update')]
+    KIND_CHOICES = [('text', 'Text'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'), ('system', 'Update'),
+                    ('sticker', 'Sticker'), ('gif', 'GIF')]
     group = models.ForeignKey(ChatGroup, on_delete=models.CASCADE, related_name='messages')
     # None for the grey "Rahul added Muskan" lines.
     sender = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='group_sent')
@@ -1210,4 +1218,39 @@ class GroupMessage(models.Model):
             label = {'image': 'Photo', 'video': 'Video', 'file': 'File'}[self.kind]
             name = f': {self.attachment_name}' if self.attachment_name else ''
             return f'[{label}{name}]' + (f' {self.body}' if self.body else '')
+        if self.kind == 'sticker':
+            return '[Sticker]'
+        if self.kind == 'gif':
+            return f'[GIF] {self.body}'
         return self.body
+
+
+class EduChatsAppSettings(models.Model):
+    """How the installed EduChats app looks (Admin → EduChats → App Settings): one row."""
+    app_name = models.CharField(max_length=45, default='EduChats')
+    # The label under the icon on a phone's home screen — about 12 letters fit.
+    short_name = models.CharField(max_length=24, default='EduChats')
+    description = models.CharField(max_length=200, default='Chat with the EduTrellis support team and people you know.')
+    # Square picture, at least 512×512; the install icons are cut from it. Empty = the built-in red chat icon.
+    icon = models.ImageField(upload_to='support_chat/app/', blank=True)
+    theme_color = models.CharField(max_length=7, default='#0f1623')        # status bar / title bar
+    background_color = models.CharField(max_length=7, default='#0f1623')   # splash screen while it opens
+    # GIFs in the emoji panel: a free key from developers.giphy.com or Google's Tenor API.
+    GIF_PROVIDERS = [('giphy', 'GIPHY'), ('tenor', 'Tenor')]
+    gif_provider = models.CharField(max_length=8, choices=GIF_PROVIDERS, default='giphy')
+    gif_api_key = models.CharField(max_length=120, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'EduChats app settings'
+
+    @classmethod
+    def load(cls):
+        return cls.objects.get_or_create(pk=1)[0]
+
+    @property
+    def version(self):
+        return int(self.updated_at.timestamp()) if self.updated_at else 0
+
+    def __str__(self):
+        return self.app_name

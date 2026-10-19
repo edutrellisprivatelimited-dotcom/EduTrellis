@@ -65,6 +65,21 @@
       wrap.appendChild(row);
       box.appendChild(wrap);
       wrap._loc = { lat: m.lat, lng: m.lng };
+    } else if (m.kind === 'sticker' && /^[0-9a-f_]+$/.test(m.body || '')) {
+      box.classList.add('is-sticker');
+      var st = el('img', 'att-sticker');
+      st.src = 'https://fonts.gstatic.com/s/e/notoemoji/latest/' + m.body + '/512.webp';
+      st.alt = 'Sticker'; st.loading = 'lazy'; st.draggable = false;
+      box.appendChild(st);
+      return;
+    } else if (m.kind === 'gif' && /^https:\/\/(media\d?\.giphy\.com|i\.giphy\.com|media\.tenor\.com)\//.test(m.body || '')) {
+      box.classList.add('is-gif');
+      var gw = el('a', 'att-gif'); gw.href = m.body; gw.target = '_blank'; gw.rel = 'noopener noreferrer';
+      var gi = el('img'); gi.src = m.body; gi.alt = 'GIF'; gi.loading = 'lazy'; gi.draggable = false;
+      gi.onerror = function () { gw.classList.add('broken'); gw.removeAttribute('href'); gw.textContent = ''; gw.appendChild(el('i', 'fas fa-film')); gw.appendChild(el('span', '', 'GIF unavailable')); };
+      gw.appendChild(gi); gw.appendChild(el('span', 'att-gif-tag', 'GIF'));
+      box.appendChild(gw);
+      return;
     } else if (m.kind === 'call') {
       var call = el('div', 'att-call');
       var missed = /missed|declined/i.test(m.body);
@@ -343,9 +358,12 @@
     };
   }
 
-  // Emoji picker: the full Unicode set with categories, search, skin tones and
-  // recently used, loaded only the first time someone opens it.
-  var PICKER_SRC = 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.21.3/index.js';
+  // Emoji · GIF · Stickers panel (WhatsApp-style tabs along the bottom).
+  // opts: { onSticker(code), onGif({url, w, h}), gifUrl } — without them it's emoji only.
+  var PICKER_SRC = 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js';
+  var STICKER_PACKS = [["smileys","Smileys",["1f600","1f603","1f604","1f601","1f606","1f605","1f602","1f923","1f62d","1f609","1f60a","1f607","1f970","1f60d","1f929","1f618","1f617","1f61a","1f619","1f972","1f60b","1f61b","1f61c","1f92a","1f61d","1f911","1f917","1f92d","1fae2","1fae3","1f92b","1f914","1fae1","1f910","1f928","1f610","1f611","1f636","1fae5","1f60f","1f612","1f644","1f62c","1f62e_200d_1f4a8","1f925","1f60c","1f614","1f62a","1f924","1f634","1f637","1f912","1f915","1f922","1f92e","1f927","1f975","1f976","1f974","1f635","1f635_200d_1f4ab","1f92f","1f920","1f973","1f978","1f60e","1f913","1f9d0","1f615","1fae4","1f61f","1f641","1f62e","1f62f","1f632","1f633","1f97a","1f979","1f626","1f627","1f628","1f630","1f625","1f622","1f631","1f616","1f623","1f61e","1f613","1f629","1f62b","1f971","1f624","1f621","1f620","1f92c","1f608","1f47f","1f480","1f4a9","1f921","1f47b","1f47d","1f916","1f648","1f649","1f64a"]],["love","Love",["2764_fe0f","1f9e1","1f49b","1f49a","1f499","1f49c","1f90e","1f5a4","1f90d","1fa77","1fa75","1f494","2764_fe0f_200d_1f525","2764_fe0f_200d_1fa79","1f495","1f49e","1f493","1f497","1f496","1f498","1f49d","1f48b","1f48c","1f339","1f490"]],["hands","Hands",["1f44d","1f44e","1f44f","1f64c","1fae6","1f64f","1f44b","1f91d","270c_fe0f","1f91e","1faf0","1f91f","1f918","1f919","1f44c","1f90c","1f448","1f449","1f446","1f447","261d_fe0f","270b","1f590_fe0f","1f596","1faf6","1f4aa","1f9be","1f440","1f441_fe0f","1f9e0","1fac0","1f485","1f933"]],["party","Party",["1f389","1f38a","1f388","1f381","1f382","1f37e","1f942","1f37b","1f525","2728","1f4af","1f31f","2b50","1f308","1f386","1fa94","1f3c6","1f947","1f3af","1f680","1f4a5","1f4ab","1f4ac","1f4a1","1f3b6","1f3b8","26bd","1f3c0"]],["animals","Animals & nature",["1f415","1f429","1f981","1f405","1f984","1f42e","1f416","1f407","1f43f_fe0f","1f994","1f987","1f43b","1f43c","1f9a5","1f998","1f423","1f425","1f426","1f99a","1f989","1f985","1f427","1f438","1f40a","1f422","1f98e","1f40d","1f409","1f433","1f42c","1f988","1f419","1f41f","1f421","1f980","1f40c","1f98b","1f41b","1f41d","1f41e","1f577_fe0f","1f337","1f335","1f340","1f341"]],["food","Food & drink",["1f34e","1f350","1f34a","1f34b","1f349","1f347","1f353","1fad0","1f352","1f96d","1f34d","1f95d","1f345","1f951","1f955","1f33d","1f966","1f9c4","1f344","1f35e","1f968","1f9c0","1f373","1f953","1f354","1f355","1f32d","1f32e","1f37f","1f9c2","1f35c","1f35d","1f366","1f368","1f369","1f36a","1f37c","2615","1f375","1f9cb","1f377","1f379","1f9c3"]],["travel","Travel & places",["1f697","1f695","1f68c","1f3ce_fe0f","1f6b2","2708_fe0f","1f6f8","26f5","1f30d","1f30e","1f30f","1f30b","1f3e0","1f3a1","1f3a2","1f305","1f304","1f307","1f31e","26c5","1f327_fe0f","2744_fe0f","2603_fe0f","1f30a","26a1","1f32a_fe0f"]]];
+  var RECENT_KEY = 'educhats-recent-stickers';
+  function stickerSrc(code) { return 'https://fonts.gstatic.com/s/e/notoemoji/latest/' + code + '/512.webp'; }
   var pickerReady = null;
   function loadPicker() {
     if (!pickerReady) {
@@ -367,29 +385,122 @@
     box.selectionStart = box.selectionEnd = start + text.length;
     box.dispatchEvent(new Event('input', { bubbles: true }));
   }
-  function emojiPicker(button, box) {
-    var pop = null;
+  function recentStickers() { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') || []; } catch (e) { return []; } }
+  function rememberSticker(code) {
+    var list = recentStickers().filter(function (c) { return c !== code; });
+    list.unshift(code);
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 24))); } catch (e) {}
+  }
+  function emojiPicker(button, box, opts) {
+    opts = opts || {};
+    var rich = !!(opts.onSticker || opts.onGif);
+    var pop = null, tab = 'emoji', gifTimer = null, gifSeq = 0, gifsLoaded = false, pack = null;
     function place() {
-      var r = button.getBoundingClientRect(), w = Math.min(352, window.innerWidth - 16);
+      var r = button.getBoundingClientRect(), w = Math.min(380, window.innerWidth - 16);
       pop.style.width = w + 'px';
       pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
       pop.style.bottom = (window.innerHeight - r.top + 10) + 'px';
     }
     function close() { if (pop) pop.classList.remove('open'); button.classList.remove('on'); }
+    function show(name) {
+      tab = name;
+      pop.querySelectorAll('.ep-pane').forEach(function (p) { p.hidden = p.dataset.pane !== name; });
+      pop.querySelectorAll('.ep-tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === name); });
+      if (name === 'gif' && !gifsLoaded) searchGifs('');
+      if (name === 'sticker') showPack(pack || (recentStickers().length ? 'recent' : STICKER_PACKS[0][0]));
+      if (name === 'gif') setTimeout(function () { pop.querySelector('.ep-gifq').focus(); }, 50);
+    }
+    // ── stickers ──
+    function showPack(key) {
+      pack = key;
+      var grid = pop.querySelector('.ep-stickers'), codes, title;
+      pop.querySelectorAll('.ep-cats button').forEach(function (b) { b.classList.toggle('on', b.dataset.pack === key); });
+      if (key === 'recent') { codes = recentStickers(); title = 'Recently used'; }
+      else { var p = STICKER_PACKS.filter(function (x) { return x[0] === key; })[0]; codes = p[2]; title = p[1]; }
+      grid.textContent = '';
+      var h = el('div', 'ep-title', title); grid.appendChild(h);
+      if (!codes.length) { grid.appendChild(el('p', 'ep-empty', 'Stickers you send show up here.')); return; }
+      codes.forEach(function (code) {
+        var b = el('button', 'ep-sticker'); b.type = 'button'; b.title = 'Send sticker';
+        var img = el('img'); img.src = stickerSrc(code); img.alt = ''; img.loading = 'lazy'; img.draggable = false;
+        b.appendChild(img);
+        b.addEventListener('click', function () { rememberSticker(code); close(); opts.onSticker(code); });
+        grid.appendChild(b);
+      });
+      grid.scrollTop = 0;
+    }
+    // ── GIFs ──
+    function gifNote(text, icon) {
+      var grid = pop.querySelector('.ep-gifs'); grid.textContent = '';
+      var p = el('div', 'ep-empty'); p.innerHTML = '<i class="fas ' + (icon || 'fa-film') + '"></i>'; p.appendChild(el('span', '', text));
+      grid.appendChild(p);
+    }
+    function searchGifs(q) {
+      var mine = ++gifSeq;
+      gifNote(q ? 'Searching GIFs…' : 'Loading trending GIFs…', 'fa-spinner fa-spin');
+      fetch(opts.gifUrl + '?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (mine !== gifSeq) return;
+          if (!res.ok) return gifNote(res.error || 'GIFs could not be loaded.', res.setup ? 'fa-circle-info' : 'fa-triangle-exclamation');
+          gifsLoaded = true;
+          pop.querySelector('.ep-attr').textContent = 'Powered by ' + res.provider;
+          if (!res.gifs.length) return gifNote('No GIFs found for “' + q + '”.');
+          var grid = pop.querySelector('.ep-gifs'); grid.textContent = '';
+          res.gifs.forEach(function (g) {
+            var b = el('button', 'ep-gif'); b.type = 'button'; b.title = g.title || 'Send GIF';
+            b.style.aspectRatio = g.w + ' / ' + g.h;
+            var img = el('img'); img.src = g.preview; img.alt = g.title || 'GIF'; img.loading = 'lazy'; img.draggable = false;
+            b.appendChild(img);
+            b.addEventListener('click', function () { close(); opts.onGif({ url: g.url, w: g.w, h: g.h }); });
+            grid.appendChild(b);
+          });
+        }).catch(function () { if (mine === gifSeq) gifNote('GIFs could not be loaded. Check your connection.', 'fa-triangle-exclamation'); });
+    }
+    function build() {
+      pop = el('div', 'emoji-pop' + (rich ? ' rich' : ''));
+      var emojiPane = el('div', 'ep-pane'); emojiPane.dataset.pane = 'emoji';
+      var picker = document.createElement('emoji-picker'); picker.className = 'light';
+      picker.addEventListener('emoji-click', function (ev) { insertAtCursor(box, ev.detail.unicode); });
+      emojiPane.appendChild(picker); pop.appendChild(emojiPane);
+      if (rich) {
+        var gifPane = el('div', 'ep-pane'); gifPane.dataset.pane = 'gif'; gifPane.hidden = true;
+        gifPane.innerHTML = '<label class="ep-search"><i class="fas fa-magnifying-glass"></i><input class="ep-gifq" type="search" placeholder="Search GIFs" maxlength="60" autocomplete="off"></label><div class="ep-gifs"></div><div class="ep-attr"></div>';
+        gifPane.querySelector('.ep-gifq').addEventListener('input', function () {
+          var q = this.value.trim(); clearTimeout(gifTimer);
+          gifTimer = setTimeout(function () { searchGifs(q); }, 400);
+        });
+        pop.appendChild(gifPane);
+        var stPane = el('div', 'ep-pane'); stPane.dataset.pane = 'sticker'; stPane.hidden = true;
+        var cats = el('div', 'ep-cats');
+        var rec = el('button'); rec.type = 'button'; rec.dataset.pack = 'recent'; rec.title = 'Recently used'; rec.innerHTML = '<i class="fas fa-clock-rotate-left"></i>';
+        rec.addEventListener('click', function () { showPack('recent'); }); cats.appendChild(rec);
+        STICKER_PACKS.forEach(function (p) {
+          var b = el('button'); b.type = 'button'; b.dataset.pack = p[0]; b.title = p[1];
+          var img = el('img'); img.src = stickerSrc(p[2][0]); img.alt = ''; img.loading = 'lazy'; b.appendChild(img);
+          b.addEventListener('click', function () { showPack(p[0]); });
+          cats.appendChild(b);
+        });
+        stPane.appendChild(cats); stPane.appendChild(el('div', 'ep-stickers')); pop.appendChild(stPane);
+        var tabs = el('div', 'ep-tabs');
+        [['emoji', '<i class="fa-regular fa-face-smile"></i>', 'Emoji'], ['gif', '<b>GIF</b>', 'GIFs'], ['sticker', '<i class="fas fa-note-sticky"></i>', 'Stickers']].forEach(function (t) {
+          var b = el('button'); b.type = 'button'; b.dataset.tab = t[0]; b.title = t[2]; b.innerHTML = t[1];
+          b.appendChild(el('span', '', t[2]));
+          b.addEventListener('click', function () { show(t[0]); });
+          tabs.appendChild(b);
+        });
+        pop.appendChild(tabs);
+      }
+      pop.addEventListener('click', function (ev) { ev.stopPropagation(); });
+      document.body.appendChild(pop);
+      show('emoji');
+    }
     button.addEventListener('click', function (e) {
       e.stopPropagation();
       if (pop && pop.classList.contains('open')) return close();
       button.classList.add('on');
       loadPicker().then(function () {
-        if (!pop) {
-          pop = document.createElement('div'); pop.className = 'emoji-pop';
-          var picker = document.createElement('emoji-picker');
-          picker.className = 'light';
-          picker.addEventListener('emoji-click', function (ev) { insertAtCursor(box, ev.detail.unicode); });
-          pop.appendChild(picker);
-          pop.addEventListener('click', function (ev) { ev.stopPropagation(); });
-          document.body.appendChild(pop);
-        }
+        if (!pop) build();
         place(); pop.classList.add('open');
       }).catch(function () { button.classList.remove('on'); alert('Emojis could not load. Please check your internet and try again.'); });
     });

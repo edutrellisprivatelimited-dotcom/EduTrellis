@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import ai_calls, api_checker, calls_dashboard, coding_api, coding_dashboard, educhats_admin, support_chat, views
+from . import ai_calls, api_checker, calls_dashboard, coding_api, coding_dashboard, educhats_admin, educhats_pwa, support_chat, views
 from .views import dashboard_staff_required
 
 # Mounted at /store/dashboard/ in edutrellis/urls.py, alongside myapp's own
@@ -9,6 +9,7 @@ urlpatterns = [
     path('ai/add-user/', views.dashboard_ai_add_user, name='dashboard_ai_add_user'),
     path('ai/settings/', views.dashboard_ai_settings, name='dashboard_ai_settings'),
     path('chats/profile/', dashboard_staff_required(support_chat.dashboard_chat_profile), name='dashboard_chat_profile'),
+    path('chats/app/', dashboard_staff_required(educhats_pwa.dashboard_app_settings), name='dashboard_educhats_app'),
     path('chats/signups/', dashboard_staff_required(support_chat.dashboard_chat_signups), name='dashboard_chat_signups'),
     path('chats/status/', dashboard_staff_required(support_chat.dashboard_chat_status), name='dashboard_chat_status'),
     path('chats/ips/', dashboard_staff_required(support_chat.dashboard_chat_ips), name='dashboard_chat_ips'),

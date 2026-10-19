@@ -1,0 +1,157 @@
+{% extends "dashboard/base.html" %}
+{% block title %}EduChats App Settings{% endblock %}
+{% block page_title %}EduChats App Settings{% endblock %}
+
+{% block extra_head %}
+<style>
+.as-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:980px){.as-grid{grid-template-columns:1fr}}
+.as-grid .form-card{max-width:none}
+.as-card h3{font-size:1rem;color:var(--head);margin:0 0 .25rem;display:flex;align-items:center;gap:.5rem}
+.as-card h3 i{color:var(--red)}
+.as-sub{font-size:.8rem;margin:0 0 1.2rem}
+.as-icon{display:flex;align-items:center;gap:1.1rem;margin-bottom:1.2rem}
+.as-icon-prev{width:96px;height:96px;flex:0 0 96px;border-radius:24px;overflow:hidden;box-shadow:0 10px 26px rgba(15,22,35,.18);background:#eee}
+.as-icon-prev img{width:100%;height:100%;object-fit:cover}
+.as-icon-acts{display:flex;flex-direction:column;gap:.45rem;font-size:.8rem}
+.as-icon-acts label.btn{margin:0}
+.as-icon-acts input[type=file]{display:none}
+.as-hint{font-size:.74rem;margin-top:.25rem;color:var(--text)}
+.as-count{float:right;font-size:.72rem;color:var(--text);font-weight:600}
+.as-colors{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.as-color{display:flex;align-items:center;gap:.6rem;padding:.45rem .6rem;border:1px solid var(--line);border-radius:10px}
+.as-color input[type=color]{width:42px;height:34px;padding:0;border:none;background:none;cursor:pointer}
+.as-color code{font-size:.8rem}
+.as-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:1.4rem 0 .6rem;color:var(--text)}
+.as-previews{display:grid;gap:1rem}
+/* phone home screen */
+.as-phone{position:relative;margin:0 auto;width:260px;height:300px;border-radius:30px;padding:16px;background:linear-gradient(160deg,#1f2a44,#3b2a5c 55%,#5b2140);box-shadow:inset 0 0 0 6px #0b0f17,0 14px 34px rgba(15,22,35,.25);display:grid;grid-template-columns:repeat(4,1fr);align-content:start;gap:16px 8px;padding-top:40px}
+.as-app{display:flex;flex-direction:column;align-items:center;gap:6px}
+.as-app span{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.18)}
+.as-app small{width:36px;height:6px;border-radius:3px;background:rgba(255,255,255,.25)}
+.as-app.me span{background:none;overflow:hidden;border-radius:50%;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.as-app.me img{width:100%;height:100%;object-fit:cover}
+.as-app.me small{width:auto;height:auto;background:none;color:#fff;font-size:.64rem;font-weight:600;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* install dialog */
+.as-dialog{margin:0 auto;width:min(320px,100%);border-radius:18px;padding:1rem;background:#fff;box-shadow:0 14px 34px rgba(15,22,35,.16);border:1px solid var(--line)}
+.as-dialog .row{display:flex;align-items:center;gap:.7rem}
+.as-dialog img{width:44px;height:44px;border-radius:11px;object-fit:cover}
+.as-dialog b{display:block;color:#111827;font-size:.95rem}
+.as-dialog small{display:block;color:#6b7280;font-size:.74rem;word-break:break-all}
+.as-dialog p{margin:.7rem 0 .9rem;font-size:.8rem;color:#374151}
+.as-dialog .btns{display:flex;justify-content:flex-end;gap:.5rem}
+.as-dialog .btns span{padding:.45rem .9rem;border-radius:999px;font-size:.78rem;font-weight:700;color:#1a73e8}
+.as-dialog .btns span.go{background:#1a73e8;color:#fff}
+/* splash */
+.as-splash{margin:0 auto;width:150px;height:240px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;box-shadow:inset 0 0 0 5px #0b0f17}
+.as-splash img{width:58px;height:58px;border-radius:50%;object-fit:cover}
+.as-splash b{font-size:.78rem;color:#fff;max-width:120px;text-align:center}
+.as-cap{text-align:center;font-size:.74rem;color:var(--text);margin-top:.4rem}
+</style>
+{% endblock %}
+
+{% block content %}
+{% for message in messages %}
+<div class="flash {{ message.tags }}"><i class="fas {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i> {{ message }}</div>
+{% endfor %}
+
+<div class="as-grid">
+  <form class="form-card as-card" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h3><i class="fas fa-mobile-screen-button"></i> Installable app (PWA)</h3>
+    <p class="as-sub">What people see when they install EduChats ({{ chats_url }}) on Android, iPhone or a computer.</p>
+
+    <div class="as-icon">
+      <span class="as-icon-prev"><img id="asIconImg" src="{{ icon_192 }}" alt="App icon"></span>
+      <div class="as-icon-acts">
+        <label class="btn btn-ghost" for="asIcon"><i class="fas fa-image"></i> {% if app.icon %}Change icon{% else %}Upload icon{% endif %}</label>
+        <input type="file" id="asIcon" name="icon" accept="image/png,image/jpeg,image/webp">
+        {% if app.icon %}<label class="pf-remove" style="display:flex;align-items:center;gap:.35rem;cursor:pointer"><input type="checkbox" name="remove_icon" value="1"> Use the built-in icon again</label>{% endif %}
+        <span class="as-hint">Square PNG, JPG or WEBP, at least 512×512, up to 5 MB. Keep the logo in the middle — Android crops icons into circles.</span>
+      </div>
+    </div>
+
+    <div class="form-group"><label for="asName">App name <span class="as-count" id="asNameN"></span></label>
+      <input type="text" id="asName" name="app_name" value="{{ app.app_name }}" maxlength="45" required>
+      <div class="as-hint">Shown in the install dialog, the app switcher and the splash screen.</div></div>
+    <div class="form-group"><label for="asShort">Home-screen label <span class="as-count" id="asShortN"></span></label>
+      <input type="text" id="asShort" name="short_name" value="{{ app.short_name }}" maxlength="24">
+      <div class="as-hint">Under the icon on the phone — about 12 letters fit before it's cut off.</div></div>
+    <div class="form-group"><label for="asDesc">Description <span class="as-count" id="asDescN"></span></label>
+      <textarea id="asDesc" name="description" rows="3" maxlength="200">{{ app.description }}</textarea></div>
+
+    <div class="as-colors">
+      <div><label class="as-label" style="margin-top:0">Title bar colour</label>
+        <div class="as-color"><input type="color" id="asTheme" name="theme_color" value="{{ app.theme_color }}"><code id="asThemeT">{{ app.theme_color }}</code></div></div>
+      <div><label class="as-label" style="margin-top:0">Splash background</label>
+        <div class="as-color"><input type="color" id="asBg" name="background_color" value="{{ app.background_color }}"><code id="asBgT">{{ app.background_color }}</code></div></div>
+    </div>
+
+    <div class="as-label"><i class="fas fa-film"></i> GIFs in the emoji panel</div>
+    <div class="as-colors">
+      <div class="form-group" style="margin:0"><label for="asGifP">GIF service</label>
+        <select id="asGifP" name="gif_provider">{% for value, label in app.GIF_PROVIDERS %}<option value="{{ value }}"{% if app.gif_provider == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div class="form-group" style="margin:0"><label for="asGifK">API key</label>
+        <input type="password" id="asGifK" name="gif_api_key" autocomplete="off" placeholder="{% if app.gif_api_key %}Saved — leave empty to keep{% else %}Paste your key{% endif %}"></div>
+    </div>
+    <div class="as-hint" style="margin-top:.45rem">{% if app.gif_api_key %}<i class="fas fa-circle-check" style="color:#16a34a"></i> GIFs are on. <label style="display:inline-flex;align-items:center;gap:.3rem;margin-left:.4rem;cursor:pointer"><input type="checkbox" name="remove_gif_key" value="1"> Turn GIFs off (remove key)</label>{% else %}<i class="fas fa-circle-info"></i> GIFs stay off until a key is added. Get a free one at <b>developers.giphy.com</b> (Create an App → API) or from Google Cloud for Tenor.{% endif %}</div>
+    <button class="btn btn-primary" type="submit" style="margin-top:1.3rem"><i class="fas fa-floppy-disk"></i> Save app settings</button>
+    <p class="as-hint" style="margin-top:.8rem"><i class="fas fa-circle-info"></i> Installing needs the site on <b>https</b>. Phones that already installed the app pick up a new icon or name on their own, usually within a day.</p>
+  </form>
+
+  <div class="form-card as-card">
+    <h3><i class="fas fa-eye"></i> Live preview</h3>
+    <p class="as-sub">Updates as you type — nothing changes for people until you save.</p>
+    <div class="as-previews">
+      <div>
+        <div class="as-phone">
+          <div class="as-app"><span></span><small></small></div><div class="as-app"><span></span><small></small></div>
+          <div class="as-app me"><span><img class="asPrevIcon" src="{{ icon_maskable }}" alt=""></span><small id="asPrevShort">{{ app.short_name }}</small></div>
+          <div class="as-app"><span></span><small></small></div><div class="as-app"><span></span><small></small></div>
+          <div class="as-app"><span></span><small></small></div><div class="as-app"><span></span><small></small></div><div class="as-app"><span></span><small></small></div>
+        </div>
+        <div class="as-cap">Home screen (Android)</div>
+      </div>
+      <div>
+        <div class="as-dialog">
+          <div class="row"><img class="asPrevIcon2" src="{{ icon_192 }}" alt=""><div><b id="asPrevName">{{ app.app_name }}</b><small>{{ chats_url }}</small></div></div>
+          <p id="asPrevDesc">{{ app.description }}</p>
+          <div class="btns"><span>Cancel</span><span class="go">Install</span></div>
+        </div>
+        <div class="as-cap">Install dialog</div>
+      </div>
+      <div>
+        <div class="as-splash" id="asSplash" style="background:{{ app.background_color }}"><img class="asPrevIcon" src="{{ icon_maskable }}" alt=""><b id="asPrevName2">{{ app.app_name }}</b></div>
+        <div class="as-cap">Splash screen while it opens</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  function bind(inputId, countId, max, targets) {
+    var input = document.getElementById(inputId), count = document.getElementById(countId);
+    function sync() {
+      count.textContent = input.value.length + '/' + max;
+      targets.forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = input.value || (id === 'asPrevShort' ? document.getElementById('asName').value : ''); });
+    }
+    input.addEventListener('input', sync); sync();
+  }
+  bind('asName', 'asNameN', 45, ['asPrevName', 'asPrevName2']);
+  bind('asShort', 'asShortN', 24, ['asPrevShort']);
+  bind('asDesc', 'asDescN', 200, ['asPrevDesc']);
+  document.getElementById('asTheme').addEventListener('input', function () { document.getElementById('asThemeT').textContent = this.value; });
+  document.getElementById('asBg').addEventListener('input', function () {
+    document.getElementById('asBgT').textContent = this.value;
+    document.getElementById('asSplash').style.background = this.value;
+  });
+  document.getElementById('asIcon').addEventListener('change', function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var url = URL.createObjectURL(f);
+    document.getElementById('asIconImg').src = url;
+    document.querySelectorAll('.asPrevIcon, .asPrevIcon2').forEach(function (img) { img.src = url; });
+  });
+})();
+</script>
+{% endblock %}

@@ -252,7 +252,7 @@ tbody tr:hover{background:var(--bg-alt)}
           <a href="{% url 'dashboard_ai_settings' %}" class="{% if active == 'ai_settings' %}active{% endif %}"><i class="fas fa-sliders"></i> AI Settings</a>
         </div>
       </details>
-      <details class="dash-nav-group{% if active == 'chats' or active == 'dm_conversations' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %} has-active{% endif %}" {% if active == 'chats' or active == 'dm_conversations' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' %}open{% endif %}>
+      <details class="dash-nav-group{% if active == 'chats' or active == 'dm_conversations' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' or active == 'educhats_app' %} has-active{% endif %}" {% if active == 'chats' or active == 'dm_conversations' or active == 'chat_signups' or active == 'chat_status' or active == 'chat_ips' or active == 'chat_profile' or active == 'educhats_app' %}open{% endif %}>
         <summary><i class="fas fa-comments"></i> EduChats{% if pending_chats %} <span class="nav-count" style="margin-left:.4rem" title="{{ pending_chats }} waiting for a reply">{{ pending_chats }}</span>{% endif %} <i class="fas fa-chevron-down chev"></i></summary>
         <div class="dash-nav-sub">
           {% if request.user.is_superuser %}<a href="{% url 'dashboard_dm_conversations' %}" class="{% if active == 'dm_conversations' %}active{% endif %}" title="Direct chats between members (superuser only)"><i class="fas fa-comments"></i> Conversations</a>{% endif %}
@@ -261,6 +261,7 @@ tbody tr:hover{background:var(--bg-alt)}
           <a href="{% url 'dashboard_chat_status' %}" class="{% if active == 'chat_status' %}active{% endif %}"><i class="fas fa-signal"></i> EduChats User Status <span class="nav-count" id="navOnline">{{ chat_online_total|default:0 }}</span></a>
           <a href="{% url 'dashboard_chat_ips' %}" class="{% if active == 'chat_ips' %}active{% endif %}"><i class="fas fa-network-wired"></i> EduChats IP Addresses <span class="nav-count">{{ chat_ip_total|default:0 }}</span></a>
           <a href="{% url 'dashboard_chat_profile' %}" class="{% if active == 'chat_profile' %}active{% endif %}"><i class="fas fa-id-badge"></i> EduChats Support Profile</a>
+          <a href="{% url 'dashboard_educhats_app' %}" class="{% if active == 'educhats_app' %}active{% endif %}"><i class="fas fa-mobile-screen-button"></i> App Settings</a>
           {% if request.user.is_superuser %}<a href="{% url 'chats_admin_login' %}" target="_blank" rel="noopener" title="Use EduChats as yourself, with your admin login"><i class="fas fa-arrow-up-right-from-square"></i> Open EduChats as you</a>{% else %}<a href="{% url 'chats_page' %}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open EduChats</a>{% endif %}
         </div>
       </details>

@@ -178,7 +178,11 @@ def api_thread_messages(request, thread_id):
         if not peer.is_active:
             return _fail('This account is not available any more.', 403)
         data = _json_body(request)
-        body = str(data.get('body', '')).strip()[:MAX_MESSAGE]
+        from .educhats_media import media_from
+        kind, payload = media_from(data)   # a sticker or GIF instead of text
+        if kind is None:
+            return _fail(payload)
+        body = payload if kind else str(data.get('body', '')).strip()[:MAX_MESSAGE]
         if not body:
             return _fail('Type a message first.')
         # Retries of the same message (same client id) never make a second copy.
@@ -193,7 +197,7 @@ def api_thread_messages(request, thread_id):
         if sent >= MESSAGE_LIMIT:
             return _fail('You are sending messages too fast. Please wait a minute.', 429)
         cache.set(key, sent + 1, 60)
-        message = DirectMessage.objects.create(thread=thread, sender=me, body=body)
+        message = DirectMessage.objects.create(thread=thread, sender=me, body=body, kind=kind or 'text')
         set_live('typing', f'd{thread.pk}', me.pk, False)
         DirectThread.objects.filter(pk=thread.pk).update(updated_at=message.created_at)
         if cid:
@@ -358,6 +362,8 @@ def _support_line(m, me_name, support_name):
         body = f'[{label}{": " + m.attachment_name if m.attachment_name else ""}]' + (f' {m.body}' if m.body else '')
     elif m.kind == ChatMessage.KIND_CALL:
         body = f'[Call] {m.body}'
+    elif m.kind in (ChatMessage.KIND_STICKER, ChatMessage.KIND_GIF):
+        body = '[Sticker]' if m.kind == ChatMessage.KIND_STICKER else f'[GIF] {m.body}'
     else:
         body = m.body
     return m.created_at, who, m.sender == ChatMessage.SENDER_USER, body

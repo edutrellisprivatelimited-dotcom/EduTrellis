@@ -178,8 +178,12 @@ def api_group_messages(request, group_id):
     if request.method == 'POST':
         if not (ms.is_admin or not group.only_admins_send):
             return _fail('Only admins can send messages in this group.', 403)
+        from .educhats_media import media_from
         data = _json_body(request)
-        body = str(data.get('body', '')).strip()[:MAX_MESSAGE]
+        kind, payload = media_from(data)   # a sticker or GIF instead of text
+        if kind is None:
+            return _fail(payload)
+        body = payload if kind else str(data.get('body', '')).strip()[:MAX_MESSAGE]
         if not body:
             return _fail('Type a message first.')
         cid = re.sub(r'[^A-Za-z0-9_-]', '', str(data.get('cid', '')))[:40]
@@ -193,7 +197,7 @@ def api_group_messages(request, group_id):
         if sent >= MESSAGE_LIMIT:
             return _fail('You are sending messages too fast. Please wait a minute.', 429)
         cache.set(key, sent + 1, 60)
-        message = GroupMessage.objects.create(group=group, sender=me, body=body)
+        message = GroupMessage.objects.create(group=group, sender=me, body=body, kind=kind or 'text')
         ChatGroup.objects.filter(pk=group.pk).update(updated_at=message.created_at)
         GroupMember.objects.filter(pk=ms.pk).update(last_read=message.pk)
         set_live('typing', f'g{group.pk}', me.pk, False)

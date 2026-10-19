@@ -499,6 +499,14 @@ def _me_card(user):
     }
 
 
+def _app_settings():
+    from .educhats_pwa import icon_url
+    from .models import EduChatsAppSettings
+    app = EduChatsAppSettings.load()
+    app.icon_192, app.icon_180 = icon_url(192, app=app), icon_url(180, app=app)
+    return app
+
+
 def _ai_model_name():
     try:
         from . import ai_chat
@@ -518,6 +526,7 @@ def chats_page(request):
         'appearance': user.appearance if user and not user.is_guest and isinstance(user.appearance, dict) else {},
         'me_card': _me_card(user) if user and not user.is_guest else None,
         'support_socials': socials_json(support),
+        'app': _app_settings(),
         # The superuser's own EduChats account *is* the support team, so it gets a
         # shortcut to the admin inbox instead of a "Support" chat with itself.
         'is_support_staff': bool(user and user.django_user_id),
@@ -694,8 +703,12 @@ def api_messages(request):
     if not user:
         return _fail('Please log in again.', 401)
     if request.method == 'POST':
+        from .educhats_media import media_from
         data = _json_body(request)
-        body = str(data.get('body', '')).strip()[:MAX_MESSAGE]
+        kind, payload = media_from(data)   # a sticker or GIF instead of text
+        if kind is None:
+            return _fail(payload)
+        body = payload if kind else str(data.get('body', '')).strip()[:MAX_MESSAGE]
         if not body:
             return _fail('Type a message first.')
         # The page retries unsent messages; the same client id never makes a second copy.
@@ -710,7 +723,7 @@ def api_messages(request):
         if sent >= MESSAGE_LIMIT:
             return _fail('You are sending messages too fast. Please wait a minute.', 429)
         cache.set(key, sent + 1, 60)
-        message = ChatMessage.objects.create(user=user, sender=ChatMessage.SENDER_USER, body=body)
+        message = ChatMessage.objects.create(user=user, sender=ChatMessage.SENDER_USER, body=body, kind=kind or ChatMessage.KIND_TEXT)
         set_live('typing', f's{user.pk}', 'user', False)
         if cid:
             cache.set(cid_key, message.pk, 24 * 3600)
