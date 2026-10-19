@@ -117,6 +117,17 @@
     </div>
     <div class="as-hint" style="margin-top:.45rem"><i class="fas fa-circle-info"></i> The bottom bar follows on phones where Chrome draws apps edge to edge (Android 15 and newer Chrome); on older ones Android keeps its own colour there.</div>
 
+    <div class="as-label"><i class="fas fa-phone"></i> Calls — relay server (optional)</div>
+    <div class="form-group" style="margin:0 0 .6rem"><label for="asTurn">TURN address</label>
+      <input type="text" id="asTurn" name="turn_url" value="{{ app.turn_url }}" placeholder="turn:relay.example.com:3478 turns:relay.example.com:5349" autocomplete="off" spellcheck="false"></div>
+    <div class="as-colors">
+      <div class="form-group" style="margin:0"><label for="asTurnU">Username</label>
+        <input type="text" id="asTurnU" name="turn_username" value="{{ app.turn_username }}" autocomplete="off"></div>
+      <div class="form-group" style="margin:0"><label for="asTurnP">Password</label>
+        <input type="password" id="asTurnP" name="turn_credential" autocomplete="new-password" placeholder="{% if app.turn_credential %}Saved — leave empty to keep{% else %}Password{% endif %}"></div>
+    </div>
+    <div class="as-hint" style="margin-top:.45rem"><i class="fas fa-circle-info"></i> {% if app.turn_url %}<i class="fas fa-circle-check" style="color:#16a34a"></i> Calls use your relay when phones can't connect directly.{% else %}Without a relay most calls still connect directly; on some mobile networks they can't. Free/cheap relays: Metered (metered.ca), Cloudflare Calls TURN, or your own coturn server.{% endif %}</div>
+
     <div class="as-label"><i class="fas fa-film"></i> GIFs in the emoji panel</div>
     <div class="as-colors">
       <div class="form-group" style="margin:0"><label for="asGifP">GIF service</label>

@@ -1256,6 +1256,11 @@ class EduChatsAppSettings(models.Model):
     BARS_MODES = [('match', 'Match the chat screen'), ('custom', 'Custom colours')]
     bars_mode = models.CharField(max_length=8, choices=BARS_MODES, default='match')
     nav_color = models.CharField(max_length=7, default='#0f1623')
+    # Optional TURN relay for calls (e.g. turn:relay.example.com:3478) — carries a
+    # call when two phones can't reach each other directly (mobile data, strict Wi-Fi).
+    turn_url = models.CharField(max_length=300, blank=True)
+    turn_username = models.CharField(max_length=120, blank=True)
+    turn_credential = models.CharField(max_length=200, blank=True)
     # GIFs in the emoji panel: a free key from developers.giphy.com or Google's Tenor API.
     GIF_PROVIDERS = [('giphy', 'GIPHY'), ('tenor', 'Tenor')]
     gif_provider = models.CharField(max_length=8, choices=GIF_PROVIDERS, default='giphy')

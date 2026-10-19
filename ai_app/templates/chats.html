@@ -4,6 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EduChats</title>
+<script>
+// Phones and the installed app: the keyboard opens when you tap a box yourself,
+// never because a chat, form or sheet opened and put the cursor in it. Moving
+// on to the next box while you're already typing still works, and a deliberate
+// action (a notification's Reply) can allow it with window.__focusOk.
+(function () {
+  if (!window.matchMedia || !(matchMedia('(pointer: coarse)').matches || matchMedia('(hover: none)').matches)) return;
+  var real = HTMLElement.prototype.focus;
+  function typing(el) {
+    if (!el || el.nodeType !== 1) return false;
+    var t = el.tagName;
+    return t === 'TEXTAREA' || t === 'SELECT' || el.isContentEditable ||
+      (t === 'INPUT' && !/^(checkbox|radio|button|submit|reset|file|range|color|image|hidden)$/i.test(el.type));
+  }
+  HTMLElement.prototype.focus = function () {
+    if (typing(this) && !window.__focusOk && !typing(document.activeElement)) return;
+    return real.apply(this, arguments);
+  };
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -185,6 +205,31 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
    focus (as most capture tools take it) or the Print Screen key is pressed. */
 .watermark{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;opacity:.045}
 .watermark span{position:absolute;white-space:nowrap;font-size:.8rem;font-weight:800;color:var(--head);transform:rotate(-24deg)}
+/* the opening screen while EduChats loads */
+.boot{position:fixed;inset:0;z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(120% 70% at 50% 0%,rgba(232,0,30,.22) 0,transparent 55%),radial-gradient(90% 60% at 50% 110%,rgba(19,136,8,.14) 0,transparent 60%),#0b111c;color:#fff;transition:opacity .4s ease,visibility .4s}
+.boot.gone{opacity:0;visibility:hidden;pointer-events:none}
+.boot-logo{position:relative;width:112px;height:112px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.boot-ring{position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(from 0deg,#ff9933,#ffffff,#138808,transparent 70%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));animation:bootSpin 1.4s linear infinite}
+.boot-logo img{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 0 6px rgba(255,255,255,.04);animation:bootPop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.boot-name{margin-top:1.3rem;font-size:1.65rem;font-weight:800;letter-spacing:-.01em;animation:bootUp .6s .15s both}
+.boot-tag{margin-top:.3rem;font-size:.82rem;color:#9aa3b2;animation:bootUp .6s .25s both}
+.boot-foot{position:absolute;left:0;right:0;bottom:max(28px,calc(env(safe-area-inset-bottom) + 14px));display:flex;flex-direction:column;align-items:center;gap:.55rem;animation:bootUp .6s .35s both}
+.boot-flag{width:30px;height:20px;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.boot-flag i{flex:1;display:flex;align-items:center;justify-content:center}
+.boot-flag i:nth-child(1){background:#ff9933}.boot-flag i:nth-child(2){background:#fff}.boot-flag i:nth-child(3){background:#138808}
+.boot-flag b{width:5px;height:5px;border-radius:50%;border:1px solid #000080}
+.boot-made{font-size:.7rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#e5e7eb}
+.boot-made span{color:#ff9933}.boot-made em{font-style:normal;color:#4ade80}
+.boot-sub{font-size:.66rem;letter-spacing:.08em;color:#7c8696;margin-top:-.25rem}
+@keyframes bootSpin{to{transform:rotate(360deg)}}
+@keyframes bootPop{from{transform:scale(.6);opacity:0}}
+@keyframes bootUp{from{transform:translateY(10px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.boot-ring,.boot-logo img,.boot-name,.boot-tag,.boot-foot{animation:none}}
+/* a small × at the top right of every sheet */
+.sheet-card{position:relative}
+.sheet-x{position:absolute;top:.7rem;right:.7rem;z-index:3;width:32px;height:32px;border-radius:50%;border:none;background:rgba(15,22,35,.07);color:var(--head);font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-x:hover{background:rgba(15,22,35,.13)}
+.sheet-card.has-x > h3:first-of-type,.sheet-card.has-x .inst-head,.sheet-card.has-x .lk-step > h3{padding-right:2.4rem}
 /* the strip behind the phone's navigation bar (custom colour; with "match" the screen shows through) */
 .nav-strip{position:fixed;left:0;right:0;bottom:0;height:env(safe-area-inset-bottom);z-index:9000;pointer-events:none}
 @media print{body *{display:none!important}}
@@ -933,6 +978,28 @@ EduLook.apply(EduLook.get());
 </script>
 </head>
 <body>
+<div class="boot" id="boot" aria-hidden="true">
+  <div class="boot-logo"><span class="boot-ring"></span><img src="{{ app.icon_192 }}" alt=""></div>
+  <b class="boot-name">{{ app.app_name|default:"EduChats" }}</b>
+  <span class="boot-tag">Chats, calls &amp; AI — all in one place</span>
+  <div class="boot-foot">
+    <span class="boot-flag"><i></i><i><b></b></i><i></i></span>
+    <span class="boot-made"><span>Made</span> in India · <em>Owned</em> by India</span>
+    <span class="boot-sub">by EduTrellis Private Limited</span>
+  </div>
+</div>
+<script>
+// shown for a moment while the page gets ready, then fades away
+(function () {
+  var boot = document.getElementById('boot'), t0 = Date.now(), done = false;
+  function hide() {
+    if (done) return; done = true;
+    setTimeout(function () { boot.classList.add('gone'); setTimeout(function () { boot.remove(); }, 450); }, Math.max(0, 700 - (Date.now() - t0)));
+  }
+  if (document.readyState === 'complete') hide(); else window.addEventListener('load', hide);
+  setTimeout(hide, 3500);   // never longer than this, even on a slow network
+})();
+</script>
 <script>
   // Phones and tablets open on the chat list (like WhatsApp), unless a link points at a chat.
   if (window.matchMedia('(max-width: 1024px)').matches && !/[?&]to=/.test(location.search)) document.body.classList.add('side-open');
@@ -2571,7 +2638,8 @@ EduLook.apply(EduLook.get());
   }
   var supportName = {{ support_name_json|safe }}, supTyping = typingPinger(box, function () { return 'support'; });
 
-  var calls = new SupportChat.Calls({ url: '{% url "chats_call" %}', side: 'user', peerName: {{ support_name_json|safe }}, csrf: csrf, onError: flash, keep: true });
+  var calls = new SupportChat.Calls({ url: '{% url "chats_call" %}', side: 'user', peerName: {{ support_name_json|safe }}, csrf: csrf, onError: flash, keep: true,
+                                      photo: {% if support.photo %}'{% url "chats_support_photo" %}?v={{ support.updated_at|date:"U" }}'{% else %}''{% endif %} });
   function applyStatus(res) {
     if (res.read_upto > readUpto) {
       readUpto = res.read_upto;
@@ -2871,7 +2939,9 @@ EduLook.apply(EduLook.get());
         .filter(function (el) { return el && el.offsetParent !== null && !el.disabled; })[0];
       if (!box) { if (++tries < 20) setTimeout(go, 250); return; }
       if (draft && !box.value) { box.value = draft; box.dispatchEvent(new Event('input', { bubbles: true })); }
+      window.__focusOk = true;   // the person asked to reply: bring the keyboard up
       try { box.focus(); box.setSelectionRange(box.value.length, box.value.length); } catch (e) {}
+      window.__focusOk = false;
     })();
   }
   // a notification was tapped: /educhats/?chat=<key> opens that chat
@@ -2951,6 +3021,14 @@ EduLook.apply(EduLook.get());
   // location
   var locSheet = document.getElementById('locSheet'), liveId = null, liveWatch = null, liveEnds = 0;
   document.getElementById('pickLocation').addEventListener('click', function () { menu.classList.remove('open'); locSheet.classList.add('open'); });
+  document.querySelectorAll('.sheet-card').forEach(function (card) {
+    if (card.querySelector('.gi-x, .id-close, .sheet-x')) return;
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'sheet-x'; x.setAttribute('data-close', ''); x.setAttribute('aria-label', 'Close');
+    x.innerHTML = '<i class="fas fa-xmark"></i>';
+    card.classList.add('has-x');
+    card.insertBefore(x, card.firstChild);
+  });
   document.querySelectorAll('.sheet').forEach(function (s) {
     s.addEventListener('click', function (e) { if (e.target === s || e.target.closest('[data-close]')) s.classList.remove('open'); });
   });
@@ -3637,13 +3715,20 @@ EduLook.apply(EduLook.get());
       onSend: function (file, secs) { if (active) dmSendFile(active, file, '', secs); } });
 
     // ── voice / video calls with the person in a direct chat ──
-    var dmCalls = {}, ME = '{{ chat_user.pk }}';
+    var dmCalls = {}, roomCalls = {}, ME = '{{ chat_user.pk }}', ROOMS = '{% url "chats_rooms" %}';
+    function callContacts() {   // "Add" during a call: the people you chat with
+      return Object.keys(threads).map(function (k) { return threads[k]; })
+        .filter(function (t) { return t.peer.active && t.peer.username && !t.blocked; })
+        .sort(function (a, b) { return String(b.updated_at || '').localeCompare(String(a.updated_at || '')); })
+        .map(function (t) { return { username: t.peer.username, name: t.peer.name, photo: t.peer.photo }; });
+    }
     function callsFor(id, name, photo) {
       if (!dmCalls[id]) {
         var t = threads[id];
         dmCalls[id] = new SupportChat.Calls({
-          url: DM + id + '/call/', side: ME, csrf: freshCsrf(), keep: true,
+          url: DM + id + '/call/', side: ME, csrf: freshCsrf, keep: true,
           peerName: name || (t ? t.peer.name : 'EduChats call'), photo: photo || (t ? t.peer.photo : ''),
+          rooms: { base: ROOMS, thread: id, contacts: callContacts },
           onError: function (text) { if (active !== id && threads[id]) openThread(id); dmFlash(text); }
         });
       }
@@ -3651,7 +3736,8 @@ EduLook.apply(EduLook.get());
     }
     function anyCall() {
       if (calls.busy()) return true;
-      return Object.keys(dmCalls).some(function (k) { return dmCalls[k].busy(); });
+      return Object.keys(dmCalls).some(function (k) { return dmCalls[k].busy(); }) ||
+        Object.keys(roomCalls).some(function (k) { return roomCalls[k].busy(); });
     }
     function dmCall(id, kind) {
       var t = threads[id];
@@ -3666,7 +3752,15 @@ EduLook.apply(EduLook.get());
     function checkRing() {
       getJSON(DM + 'ring/').then(function (res) {
         if (!res || !res.ok || !res.ring) return;
-        var id = res.ring.thread, c = callsFor(id, res.ring.name);
+        if (res.ring.room) {   // someone added me to a call with more people
+          if (anyCall()) return;
+          var rid = res.ring.room, inviter = (res.ring.members || []).filter(function (m) { return m.name === res.ring.name; })[0];
+          if (!roomCalls[rid]) roomCalls[rid] = new SupportChat.Calls({ url: '', side: ME, csrf: freshCsrf, keep: true, roomOnly: true,
+            peerName: res.ring.name, rooms: { base: ROOMS, contacts: callContacts }, onError: dmFlash });
+          roomCalls[rid].ringRoom({ room: rid, kind: res.ring.kind, name: res.ring.name, photo: inviter ? inviter.photo : '', others: res.ring.others });
+          return;
+        }
+        var id = res.ring.thread, c = callsFor(id, res.ring.name, res.ring.photo);
         if (c.busy() || anyCall()) return;
         getJSON(DM + id + '/call/').then(function (r) { if (r && r.ok) c.sync(r.call); });
         loadThreads();

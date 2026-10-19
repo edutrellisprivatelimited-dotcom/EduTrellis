@@ -363,6 +363,16 @@ def dashboard_app_settings(request):
         nav = data.get('nav_color', '').strip()
         if _HEX.match(nav):
             app.nav_color = nav.lower()
+        turn = ' '.join(u for u in re.split(r'[\s,]+', data.get('turn_url', '')) if re.match(r'^turns?:[\w.\-\[\]:]+(\?transport=(udp|tcp))?$', u))
+        if data.get('turn_url', '').strip() and not turn:
+            flash.error(request, 'The TURN address should look like turn:relay.example.com:3478 (several can be separated by spaces).')
+            return redirect('dashboard_educhats_app')
+        app.turn_url = turn[:300]
+        app.turn_username = data.get('turn_username', '').strip()[:120]
+        if data.get('turn_credential', '').strip():   # empty = keep the saved password
+            app.turn_credential = data['turn_credential'].strip()[:200]
+        if not turn:
+            app.turn_username = app.turn_credential = ''
         if data.get('gif_provider') in dict(EduChatsAppSettings.GIF_PROVIDERS):
             app.gif_provider = data['gif_provider']
         if data.get('remove_gif_key'):

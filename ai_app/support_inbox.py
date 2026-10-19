@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from .educhats_social import socials_json
 from .models import ChatMessage, ChatUser
-from .support_chat import (ICE_SERVERS, MAX_MESSAGE, _call_state, _fail, _json_body, _live_locations,
+from .support_chat import (ice_servers, MAX_MESSAGE, _call_state, _fail, _json_body, _live_locations,
                            _message_from_upload, _message_json, _presence, _public_call, _read_upto, call_action,
                            call_key, is_live, set_live, staff_account, touch_staff, upload_cid_key)
 
@@ -165,5 +165,5 @@ def api_inbox_call(request, pk):
         state, error = call_action(user, 'admin', _json_body(request))
         if error:
             return _fail(error, 409)
-        return JsonResponse({'ok': True, 'call': _public_call(state, 'admin'), 'ice_servers': ICE_SERVERS})
-    return JsonResponse({'ok': True, 'call': _public_call(_call_state(user), 'admin'), 'ice_servers': ICE_SERVERS})
+        return JsonResponse({'ok': True, 'call': _public_call(state, 'admin'), 'ice_servers': ice_servers()})
+    return JsonResponse({'ok': True, 'call': _public_call(_call_state(user), 'admin'), 'ice_servers': ice_servers()})

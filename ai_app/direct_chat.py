@@ -17,7 +17,8 @@ from django.views.decorators.http import require_POST
 from .educhats_social import SHOW_FIELDS, socials_json
 from .models import ChatUser, DirectMessage, DirectThread
 from .support_chat import (
-    ATTEMPT_WINDOW, CALL_RING_SECONDS, CALL_STALE_SECONDS, ICE_SERVERS, MAX_MESSAGE, SEND_LIMIT_ERROR, over_send_limit, _fail,
+    ATTEMPT_WINDOW, CALL_RING_SECONDS, CALL_STALE_SECONDS, MAX_MESSAGE, SEND_LIMIT_ERROR, clean_flags, ice_servers,
+    over_send_limit, _fail,
     _json_body, _presence, current_user, is_live, set_live,
 )
 
@@ -466,6 +467,8 @@ def _dm_public_call(state, me):
         'answer': state.get('answer') if side == state['caller'] else None,
         'ice': cache.get(f"{_dm_call_key(state['thread'])}-ice-{other}-{state['id']}", []),
         'answered': state.get('answered'),
+        'callee': state['callee'], 'room': state.get('room', ''),
+        'peer_flags': state.get('flags', {}).get(other, {}),
     }
 
 
@@ -478,7 +481,7 @@ def api_thread_call(request, thread_id):
     if not thread:
         return _fail('This chat is not available.', 404)
     if request.method != 'POST':
-        return JsonResponse({'ok': True, 'call': _dm_public_call(_dm_call_state(thread), me), 'ice_servers': ICE_SERVERS})
+        return JsonResponse({'ok': True, 'call': _dm_public_call(_dm_call_state(thread), me), 'ice_servers': ice_servers()})
 
     data, side = _json_body(request), str(me.pk)
     peer = thread.other(me)
@@ -518,12 +521,15 @@ def api_thread_call(request, thread_id):
         if isinstance(data.get('candidate'), dict) and len(candidates) < 100:
             candidates.append(data['candidate'])
             cache.set(key, candidates, CALL_STALE_SECONDS)
+    elif action == 'flag':   # muted / camera off / recording, shown on the other side
+        state.setdefault('flags', {})[side] = clean_flags(data)
+        cache.set(_dm_call_key(thread.pk), state, CALL_STALE_SECONDS)
     elif action in ('end', 'decline'):
         reason = ('cancelled' if side == state['caller'] else 'declined') if state['status'] == 'ringing' else 'ended'
         state = _dm_end_call(thread, state, reason)
     else:
         return _fail('Unknown call action.', 400)
-    return JsonResponse({'ok': True, 'call': _dm_public_call(state, me), 'ice_servers': ICE_SERVERS})
+    return JsonResponse({'ok': True, 'call': _dm_public_call(state, me), 'ice_servers': ice_servers()})
 
 
 def api_ring(request):
@@ -537,8 +543,11 @@ def api_ring(request):
         state = _dm_call_state(thread) if thread else None
         if state and state['status'] == 'ringing' and state['callee'] == str(me.pk):
             peer = thread.other(me)
-            return JsonResponse({'ok': True, 'ring': {'thread': thread.pk, 'kind': state['kind'], 'name': peer.name}})
-    return JsonResponse({'ok': True, 'ring': None})
+            return JsonResponse({'ok': True, 'ring': {'thread': thread.pk, 'kind': state['kind'], 'name': peer.name,
+                                                      'photo': _peer_json(peer)['photo']}})
+    from .call_rooms import ringing_room
+    room = ringing_room(me)   # someone added me to a call with more people
+    return JsonResponse({'ok': True, 'ring': room})
 
 
 # ── photos, videos and files in a direct chat ────────────────────────────────

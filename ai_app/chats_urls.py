@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import direct_chat, educhats_admin, educhats_ai, educhats_lock, educhats_media, educhats_push, educhats_pwa, group_chat, support_chat, support_inbox
+from . import call_rooms, direct_chat, educhats_admin, educhats_ai, educhats_lock, educhats_media, educhats_push, educhats_pwa, group_chat, support_chat, support_inbox
 
 # EduChats — its own product, mounted at /educhats/ in edutrellis/urls.py.
 # Separate accounts from the store/AI login (ChatUser): the support chat plus
@@ -40,6 +40,8 @@ urlpatterns = [
     path('api/dm/<int:thread_id>/upload/', direct_chat.api_thread_upload, name='chats_dm_upload'),
     path('dm-file/<int:pk>/', direct_chat.dm_attachment, name='chats_dm_file'),
     path('api/dm/ring/', direct_chat.api_ring, name='chats_dm_ring'),
+    path('api/calls/room/', call_rooms.api_rooms, name='chats_rooms'),
+    path('api/calls/room/<str:rid>/', call_rooms.api_room, name='chats_room'),
     path('api/gifs/', educhats_media.api_gifs, name='chats_gifs'),
     path('api/csrf/', support_chat.api_csrf, name='chats_csrf'),
     path('api/push/', educhats_push.api_push, name='chats_push'),

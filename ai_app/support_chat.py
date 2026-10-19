@@ -469,7 +469,25 @@ def api_csrf(request):
 # time per chat, under keys that start with call_key(user_id).
 CALL_RING_SECONDS = 45
 CALL_STALE_SECONDS = 4 * 60 * 60
-ICE_SERVERS = [{'urls': ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302']}]
+STUN_SERVERS = ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478']
+CALL_FLAGS = ('muted', 'camoff', 'rec')
+
+
+def ice_servers():
+    """STUN finds the direct route between two phones. A TURN relay (App Settings →
+    Calls) carries the call when there's no direct route — common on mobile data."""
+    from .models import EduChatsAppSettings
+    servers = [{'urls': STUN_SERVERS}]
+    app = EduChatsAppSettings.load()
+    urls = [u for u in re.split(r'[\s,]+', app.turn_url or '') if re.match(r'^turns?:', u)]
+    if urls:
+        servers.append({'urls': urls, 'username': app.turn_username, 'credential': app.turn_credential})
+    return servers
+
+
+def clean_flags(data):
+    flags = data.get('flags') if isinstance(data.get('flags'), dict) else {}
+    return {k: bool(flags.get(k)) for k in CALL_FLAGS}
 
 
 def call_key(user_id):
@@ -515,6 +533,7 @@ def _public_call(state, side):
         'answer': state.get('answer') if side == state['caller'] else None,
         'ice': cache.get(f"{call_key(state['user'])}-ice-{other}-{state['id']}", []),
         'answered': state.get('answered'),
+        'peer_flags': state.get('flags', {}).get(other, {}),
     }
 
 
@@ -554,6 +573,10 @@ def call_action(user, side, data):
             candidates.append(data['candidate'])
             cache.set(key, candidates, CALL_STALE_SECONDS)
         return state, ''
+    if action == 'flag':   # muted / camera off / recording, shown on the other side
+        state.setdefault('flags', {})[side] = clean_flags(data)
+        cache.set(call_key(user.pk), state, CALL_STALE_SECONDS)
+        return state, ''
     if action in ('end', 'decline'):
         if state['status'] == 'ringing':
             reason = 'cancelled' if side == state['caller'] else 'declined'
@@ -571,8 +594,8 @@ def api_call(request):
         state, error = call_action(user, 'user', _json_body(request))
         if error:
             return _fail(error, 409)
-        return JsonResponse({'ok': True, 'call': _public_call(state, 'user'), 'ice_servers': ICE_SERVERS})
-    return JsonResponse({'ok': True, 'call': _public_call(_call_state(user), 'user'), 'ice_servers': ICE_SERVERS})
+        return JsonResponse({'ok': True, 'call': _public_call(state, 'user'), 'ice_servers': ice_servers()})
+    return JsonResponse({'ok': True, 'call': _public_call(_call_state(user), 'user'), 'ice_servers': ice_servers()})
 
 
 # ── pages ────────────────────────────────────────────────────────────────────
@@ -1099,8 +1122,8 @@ def dashboard_chat_call(request, pk):
         state, error = call_action(user, 'admin', _json_body(request))
         if error:
             return _fail(error, 409)
-        return JsonResponse({'ok': True, 'call': _public_call(state, 'admin'), 'ice_servers': ICE_SERVERS})
-    return JsonResponse({'ok': True, 'call': _public_call(_call_state(user), 'admin'), 'ice_servers': ICE_SERVERS})
+        return JsonResponse({'ok': True, 'call': _public_call(state, 'admin'), 'ice_servers': ice_servers()})
+    return JsonResponse({'ok': True, 'call': _public_call(_call_state(user), 'admin'), 'ice_servers': ice_servers()})
 
 
 def dashboard_chat_signups(request):
@@ -1251,8 +1274,9 @@ def user_photo(request, pk):
     if not owner.photo or ext not in PHOTO_TYPES:
         raise Http404
     if not (staff or (me and me.pk == owner.pk)):
+        from .call_rooms import share_call
         from .direct_chat import shares_thread
-        if not (me and not me.is_guest and shares_thread(me, owner)):
+        if not (me and not me.is_guest and (shares_thread(me, owner) or share_call(me.pk, owner.pk))):
             raise Http404
     try:
         handle = owner.photo.open('rb')
