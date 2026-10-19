@@ -78,6 +78,7 @@ urlpatterns = [
     path('store/dashboard/backup/settings/', views.dashboard_backup_settings, name='dashboard_backup_settings'),
     path('store/dashboard/backup/run/', views.dashboard_backup_run, name='dashboard_backup_run'),
     path('store/dashboard/backup/restore/', views.dashboard_backup_restore, name='dashboard_backup_restore'),
+    path('store/dashboard/backup/delete-all/', views.dashboard_backup_delete_all, name='dashboard_backup_delete_all'),
     path('store/dashboard/orders/', views.dashboard_orders, name='dashboard_orders'),
     path('store/dashboard/orders/<int:pk>/status/', views.dashboard_order_status_update, name='dashboard_order_status_update'),
     path('store/dashboard/delivery/', views.dashboard_delivery, name='dashboard_delivery'),

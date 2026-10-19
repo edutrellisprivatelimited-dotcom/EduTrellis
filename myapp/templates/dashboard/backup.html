@@ -27,6 +27,22 @@
 .flash.error{background:#fdeaea;color:var(--red)}
 .not-configured{background:#fff7e6;border:1px solid #f5c26b;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.4rem;color:#8a5a00}
 .not-configured a{color:var(--red);font-weight:700}
+.btn-del-all{background:#fff;border:1.5px solid #f3c2c2;color:var(--red);padding:.5rem .95rem;font-size:.8rem}
+.btn-del-all:hover{background:#fdeaea;border-color:var(--red)}
+.del-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(15,22,35,.55)}
+.del-modal.open{display:flex}
+.del-card{width:min(440px,100%);background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden}
+.del-card-head{padding:1.1rem 1.4rem;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-weight:800;display:flex;gap:.55rem;align-items:center}
+.del-card-body{padding:1.3rem 1.4rem}
+.del-card-body p{font-size:.86rem;color:var(--text);line-height:1.55;margin-bottom:.8rem}
+.del-card-body ul{margin:0 0 1rem 1.1rem;font-size:.83rem;color:var(--text);line-height:1.6}
+.del-card-body label{display:block;font-size:.8rem;font-weight:700;color:var(--head);margin-bottom:.4rem}
+.del-card-body input{width:100%;padding:.75rem .9rem;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.95rem;letter-spacing:.08em}
+.del-card-body input:focus{outline:none;border-color:var(--red)}
+.del-actions{display:flex;gap:.6rem;margin-top:1.1rem}
+.del-actions .btn{flex:1;justify-content:center}
+.btn-red{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff}
+.btn-red:disabled{opacity:.45;cursor:not-allowed}
 </style>
 {% endblock %}
 
@@ -91,6 +107,7 @@
 <div class="panel">
   <div class="panel-head">
     <h3><i class="fas fa-clock-rotate-left"></i> Backup History ({{ backups|length }} backup{{ backups|length|pluralize }} on Dropbox)</h3>
+    {% if backups and not list_error %}<button type="button" class="btn btn-del-all" id="delAllOpen"><i class="fas fa-trash-can"></i> Delete all backups</button>{% endif %}
   </div>
   {% if list_error %}
     <div style="padding:1.4rem" class="help">{{ list_error }}</div>
@@ -121,4 +138,40 @@
   </div>
   {% endif %}
 </div>
+{% if backups and not list_error %}
+<div class="del-modal" id="delAllModal" role="dialog" aria-modal="true" aria-labelledby="delAllTitle">
+  <form class="del-card" method="post" action="{% url 'dashboard_backup_delete_all' %}">
+    {% csrf_token %}
+    <div class="del-card-head" id="delAllTitle"><i class="fas fa-triangle-exclamation"></i> Delete all backups?</div>
+    <div class="del-card-body">
+      <p>This permanently removes <b>all {{ backups|length }} backup{{ backups|length|pluralize }}</b> from <code>{{ backup_folder }}/</code> on Dropbox:</p>
+      <ul>
+        <li>every timestamped database copy (<code>db_*.sqlite3</code>)</li>
+        <li>their image archives (<code>customize_*.zip</code>)</li>
+        <li>the <code>db_latest</code> and <code>customize_latest</code> copies</li>
+      </ul>
+      <p>You won't be able to restore from them here afterwards. Your live database isn't touched. Dropbox may keep deleted files in its own "Deleted files" for a while.</p>
+      <label for="delAllConfirm">Type <b>DELETE</b> to confirm</label>
+      <input id="delAllConfirm" name="confirm" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="DELETE">
+      <div class="del-actions">
+        <button type="button" class="btn btn-ghost" id="delAllCancel">Cancel</button>
+        <button type="submit" class="btn btn-red" id="delAllGo" disabled><i class="fas fa-trash-can"></i> Delete all</button>
+      </div>
+    </div>
+  </form>
+</div>
+<script>
+(function () {
+  var modal = document.getElementById('delAllModal'), input = document.getElementById('delAllConfirm'), go = document.getElementById('delAllGo');
+  function open() { modal.classList.add('open'); input.value = ''; go.disabled = true; setTimeout(function () { input.focus(); }, 50); }
+  function close() { modal.classList.remove('open'); }
+  document.getElementById('delAllOpen').addEventListener('click', open);
+  document.getElementById('delAllCancel').addEventListener('click', close);
+  modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  input.addEventListener('input', function () { go.disabled = input.value.trim().toUpperCase() !== 'DELETE'; });
+  modal.querySelector('form').addEventListener('submit', function () { go.disabled = true; go.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting…'; });
+})();
+</script>
+{% endif %}
 {% endblock %}

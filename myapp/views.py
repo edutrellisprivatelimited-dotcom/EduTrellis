@@ -1866,6 +1866,26 @@ def dashboard_backup_restore(request):
     return redirect('dashboard_backup')
 
 
+@dashboard_staff_required
+def dashboard_backup_delete_all(request):
+    """Backup History → Delete all backups (the admin types DELETE first)."""
+    if request.method == 'POST':
+        if request.POST.get('confirm', '').strip().upper() != 'DELETE':
+            messages.error(request, 'Type DELETE to confirm deleting all backups.')
+            return redirect('dashboard_backup')
+        try:
+            databases, total = dropbox_backup.delete_all_backups(DropboxSettings.get_solo())
+            if total:
+                plural = 's' if databases != 1 else ''
+                messages.success(request, f'Deleted all backups from Dropbox: {databases} database backup{plural} '
+                                          f'({total} files including the image archives and latest copies).')
+            else:
+                messages.success(request, 'There were no backups on Dropbox to delete.')
+        except dropbox_backup.BackupError as exc:
+            messages.error(request, str(exc))
+    return redirect('dashboard_backup')
+
+
 def dashboard_logout(request):
     logout(request)
     return redirect('estore')

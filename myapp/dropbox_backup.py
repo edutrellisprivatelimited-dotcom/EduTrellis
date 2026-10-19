@@ -166,6 +166,53 @@ def list_backups(settings_obj):
         raise BackupError(f'Could not list Dropbox backups: {exc}')
 
 
+def _is_backup_file(name):
+    return ((name.startswith('db_') and name.endswith('.sqlite3'))
+            or (name.startswith('customize_') and name.endswith('.zip')))
+
+
+def delete_all_backups(settings_obj):
+    """Deletes every backup in the backups folder: the timestamped database and
+    image copies and the db_latest / customize_latest ones. Returns (database
+    backups removed, files removed). Nothing else in the Dropbox app folder is touched."""
+    import time
+    try:
+        dbx = _client(settings_obj)
+        try:
+            res = dbx.files_list_folder(BACKUP_FOLDER)
+        except Exception as exc:
+            if 'not_found' in str(exc).lower():
+                return 0, 0
+            raise
+        entries = list(res.entries)
+        while res.has_more:
+            res = dbx.files_list_folder_continue(res.cursor)
+            entries.extend(res.entries)
+        files = [e for e in entries if isinstance(e, dropbox.files.FileMetadata) and _is_backup_file(e.name)]
+        if not files:
+            return 0, 0
+        databases = sum(1 for e in files if e.name.endswith('.sqlite3') and e.name != LATEST_NAME)
+        for start in range(0, len(files), 1000):   # Dropbox takes up to 1000 per batch
+            batch = [dropbox.files.DeleteArg(e.path_lower) for e in files[start:start + 1000]]
+            job = dbx.files_delete_batch_v2(batch)
+            if job.is_async_job_id():
+                job_id = job.get_async_job_id()
+                for _ in range(60):
+                    status = dbx.files_delete_batch_check(job_id)
+                    if status.is_complete():
+                        break
+                    if status.is_failed():
+                        raise BackupError('Dropbox could not delete the backups. Please try again.')
+                    time.sleep(1)
+                else:
+                    raise BackupError('Dropbox is still deleting the backups. Refresh this page in a minute.')
+        return databases, len(files)
+    except BackupError:
+        raise
+    except Exception as exc:
+        raise BackupError(f'Could not delete the Dropbox backups: {exc}')
+
+
 def restore_backup(settings_obj, filename):
     """Restores the database and its paired customization-image archive."""
     if not filename or '/' in filename or '\\' in filename:
