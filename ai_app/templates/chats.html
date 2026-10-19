@@ -3268,21 +3268,6 @@ EduLook.apply(EduLook.get());
   }
   window.eduToast = eduToast;
 
-  {% if not chat_user.is_guest %}
-  // Welcome toast right after logging in or signing up (set by the log-in animation)
-  (function () {
-    var kind = null;
-    try { kind = sessionStorage.getItem('educhats-welcome'); sessionStorage.removeItem('educhats-welcome'); } catch (e) {}
-    if (!kind) return;
-    var first = '{{ chat_user.name|escapejs }}'.split(' ')[0];
-    setTimeout(function () {
-      eduToast({ avatar: '{% if chat_user.photo %}<img src="{% url "chats_user_photo" chat_user.pk %}" alt="">{% else %}{{ chat_user.name|slice:":1"|upper }}{% endif %}', badge: true,
-        title: (kind === 'signup' ? 'Welcome to EduChats, ' : 'Welcome back, ') + first, wave: true,
-        text: kind === 'signup' ? 'Your account is ready — say hi to someone!' : "You're logged in. Your chats are up to date.", ms: 4500 });
-    }, 150);
-  })();
-  {% endif %}
-
   // "is here" / typing bubble at the bottom of a chat (Snapchat-style)
   function showLive(liveEl, typing, here, name) {
     var body = liveEl.parentNode, on = !!(typing || here);
@@ -6366,7 +6351,6 @@ EduLook.apply(EduLook.get());
   });
   // Success animation: ring draws, a check pops, sparks burst, then the page reloads logged in.
   function playWelcome(kind, name) {
-    try { sessionStorage.setItem('educhats-welcome', kind); } catch (e) {}
     authPop.classList.remove('open');
     var fx = document.createElement('div'); fx.className = 'welcome-fx'; fx.setAttribute('role', 'status');
     fx.innerHTML = '<div class="wf-badge"><svg viewBox="0 0 104 104"><circle cx="52" cy="52" r="48"></circle></svg><span class="wf-check"><i class="fas fa-check"></i></span></div>'
