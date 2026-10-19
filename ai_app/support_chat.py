@@ -36,6 +36,7 @@ ATTEMPT_LIMIT = 10          # logins / sign-ups / reset requests per 15 min, per
 ATTEMPT_WINDOW = 15 * 60
 MESSAGE_LIMIT = 60          # messages per minute, per account (all chats together)
 SEND_LIMIT_ERROR = 'You are sending messages very fast. Please wait a few seconds.'
+GUEST_SUPPORT_ERROR = 'Log in or sign up to message support.'
 ONLINE_SECONDS = 20         # seen within this long = "online" (both sides poll every 4 s)
 STAFF_SEEN_KEY = 'support-chat-staff-last-seen'
 _PHONE_RE = re.compile(r'^(?:\+?91[\s-]?)?([6-9]\d{9})$')
@@ -76,6 +77,11 @@ def _json_body(request):
 
 def _fail(error, status=400, field=''):
     return JsonResponse({'ok': False, 'error': error, 'field': field}, status=status)
+
+
+def _guest_blocked():
+    """Only people with an account can message or call support."""
+    return JsonResponse({'ok': False, 'error': GUEST_SUPPORT_ERROR, 'field': '', 'need_login': True}, status=403)
 
 
 def _over_limit(request, action):
@@ -211,6 +217,8 @@ def api_typing(request):
     on = bool(data.get('typing'))
     to = data.get('to')
     if to == 'support':
+        if user.is_guest:
+            return _guest_blocked()
         set_live('typing', f's{user.pk}', 'user', on)
         return JsonResponse({'ok': True})
     if isinstance(to, str) and to.startswith('sx'):   # the support team typing a reply in the inbox
@@ -401,6 +409,8 @@ def api_location(request):
     user = current_user(request)
     if not user:
         return _fail('Please log in again.', 401)
+    if user.is_guest:
+        return _guest_blocked()
     data = _json_body(request)
     now = timezone.now()
     if data.get('id'):
@@ -441,6 +451,8 @@ def api_upload(request):
     user = current_user(request)
     if not user:
         return _fail('Please log in again.', 401)
+    if user.is_guest:
+        return _guest_blocked()
     key = upload_cid_key(request, f's{user.pk}')
     if key and cache.get(key):
         return JsonResponse({'ok': True, 'message': cache.get(key), **_user_status(user)})
@@ -591,7 +603,10 @@ def api_call(request):
     if not user:
         return _fail('Please log in again.', 401)
     if request.method == 'POST':
-        state, error = call_action(user, 'user', _json_body(request))
+        data = _json_body(request)
+        if user.is_guest and data.get('action') == 'start':
+            return _guest_blocked()
+        state, error = call_action(user, 'user', data)
         if error:
             return _fail(error, 409)
         return JsonResponse({'ok': True, 'call': _public_call(state, 'user'), 'ice_servers': ice_servers()})
@@ -849,6 +864,8 @@ def api_messages(request):
     if not user:
         return _fail('Please log in again.', 401)
     if request.method == 'POST':
+        if user.is_guest:
+            return _guest_blocked()
         from .educhats_media import media_from
         data = _json_body(request)
         kind, payload = media_from(data)   # a sticker or GIF instead of text

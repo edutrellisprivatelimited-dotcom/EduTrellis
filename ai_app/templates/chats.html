@@ -88,6 +88,16 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .empty{margin:auto;text-align:center;font-size:.9rem;max-width:320px;background:var(--card);padding:1rem 1.2rem;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .composer-wrap{position:relative;z-index:3;padding:.6rem max(.75rem,calc((100% - 980px)/2)) max(.75rem,env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
 .composer{display:flex;align-items:flex-end;gap:.5rem}
+.composer-wrap.gated>:not(.guest-gate){display:none!important}
+.guest-gate{display:flex;align-items:center;gap:.75rem;padding:.2rem 0}
+.guest-gate .gg-ico{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);color:var(--accent);font-size:1.05rem}
+.guest-gate .gg-text{flex:1;min-width:0;line-height:1.3}
+.guest-gate .gg-text b{display:block;color:var(--head);font-size:.92rem}
+.guest-gate .gg-text small{color:var(--text);font-size:.78rem}
+.guest-gate .gg-btns{display:flex;gap:.45rem;flex:0 0 auto}
+.guest-gate .gg-btns .auth-btn{height:40px;padding:0 1.15rem;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;box-shadow:0 6px 16px rgba(var(--accent-rgb),.25)}
+.guest-gate .gg-btns .auth-btn.ghost{background:transparent;color:var(--accent);border:1.5px solid rgba(var(--accent-rgb),.45);box-shadow:none}
+@media (max-width:520px){.guest-gate{flex-wrap:wrap;gap:.6rem}.guest-gate .gg-btns{width:100%}.guest-gate .gg-btns .auth-btn{flex:1;height:42px;font-size:.88rem}}
 .composer textarea{height:46px;min-height:46px;max-height:140px;padding:.7rem .9rem;resize:none;border-radius:23px}
 .round{width:46px;height:46px;flex:0 0 46px;border:none;border-radius:50%;cursor:pointer;font-size:1.05rem}
 .round.send{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;box-shadow:0 6px 16px rgba(var(--accent-rgb),.28)}
@@ -1328,7 +1338,17 @@ EduLook.apply(EduLook.get());
     <div class="peer-live" id="supLive" hidden aria-live="polite"><span class="pl-ava">{% if support.photo %}<img src="{% url 'chats_support_photo' %}?v={{ support.updated_at|date:'U' }}" alt="">{% else %}<i class="fas fa-headset"></i>{% endif %}</span><span class="pl-bubble"><span class="pl-dots" aria-label="typing"><i></i><i></i><i></i></span><span class="pl-text"></span></span></div>
     <div class="msgs" id="msgs"><p class="empty" id="empty">{% if chat_user.is_guest %}Hi there 👋{% else %}Hi {{ chat_user.name }} 👋{% endif %}<br>{{ support.welcome }}</p></div>
   </div>
-  <div class="composer-wrap">
+  <div class="composer-wrap{% if chat_user.is_guest %} gated{% endif %}">
+    {% if chat_user.is_guest %}
+    <div class="guest-gate">
+      <span class="gg-ico"><i class="fas fa-lock"></i></span>
+      <div class="gg-text"><b>Log in to message support</b><small>Only signed-in members can chat with or call the support team.</small></div>
+      <div class="gg-btns">
+        <button class="auth-btn ghost" type="button" id="ggLogin">Log in</button>
+        <button class="auth-btn" type="button" id="ggSignup">Sign up</button>
+      </div>
+    </div>
+    {% endif %}
     <div class="live-bar" id="liveBar"><i class="fas fa-location-crosshairs"></i> <span id="liveText">Sharing live location</span><button type="button" id="liveStop">Stop</button></div>
     <div class="attach-menu" id="attachMenu">
       <button type="button" class="attach-item" data-pick="image/*"><span style="background:#7c3aed"><i class="fas fa-image"></i></span>Photos</button>
@@ -2295,7 +2315,7 @@ EduLook.apply(EduLook.get());
     showIdCard({ name: supportName, subtitle: 'Official EduChats support', photo: photo, icon: 'fa-headset',
       socials: JSON.parse(document.getElementById('support-socials').textContent),
       seen: document.getElementById('supportText').textContent, online: dot.classList.contains('on'), rows: rows,
-      actions: [['Voice call', 'fa-phone', function () { proxyClick('voiceCall'); }], ['Message', 'fa-message', function () { box.focus(); }, true]] });
+      actions: [['Voice call', 'fa-phone', function () { proxyClick('voiceCall'); }], ['Message', 'fa-message', function () { {% if chat_user.is_guest %}proxyClick('openSignup');{% else %}box.focus();{% endif %} }, true]] });
   }
   // your own card: everything, with an eye showing what others can see
   function meCard() {
@@ -5695,6 +5715,15 @@ EduLook.apply(EduLook.get());
   document.getElementById('openLogin').addEventListener('click', function () { openAuth('loginCard'); document.getElementById('loginEmail').focus(); });
   document.getElementById('openSignup').addEventListener('click', function () { openAuth('signupCard'); document.getElementById('suName').focus(); });
   document.getElementById('authClose').addEventListener('click', function () { authPop.classList.remove('open'); });
+  // Guests can read old replies but only members can message or call support.
+  document.getElementById('ggLogin').addEventListener('click', function () { proxyClick('openLogin'); });
+  document.getElementById('ggSignup').addEventListener('click', function () { proxyClick('openSignup'); });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('#voiceCall, #videoCall');
+    if (!b) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    document.getElementById('openSignup').click();
+  }, true);
   authPop.addEventListener('click', function (e) { if (e.target === authPop) authPop.classList.remove('open'); });
   var locations = JSON.parse(document.getElementById('india-locations').textContent);
   var state = document.getElementById('suState'), city = document.getElementById('suCity');

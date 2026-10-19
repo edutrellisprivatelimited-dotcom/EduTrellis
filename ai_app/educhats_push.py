@@ -214,7 +214,7 @@ def push_to(user, chat, title, body, call=False):
                     'badge': badge, 'call': call, 'ts': int(time.time() * 1000),
                     # Reply / Mark as read buttons — not with the app lock on, which
                     # would let anyone holding the phone answer without unlocking
-                    'actions': not call and not user.app_lock_pin,
+                    'actions': not call and not user.app_lock_pin and not user.is_guest,
                     'unread': [key for key in counts if key not in muted][:60]})
 
 
