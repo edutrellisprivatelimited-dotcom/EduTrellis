@@ -88,6 +88,16 @@ def api_ai(request):
     if _throttled(f'educhats-ai-{who}', PER_MINUTE, 60):
         return _fail("You're sending messages very fast — please wait a few seconds.", 429)
 
+    # ⋮ → More AI features: "say hello to @rnt" sends it for you (educhats_ai_actions.py)
+    if data.get('mode') != 'image':
+        from .educhats_ai_actions import handle as do_action
+        action = do_action(user, text)
+        if action is not None:
+            mine = EduChatsAIMessage.objects.create(user=user, role=EduChatsAIMessage.ROLE_USER, body=text)
+            answer = EduChatsAIMessage.objects.create(user=user, role=EduChatsAIMessage.ROLE_ASSISTANT, body=action)
+            return JsonResponse({'ok': True, 'messages': [_message_json(mine), _message_json(answer)],
+                                 'sent': action.startswith('Done ✅')})
+
     from . import ai_chat
     wants_image = data.get('mode') == 'image' or (
         ai_chat.is_image_generation_request(text) or ai_chat.is_design_request(text))
@@ -122,3 +132,18 @@ def api_ai(request):
                 else 'EduTrellis AI is busy right now. Please try again in a moment.')
         return JsonResponse({'ok': False, 'error': note, 'message': _message_json(mine)}, status=502)
     return JsonResponse({'ok': True, 'messages': [_message_json(mine), _message_json(answer)]})
+
+
+def api_ai_features(request):
+    """⋮ → More AI features: GET the switches, POST {send_messages: bool}."""
+    user = current_user(request)
+    if not user:
+        return _fail('Please log in again.', 401)
+    if user.is_guest:
+        return _fail('Sign up or log in to use more AI features.', 403)
+    if request.method == 'POST':
+        data = _json_body(request)
+        if 'send_messages' in data:
+            user.ai_send_messages = bool(data.get('send_messages'))
+            user.save(update_fields=['ai_send_messages'])
+    return JsonResponse({'ok': True, 'send_messages': user.ai_send_messages})

@@ -69,6 +69,7 @@ urlpatterns = [
     path('api/privacy/', direct_chat.api_privacy, name='chats_privacy'),
     path('api/appearance/', direct_chat.api_appearance, name='chats_appearance'),
     path('api/ai/', educhats_ai.api_ai, name='chats_ai'),
+    path('api/ai/features/', educhats_ai.api_ai_features, name='chats_ai_features'),
     path('api/clear/', direct_chat.api_clear, name='chats_clear'),
     path('api/export/', direct_chat.api_export, name='chats_export'),
 ]

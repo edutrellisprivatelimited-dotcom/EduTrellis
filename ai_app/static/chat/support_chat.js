@@ -598,13 +598,18 @@
       var center = el('span', 'lp-center'); center.innerHTML = '<i class="fas fa-location-dot"></i>'; box.appendChild(center);
       state.map = L.map(holder, { zoomControl: false, attributionControl: false }).setView([22.6, 79.0], 4);
       L.tileLayer(TILES.map[0], { maxZoom: 19 }).addTo(state.map);
-      state.map.on('dragstart zoomstart', function (e) { if (e.type === 'dragstart') { state.moved = true; box.classList.add('moved'); onPos(state.pos, true); } });
+      state.map.on('moveend', function () {
+        if (!state.dragged || !state.pos) return;
+        var c = state.map.getCenter(), far = km(state.pos, { lat: c.lat, lng: c.lng }) * 1000 > Math.max(30, Math.min(state.pos.acc || 0, 150) / 2);
+        state.moved = far; box.classList.toggle('moved', far); onPos(state.pos, far);
+      });
+      state.map.on('dragstart', function () { state.dragged = true; });
       if (!navigator.geolocation) return;
       state.watch = navigator.geolocation.watchPosition(function (p) {
         state.pos = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy };
         var ll = [state.pos.lat, state.pos.lng];
         if (!state.me) {
-          state.ring = L.circle(ll, { radius: state.pos.acc, color: '#2563eb', weight: 1, fillOpacity: .12 }).addTo(state.map);
+          state.ring = L.circle(ll, { radius: state.pos.acc, color: '#2563eb', weight: 1, opacity: .5, fillOpacity: .07 }).addTo(state.map);
           state.me = L.marker(ll, { icon: meIcon(L) }).addTo(state.map);
           state.map.setView(ll, 17);
         } else { state.me.setLatLng(ll); state.ring.setLatLng(ll).setRadius(state.pos.acc); if (!state.moved) state.map.panTo(ll); }
@@ -614,7 +619,7 @@
     }).catch(function () { box.innerHTML = '<div class="mv-loading">Map unavailable — you can still send your location.</div>'; });
     return {
       center: function () { var c = state.map && state.map.getCenter(); return c ? { lat: c.lat, lng: c.lng } : null; },
-      recenter: function () { state.moved = false; box.classList.remove('moved'); if (state.pos && state.map) state.map.flyTo([state.pos.lat, state.pos.lng], 17); onPos(state.pos, false); },
+      recenter: function () { state.moved = false; state.dragged = false; box.classList.remove('moved'); if (state.pos && state.map) state.map.flyTo([state.pos.lat, state.pos.lng], 17); onPos(state.pos, false); },
       destroy: function () { if (state.watch != null) navigator.geolocation.clearWatch(state.watch); if (state.map) state.map.remove(); box.textContent = ''; }
     };
   }

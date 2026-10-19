@@ -73,6 +73,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .head-btn:hover{background:rgba(255,255,255,.26)}
 .chat-body{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--wall) var(--wall-img,none);background-size:var(--wall-size,auto);background-position:center;transition:background-color .25s}
 .msgs{flex:1;overflow-y:auto;padding:1.2rem max(1rem,calc((100% - 980px)/2));display:flex;flex-direction:column;gap:.45rem}
+.msgs>*{flex-shrink:0}
 .day{align-self:center;margin:.6rem 0;padding:.25rem .8rem;border-radius:999px;background:var(--card);color:var(--text);font-size:.72rem;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .msg{max-width:min(72%,560px);padding:.55rem .8rem;border-radius:16px;font-size:var(--msg-size,.93rem);line-height:1.45;white-space:pre-wrap;word-break:break-word;box-shadow:0 1px 2px rgba(0,0,0,.08);user-select:none;-webkit-user-select:none}
 .msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;border-bottom-right-radius:5px}
@@ -120,6 +121,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .sup-btn.primary{border:none;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;box-shadow:0 8px 18px rgba(var(--accent-rgb),.28)}
 .sup-btn:hover{filter:brightness(1.05)}
 .set-list .pv-row:last-child{border-bottom:none}
+.set-list .pv-txt small{white-space:normal;overflow:visible;text-overflow:clip}
+.aif-try{display:flex;flex-direction:column;gap:.35rem;margin-top:.9rem;padding:.85rem;border-radius:14px;background:rgba(var(--accent-rgb),.06)}
+.aif-try b{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.aif-try span{font-size:.84rem;color:var(--head)}
+.aif-note{margin:.6rem 0 0;font-size:.8rem;color:var(--text)}
+.aif-err{margin:.6rem 0 0;font-size:.8rem;color:var(--danger)}
+.side-chips .chip.inbox-chip{border-color:rgba(var(--accent-rgb),.55);color:#fff}
+.side-chips .chip.inbox-chip.active{background:var(--accent);border-color:var(--accent)}
 .pv-row.off{opacity:.45;pointer-events:none}
 .guest-gate{display:flex;align-items:center;gap:.75rem;padding:.2rem 0}
 .guest-gate .gg-ico{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);color:var(--accent);font-size:1.05rem}
@@ -862,6 +871,8 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .dm-intro .u{color:var(--accent);font-size:.82rem;font-weight:700}
 .dm-intro p{margin:.5rem 0 0;font-size:.82rem;color:var(--head);font-style:italic;white-space:pre-wrap;word-break:break-word}
 .dm-intro small{display:block;margin-top:.55rem;font-size:.74rem}
+.dm-intro .di-facts{display:flex;flex-direction:column;align-items:center;gap:.2rem;margin-top:.6rem;font-size:.74rem;color:var(--text)}
+.dm-intro .di-facts i{width:14px;color:var(--accent);opacity:.8;margin-right:.2rem}
 .dm-intro button{margin-top:.6rem;padding:.4rem .9rem;border:1.5px solid var(--line);border-radius:999px;background:var(--bg);color:var(--head);font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}
 .person small .bio{opacity:.85}
 /* ── install app ── */
@@ -1215,6 +1226,7 @@ EduLook.apply(EduLook.get());
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
           <button type="button" id="openSupport" role="menuitem"><i class="fas fa-headset"></i> Support / Report us</button>
           <button type="button" id="openSettings" role="menuitem"><i class="fas fa-gear"></i> Settings</button>
+          <button type="button" id="openAiFeatures" role="menuitem"><i class="fas fa-wand-magic-sparkles"></i> More AI features</button>
           <button type="button" id="openInstall" role="menuitem" hidden><i class="fas fa-download" id="installIcon"></i> <span id="installLabel">Install app</span></button>
           <a href="{% url 'ai_home' %}" target="_blank" rel="noopener" role="menuitem"><i class="fas fa-wand-magic-sparkles"></i> Explore EduTrellis AI <i class="fas fa-arrow-up-right-from-square ext"></i></a>
           {% if is_superuser_viewer %}<hr>
@@ -1235,6 +1247,7 @@ EduLook.apply(EduLook.get());
     <button type="button" class="chip" data-filter="fav" role="tab"><i class="fas fa-heart"></i> Favourites</button>
     {% if not chat_user.is_guest %}<button type="button" class="chip" data-filter="groups" role="tab"><i class="fas fa-users"></i> Groups</button>{% endif %}
     <button type="button" class="chip" data-filter="pinned" role="tab">Pinned</button>
+    {% if is_support_staff %}<button type="button" class="chip inbox-chip" id="inboxChip"><i class="fas fa-inbox"></i> Support inbox <span class="chip-n" id="inboxChipN"{% if not support_waiting %} hidden{% endif %}>{{ support_waiting }}</span></button>{% endif %}
   </div>
   <div class="side-scroll" id="sideList">
     <div class="notif-banner" id="notifBanner" hidden><span class="nb-ic"><i class="fas fa-bell"></i></span><span class="nb-txt"><b id="nbTitle">Turn on notifications</b><small id="nbSub">Get notified of new messages, even when EduChats is closed.</small></span><button type="button" class="nb-on" id="nbOn">Turn on</button><button type="button" class="nb-x" id="nbX" aria-label="Not now"><i class="fas fa-xmark"></i></button></div>
@@ -1246,7 +1259,7 @@ EduLook.apply(EduLook.get());
         <span class="side-row"><span class="side-preview" id="aiPreview"><span>Free · chat &amp; create images</span></span><i class="fas fa-thumbtack side-pin" id="aiPin" title="Pinned"></i><button type="button" class="side-more" id="aiMore" aria-label="Chat options" aria-haspopup="true"><i class="fas fa-chevron-down"></i></button></span>
       </span>
     </div>
-    {% if is_support_staff %}<div class="side-item pinned inbox-row" id="inboxRow" role="button" tabindex="0" data-title="support inbox members messages admin">
+    {% if is_support_staff %}<div class="side-item pinned inbox-row" id="inboxRow" role="button" tabindex="0" data-title="support inbox members messages admin" data-off="1" hidden>
       <span class="side-ava inbox-ava"><i class="fas fa-inbox"></i></span>
       <span class="side-txt">
         <span class="side-row"><b>Support inbox</b><span class="ai-tag inbox-tag">Admin</span></span>
@@ -1800,6 +1813,25 @@ EduLook.apply(EduLook.get());
   </div>
 </div>
 {% endwith %}
+<div class="sheet pf-sheet" id="aiFeatSheet">
+  <div class="sheet-card">
+    <h3><i class="fas fa-wand-magic-sparkles" style="color:var(--accent)"></i> More AI features</h3>
+    <p class="pv-intro">Let EduTrellis AI do more for you. You can switch these off any time.</p>
+    <div class="set-list">
+      <label class="pv-row{% if chat_user.is_guest %} off{% endif %}"><span class="pv-ic"><i class="fas fa-paper-plane"></i></span><span class="pv-txt"><b>Let AI send messages for you</b><small>Ask in the EduTrellis AI chat and it sends the message as you</small></span><span class="switch"><input type="checkbox" id="aiSendSwitch"{% if chat_user.ai_send_messages %} checked{% endif %}{% if chat_user.is_guest %} disabled{% endif %}><span></span></span></label>
+    </div>
+    {% if chat_user.is_guest %}<p class="aif-note"><i class="fas fa-lock"></i> Log in or sign up to use this.</p>{% endif %}
+    <div class="aif-try">
+      <b>Try saying</b>
+      <span>“say hello to @username”</span>
+      <span>“send a message to @username saying I'm on my way”</span>
+      <span>“tell @username that the class is at 5”</span>
+      <span>“username ko hello bolo”</span>
+    </div>
+    <p class="aif-err" id="aiFeatErr" hidden></p>
+    <button class="sheet-opt" type="button" data-close style="justify-content:center;margin-top:1rem">Done</button>
+  </div>
+</div>
 <div class="sheet pf-sheet" id="settingsSheet">
   <div class="sheet-card">
     <h3><i class="fas fa-gear" style="color:var(--accent)"></i> Settings</h3>
@@ -2149,6 +2181,7 @@ EduLook.apply(EduLook.get());
   }
   var dmUnreadTotal = 0, dmUnreadChats = 0;   // filled in by the direct-messages code below
   var pickFileFor = null, dmSendFile = null, dmFlashOut = null;   // shared file picker <-> direct chats
+  var dmReload = null;   // reloads the direct-chat list (after EduTrellis AI sends a message for you)
   var sendOnce = false;   // ① view once, picked in the send sheet; the next file sent takes it
   function takeOnce(kind, data) { var on = sendOnce && (kind === 'image' || kind === 'video'); sendOnce = false; if (on) data.append('once', '1'); return on; }
   var locAdd = {};   // where a shared location lands: dm / g / sx → function (id, message)
@@ -2802,7 +2835,7 @@ EduLook.apply(EduLook.get());
       }).then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Something went wrong. Please try again.' }; }); })
         .then(function (res) {
           pending.classList.remove('uploading');
-          if (res.ok) { res.messages.slice(1).forEach(bubbleAI); if (imageMode) setMode(false); }
+          if (res.ok) { res.messages.slice(1).forEach(bubbleAI); if (imageMode) setMode(false); if (res.sent && dmReload) dmReload(); }
           else aiFlash(res.error || 'EduTrellis AI could not answer. Please try again.');
         }).catch(function () { pending.classList.remove('uploading'); aiFlash('Could not reach the server. Please try again.'); })
         .then(function () {
@@ -3670,10 +3703,10 @@ EduLook.apply(EduLook.get());
         : archivedN && !viewArchived ? 'Your chat is archived — open Archived above' : 'No chats yet';
     }
     search.addEventListener('input', apply);
-    document.querySelectorAll('.chip').forEach(function (c) {
+    document.querySelectorAll('.side-chips .chip[data-filter]').forEach(function (c) {
       c.addEventListener('click', function () {
         filter = c.dataset.filter;
-        document.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('active', x === c); });
+        document.querySelectorAll('.side-chips .chip[data-filter]').forEach(function (x) { x.classList.toggle('active', x === c); });
         apply();
       });
     });
@@ -3694,6 +3727,20 @@ EduLook.apply(EduLook.get());
       document.querySelector('.chip[data-filter="all"]').click();
       showRow('support', true);
       supportRow.click();
+    });
+    // More AI features
+    document.getElementById('openAiFeatures').addEventListener('click', function () {
+      sideMenu.classList.remove('open');
+      document.getElementById('aiFeatErr').hidden = true;
+      document.getElementById('aiFeatSheet').classList.add('open');
+    });
+    var aiSendSwitch = document.getElementById('aiSendSwitch');
+    aiSendSwitch.addEventListener('change', function () {
+      var want = aiSendSwitch.checked, err = document.getElementById('aiFeatErr');
+      post('{% url "chats_ai_features" %}', { send_messages: want }).then(function (res) {
+        if (!res.ok) { aiSendSwitch.checked = !want; err.textContent = res.error || 'Could not save. Please try again.'; err.hidden = false; return; }
+        aiSendSwitch.checked = !!res.send_messages; err.hidden = true;
+      }).catch(function () { aiSendSwitch.checked = !want; err.textContent = 'Could not reach the server.'; err.hidden = false; });
     });
     // Settings: which built-in chats show in the list
     var setAI = document.getElementById('setAI'), setAIPin = document.getElementById('setAIPin'), setSupport = document.getElementById('setSupport');
@@ -3875,6 +3922,7 @@ EduLook.apply(EduLook.get());
       dmUnreadTotal = total; dmUnreadChats = chats;
       renderUnread();
     }
+    dmReload = function () { loadThreads(); };
     function loadThreads() {
       if (document.hidden) return;
       getJSON(DM).then(function (res) {
@@ -3974,13 +4022,18 @@ EduLook.apply(EduLook.get());
       dmMsgs.textContent = '';
       // intro card at the top of the chat: photo, name, @username and bio
       var intro = document.createElement('div'); intro.className = 'dm-intro';
-      intro.innerHTML = '<span class="di-cover"></span><span class="ava-in"></span><b></b><span class="u"></span><p hidden></p><small></small><button type="button"><i class="fas fa-id-card"></i> View profile</button>';
+      intro.innerHTML = '<span class="di-cover"></span><span class="ava-in"></span><b></b><span class="u"></span><p hidden></p><span class="di-facts"></span><small></small><button type="button"><i class="fas fa-id-card"></i> View profile</button>';
       avatarInto(intro.querySelector('.ava-in'), t.peer);
       if (t.peer.cover) intro.querySelector('.di-cover').style.backgroundImage = 'url("' + t.peer.cover + '")';
       intro.querySelector('b').textContent = t.peer.name;
       intro.querySelector('.u').textContent = '@' + t.peer.username;
       if (t.peer.bio) { var ib = intro.querySelector('p'); ib.hidden = false; ib.textContent = '“' + t.peer.bio + '”'; }
-      intro.querySelector('small').textContent = 'This is the start of your chat. Say hi!';
+      var facts = intro.querySelector('.di-facts');
+      [['fa-calendar', t.peer.joined ? 'Joined EduChats in ' + t.peer.joined : ''], ['fa-lock', 'Messages stay between you two']].forEach(function (f) {
+        if (!f[1]) return;
+        var it = document.createElement('span'); it.innerHTML = '<i class="fas ' + f[0] + '"></i> '; it.appendChild(document.createTextNode(f[1])); facts.appendChild(it);
+      });
+      intro.querySelector('small').textContent = t.last ? 'This is the start of your chat.' : 'This is the start of your chat. Say hi! 👋';
       intro.querySelector('button').addEventListener('click', function () { openContact(id); });
       dmMsgs.appendChild(intro);
       dmErr.classList.remove('show'); dmMenu.classList.remove('open');
@@ -4944,9 +4997,18 @@ EduLook.apply(EduLook.get());
       sxPanel.classList.toggle('open', on);
       sxPanel.setAttribute('aria-hidden', on ? 'false' : 'true');
       inboxRow.classList.toggle('active', on || sxActive !== null);
+      document.getElementById('inboxChip').classList.toggle('active', on);
       if (on) { openNew(false); openGP(false); loadInbox(); setTimeout(function () { if (!('ontouchstart' in window)) document.getElementById('sxSearch').focus(); }, 180); }
     }
     inboxRow.addEventListener('click', function () { openInbox(true); });
+    var inboxChip = document.getElementById('inboxChip');
+    inboxChip.addEventListener('click', function () { openInbox(true); });
+    // the chip row scrolls sideways with a mouse wheel too, and shows the inbox chip when people are waiting
+    var chipRow = inboxChip.parentNode;
+    chipRow.addEventListener('wheel', function (e) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && chipRow.scrollWidth > chipRow.clientWidth) { chipRow.scrollLeft += e.deltaY; e.preventDefault(); }
+    }, { passive: false });
+    if ({{ support_waiting|default:0 }}) setTimeout(function () { chipRow.scrollTo({ left: chipRow.scrollWidth, behavior: 'smooth' }); }, 1200);
     inboxRow.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInbox(true); } });
     document.getElementById('sxBack').addEventListener('click', function () { openInbox(false); });
     document.querySelectorAll('#sxChips button').forEach(function (b) {
@@ -5028,6 +5090,7 @@ EduLook.apply(EduLook.get());
     function sxSetWaiting(n) {
       var badge = document.getElementById('inboxBadge'), prev = document.getElementById('inboxPreview');
       badge.textContent = n > 99 ? '99+' : n; badge.hidden = !n;
+      var chipN = document.getElementById('inboxChipN'); chipN.textContent = badge.textContent; chipN.hidden = !n;
       inboxRow.classList.toggle('has-unread', !!n);
       prev.textContent = '';
       var t = document.createElement('span');

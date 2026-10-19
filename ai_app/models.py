@@ -984,6 +984,9 @@ class ChatUser(models.Model):
     read_receipts = models.BooleanField(default=True)
     TICK_CHOICES = [('double', 'Double tick'), ('single', 'Single tick'), ('none', 'No ticks')]
     tick_style = models.CharField(max_length=8, choices=TICK_CHOICES, default='double')
+    # ⋮ → More AI features: EduTrellis AI may send a message for you when you ask it to
+    # ("say hello to @rnt"); see educhats_ai_actions.py.
+    ai_send_messages = models.BooleanField(default=False)
     # "Delete chat" on the support chat hides messages up to this id for the
     # user only; the support team keeps its copy.
     support_cleared_upto = models.BigIntegerField(default=0)

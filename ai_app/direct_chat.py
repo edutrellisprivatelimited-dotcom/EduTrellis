@@ -44,6 +44,7 @@ def _peer_json(peer, shares_thread=True):
         'bio': peer.bio if peer.show_bio else '',
         'cover': reverse('chats_user_cover', args=[peer.pk]) if shares_thread and peer.cover else '',
         'active': peer.is_active,
+        'joined': timezone.localtime(peer.created_at).strftime('%B %Y'),
     }
 
 
