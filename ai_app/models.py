@@ -987,6 +987,12 @@ class ChatUser(models.Model):
     # "Delete chat" on the support chat hides messages up to this id for the
     # user only; the support team keeps its copy.
     support_cleared_upto = models.BigIntegerField(default=0)
+    # App lock (⋮ → App lock, educhats_lock.py): a hashed 4–6 digit PIN, how long after
+    # leaving EduChats it locks again (seconds, 0 = straight away), and the fingerprint /
+    # face / Windows Hello keys (WebAuthn) that can unlock it instead of the PIN.
+    app_lock_pin = models.CharField(max_length=128, blank=True)
+    app_lock_after = models.PositiveIntegerField(default=0)
+    app_lock_keys = models.JSONField(default=list, blank=True)
     bio = models.CharField(max_length=160, blank=True)    # short "about me" under their name
     show_bio = models.BooleanField(default=True)
     # Social links (Profile → Social links), stored as clean https profile URLs

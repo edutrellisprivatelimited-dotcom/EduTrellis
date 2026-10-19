@@ -203,6 +203,8 @@ def push_to(user, chat, title, body, call=False):
         if chat in muted and not call:
             continue
         badge = sum(n for key, n in counts.items() if key not in muted)
+        if user.app_lock_pin and not call:   # app lock on: don't show the message on the lock screen
+            body = '🔒 New message'
         _send(sub, {'title': title[:80], 'body': body[:200], 'chat': chat, 'tag': f'chat-{chat}',
                     'badge': badge, 'call': call, 'ts': int(time.time() * 1000)})
 

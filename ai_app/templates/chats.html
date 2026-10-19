@@ -498,6 +498,39 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .id-row .vis.off{color:#9ca3af}
 .staff-hide{display:none !important}
 .inbox-row{text-decoration:none;color:inherit}
+/* app lock */
+.side-lock[hidden]{display:none}
+.lk-card{width:min(420px,100%)}
+.lk-hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:.4rem 0 .2rem}
+.lk-hero .lk-ic{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-dark));box-shadow:0 10px 24px rgba(var(--accent-rgb),.3);margin-bottom:.7rem}
+.lk-hero h3{margin:0 0 .3rem}
+.lk-hero p{margin:0;font-size:.85rem;color:var(--text);line-height:1.5}
+.lk-step[hidden]{display:none}
+.lk-field{margin:.9rem 0 0}
+.lk-field label{display:block;font-size:.78rem;font-weight:700;color:var(--head);margin-bottom:.35rem}
+.lk-field input{width:100%;height:50px;border:1.5px solid var(--line);border-radius:12px;padding:0 1rem;font:inherit;font-size:1.35rem;letter-spacing:.55em;text-align:center;background:var(--bg);color:var(--head)}
+.lk-field input:focus{outline:none;border-color:var(--accent)}
+.lk-sec{margin:1.1rem 0 .45rem;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.lk-when{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+.lk-when button{border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--head);font:inherit;font-size:.8rem;font-weight:700;padding:.6rem .3rem;cursor:pointer;line-height:1.25}
+.lk-when button.on{border-color:var(--accent);background:rgba(var(--accent-rgb),.1);color:var(--accent)}
+.lk-row{display:flex;align-items:center;gap:.75rem;padding:.7rem .2rem;border-bottom:1px solid var(--line)}
+.lk-row:last-child{border-bottom:none}
+.lk-row .lk-ri{width:36px;height:36px;flex:0 0 36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(var(--accent-rgb),.1);color:var(--accent)}
+.lk-row .lk-rt{flex:1;min-width:0}
+.lk-row b{display:block;font-size:.88rem;color:var(--head)}
+.lk-row small{display:block;font-size:.74rem;color:var(--text)}
+.lk-row .lk-x{border:none;background:none;color:var(--text);cursor:pointer;font-size:.9rem;padding:.35rem}
+.lk-row .lk-x:hover{color:#dc2626}
+.lk-acts{display:grid;gap:.5rem;margin-top:1rem}
+.lk-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--head);font:inherit;font-weight:700;font-size:.88rem;cursor:pointer}
+.lk-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.lk-btn.danger{color:#dc2626}
+.lk-btn[hidden]{display:none}
+.lk-err{min-height:1.1em;margin:.6rem 0 0;font-size:.8rem;color:#dc2626;font-weight:600;text-align:center}
+.lk-note{margin:.9rem 0 0;font-size:.74rem;color:var(--text);line-height:1.5;text-align:center}
+.lk-cover{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:var(--ink);color:#fff;font-size:2rem}
+.lk-cover.on{display:flex}
 /* voice messages: mic ↔ send, and the recording bar */
 .composer{position:relative}
 .composer .vn-micbtn{display:none}
@@ -912,6 +945,7 @@ EduLook.apply(EduLook.get());
     <span class="side-me">{% if chat_user.is_guest %}<i class="fas fa-user"></i>{% elif chat_user.photo %}<img src="{% url 'chats_user_photo' chat_user.pk %}" alt="">{% else %}{{ chat_user.name|slice:":1"|upper }}{% endif %}</span>
     <div class="side-title"><b>EduChats</b><small>{% if chat_user.is_guest %}Guest · log in to keep your chats{% elif chat_user.username %}@{{ chat_user.username }}{% else %}{{ chat_user.name }}{% endif %}</small></div>
     <div class="side-actions">
+      {% if not chat_user.is_guest %}<button class="side-icon side-lock" id="lockNowBtn" type="button" title="Lock EduChats now" aria-label="Lock EduChats now" hidden><i class="fas fa-lock"></i></button>{% endif %}
       <button class="side-icon side-plus" id="newChatBtn" type="button" title="New chat" aria-label="New chat"><i class="fas fa-plus"></i></button>
       <div class="side-menu-wrap">
         <button class="side-icon" id="sideMenuBtn" type="button" title="Menu" aria-label="Menu" aria-haspopup="true"><i class="fas fa-ellipsis-vertical"></i></button>
@@ -922,7 +956,8 @@ EduLook.apply(EduLook.get());
           {% else %}
           <button type="button" data-proxy="openProfile" role="menuitem"><i class="fas fa-user-pen"></i> Profile</button>
           {% endif %}
-          {% if not chat_user.is_guest %}<button type="button" id="openPrivacy" role="menuitem"><i class="fas fa-user-shield"></i> Privacy</button>{% endif %}
+          {% if not chat_user.is_guest %}<button type="button" id="openPrivacy" role="menuitem"><i class="fas fa-user-shield"></i> Privacy</button>
+          <button type="button" id="openLock" role="menuitem"><i class="fas fa-lock" id="lockIcon"></i> <span id="lockLabel">App lock</span></button>{% endif %}
           <button type="button" id="openNotif" role="menuitem" hidden><i class="fas fa-bell" id="notifIcon"></i> <span id="notifLabel">Notifications</span></button>
           <button type="button" id="openLook" role="menuitem"><i class="fas fa-palette"></i> Customize</button>
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
@@ -1265,6 +1300,41 @@ EduLook.apply(EduLook.get());
     <div class="pf-foot"><button class="sheet-opt" type="button" data-close>Cancel</button><button class="pf-save" type="submit">Save changes</button></div>
   </form>
 </div>{% endif %}
+{% if chat_user and not chat_user.is_guest %}<div class="sheet pf-sheet" id="lockSheet">
+  <div class="sheet-card lk-card">
+    <div class="lk-step" id="lkOff">
+      <div class="lk-hero"><span class="lk-ic"><i class="fas fa-lock"></i></span><h3>App lock</h3>
+        <p>Ask for a PIN — or your fingerprint / face — every time EduChats opens, so no one else can read your chats on your phone or computer.</p></div>
+      <div class="lk-acts"><button type="button" class="lk-btn primary" id="lkStart"><i class="fas fa-lock"></i> Turn on app lock</button>
+        <button type="button" class="lk-btn" data-close>Not now</button></div>
+    </div>
+    <div class="lk-step" id="lkPin" hidden>
+      <div class="lk-hero"><span class="lk-ic"><i class="fas fa-key"></i></span><h3 id="lkPinTitle">Create a PIN</h3><p>4 to 6 digits. You'll use it to open EduChats.</p></div>
+      <div class="lk-field"><label for="lkPin1">PIN</label><input id="lkPin1" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password"></div>
+      <div class="lk-field"><label for="lkPin2">Type it again</label><input id="lkPin2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password"></div>
+      <div id="lkPinWhen"><p class="lk-sec">Lock EduChats</p><div class="lk-when" data-when></div></div>
+      <p class="lk-err" id="lkPinErr" role="alert"></p>
+      <div class="lk-acts"><button type="button" class="lk-btn primary" id="lkSave"><i class="fas fa-check"></i> Save PIN</button>
+        <button type="button" class="lk-btn" id="lkPinBack">Cancel</button></div>
+    </div>
+    <div class="lk-step" id="lkOn" hidden>
+      <div class="lk-hero"><span class="lk-ic"><i class="fas fa-shield-halved"></i></span><h3>App lock is on</h3><p>EduChats asks for your PIN when it opens.</p></div>
+      <p class="lk-sec">Lock EduChats</p>
+      <div class="lk-when" data-when></div>
+      <p class="lk-sec">Fingerprint / face unlock</p>
+      <div id="lkKeys"></div>
+      <button type="button" class="lk-btn" id="lkAddBio" hidden><i class="fas fa-fingerprint"></i> <span id="lkAddBioText">Use fingerprint / face on this device</span></button>
+      <p class="lk-err" id="lkErr" role="alert"></p>
+      <div class="lk-acts">
+        <button type="button" class="lk-btn primary" id="lkLockNow"><i class="fas fa-lock"></i> Lock now</button>
+        <button type="button" class="lk-btn" id="lkChange"><i class="fas fa-key"></i> Change PIN</button>
+        <button type="button" class="lk-btn danger" id="lkOffBtn"><i class="fas fa-lock-open"></i> Turn off app lock</button>
+      </div>
+      <p class="lk-note">Works on all your devices. While it's on, notifications say "New message" instead of showing the text. Forgot your PIN? Log out and log in again with your password.</p>
+    </div>
+  </div>
+</div>
+<div class="lk-cover" id="lkCover" aria-hidden="true"><i class="fas fa-lock"></i></div>{% endif %}
 <div class="sheet pf-sheet" id="exportSheet">
   <div class="sheet-card" style="width:min(400px,100%)">
     <h3><i class="fas fa-file-export" style="color:var(--accent)"></i> Export chat</h3>
@@ -4615,6 +4685,143 @@ EduLook.apply(EduLook.get());
     document.getElementById('sxCloseBtn').addEventListener('click', function () { sxMenu.classList.remove('open'); showHome(); });
     function openSxFromKey(id) { openInbox(true); openSx(id); return true; }
     {% endif %}
+
+    // ════════ App lock (educhats_lock.py) ════════
+    (function () {
+      var LOCK = '{% url "chats_lock" %}', st = {{ app_lock|safe }};
+      var sheet = document.getElementById('lockSheet'), cover = document.getElementById('lkCover');
+      var WHEN = [[0, 'Straight away'], [60, 'After 1 minute'], [1800, 'After 30 minutes']], pickedWhen = 0, changing = false;
+      var bioOk = false;
+      if (window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+        PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function (v) { bioOk = !!v; paint(); }).catch(function () {});
+      }
+      function b2u(buf) { var s = '', a = new Uint8Array(buf); for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+      function u2b(t) { t = t.replace(/-/g, '+').replace(/_/g, '/'); while (t.length % 4) t += '='; var s = atob(t), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a.buffer; }
+      // this device's own fingerprint keys — the lock screen only offers them here
+      var LOCAL_KEYS = 'educhats-lock-keys-{{ chat_user.pk }}';
+      function localKeys() { try { return JSON.parse(localStorage.getItem(LOCAL_KEYS) || '[]') || []; } catch (e) { return []; } }
+      function rememberKey(keys, addNewest) {
+        var ids = (keys || []).map(function (k) { return k.id; }), local = localKeys().filter(function (id) { return ids.indexOf(id) !== -1; });
+        if (addNewest && ids.length && local.indexOf(ids[ids.length - 1]) === -1) local.push(ids[ids.length - 1]);
+        try { localStorage.setItem(LOCAL_KEYS, JSON.stringify(local)); } catch (e) {}
+      }
+      function show(step) { ['lkOff', 'lkPin', 'lkOn'].forEach(function (id) { document.getElementById(id).hidden = id !== step; }); }
+      function whenButtons() {
+        document.querySelectorAll('#lockSheet [data-when]').forEach(function (box) {
+          box.textContent = '';
+          WHEN.forEach(function (w) {
+            var b = document.createElement('button'); b.type = 'button'; b.textContent = w[1];
+            b.classList.toggle('on', (box.closest('#lkOn') ? st.after : pickedWhen) === w[0]);
+            b.addEventListener('click', function () {
+              if (box.closest('#lkOn')) {
+                post(LOCK, { action: 'after', after: w[0] }).then(function (res) { if (res.ok) { st = res; paint(); } else err(res.error); });
+              } else { pickedWhen = w[0]; whenButtons(); }
+            });
+            box.appendChild(b);
+          });
+        });
+      }
+      function err(text) { var e = document.getElementById(document.getElementById('lkOn').hidden ? 'lkPinErr' : 'lkErr'); e.textContent = text || ''; }
+      function paint() {
+        document.getElementById('lockLabel').textContent = st.enabled ? 'App lock: on' : 'App lock';
+        document.getElementById('lockNowBtn').hidden = !st.enabled;
+        var keys = document.getElementById('lkKeys'); keys.textContent = '';
+        (st.keys || []).forEach(function (k) {
+          var row = document.createElement('div'); row.className = 'lk-row';
+          row.innerHTML = '<span class="lk-ri"><i class="fas fa-fingerprint"></i></span><span class="lk-rt"><b></b><small></small></span><button type="button" class="lk-x" title="Remove" aria-label="Remove"><i class="fas fa-trash-can"></i></button>';
+          row.querySelector('b').textContent = k.name + (localKeys().indexOf(k.id) !== -1 ? ' · this device' : '');
+          row.querySelector('small').textContent = 'Added ' + k.created;
+          row.querySelector('.lk-x').addEventListener('click', function () {
+            if (!confirm('Stop unlocking with ' + k.name + '?')) return;
+            post(LOCK, { action: 'bio-remove', id: k.id }).then(function (res) { if (res.ok) { rememberKey(res.keys); st = res; paint(); } });
+          });
+          keys.appendChild(row);
+        });
+        if (!(st.keys || []).length) {
+          var none = document.createElement('p'); none.className = 'lk-note'; none.style.margin = '0 0 .5rem';
+          none.textContent = bioOk ? 'Unlock faster with this device\'s fingerprint, face or Windows Hello.' : 'This device has no fingerprint / face sign-in that EduChats can use — your PIN works everywhere.';
+          keys.appendChild(none);
+        }
+        document.getElementById('lkAddBio').hidden = !bioOk;
+        whenButtons();
+      }
+      function open() {
+        err(''); changing = false;
+        show(st.enabled ? 'lkOn' : 'lkOff'); paint();
+        document.getElementById('sideMenu').classList.remove('open');
+        sheet.classList.add('open');
+      }
+      function pinStep(change) {
+        changing = change; pickedWhen = st.after || 0;
+        document.getElementById('lkPinTitle').textContent = change ? 'Choose a new PIN' : 'Create a PIN';
+        document.getElementById('lkPinWhen').hidden = change;
+        document.getElementById('lkPin1').value = ''; document.getElementById('lkPin2').value = '';
+        err(''); show('lkPin'); whenButtons();
+        setTimeout(function () { document.getElementById('lkPin1').focus(); }, 60);
+      }
+      document.getElementById('openLock').addEventListener('click', open);
+      document.getElementById('lkStart').addEventListener('click', function () { pinStep(false); });
+      document.getElementById('lkChange').addEventListener('click', function () { pinStep(true); });
+      document.getElementById('lkPinBack').addEventListener('click', function () { err(''); if (st.enabled) show('lkOn'); else sheet.classList.remove('open'); });
+      ['lkPin1', 'lkPin2'].forEach(function (id) {
+        var el = document.getElementById(id);
+        el.addEventListener('input', function () { el.value = el.value.replace(/\D/g, '').slice(0, 6); });
+        el.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (id === 'lkPin1') document.getElementById('lkPin2').focus(); else document.getElementById('lkSave').click(); } });
+      });
+      document.getElementById('lkSave').addEventListener('click', function () {
+        var a = document.getElementById('lkPin1').value, b = document.getElementById('lkPin2').value;
+        if (a.length < 4) return err('Use 4 to 6 digits for your PIN.');
+        if (a !== b) { document.getElementById('lkPin2').value = ''; document.getElementById('lkPin2').focus(); return err("The two PINs don't match. Type it again."); }
+        var data = { action: 'set', pin: a };
+        if (!changing) data.after = pickedWhen;
+        post(LOCK, data).then(function (res) {
+          if (!res.ok) return err(res.error);
+          var first = !st.enabled; st = res; paint(); show('lkOn');
+          flash(first ? 'App lock is on.' : 'PIN changed.');
+          if (first && bioOk) document.getElementById('lkAddBio').focus();
+        }).catch(function () { err('Could not reach the server. Please try again.'); });
+      });
+      document.getElementById('lkAddBio').addEventListener('click', function () {
+        err('');
+        post(LOCK, { action: 'bio-register-begin' }).then(function (res) {
+          if (!res.ok) throw new Error(res.error);
+          var o = res.options;
+          o.challenge = u2b(o.challenge); o.user.id = u2b(o.user.id);
+          o.excludeCredentials = o.excludeCredentials.map(function (c) { return { type: c.type, id: u2b(c.id) }; });
+          return navigator.credentials.create({ publicKey: o });
+        }).then(function (cred) {
+          return post(LOCK, { action: 'bio-register-finish', credential: { id: cred.id, response: {
+            clientDataJSON: b2u(cred.response.clientDataJSON), attestationObject: b2u(cred.response.attestationObject) } } });
+        }).then(function (res) {
+          if (!res.ok) return err(res.error);
+          rememberKey(res.keys, true);
+          st = res; paint(); flash('Fingerprint / face unlock is on for this device.');
+        }).catch(function (e) {
+          err(e && e.name === 'InvalidStateError' ? 'This device is already set up.' : e && e.name === 'NotAllowedError' ? 'Cancelled.' : (e && e.message) || 'Could not set it up on this device.');
+        });
+      });
+      function lockNow() {
+        cover.classList.add('on');
+        post(LOCK, { action: 'lock' }).finally(function () { location.reload(); });
+      }
+      document.getElementById('lkLockNow').addEventListener('click', lockNow);
+      document.getElementById('lockNowBtn').addEventListener('click', lockNow);
+      document.getElementById('lkOffBtn').addEventListener('click', function () {
+        if (!confirm('Turn off app lock? EduChats will open without a PIN on all your devices.')) return;
+        post(LOCK, { action: 'off' }).then(function (res) { if (res.ok) { st = res; paint(); show('lkOff'); flash('App lock is off.'); } });
+      });
+      // coming back after being away long enough locks it (the server also times out on its own)
+      var hiddenAt = 0;
+      document.addEventListener('visibilitychange', function () {
+        if (!st.enabled) return;
+        if (document.hidden) { hiddenAt = Date.now(); if (st.after === 0) cover.classList.add('on'); return; }
+        var away = hiddenAt ? (Date.now() - hiddenAt) / 1000 : 0;
+        hiddenAt = 0;
+        if (away >= Math.max(st.after, 5)) lockNow();
+        else cover.classList.remove('on');
+      });
+      paint();
+    })();
 
     // notifications: open a chat from its key, once it has loaded (true = opened)
     openChatHook = function (key) {

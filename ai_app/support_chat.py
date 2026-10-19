@@ -107,7 +107,7 @@ def _cookie_guest(request):
     return ChatUser.objects.filter(pk=guest_id, is_guest=True, is_active=True).first()
 
 
-def current_user(request):
+def current_user(request, allow_locked=False):
     user_id = request.session.get(SESSION_KEY)
     user = ChatUser.objects.filter(pk=user_id, is_active=True).first() if user_id else None
     if not user:
@@ -115,6 +115,11 @@ def current_user(request):
         user = _cookie_guest(request)
         if user:
             request.session[SESSION_KEY] = user.pk
+    if user and user.app_lock_pin and not allow_locked:
+        # App lock: until this session unlocks, it gets nothing (educhats_lock.py)
+        from .educhats_lock import is_unlocked
+        if not is_unlocked(request, user):
+            return None
     return user
 
 
@@ -159,6 +164,8 @@ def _remember_guest(response, user):
 def _sign_in(request, user):
     request.session.cycle_key()
     request.session[SESSION_KEY] = user.pk
+    from .educhats_lock import mark_unlocked
+    mark_unlocked(request, user)   # logging in with the password also unlocks the app lock
 
 
 def _presence(last_seen):
@@ -602,7 +609,19 @@ def _ai_model_name():
 
 
 def chats_page(request):
-    user = current_user(request)
+    from .educhats_lock import is_unlocked, lock_enabled
+    from .educhats_lock import status as lock_status
+    user = current_user(request, allow_locked=True)
+    if lock_enabled(user) and not is_unlocked(request, user):
+        # locked: only the lock screen — no names, messages or pictures in the page
+        response = render(request, 'chats_locked.html', {
+            'chat_user': user, 'app': _app_settings(), 'has_keys': bool(user.app_lock_keys),
+            'key_ids': json.dumps([k['id'] for k in user.app_lock_keys or []]),
+            'appearance_json': json.dumps(user.appearance if isinstance(user.appearance, dict) else {})
+                               .replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026'),
+        })
+        response['Cache-Control'] = 'no-store'
+        return response
     stamp = ''
     support = SupportProfile.load()
     is_staff = bool(staff_account(request, user))
@@ -619,6 +638,7 @@ def chats_page(request):
         'support_waiting': (ChatMessage.objects.filter(sender=ChatMessage.SENDER_USER, read_by_admin=False)
                             .exclude(user=user).values('user').distinct().count() if is_staff else 0),
         'ai_model_name': _ai_model_name(),
+        'app_lock': json.dumps(lock_status(request, user) if user and not user.is_guest else {'enabled': False}),
         'support_name_json': json.dumps(support.display_name).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026'),
         'locations': INDIA_LOCATIONS,
         # Tiled faintly over the chat so any capture shows whose chat it is.
