@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 
 from .models import ChatGroup, ChatUser, GroupMember, GroupMessage
 from .support_chat import (
-    MAX_MESSAGE, MESSAGE_LIMIT, _check_photo, _fail, _json_body, _presence, current_user, is_live, set_live,
+    MAX_MESSAGE, SEND_LIMIT_ERROR, over_send_limit, _check_photo, _fail, _json_body, _presence, current_user, is_live, set_live,
 )
 
 MAX_MEMBERS = 256
@@ -192,11 +192,8 @@ def api_group_messages(request, group_id):
             earlier = GroupMessage.objects.filter(pk=cache.get(cid_key) or 0, sender=me).first()
             if earlier:
                 return JsonResponse({'ok': True, 'message': _message_json(earlier, me)})
-        key = f'chats-send-{me.pk}'
-        sent = cache.get(key, 0)
-        if sent >= MESSAGE_LIMIT:
-            return _fail('You are sending messages too fast. Please wait a minute.', 429)
-        cache.set(key, sent + 1, 60)
+        if over_send_limit(me):
+            return _fail(SEND_LIMIT_ERROR, 429)
         message = GroupMessage.objects.create(group=group, sender=me, body=body, kind=kind or 'text')
         ChatGroup.objects.filter(pk=group.pk).update(updated_at=message.created_at)
         GroupMember.objects.filter(pk=ms.pk).update(last_read=message.pk)
@@ -222,7 +219,7 @@ def api_group_messages(request, group_id):
 
 
 def api_group_upload(request, group_id):
-    from .support_chat import MAX_UPLOAD_MB, _UPLOAD_KINDS
+    from .support_chat import MAX_UPLOAD_MB, upload_cid_key, upload_kind
     if request.method != 'POST':
         return _fail('Send a file.', 405)
     me, error = _me(request)
@@ -233,28 +230,31 @@ def api_group_upload(request, group_id):
         return _fail("You're not in this group any more.", 404)
     if not (ms.is_admin or not ms.group.only_admins_send):
         return _fail('Only admins can send messages in this group.', 403)
-    key = f'chats-send-{me.pk}'
-    sent = cache.get(key, 0)
-    if sent >= MESSAGE_LIMIT:
-        return _fail('You are sending messages too fast. Please wait a minute.', 429)
+    key = upload_cid_key(request, f'g{ms.group_id}-{me.pk}')
+    if key and cache.get(key):
+        return JsonResponse({'ok': True, 'message': cache.get(key)})
+    if over_send_limit(me):
+        return _fail(SEND_LIMIT_ERROR, 429)
     upload = request.FILES.get('file')
     if not upload:
         return _fail('Choose a file to send.')
     ext = os.path.splitext(upload.name)[1].lower()
-    kind = _UPLOAD_KINDS.get(ext)
-    if not kind:
-        return _fail('That file type is not supported. Send a photo, video, PDF, Office file, text, ZIP or audio file.')
+    kind, caption, error = upload_kind(request, upload)
+    if error:
+        return _fail(error)
     if upload.size > MAX_UPLOAD_MB * 1024 * 1024:
         return _fail(f'Files can be up to {MAX_UPLOAD_MB} MB.')
-    cache.set(key, sent + 1, 60)
-    message = GroupMessage(group=ms.group, sender=me, kind=kind, body=request.POST.get('body', '').strip()[:MAX_MESSAGE],
-                           attachment_name=os.path.basename(upload.name)[:200])
+    message = GroupMessage(group=ms.group, sender=me, kind=kind, body=caption,
+                           attachment_name=('Voice message' + ext) if kind == 'voice' else os.path.basename(upload.name)[:200])
     upload.name = secrets.token_hex(12) + ext
     message.attachment = upload
     message.save()
     ChatGroup.objects.filter(pk=ms.group_id).update(updated_at=message.created_at)
     GroupMember.objects.filter(pk=ms.pk).update(last_read=message.pk)
-    return JsonResponse({'ok': True, 'message': _message_json(message, me)})
+    data = {'ok': True, 'message': _message_json(message, me)}
+    if key:
+        cache.set(key, data['message'], 6 * 3600)
+    return JsonResponse(data)
 
 
 # ── info, settings, members ──────────────────────────────────────────────────

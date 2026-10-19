@@ -1031,8 +1031,10 @@ class ChatMessage(models.Model):
     KIND_CALL = 'call'
     KIND_STICKER = 'sticker'   # body = animated Noto emoji code (educhats_media.py)
     KIND_GIF = 'gif'           # body = GIF URL on GIPHY / Tenor's media server
+    KIND_VOICE = 'voice'       # attachment = the recording, body = its length ("0:12")
     KIND_CHOICES = [(KIND_TEXT, 'Text'), (KIND_IMAGE, 'Photo'), (KIND_VIDEO, 'Video'), (KIND_FILE, 'File'),
-                    (KIND_LOCATION, 'Location'), (KIND_CALL, 'Call'), (KIND_STICKER, 'Sticker'), (KIND_GIF, 'GIF')]
+                    (KIND_LOCATION, 'Location'), (KIND_CALL, 'Call'), (KIND_STICKER, 'Sticker'), (KIND_GIF, 'GIF'),
+                    (KIND_VOICE, 'Voice message')]
 
     user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='messages')
     sender = models.CharField(max_length=5, choices=SENDER_CHOICES)
@@ -1115,7 +1117,7 @@ class DirectMessage(models.Model):
     # 'call' rows are the "Voice call · 2:31" / "Missed video call" lines a call leaves behind;
     # image / video / file rows carry an attachment (body is the optional caption).
     KIND_CHOICES = [('text', 'Text'), ('call', 'Call'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'),
-                    ('sticker', 'Sticker'), ('gif', 'GIF')]
+                    ('sticker', 'Sticker'), ('gif', 'GIF'), ('voice', 'Voice message')]
     kind = models.CharField(max_length=8, choices=KIND_CHOICES, default='text')
     body = models.TextField(blank=True)
     # Served only through direct_chat.dm_attachment, which checks who is asking.
@@ -1137,6 +1139,8 @@ class DirectMessage(models.Model):
             return f'[{label}{name}]' + (f' {self.body}' if self.body else '')
         if self.kind == 'call':
             return f'[Call] {self.body}'
+        if self.kind == 'voice':
+            return f'[Voice message {self.body}]'
         if self.kind == 'sticker':
             return '[Sticker]'
         if self.kind == 'gif':
@@ -1197,7 +1201,7 @@ class GroupMember(models.Model):
 
 class GroupMessage(models.Model):
     KIND_CHOICES = [('text', 'Text'), ('image', 'Photo'), ('video', 'Video'), ('file', 'File'), ('system', 'Update'),
-                    ('sticker', 'Sticker'), ('gif', 'GIF')]
+                    ('sticker', 'Sticker'), ('gif', 'GIF'), ('voice', 'Voice message')]
     group = models.ForeignKey(ChatGroup, on_delete=models.CASCADE, related_name='messages')
     # None for the grey "Rahul added Muskan" lines.
     sender = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='group_sent')
@@ -1218,6 +1222,8 @@ class GroupMessage(models.Model):
             label = {'image': 'Photo', 'video': 'Video', 'file': 'File'}[self.kind]
             name = f': {self.attachment_name}' if self.attachment_name else ''
             return f'[{label}{name}]' + (f' {self.body}' if self.body else '')
+        if self.kind == 'voice':
+            return f'[Voice message {self.body}]'
         if self.kind == 'sticker':
             return '[Sticker]'
         if self.kind == 'gif':
@@ -1239,6 +1245,9 @@ class EduChatsAppSettings(models.Model):
     GIF_PROVIDERS = [('giphy', 'GIPHY'), ('tenor', 'Tenor')]
     gif_provider = models.CharField(max_length=8, choices=GIF_PROVIDERS, default='giphy')
     gif_api_key = models.CharField(max_length=120, blank=True)
+    # Web Push (VAPID) key pair for notifications — made automatically the first time (educhats_push.py).
+    vapid_private = models.CharField(max_length=64, blank=True)
+    vapid_public = models.CharField(max_length=100, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -1254,3 +1263,19 @@ class EduChatsAppSettings(models.Model):
 
     def __str__(self):
         return self.app_name
+
+
+class PushSubscription(models.Model):
+    """One browser / installed app that allows EduChats notifications (educhats_push.py)."""
+    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name='push_subscriptions')
+    endpoint = models.CharField(max_length=500, unique=True)
+    p256dh = models.CharField(max_length=120)
+    auth = models.CharField(max_length=48)
+    # Chats muted on this device ('support', a thread id, 'g<id>', 'sx<id>'): no popup, not in the badge.
+    muted = models.JSONField(default=list, blank=True)
+    user_agent = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_ok = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.user} · {self.user_agent[:40]}'

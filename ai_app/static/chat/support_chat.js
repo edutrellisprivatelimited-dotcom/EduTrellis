@@ -80,6 +80,9 @@
       gw.appendChild(gi); gw.appendChild(el('span', 'att-gif-tag', 'GIF'));
       box.appendChild(gw);
       return;
+    } else if (m.kind === 'voice' && m.url) {
+      box.appendChild(voicePlayer(m));
+      return;
     } else if (m.kind === 'call') {
       var call = el('div', 'att-call');
       var missed = /missed|declined/i.test(m.body);
@@ -89,6 +92,188 @@
       return;
     }
     if (m.body && m.kind !== 'location') box.appendChild(el('div', 'msg-text', m.body));
+  }
+
+  // ── voice messages ──────────────────────────────────────────────────────────
+  // A WhatsApp-style player: play / pause, a waveform you can tap to jump, the
+  // length, and 1× / 1.5× / 2× speed. Only one plays at a time. Recordings from
+  // Chrome don't carry their length, so the "m:ss" saved with the message is used.
+  var playingVoice = null;
+  function fmtTime(s) { s = Math.max(0, Math.round(s || 0)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+  function parseTime(t) { var m = /^(\d+):(\d\d)$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : 0; }
+  function voicePlayer(m) {
+    var wrap = el('div', 'att-voice'), known = parseTime(m.body);
+    var play = el('button', 'vn-play'); play.type = 'button'; play.setAttribute('aria-label', 'Play voice message');
+    play.innerHTML = '<i class="fas fa-play"></i>';
+    var main = el('div', 'vn-main'), wave = el('div', 'vn-wave'), meta = el('div', 'vn-meta');
+    var time = el('span', 'vn-time', fmtTime(known)), speed = el('button', 'vn-speed', '1×');
+    speed.type = 'button'; speed.title = 'Playback speed';
+    var seed = 0, key = String(m.id || m.url || '');
+    for (var i = 0; i < key.length; i++) seed = (seed * 31 + key.charCodeAt(i)) >>> 0;
+    var bars = [];
+    for (var b = 0; b < 32; b++) {
+      seed = (seed * 1103515245 + 12345) >>> 0;
+      var h = 22 + (seed % 70) * (0.55 + 0.45 * Math.sin(b / 3));
+      var bar = el('i'); bar.style.height = Math.max(14, Math.min(100, Math.round(h))) + '%';
+      wave.appendChild(bar); bars.push(bar);
+    }
+    meta.appendChild(time); meta.appendChild(speed);
+    main.appendChild(wave); main.appendChild(meta);
+    wrap.appendChild(play); wrap.appendChild(main);
+    wrap.appendChild(el('span', 'vn-mic')).innerHTML = '<i class="fas fa-microphone"></i>';
+    var audio = null, rate = 1;
+    function length() { return audio && isFinite(audio.duration) && audio.duration > 0 ? audio.duration : known || 1; }
+    function paint() {
+      var at = audio ? audio.currentTime : 0, frac = Math.min(1, at / length());
+      bars.forEach(function (bar, n) { bar.classList.toggle('on', n / bars.length < frac); });
+      time.textContent = audio && (at > 0 || !audio.paused) ? fmtTime(at) : fmtTime(length());
+    }
+    function ensure() {
+      if (audio) return audio;
+      audio = new Audio(); audio.preload = 'metadata'; audio.src = m.url;
+      audio.addEventListener('timeupdate', paint);
+      audio.addEventListener('loadedmetadata', function () {
+        // Chrome's webm recordings report Infinity until it has seen the end once
+        if (audio.duration === Infinity) { audio.currentTime = 1e7; audio.addEventListener('durationchange', function once() { audio.removeEventListener('durationchange', once); audio.currentTime = 0; paint(); }); }
+        paint();
+      });
+      audio.addEventListener('play', function () { play.innerHTML = '<i class="fas fa-pause"></i>'; wrap.classList.add('playing'); });
+      audio.addEventListener('pause', function () { play.innerHTML = '<i class="fas fa-play"></i>'; wrap.classList.remove('playing'); });
+      audio.addEventListener('ended', function () { audio.currentTime = 0; paint(); });
+      audio.addEventListener('error', function () { wrap.classList.add('broken'); time.textContent = 'Not available'; });
+      return audio;
+    }
+    play.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var a = ensure();
+      if (a.paused) {
+        if (playingVoice && playingVoice !== a) playingVoice.pause();
+        playingVoice = a; a.playbackRate = rate;
+        var p = a.play(); if (p && p.catch) p.catch(function () {});
+      } else a.pause();
+    });
+    wave.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var r = wave.getBoundingClientRect(), a = ensure(), frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      try { a.currentTime = frac * length(); } catch (err) {}
+      paint();
+    });
+    speed.addEventListener('click', function (e) {
+      e.stopPropagation();
+      rate = rate === 1 ? 1.5 : rate === 1.5 ? 2 : 1;
+      speed.textContent = rate + '×';
+      if (audio) audio.playbackRate = rate;
+    });
+    return wrap;
+  }
+
+  // The microphone button in a composer. Tap it to record; the bar that opens
+  // has delete, pause / resume, and send. opts: { form, textarea, onSend(file, seconds), onError(text), canRecord() }
+  var MAX_VOICE_SECONDS = 15 * 60;
+  function voiceRecorder(opts) {
+    var form = opts.form, area = opts.textarea, sendBtn = form.querySelector('button[type=submit]');
+    var mic = el('button', 'round send vn-micbtn'); mic.type = 'button';
+    mic.title = 'Record a voice message'; mic.setAttribute('aria-label', 'Record a voice message');
+    mic.innerHTML = '<i class="fas fa-microphone"></i>';
+    form.insertBefore(mic, sendBtn);
+    var bar = el('div', 'vn-rec');
+    bar.innerHTML = '<button type="button" class="vn-x" title="Delete" aria-label="Delete recording"><i class="fas fa-trash-can"></i></button>'
+      + '<span class="vn-dot"></span><span class="vn-clock">0:00</span><span class="vn-level"></span>'
+      + '<button type="button" class="vn-pause" title="Pause" aria-label="Pause recording"><i class="fas fa-pause"></i></button>'
+      + '<button type="button" class="round send vn-go" title="Send" aria-label="Send voice message"><i class="fas fa-paper-plane"></i></button>';
+    form.appendChild(bar);
+    var clock = bar.querySelector('.vn-clock'), levelBox = bar.querySelector('.vn-level'), pauseBtn = bar.querySelector('.vn-pause');
+    var levels = [];
+    for (var i = 0; i < 28; i++) { var lv = el('i'); levelBox.appendChild(lv); levels.push(lv); }
+    function sync() { form.classList.toggle('has-text', !!area.value.trim()); }
+    area.addEventListener('input', sync);
+    form.addEventListener('submit', function () { setTimeout(sync, 0); });
+    sync();
+
+    var rec = null, stream = null, chunks = [], started = 0, elapsed = 0, timer = null, sendIt = false, paused = false;
+    var audioCtx = null, analyser = null, raf = null, history = [];
+    function pickType() {
+      var types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4;codecs=mp4a.40.2', 'audio/mp4', 'audio/aac'];
+      for (var n = 0; n < types.length; n++) { try { if (MediaRecorder.isTypeSupported(types[n])) return types[n]; } catch (e) {} }
+      return '';
+    }
+    function seconds() { return elapsed + (paused || !started ? 0 : (Date.now() - started) / 1000); }
+    function tick() { var sec = seconds(); clock.textContent = fmtTime(sec); if (sec >= MAX_VOICE_SECONDS) stop(true); }
+    function meter() {
+      if (!analyser) return;
+      var data = new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(data);
+      var peak = 0;
+      for (var n = 0; n < data.length; n++) peak = Math.max(peak, Math.abs(data[n] - 128));
+      history.push(paused ? 0 : Math.min(1, peak / 64)); if (history.length > levels.length) history.shift();
+      levels.forEach(function (lv, n) { var v = history[n - (levels.length - history.length)] || 0; lv.style.height = Math.max(12, Math.round(v * 100)) + '%'; });
+      raf = requestAnimationFrame(meter);
+    }
+    function start() {
+      if (rec) return;
+      if (opts.canRecord && !opts.canRecord()) return;
+      if (!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return opts.onError(window.isSecureContext === false ? 'Voice messages need the secure (https) EduChats site.' : 'Voice messages are not supported in this browser.');
+      }
+      navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (s) {
+        stream = s; chunks = []; sendIt = false; paused = false; elapsed = 0; history = [];
+        var type = pickType();
+        try { rec = new MediaRecorder(s, type ? { mimeType: type, audioBitsPerSecond: 32000 } : undefined); }
+        catch (e) { rec = new MediaRecorder(s); }
+        rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+        rec.onstop = finish;
+        rec.start(500);
+        started = Date.now();
+        form.classList.add('recording'); form.classList.remove('paused');
+        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; pauseBtn.title = 'Pause';
+        tick(); timer = setInterval(tick, 250);
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AC(); analyser = audioCtx.createAnalyser(); analyser.fftSize = 512;
+          audioCtx.createMediaStreamSource(s).connect(analyser); meter();
+        } catch (e) { analyser = null; }
+      }).catch(function (err) {
+        opts.onError(err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')
+          ? 'Allow the microphone for EduChats to record voice messages (🔒 in the address bar → Microphone).'
+          : err && err.name === 'NotFoundError' ? 'No microphone was found on this device.' : 'Could not start the microphone.');
+      });
+    }
+    function stop(send) {
+      if (!rec) return;
+      sendIt = send;
+      clearInterval(timer); cancelAnimationFrame(raf);
+      if (!paused) elapsed += (Date.now() - started) / 1000;
+      started = 0;
+      if (rec.state !== 'inactive') { try { rec.requestData(); } catch (e) {} rec.stop(); } else finish();
+    }
+    function finish() {
+      var type = (rec && rec.mimeType) || 'audio/webm', secs = elapsed;
+      if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+      if (audioCtx) { try { audioCtx.close(); } catch (e) {} }
+      stream = null; audioCtx = null; analyser = null; rec = null;
+      form.classList.remove('recording', 'paused');
+      if (!sendIt || !chunks.length) return;
+      if (secs < 1) return opts.onError('That voice message was too short.');
+      var mime = type.split(';')[0], ext = /ogg/.test(mime) ? '.ogg' : /mp4|aac|m4a/.test(mime) ? '.m4a' : '.webm';
+      var blob = new Blob(chunks, { type: mime });
+      var file;
+      try { file = new File([blob], 'voice' + ext, { type: mime }); } catch (e) { file = blob; file.name = 'voice' + ext; }
+      opts.onSend(file, Math.max(1, Math.round(secs)));
+    }
+    mic.addEventListener('click', start);
+    bar.querySelector('.vn-x').addEventListener('click', function () { stop(false); });
+    bar.querySelector('.vn-go').addEventListener('click', function () { stop(true); });
+    pauseBtn.addEventListener('click', function () {
+      if (!rec) return;
+      if (!paused && rec.state === 'recording') {
+        rec.pause(); elapsed += (Date.now() - started) / 1000; paused = true;
+        form.classList.add('paused'); pauseBtn.innerHTML = '<i class="fas fa-microphone"></i>'; pauseBtn.title = 'Resume';
+      } else if (paused) {
+        rec.resume(); started = Date.now(); paused = false;
+        form.classList.remove('paused'); pauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; pauseBtn.title = 'Pause';
+      }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && rec) stop(false); });
+    return { busy: function () { return !!rec; }, cancel: function () { stop(false); } };
   }
 
   // Moves live-location pins already on screen.
@@ -509,5 +694,6 @@
     window.addEventListener('resize', function () { if (pop && pop.classList.contains('open')) place(); });
   }
 
-  var api = window.SupportChat = { canSave: false, renderBody: renderBody, updateLocations: updateLocations, Calls: Calls, emojiPicker: emojiPicker };
+  var api = window.SupportChat = { canSave: false, renderBody: renderBody, updateLocations: updateLocations, Calls: Calls, emojiPicker: emojiPicker,
+    voiceRecorder: voiceRecorder, fmtTime: fmtTime };
 })();

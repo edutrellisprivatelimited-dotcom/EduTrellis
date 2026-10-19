@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import direct_chat, educhats_admin, educhats_ai, educhats_media, educhats_pwa, group_chat, support_chat
+from . import direct_chat, educhats_admin, educhats_ai, educhats_media, educhats_push, educhats_pwa, group_chat, support_chat, support_inbox
 
 # EduChats — its own product, mounted at /educhats/ in edutrellis/urls.py.
 # Separate accounts from the store/AI login (ChatUser): the support chat plus
@@ -41,6 +41,13 @@ urlpatterns = [
     path('dm-file/<int:pk>/', direct_chat.dm_attachment, name='chats_dm_file'),
     path('api/dm/ring/', direct_chat.api_ring, name='chats_dm_ring'),
     path('api/gifs/', educhats_media.api_gifs, name='chats_gifs'),
+    path('api/csrf/', support_chat.api_csrf, name='chats_csrf'),
+    path('api/push/', educhats_push.api_push, name='chats_push'),
+    path('api/badge/', educhats_push.api_badge, name='chats_badge'),
+    path('badge-96.png', educhats_pwa.badge_icon, name='chats_badge_icon'),
+    path('api/inbox/', support_inbox.api_inbox, name='chats_inbox'),
+    path('api/inbox/<int:pk>/', support_inbox.api_inbox_chat, name='chats_inbox_chat'),
+    path('api/inbox/<int:pk>/call/', support_inbox.api_inbox_call, name='chats_inbox_call'),
     path('api/groups/', group_chat.api_groups, name='chats_groups'),
     path('api/groups/<int:group_id>/', group_chat.api_group_messages, name='chats_group_messages'),
     path('api/groups/<int:group_id>/upload/', group_chat.api_group_upload, name='chats_group_upload'),

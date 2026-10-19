@@ -82,6 +82,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        # Chats write constantly (messages, read ticks, "last seen"): wait up to
+        # 20 s for another write to finish, and take the write lock at the start
+        # of a transaction, so two writes never fail with "database is locked".
+        'OPTIONS': {'timeout': 20, 'transaction_mode': 'IMMEDIATE'},
     }
 }
 

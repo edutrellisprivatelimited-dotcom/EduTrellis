@@ -498,6 +498,55 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .id-row .vis.off{color:#9ca3af}
 .staff-hide{display:none !important}
 .inbox-row{text-decoration:none;color:inherit}
+/* voice messages: mic ↔ send, and the recording bar */
+.composer{position:relative}
+.composer .vn-micbtn{display:none}
+.composer:not(.has-text) .vn-micbtn{display:inline-flex;align-items:center;justify-content:center}
+.composer:not(.has-text) > button[type=submit]{display:none}
+.vn-rec{display:none}
+.composer.recording .vn-rec{display:flex;align-items:center;gap:.6rem;position:absolute;inset:0;z-index:2;background:var(--card);padding-left:.2rem}
+.vn-rec .vn-x,.vn-rec .vn-pause{width:42px;height:42px;flex:0 0 42px;border:none;border-radius:50%;background:var(--bg);color:var(--text);cursor:pointer;font-size:1rem}
+.vn-rec .vn-x:hover{color:#ef4444}
+.vn-rec .vn-pause{color:#ef4444}
+.vn-dot{width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:#ef4444;animation:vnBlink 1s infinite}
+.composer.paused .vn-dot{animation:none;opacity:.35}
+@keyframes vnBlink{50%{opacity:.25}}
+.vn-clock{font-variant-numeric:tabular-nums;font-weight:700;color:var(--head);min-width:3.2em}
+.vn-level{flex:1;min-width:0;display:flex;align-items:center;gap:2px;height:30px;overflow:hidden}
+.vn-level i{flex:1;min-width:2px;max-width:5px;border-radius:2px;background:var(--accent);height:12%;transition:height .08s}
+.vn-rec .vn-go{flex:0 0 46px}
+.msg.send-failed{cursor:pointer}
+.msg.send-failed time::after{content:'Not sent · tap to retry';margin-left:.35rem;font-weight:700;color:#fecaca}
+.msg.admin.send-failed time::after{color:#ef4444}
+.notif-banner{display:flex;align-items:center;gap:.7rem;margin:.45rem .6rem .35rem;padding:.7rem .8rem;border-radius:14px;background:linear-gradient(135deg,rgba(var(--accent-rgb),.22),rgba(var(--accent-rgb),.08));border:1px solid rgba(var(--accent-rgb),.35);color:#fff}
+.notif-banner[hidden]{display:none}
+.notif-banner .nb-ic{flex:0 0 38px;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--accent);font-size:1rem}
+.notif-banner .nb-txt{flex:1;min-width:0;line-height:1.3}
+.notif-banner b{display:block;font-size:.86rem}
+.notif-banner small{display:block;font-size:.72rem;color:#c7cdd8}
+.notif-banner .nb-on{border:none;border-radius:999px;padding:.45rem .85rem;background:#fff;color:#111827;font:inherit;font-size:.76rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.notif-banner .nb-x{border:none;background:none;color:#aab1bf;cursor:pointer;font-size:.9rem;padding:.2rem}
+.inbox-row .inbox-go{font-size:.7rem;opacity:.55;margin-left:.35rem}
+.sx-panel .sx-search{margin:.7rem .9rem .55rem}
+.sx-chips{display:flex;gap:.4rem;padding:0 .9rem .65rem;border-bottom:1px solid #1a2130;overflow-x:auto;scrollbar-width:none}
+.sx-chips::-webkit-scrollbar{display:none}
+.sx-chips button{flex:0 0 auto;height:28px;padding:0 .8rem;border-radius:999px;border:1px solid #2a3446;background:transparent;color:#aab1bf;font:inherit;font-size:.76rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;transition:background .15s,border-color .15s,color .15s}
+.sx-chips button:hover{border-color:#3a465c;color:#fff}
+.sx-chips button.on{background:rgba(var(--accent-rgb),.16);border-color:rgba(var(--accent-rgb),.55);color:#fff}
+.sx-chips .n{min-width:18px;height:18px;padding:0 .3rem;border-radius:999px;background:var(--accent);color:#fff;font-size:.66rem;display:inline-grid;place-items:center}
+.sx-chips .n[hidden]{display:none}
+.sx-list{flex:1;min-height:0;overflow-y:auto;padding:.25rem 0 1rem}
+.sx-list .side-item[hidden]{display:none}
+.sx-tag{flex:0 0 auto;font-size:.58rem;font-weight:800;padding:.1rem .38rem;border-radius:6px;background:rgba(255,255,255,.1);color:#cbd5e1;margin-left:.4rem;text-transform:uppercase;letter-spacing:.04em}
+.sx-tag[hidden]{display:none}
+.sx-item.ringing .side-preview{color:#4ade80 !important;font-weight:700}
+.sx-item.ringing .side-ava{animation:sxRing 1s ease-in-out infinite}
+@keyframes sxRing{50%{box-shadow:0 0 0 5px rgba(74,222,128,.35);border-radius:50%}}
+.sx-foot{padding:.7rem .9rem;border-top:1px solid #1a2130;text-align:center}
+.sx-foot a{color:#aab1bf;font-size:.76rem;text-decoration:none;font-weight:600}
+.sx-foot a:hover{color:#fff}
+.sx-as{margin:0 0 .35rem;text-align:center;font-size:.72rem;color:var(--text);opacity:.85}
+.sx-as i{margin-right:.3rem}
 .inbox-ava{background:linear-gradient(135deg,#334155,#0f172a) !important;color:#fff;font-size:1.15rem}
 .inbox-tag{background:rgba(255,255,255,.12) !important;color:#e5e7eb !important}
 .inbox-go{font-size:.72rem;opacity:.6;margin-left:.35rem}
@@ -874,6 +923,7 @@ EduLook.apply(EduLook.get());
           <button type="button" data-proxy="openProfile" role="menuitem"><i class="fas fa-user-pen"></i> Profile</button>
           {% endif %}
           {% if not chat_user.is_guest %}<button type="button" id="openPrivacy" role="menuitem"><i class="fas fa-user-shield"></i> Privacy</button>{% endif %}
+          <button type="button" id="openNotif" role="menuitem" hidden><i class="fas fa-bell" id="notifIcon"></i> <span id="notifLabel">Notifications</span></button>
           <button type="button" id="openLook" role="menuitem"><i class="fas fa-palette"></i> Customize</button>
           <button type="button" id="openInvite" role="menuitem"><i class="fas fa-user-group"></i> Invite others</button>
           <button type="button" id="openInstall" role="menuitem" hidden><i class="fas fa-download" id="installIcon"></i> <span id="installLabel">Install app</span></button>
@@ -895,6 +945,7 @@ EduLook.apply(EduLook.get());
     <button type="button" class="chip" data-filter="pinned" role="tab">Pinned</button>
   </div>
   <div class="side-scroll" id="sideList">
+    <div class="notif-banner" id="notifBanner" hidden><span class="nb-ic"><i class="fas fa-bell"></i></span><span class="nb-txt"><b id="nbTitle">Turn on notifications</b><small id="nbSub">Get notified of new messages, even when EduChats is closed.</small></span><button type="button" class="nb-on" id="nbOn">Turn on</button><button type="button" class="nb-x" id="nbX" aria-label="Not now"><i class="fas fa-xmark"></i></button></div>
     <button type="button" class="side-archived" id="archivedRow" hidden><i class="fas fa-box-archive"></i><span id="archivedLabel">Archived</span><span class="side-archived-n" id="archivedCount"></span></button>
     <div class="side-item pinned active" id="aiRow" data-ctx="ai" role="button" tabindex="0" data-title="edutrellis ai assistant chatbot images">
       <span class="side-ava ai-ava"><i class="fas fa-wand-magic-sparkles"></i></span>
@@ -903,13 +954,13 @@ EduLook.apply(EduLook.get());
         <span class="side-row"><span class="side-preview" id="aiPreview"><span>Free · chat &amp; create images</span></span><i class="fas fa-thumbtack side-pin" title="Pinned"></i><button type="button" class="side-more" id="aiMore" aria-label="Chat options" aria-haspopup="true"><i class="fas fa-chevron-down"></i></button></span>
       </span>
     </div>
-    {% if is_support_staff %}<a class="side-item pinned inbox-row" id="inboxRow" href="{% url 'dashboard_chats' %}" target="_blank" rel="noopener" data-title="support inbox direct chats admin">
+    {% if is_support_staff %}<div class="side-item pinned inbox-row" id="inboxRow" role="button" tabindex="0" data-title="support inbox members messages admin">
       <span class="side-ava inbox-ava"><i class="fas fa-inbox"></i></span>
       <span class="side-txt">
         <span class="side-row"><b>Support inbox</b><span class="ai-tag inbox-tag">Admin</span></span>
-        <span class="side-row"><span class="side-preview"><span>{% if support_waiting %}{{ support_waiting }} {{ support_waiting|pluralize:"person,people" }} waiting for a reply{% else %}Members' messages to {{ support.display_name }}{% endif %}</span></span>{% if support_waiting %}<span class="side-badge">{{ support_waiting }}</span>{% endif %}<i class="fas fa-arrow-up-right-from-square inbox-go"></i></span>
+        <span class="side-row"><span class="side-preview" id="inboxPreview"><span>{% if support_waiting %}{{ support_waiting }} {{ support_waiting|pluralize:"person,people" }} waiting for a reply{% else %}Members' messages to {{ support.display_name }}{% endif %}</span></span><span class="side-badge" id="inboxBadge"{% if not support_waiting %} hidden{% endif %}>{{ support_waiting }}</span><i class="fas fa-chevron-right inbox-go"></i></span>
       </span>
-    </a>{% endif %}
+    </div>{% endif %}
     <div class="{% if is_support_staff %}staff-hide{% else %}side-item pinned{% endif %}" id="supportRow" data-ctx="support" role="button" tabindex="0" data-title="{{ support.display_name|lower }} support">
       <span class="side-ava">{% if support.photo %}<img src="{% url 'chats_support_photo' %}?v={{ support.updated_at|date:'U' }}" alt="">{% else %}<i class="fas fa-headset"></i>{% endif %}<span class="dot" id="sideDot"></span></span>
       <span class="side-txt">
@@ -955,6 +1006,19 @@ EduLook.apply(EduLook.get());
     <p class="new-empty bad" id="gpErr" hidden></p>
     <button type="button" class="gp-fab" id="gpCreate" aria-label="Create group"><i class="fas fa-check"></i></button>
   </div>
+</div>{% endif %}
+{% if is_support_staff %}<div class="new-panel sx-panel" id="inboxPanel" aria-hidden="true">
+  <div class="new-head"><button class="side-icon" id="sxBack" type="button" aria-label="Back"><i class="fas fa-arrow-left"></i></button><div class="gp-headtxt"><b>Support inbox</b><small id="sxSub">Members' messages to {{ support.display_name }}</small></div></div>
+  <label class="side-search sx-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="sxSearch" placeholder="Search name, @username, email or phone" autocomplete="off"></label>
+  <div class="sx-chips" id="sxChips">
+    <button type="button" class="on" data-f="all">All</button>
+    <button type="button" data-f="waiting">Waiting <span class="n" id="sxWaitN" hidden>0</span></button>
+    <button type="button" data-f="online">Online</button>
+    <button type="button" data-f="members">Members</button>
+    <button type="button" data-f="guests">Guests</button>
+  </div>
+  <div class="sx-list" id="sxList"><p class="new-empty">Loading…</p></div>
+  <div class="sx-foot"><a href="{% url 'dashboard_chats' %}" target="_blank" rel="noopener"><i class="fas fa-sliders"></i> Filters &amp; tools in the dashboard <i class="fas fa-arrow-up-right-from-square"></i></a></div>
 </div>{% endif %}
 </aside>
 <div class="side-dim" id="sideDim"></div>
@@ -1105,6 +1169,43 @@ EduLook.apply(EduLook.get());
     <div class="err" id="dmErr"></div>
   </div>
 </div>
+{% if is_support_staff %}<div class="chat dm sx" id="sxChat" hidden>
+  <div class="chat-head">
+    <button class="head-btn side-toggle" id="sxSideOpen" type="button" title="All chats" aria-label="All chats"><i class="fas fa-bars"></i></button>
+    <span class="ava" id="sxAva"></span>
+    <div class="who" id="sxWho" role="button" tabindex="0" title="Contact info"><b id="sxName"></b><small class="status"><span class="dot" id="sxDot"></span><span id="sxStatus"></span></small></div>
+    <button class="head-btn" id="sxVoice" type="button" title="Voice call" aria-label="Voice call"><i class="fas fa-phone"></i></button>
+    <button class="head-btn" id="sxVideo" type="button" title="Video call" aria-label="Video call"><i class="fas fa-video"></i></button>
+    <div class="menu-wrap">
+      <button class="head-btn" id="sxMenuBtn" type="button" title="Menu" aria-label="Chat menu" aria-haspopup="true"><i class="fas fa-ellipsis-vertical"></i></button>
+      <div class="head-menu" id="sxMenu" role="menu">
+        <button type="button" id="sxInfoBtn" role="menuitem"><i class="fas fa-address-card"></i> Contact info</button>
+        <button type="button" id="sxDashBtn" role="menuitem"><i class="fas fa-arrow-up-right-from-square"></i> Open in dashboard</button>
+        <button type="button" id="sxCloseBtn" role="menuitem"><i class="fas fa-xmark"></i> Close chat</button>
+      </div>
+    </div>
+  </div>
+  <div class="chat-body">
+    <div class="peer-live" id="sxLive" hidden aria-live="polite"><span class="pl-ava"><span class="ava-in" id="sxLiveAva"></span></span><span class="pl-bubble"><span class="pl-dots" aria-label="typing"><i></i><i></i><i></i></span><span class="pl-text"></span></span></div>
+    <div class="msgs" id="sxMsgs"></div>
+  </div>
+  <div class="composer-wrap">
+    <p class="sx-as"><i class="fas fa-headset"></i>Replying as {{ support.display_name }}</p>
+    <div class="attach-menu" id="sxAttachMenu">
+      <button type="button" class="attach-item" data-pick="image/*"><span style="background:#7c3aed"><i class="fas fa-image"></i></span>Photos</button>
+      <button type="button" class="attach-item" data-pick="image/*" data-capture="environment"><span style="background:#e11d48"><i class="fas fa-camera"></i></span>Camera</button>
+      <button type="button" class="attach-item" data-pick="video/*"><span style="background:#ea580c"><i class="fas fa-film"></i></span>Video</button>
+      <button type="button" class="attach-item" data-pick=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.mp3,.m4a"><span style="background:#2563eb"><i class="fas fa-file-lines"></i></span>Document</button>
+    </div>
+    <form class="composer" id="sxComposer">
+      <button type="button" class="round attach" id="sxAttach" aria-label="Attach" title="Photo, video or file"><i class="fas fa-paperclip"></i></button>
+      <button type="button" class="round attach" id="sxEmoji" aria-label="Emoji" title="Emoji"><i class="fa-regular fa-face-smile"></i></button>
+      <textarea id="sxBody" placeholder="Type a reply" maxlength="4000" rows="1"></textarea>
+      <button type="submit" class="round send" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+    </form>
+    <div class="err" id="sxErr"></div>
+  </div>
+</div>{% endif %}
 {% if not chat_user.is_guest %}<div class="sheet pf-sheet" id="profileSheet">
   <form class="sheet-card pf-wide" id="profileForm" enctype="multipart/form-data" novalidate>
     <h3>Update profile</h3>
@@ -1463,7 +1564,7 @@ EduLook.apply(EduLook.get());
   function post(url, data) {
     return fetch(url, {
       method: 'POST', credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': freshCsrf() },
       body: JSON.stringify(data || {})
     }).then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Something went wrong. Please try again.' }; }); });
   }
@@ -1595,8 +1696,8 @@ EduLook.apply(EduLook.get());
   var supportRow = document.getElementById('supportRow');
   var SEEN_KEY = 'chats-seen-{{ chat_user.pk }}', seenAdmin = 0, lastAdmin = 0, unreadIds = {}, baseTitle = document.title;
   try { seenAdmin = parseInt(localStorage.getItem(SEEN_KEY) || '0', 10) || 0; } catch (e) {}
-  var KIND_ICON = { image: 'fa-camera', video: 'fa-video', file: 'fa-file-lines', location: 'fa-location-dot', call: 'fa-phone', sticker: 'fa-note-sticky', gif: 'fa-film' };
-  var KIND_TEXT = { image: 'Photo', video: 'Video', location: 'Location', call: 'Call', sticker: 'Sticker', gif: 'GIF' };
+  var KIND_ICON = { image: 'fa-camera', video: 'fa-video', file: 'fa-file-lines', location: 'fa-location-dot', call: 'fa-phone', sticker: 'fa-note-sticky', gif: 'fa-film', voice: 'fa-microphone' };
+  var KIND_TEXT = { image: 'Photo', video: 'Video', location: 'Location', call: 'Call', sticker: 'Sticker', gif: 'GIF', voice: 'Voice message' };
   var GIFS_URL = '{% url "chats_gifs" %}';
   function newCid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
   function shortWhen(iso) {
@@ -1627,6 +1728,8 @@ EduLook.apply(EduLook.get());
   var pickFileFor = null, dmSendFile = null, dmFlashOut = null;   // shared file picker <-> direct chats
   var dmCloseHook = null;   // closes the open direct chat without opening anything else
   var gMenuAction = null, gSendFile = null, gHide = null, gUnreadTotal = 0, gUnreadChats = 0;   // groups
+  var sxHide = null, sxSendFile = null, sxWaiting = 0;   // support inbox (support team only)
+  var openChatHook = null, pushNudge = null;   // notifications: open a chat by key / refresh lists now
   var FAV_KEY = 'chats-favs-{{ chat_user.pk }}', favs = {};   // ♥ Favourites: chat keys ('ai', 'support', thread id, 'g<id>')
   try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '{}') || {}; } catch (e) {}
   function saveFavs() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {} }
@@ -1711,13 +1814,22 @@ EduLook.apply(EduLook.get());
     supportRow.dataset.archived = prefs.archived ? '1' : '';
     document.getElementById('sidePin').hidden = !prefs.pinned;
     document.getElementById('sideMute').hidden = !prefs.muted;
-    var titleN = (prefs.muted ? 0 : n) + dmUnreadTotal + gUnreadTotal;
+    var titleN = (prefs.muted ? 0 : n) + dmUnreadTotal + gUnreadTotal + sxWaiting;
     document.title = titleN ? '(' + titleN + ') ' + baseTitle : baseTitle;
+    setAppBadge(titleN);
+    if (window.__pushMutedChanged) window.__pushMutedChanged();
     orderRows();
   }
+  // the number on the installed app's icon (Windows / Mac / ChromeOS / iPhone home screen)
+  var lastBadge = -1;
+  function setAppBadge(n) {
+    if (n === lastBadge || !('setAppBadge' in navigator)) return;
+    lastBadge = n;
+    try { (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(function () {}); } catch (e) {}
+  }
   function supportVisible() {
-    var g = document.getElementById('gChat');
-    return document.getElementById('dmChat').hidden && document.getElementById('aiChat').hidden && (!g || g.hidden)
+    var g = document.getElementById('gChat'), sx = document.getElementById('sxChat');
+    return document.getElementById('dmChat').hidden && document.getElementById('aiChat').hidden && (!g || g.hidden) && (!sx || sx.hidden)
       && document.getElementById('homePane').hidden;
   }
   function markSeen(force) {
@@ -1975,13 +2087,14 @@ EduLook.apply(EduLook.get());
     document.getElementById('homePane').hidden = true;
     aiChat.hidden = !on;
     aiRow.classList.toggle('active', on);
-    if (on) { supportRow.classList.remove('active'); document.body.classList.remove('side-open'); if (gHide) gHide(); }
+    if (on) { supportRow.classList.remove('active'); document.body.classList.remove('side-open'); if (gHide) gHide(); if (sxHide) sxHide(); }
     else if (document.getElementById('dmChat').hidden) supportRow.classList.add('active');
   }
   // ── Close chat → the "no chat open" screen (like WhatsApp Desktop) ──
   function showHome() {
     if (dmCloseHook) dmCloseHook();
     if (gHide) gHide();
+    if (sxHide) sxHide();
     aiChat.hidden = true; aiRow.classList.remove('active'); supportRow.classList.remove('active');
     document.getElementById('homePane').hidden = false;
     try { history.replaceState(null, '', location.pathname); } catch (e) {}
@@ -2026,14 +2139,21 @@ EduLook.apply(EduLook.get());
       if (!ctx) return;
       e.preventDefault();
       var group = ctx.charAt(0) === 'g', items = [];
-      if (ctx === 'ai') items.push(['About EduTrellis AI', 'fa-circle-info', function () { document.querySelector('#aiChat .chat-head .ava').click(); }]);
+      if (ctx.indexOf('sx') === 0) {
+        items.push(['Contact info', 'fa-id-card', function () { proxyClick('sxInfoBtn'); }]);
+        items.push(['Open in dashboard', 'fa-arrow-up-right-from-square', function () { proxyClick('sxDashBtn'); }]);
+        items.push(null);
+        items.push(['Close chat', 'fa-xmark', showHome]);
+      } else if (ctx === 'ai') items.push(['About EduTrellis AI', 'fa-circle-info', function () { document.querySelector('#aiChat .chat-head .ava').click(); }]);
       else if (ctx === 'support') items.push(['Contact info', 'fa-id-card', function () { supportCard(); }]);
       else if (group) items.push(['Group info', 'fa-circle-info', function () { document.getElementById('gInfoBtn').click(); }]);
       else items.push(['Contact info', 'fa-id-card', function () { document.getElementById('dmContactBtn').click(); }]);
-      items.push(['Export chat', 'fa-file-export', function () { askExport(ctx); }]);
-      items.push(null);
-      items.push(['Delete chat', 'fa-trash-can', function () { deleteChat(ctx); }, true]);
-      items.push(['Close chat', 'fa-xmark', showHome]);
+      if (ctx.indexOf('sx') !== 0) {
+        items.push(['Export chat', 'fa-file-export', function () { askExport(ctx); }]);
+        items.push(null);
+        items.push(['Delete chat', 'fa-trash-can', function () { deleteChat(ctx); }, true]);
+        items.push(['Close chat', 'fa-xmark', showHome]);
+      }
       menu.textContent = '';
       items.forEach(function (it) {
         if (!it) { menu.appendChild(document.createElement('hr')); return; }
@@ -2413,6 +2533,63 @@ EduLook.apply(EduLook.get());
     var m = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
     return m ? decodeURIComponent(m[1]) : csrf;
   }
+  // A page left open for a long time can hold an old security token: get a new one.
+  function refreshCsrf() {
+    return fetch('{% url "chats_csrf" %}', { credentials: 'same-origin', cache: 'no-store' })
+      .then(function (r) { return r.json(); }).then(function (res) { if (res && res.csrf) csrf = res.csrf; });
+  }
+  // Sends a message (JSON) or a file (FormData) and doesn't give up on a bad moment:
+  // offline, a weak signal, the server busy, "sending very fast" or an old security
+  // token all wait and try again (the client id stops duplicates). Only a real "no"
+  // from the server (blocked, not allowed, bad file) calls fail(error).
+  var retryWaiting = [];
+  function sendReliably(url, body, done, fail) {
+    var delay = 1500, started = Date.now(), timer = null;
+    function attempt() {
+      timer = null;
+      var form = typeof FormData !== 'undefined' && body instanceof FormData, headers = { 'X-CSRFToken': freshCsrf() };
+      if (!form) headers['Content-Type'] = 'application/json';
+      fetch(url, { method: 'POST', credentials: 'same-origin', headers: headers, body: form ? body : JSON.stringify(body) })
+        .then(function (r) {
+          if (r.status === 401) { location.reload(); return null; }
+          return r.json().then(function (res) { return { status: r.status, res: res }; }, function () { return { status: r.status, res: null }; });
+        }).then(function (out) {
+          if (!out) return;
+          if (out.res && out.res.ok) return done(out.res);
+          if (out.status === 403 && !out.res) return refreshCsrf().then(later, later);   // old security token
+          if (out.status === 413) return fail('That file is too big to send.');
+          if (out.res && out.res.error && out.status !== 429 && out.status < 500) return fail(out.res.error);
+          if (!out.res && out.status >= 400 && out.status < 500 && out.status !== 408 && out.status !== 429) return fail('Could not send. Tap to try again.');
+          if (out.status >= 500 && Date.now() - started > 120000) return fail('The server is having trouble. Tap the message to try again.');
+          later();
+        }).catch(later);
+    }
+    function later() {
+      clearTimeout(timer);
+      timer = setTimeout(attempt, delay);
+      delay = Math.min(delay * 2, 20000);
+      if (retryWaiting.indexOf(now) === -1) retryWaiting.push(now);
+    }
+    function now() { if (timer) { clearTimeout(timer); delay = 1500; attempt(); } }
+    attempt();
+  }
+  function retryAllNow() { var list = retryWaiting; retryWaiting = []; list.forEach(function (f) { f(); }); }
+  window.addEventListener('online', retryAllNow);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) retryAllNow(); });
+  // a message the server refused: red "!" — tap it to try again
+  function markFailed(el, again) {
+    if (!el) return;
+    var k = el.querySelector('.tick');
+    el.classList.remove('uploading'); el.classList.add('send-failed');
+    if (k) setTick(k, 'failed');
+    el.addEventListener('click', function retry() {
+      el.removeEventListener('click', retry);
+      el.classList.remove('send-failed'); el.classList.add('uploading');
+      if (k) setTick(k, 'sending');
+      again();
+    });
+  }
+  function voiceBody(seconds) { return SupportChat.fmtTime(seconds); }
   function queue(item) {
     item.el = item.el || bubble({ from: 'user', kind: item.kind || 'text', body: item.body, at: item.at });
     setPreview({ from: 'user', kind: item.kind || 'text', body: item.body, at: item.at });
@@ -2450,6 +2627,7 @@ EduLook.apply(EduLook.get());
         setTick(item.el.querySelector('.tick'), 'failed'); flash(out.res.error);
         return flush();
       }
+      if (out.status === 403 && !out.res) { refreshCsrf().then(later, later); return; }   // old security token
       later();   // busy, offline, or a hiccup: keep the clock and try again
     }).catch(function () { sending = false; later(); });
   }
@@ -2473,6 +2651,142 @@ EduLook.apply(EduLook.get());
   box.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('composer').requestSubmit(); }
   });
+
+  // ── notifications (Web Push) ──
+  // The browser / installed app gets a push for every new message, even when EduChats
+  // is closed; the service worker shows it and puts the unread count on the app icon.
+  (function () {
+    var PUSH = '{% url "chats_push" %}', DISMISS_KEY = 'educhats-notif-later';
+    var banner = document.getElementById('notifBanner'), item = document.getElementById('openNotif');
+    var ua = navigator.userAgent || '';
+    var isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    var sub = null, lastMuted = null, mutedTimer = null;
+    function supported() { return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && window.isSecureContext; }
+    function perm() { return 'Notification' in window ? Notification.permission : 'default'; }
+    function toBytes(b64) {
+      var pad = '='.repeat((4 - b64.length % 4) % 4), raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+      var out = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+      return out;
+    }
+    function sameKey(buf, bytes) {
+      if (!buf) return true;
+      var a = new Uint8Array(buf);
+      if (a.length !== bytes.length) return false;
+      for (var i = 0; i < a.length; i++) if (a[i] !== bytes[i]) return false;
+      return true;
+    }
+    function mutedKeys() {
+      var out = prefs.muted ? ['support'] : [];
+      try {
+        var d = JSON.parse(localStorage.getItem('chats-dmprefs-{{ chat_user.pk }}') || '{}') || {};
+        Object.keys(d).forEach(function (k) { if (d[k] && d[k].muted) out.push(String(k)); });
+      } catch (e) {}
+      return out.sort();
+    }
+    function laterDismissed() { try { return Date.now() - (+localStorage.getItem(DISMISS_KEY) || 0) < 3 * 86400000; } catch (e) { return false; } }
+    function render() {
+      var p = perm(), on = !!sub && p === 'granted';
+      if (supported()) {
+        item.hidden = false;
+        document.getElementById('notifLabel').textContent = on ? 'Notifications: on' : p === 'denied' ? 'Notifications: blocked' : 'Turn on notifications';
+        document.getElementById('notifIcon').className = 'fas ' + (on ? 'fa-bell' : 'fa-bell-slash');
+        banner.hidden = !(p === 'default' && !laterDismissed());
+        document.getElementById('nbTitle').textContent = 'Turn on notifications';
+        document.getElementById('nbSub').textContent = 'Get notified of new messages, even when EduChats is closed.';
+        document.getElementById('nbOn').textContent = 'Turn on';
+      } else if (isIOS && !standalone && !laterDismissed()) {   // iPhone: only the Home Screen app can get notifications
+        banner.hidden = false;
+        document.getElementById('nbTitle').textContent = 'Get notifications on iPhone';
+        document.getElementById('nbSub').textContent = 'Add EduChats to your Home Screen, then turn notifications on there.';
+        document.getElementById('nbOn').textContent = 'How?';
+      } else banner.hidden = true;
+    }
+    function subscribe(ask) {
+      if (!supported()) return Promise.resolve(false);
+      var asking = ask && perm() === 'default' ? new Promise(function (ok) {
+        var r = Notification.requestPermission(ok); if (r && r.then) r.then(ok);
+      }) : Promise.resolve(perm());
+      return asking.then(function (p) {
+        if (p !== 'granted') { render(); return false; }
+        return navigator.serviceWorker.ready.then(function (reg) {
+          return fetch(PUSH, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (res) {
+            if (!res || !res.ok) return false;
+            var key = toBytes(res.public_key);
+            return reg.pushManager.getSubscription().then(function (old) {
+              if (old && old.options && !sameKey(old.options.applicationServerKey, key)) return old.unsubscribe().then(function () { return null; });
+              return old;
+            }).then(function (old) {
+              return old || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+            }).then(function (s) {
+              sub = s; lastMuted = JSON.stringify(mutedKeys());
+              return post(PUSH, { action: 'subscribe', subscription: s.toJSON(), muted: mutedKeys() }).then(function (r) {
+                render();
+                if (ask && r.ok) reg.showNotification('Notifications are on', { body: "You'll get a notification for new messages.", icon: '{{ app.icon_192|escapejs }}', badge: '{% url "chats_badge_icon" %}', tag: 'educhats-on' });
+                return !!r.ok;
+              });
+            });
+          });
+        });
+      }).catch(function () { render(); flash('Notifications could not be turned on in this browser.'); return false; });
+    }
+    function unsubscribe() {
+      if (!sub) return;
+      var endpoint = sub.endpoint;
+      sub.unsubscribe().catch(function () {});
+      sub = null;
+      post(PUSH, { action: 'unsubscribe', endpoint: endpoint }).catch(function () {});
+      render();
+    }
+    // muting a chat on this device also mutes its notifications
+    window.__pushMutedChanged = function () {
+      if (!sub) return;
+      clearTimeout(mutedTimer);
+      mutedTimer = setTimeout(function () {
+        var now = JSON.stringify(mutedKeys());
+        if (now === lastMuted) return;
+        lastMuted = now;
+        post(PUSH, { action: 'muted', endpoint: sub.endpoint, muted: mutedKeys() }).catch(function () {});
+      }, 1200);
+    };
+    document.getElementById('nbOn').addEventListener('click', function () {
+      if (!supported()) { banner.hidden = true; proxyClick('openInstall'); var sh = document.getElementById('installSheet'); if (sh) sh.classList.add('open'); return; }
+      subscribe(true);
+    });
+    document.getElementById('nbX').addEventListener('click', function () {
+      try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch (e) {}
+      banner.hidden = true;
+    });
+    item.addEventListener('click', function () {
+      document.getElementById('sideMenu').classList.remove('open');
+      if (perm() === 'denied') return flash('Notifications are blocked for EduChats. Allow them in your browser\'s site settings (tap 🔒 next to the address), then try again.');
+      if (sub && perm() === 'granted') { if (confirm('Turn off notifications on this device?')) unsubscribe(); return; }
+      subscribe(true);
+    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', function (e) {
+        var d = e.data || {};
+        if (d.type === 'educhats-open' && openChatHook) openChatHook(d.chat || '');
+        else if (d.type === 'educhats-push' && pushNudge) pushNudge();
+        else if (d.type === 'educhats-resubscribe') subscribe(false);
+      });
+    }
+    render();
+    if (supported() && perm() === 'granted') subscribe(false);   // keep this device's subscription fresh
+  })();
+  // a notification was tapped: /educhats/?chat=<key> opens that chat
+  (function () {
+    var key = new URLSearchParams(location.search).get('chat');
+    if (!key) return;
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    var tries = 0;
+    (function go() {
+      if (key === 'support' && !openChatHook) { var r = document.getElementById('supportRow'); if (r) r.click(); return; }
+      if (openChatHook && openChatHook(key)) return;
+      if (++tries < 25) setTimeout(go, 300);
+    })();
+  })();
 
   // attachments
   var menu = document.getElementById('attachMenu'), pick = document.getElementById('filePick');
@@ -2512,21 +2826,28 @@ EduLook.apply(EduLook.get());
     if (!chosen) return;
     fileSheet.classList.remove('open');
     var caption = document.getElementById('fileCaption').value.trim();
+    if (String(chosenFor).indexOf('sx') === 0) { if (sxSendFile) sxSendFile(+String(chosenFor).slice(2), chosen, caption); chosen = null; return; }
     if (String(chosenFor).charAt(0) === 'g') { if (gSendFile) gSendFile(+String(chosenFor).slice(1), chosen, caption); chosen = null; return; }
     if (chosenFor !== 'support') { if (dmSendFile) dmSendFile(+chosenFor, chosen, caption); chosen = null; return; }
-    var kind = chosen.type.indexOf('image') === 0 ? 'image' : chosen.type.indexOf('video') === 0 ? 'video' : 'file';
-    var pending = bubble({ from: 'user', kind: kind === 'file' ? 'text' : kind, url: kind === 'file' ? null : URL.createObjectURL(chosen),
-      name: chosen.name, body: caption || (kind === 'file' ? '📎 ' + chosen.name : ''), at: new Date().toISOString() });
-    pending.classList.add('uploading');
-    var data = new FormData(); data.append('file', chosen); data.append('body', caption);
-    fetch('{% url "chats_upload" %}', { method: 'POST', body: data, credentials: 'same-origin', headers: { 'X-CSRFToken': csrf } })
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
-        if (res.ok) { add(res.message, pending); applyStatus(res); }
-        else { pending.remove(); flash(res.error || 'Could not send the file.'); }
-      }).catch(function () { pending.remove(); flash('Upload failed. Please try again.'); });
+    supportSendFile(chosen, caption);
     chosen = null;
   });
+  function supportSendFile(file, caption, voiceSecs) {
+    var kind = voiceSecs ? 'voice' : file.type.indexOf('image') === 0 ? 'image' : file.type.indexOf('video') === 0 ? 'video' : 'file';
+    var pending = bubble(kind === 'voice' ? { from: 'user', kind: 'voice', url: URL.createObjectURL(file), body: voiceBody(voiceSecs), at: new Date().toISOString() }
+      : { from: 'user', kind: kind === 'file' ? 'text' : kind, url: kind === 'file' ? null : URL.createObjectURL(file),
+          name: file.name, body: caption || (kind === 'file' ? '📎 ' + file.name : ''), at: new Date().toISOString() });
+    pending.classList.add('uploading');
+    setPreview({ from: 'user', kind: kind, body: kind === 'voice' ? voiceBody(voiceSecs) : caption, name: file.name, at: new Date().toISOString() });
+    var data = new FormData(); data.append('file', file, file.name || 'file'); data.append('body', caption || ''); data.append('cid', newCid());
+    if (voiceSecs) { data.append('voice', '1'); data.append('duration', voiceSecs); }
+    (function go() {
+      sendReliably('{% url "chats_upload" %}', data, function (res) { add(res.message, pending); applyStatus(res); },
+        function (error) { markFailed(pending, go); flash(error); });
+    })();
+  }
+  SupportChat.voiceRecorder({ form: document.getElementById('composer'), textarea: box, onError: flash,
+    onSend: function (file, secs) { supportSendFile(file, '', secs); } });
 
   // location
   var locSheet = document.getElementById('locSheet'), liveId = null, liveWatch = null, liveEnds = 0;
@@ -2846,7 +3167,7 @@ EduLook.apply(EduLook.get());
           el.appendChild(k);
         }
         var att = { image: ['fa-camera', 'Photo'], video: ['fa-video', 'Video'], file: ['fa-file-lines', t.last.name || 'File'],
-                    sticker: ['fa-note-sticky', 'Sticker'], gif: ['fa-film', 'GIF'] }[t.last.kind];
+                    sticker: ['fa-note-sticky', 'Sticker'], gif: ['fa-film', 'GIF'], voice: ['fa-microphone', 'Voice message'] }[t.last.kind];
         if (att) {
           var ai = document.createElement('i'); ai.className = 'fas ' + att[0] + ' kind'; el.appendChild(ai);
           text.textContent = (t.last.kind === 'sticker' || t.last.kind === 'gif' ? att[1] : (t.last.body || att[1])).replace(/\s+/g, ' ');
@@ -2993,7 +3314,7 @@ EduLook.apply(EduLook.get());
       div.className = 'msg ' + (m.mine ? 'user' : 'admin');
       var content = document.createElement('div'); content.className = 'msg-text'; content.textContent = m.body;
       if (m.kind === 'call') { content.className = ''; SupportChat.renderBody(content, { kind: 'call', body: m.body }); }
-      else if (m.url && (m.kind === 'image' || m.kind === 'video' || m.kind === 'file')) { content.className = ''; SupportChat.renderBody(content, m); }
+      else if (m.url && (m.kind === 'image' || m.kind === 'video' || m.kind === 'file' || m.kind === 'voice')) { content.className = ''; SupportChat.renderBody(content, m); }
       else if (m.kind === 'sticker' || m.kind === 'gif') { content.className = ''; SupportChat.renderBody(content, m); }
       div.appendChild(content);
       var t = document.createElement('time');
@@ -3017,6 +3338,7 @@ EduLook.apply(EduLook.get());
       var t = threads[id];
       if (!t) return;
       if (gHide) gHide();
+      if (sxHide) sxHide();
       setAIOpen(false);
       active = id; dmChat.dataset.ctx = String(id); dmLastId = 0; dmLastDay = ''; dmReadUpto = 0; dmSeen = {};
       if (dmPrefs[id] && dmPrefs[id].unread) { dmPrefs[id].unread = false; saveDmPrefs(); }
@@ -3086,22 +3408,13 @@ EduLook.apply(EduLook.get());
       dmBody.value = ''; dmBody.style.height = ''; dmTyping.reset();
       var el = dmBubble({ mine: true, body: text, at: new Date().toISOString() });
       el.classList.add('uploading');
-      (function attempt(tries) {
-        postJSON(DM + id + '/', { body: text, cid: cid }).then(function (res) {
-          if (res.ok) {
-            if (active === id) dmAdd(res.message, el);
-            var t = threads[id];
-            if (t) { t.last = res.message; renderList(); }
-            return;
-          }
-          el.classList.remove('uploading'); setTick(el.querySelector('.tick'), 'failed');
-          dmFlash(res.error || 'Could not send the message.');
-        }).catch(function () {
-          if (tries < 3) return setTimeout(function () { attempt(tries + 1); }, 2000 * (tries + 1));
-          el.classList.remove('uploading'); setTick(el.querySelector('.tick'), 'failed');
-          dmFlash('Could not reach the server. Check your connection and try again.');
-        });
-      })(0);
+      (function go() {
+        sendReliably(DM + id + '/', { body: text, cid: cid }, function (res) {
+          if (active === id) dmAdd(res.message, el);
+          var t = threads[id];
+          if (t) { t.last = res.message; renderList(); }
+        }, function (error) { markFailed(el, go); dmFlash(error); });
+      })();
     });
     dmBody.addEventListener('input', function () { dmBody.style.height = ''; dmBody.style.height = Math.min(dmBody.scrollHeight, 140) + 'px'; });
     dmBody.addEventListener('keydown', function (e) {
@@ -3111,11 +3424,13 @@ EduLook.apply(EduLook.get());
       if (!active) return;
       var id = active, el = dmBubble({ mine: true, kind: payload.kind, body: payload.code || payload.url, at: new Date().toISOString() });
       el.classList.add('uploading');
-      postJSON(DM + id + '/', Object.assign({ cid: newCid() }, payload)).then(function (res) {
-        if (!res.ok) { el.remove(); return dmFlash(res.error || 'Could not send that.'); }
-        if (active === id) dmAdd(res.message, el); else el.remove();
-        var t = threads[id]; if (t) { t.last = res.message; renderList(); }
-      }).catch(function () { el.remove(); dmFlash('Could not reach the server. Please try again.'); });
+      var data = Object.assign({ cid: newCid() }, payload);
+      (function go() {
+        sendReliably(DM + id + '/', data, function (res) {
+          if (active === id) dmAdd(res.message, el); else el.remove();
+          var t = threads[id]; if (t) { t.last = res.message; renderList(); }
+        }, function (error) { markFailed(el, go); dmFlash(error); });
+      })();
     }
     SupportChat.emojiPicker(document.getElementById('dmEmoji'), dmBody, {
       gifUrl: GIFS_URL,
@@ -3201,23 +3516,26 @@ EduLook.apply(EduLook.get());
       });
     });
     dmFlashOut = function (text) { dmFlash(text); };
-    dmSendFile = function (id, file, caption) {
-      var kind = file.type.indexOf('image') === 0 ? 'image' : file.type.indexOf('video') === 0 ? 'video' : 'file';
+    dmSendFile = function (id, file, caption, voiceSecs) {
+      var kind = voiceSecs ? 'voice' : file.type.indexOf('image') === 0 ? 'image' : file.type.indexOf('video') === 0 ? 'video' : 'file';
       var local = URL.createObjectURL(file), el = null;
       if (active === id) {
-        el = dmBubble({ mine: true, kind: kind, url: local, name: file.name, body: caption, at: new Date().toISOString() });
+        el = dmBubble({ mine: true, kind: kind, url: local, name: file.name, body: voiceSecs ? voiceBody(voiceSecs) : caption, at: new Date().toISOString() });
         el.classList.add('uploading');
       }
-      var data = new FormData(); data.append('file', file); data.append('body', caption);
-      fetch(DM + id + '/upload/', { method: 'POST', body: data, credentials: 'same-origin', headers: { 'X-CSRFToken': freshCsrf() } })
-        .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Upload failed. Please try again.' }; }); })
-        .then(function (res) {
-          if (!res.ok) { if (el) el.remove(); return dmFlash(res.error || 'Could not send the file.'); }
+      var data = new FormData(); data.append('file', file, file.name || 'file'); data.append('body', caption || ''); data.append('cid', newCid());
+      if (voiceSecs) { data.append('voice', '1'); data.append('duration', voiceSecs); }
+      (function go() {
+        sendReliably(DM + id + '/upload/', data, function (res) {
           if (active === id) dmAdd(res.message, el); else if (el) el.remove();
           var t = threads[id];
           if (t) { t.last = res.message; t.updated_at = res.message.at; renderList(); }
-        }).catch(function () { if (el) el.remove(); dmFlash('Upload failed. Please check your connection and try again.'); });
+        }, function (error) { markFailed(el, go); dmFlash(error); });
+      })();
     };
+    SupportChat.voiceRecorder({ form: dmComposer, textarea: dmBody, onError: dmFlash,
+      canRecord: function () { return !!active; },
+      onSend: function (file, secs) { if (active) dmSendFile(active, file, '', secs); } });
 
     // ── voice / video calls with the person in a direct chat ──
     var dmCalls = {}, ME = '{{ chat_user.pk }}';
@@ -3352,7 +3670,7 @@ EduLook.apply(EduLook.get());
         var who = document.createElement('span'); who.className = 'who-said'; who.textContent = (m.name || '').split(' ')[0] + ': '; el.appendChild(who);
       }
       var att = { image: ['fa-camera', 'Photo'], video: ['fa-video', 'Video'], file: ['fa-file-lines', m.file || 'File'],
-                  sticker: ['fa-note-sticky', 'Sticker'], gif: ['fa-film', 'GIF'] }[m.kind];
+                  sticker: ['fa-note-sticky', 'Sticker'], gif: ['fa-film', 'GIF'], voice: ['fa-microphone', 'Voice message'] }[m.kind];
       if (att) { var ai = document.createElement('i'); ai.className = 'fas ' + att[0] + ' kind'; el.appendChild(ai); }
       text.textContent = (m.kind === 'sticker' || m.kind === 'gif' ? att[1] : (m.body || (att ? att[1] : ''))).replace(/\s+/g, ' ');
       el.appendChild(text);
@@ -3471,7 +3789,7 @@ EduLook.apply(EduLook.get());
         }
         gLastSender = m.sender;
         var content = document.createElement('div'); content.className = 'msg-text'; content.textContent = m.body;
-        if (m.url && (m.kind === 'image' || m.kind === 'video' || m.kind === 'file')) {
+        if (m.url && (m.kind === 'image' || m.kind === 'video' || m.kind === 'file' || m.kind === 'voice')) {
           content.className = ''; SupportChat.renderBody(content, { kind: m.kind, url: m.url, name: m.file, body: m.body });
         } else if (m.kind === 'sticker' || m.kind === 'gif') { content.className = ''; SupportChat.renderBody(content, m); }
         div.appendChild(content);
@@ -3512,6 +3830,7 @@ EduLook.apply(EduLook.get());
       if (!g) return;
       if (active !== null) { active = null; dmChat.hidden = true; dmMenu.classList.remove('open'); dmLive.hidden = true; renderList(); }
       setAIOpen(false);
+      if (sxHide) sxHide();
       gActive = id; gChat.dataset.ctx = 'g' + id; gLastId = 0; gLastDay = ''; gReadUpto = 0; gSeen = {}; gLastSender = null;
       if (!gInfo || gInfo.id !== id) gInfo = null;
       gMsgs.textContent = ''; gIntro(g);
@@ -3564,21 +3883,12 @@ EduLook.apply(EduLook.get());
       gBody.value = ''; gBody.style.height = ''; gTyping.reset();
       var el = gBubble({ mine: true, kind: 'text', body: text, sender: +ME, at: new Date().toISOString() });
       el.classList.add('uploading');
-      (function attempt(tries) {
-        postJSON(GROUPS + id + '/', { body: text, cid: cid }).then(function (res) {
-          if (res.ok) {
-            if (gActive === id) gAdd(res.message, el);
-            var g = groups[id]; if (g) { g.last = res.message; renderGroups(); }
-            return;
-          }
-          el.classList.remove('uploading'); setTick(el.querySelector('.tick'), 'failed');
-          gFlash(res.error || 'Could not send the message.');
-        }).catch(function () {
-          if (tries < 3) return setTimeout(function () { attempt(tries + 1); }, 2000 * (tries + 1));
-          el.classList.remove('uploading'); setTick(el.querySelector('.tick'), 'failed');
-          gFlash('Could not reach the server. Please try again.');
-        });
-      })(0);
+      (function go() {
+        sendReliably(GROUPS + id + '/', { body: text, cid: cid }, function (res) {
+          if (gActive === id) gAdd(res.message, el);
+          var g = groups[id]; if (g) { g.last = res.message; renderGroups(); }
+        }, function (error) { markFailed(el, go); gFlash(error); });
+      })();
     });
     gBody.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); gComposer.requestSubmit(); } });
     gBody.addEventListener('input', function () { gBody.style.height = ''; gBody.style.height = Math.min(gBody.scrollHeight, 140) + 'px'; });
@@ -3586,11 +3896,13 @@ EduLook.apply(EduLook.get());
       if (gActive === null) return;
       var id = gActive, el = gBubble({ mine: true, kind: payload.kind, body: payload.code || payload.url, sender: +ME, at: new Date().toISOString() });
       el.classList.add('uploading');
-      postJSON(GROUPS + id + '/', Object.assign({ cid: newCid() }, payload)).then(function (res) {
-        if (!res.ok) { el.remove(); return gFlash(res.error || 'Could not send that.'); }
-        if (gActive === id) gAdd(res.message, el); else el.remove();
-        var g = groups[id]; if (g) { g.last = res.message; renderGroups(); }
-      }).catch(function () { el.remove(); gFlash('Could not reach the server. Please try again.'); });
+      var data = Object.assign({ cid: newCid() }, payload);
+      (function go() {
+        sendReliably(GROUPS + id + '/', data, function (res) {
+          if (gActive === id) gAdd(res.message, el); else el.remove();
+          var g = groups[id]; if (g) { g.last = res.message; renderGroups(); }
+        }, function (error) { markFailed(el, go); gFlash(error); });
+      })();
     }
     SupportChat.emojiPicker(document.getElementById('gEmoji'), gBody, {
       gifUrl: GIFS_URL,
@@ -3605,22 +3917,25 @@ EduLook.apply(EduLook.get());
     });
     var baseFlashOut = dmFlashOut;
     dmFlashOut = function (text) { if (gActive !== null) gFlash(text); else baseFlashOut(text); };
-    gSendFile = function (id, file, caption) {
-      var kind = file.type.indexOf('image') === 0 ? 'image' : file.type.indexOf('video') === 0 ? 'video' : 'file';
+    gSendFile = function (id, file, caption, voiceSecs) {
+      var kind = voiceSecs ? 'voice' : file.type.indexOf('image') === 0 ? 'image' : file.type.indexOf('video') === 0 ? 'video' : 'file';
       var el = null;
       if (gActive === id) {
-        el = gBubble({ mine: true, kind: kind, url: URL.createObjectURL(file), file: file.name, body: caption, sender: +ME, at: new Date().toISOString() });
+        el = gBubble({ mine: true, kind: kind, url: URL.createObjectURL(file), file: file.name, body: voiceSecs ? voiceBody(voiceSecs) : caption, sender: +ME, at: new Date().toISOString() });
         el.classList.add('uploading');
       }
-      var data = new FormData(); data.append('file', file); data.append('body', caption);
-      fetch(GROUPS + id + '/upload/', { method: 'POST', body: data, credentials: 'same-origin', headers: { 'X-CSRFToken': freshCsrf() } })
-        .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Upload failed. Please try again.' }; }); })
-        .then(function (res) {
-          if (!res.ok) { if (el) el.remove(); return gFlash(res.error || 'Could not send the file.'); }
+      var data = new FormData(); data.append('file', file, file.name || 'file'); data.append('body', caption || ''); data.append('cid', newCid());
+      if (voiceSecs) { data.append('voice', '1'); data.append('duration', voiceSecs); }
+      (function go() {
+        sendReliably(GROUPS + id + '/upload/', data, function (res) {
           if (gActive === id) gAdd(res.message, el); else if (el) el.remove();
           var g = groups[id]; if (g) { g.last = res.message; renderGroups(); }
-        }).catch(function () { if (el) el.remove(); gFlash('Upload failed. Please check your connection and try again.'); });
+        }, function (error) { markFailed(el, go); gFlash(error); });
+      })();
     };
+    SupportChat.voiceRecorder({ form: gComposer, textarea: gBody, onError: gFlash,
+      canRecord: function () { return gActive !== null; },
+      onSend: function (file, secs) { if (gActive !== null) gSendFile(gActive, file, '', secs); } });
 
     // header menu
     document.getElementById('gSideOpen').addEventListener('click', function () { document.body.classList.add('side-open'); });
@@ -3955,6 +4270,364 @@ EduLook.apply(EduLook.get());
     document.getElementById('giExport').addEventListener('click', function () { giSheet.classList.remove('open'); askExport('g' + giFor); });
     document.getElementById('giClear').addEventListener('click', function () { giSheet.classList.remove('open'); deleteChat('g' + giFor); });
     document.getElementById('giExit').addEventListener('click', function () { exitGroup(giFor); });
+
+    {% if is_support_staff %}
+    // ════════ Support inbox — the support team answers members right here ════════
+    var INBOX = '{% url "chats_inbox" %}';
+    var sxChats = {}, sxRows = {}, sxActive = null, sxLastId = 0, sxLastDay = '', sxSeenUpto = 0, sxSeen = {};
+    var sxFilter = 'all', sxQuery = '', sxContactNow = null, sxCalls = {}, sxLoaded = false;
+    var inboxRow = document.getElementById('inboxRow'), sxPanel = document.getElementById('inboxPanel'), sxList = document.getElementById('sxList');
+    var sxChat = document.getElementById('sxChat'), sxMsgs = document.getElementById('sxMsgs'), sxBody = document.getElementById('sxBody');
+    var sxComposer = document.getElementById('sxComposer'), sxErr = document.getElementById('sxErr'), sxMenu = document.getElementById('sxMenu');
+    var sxLive = document.getElementById('sxLive'), sxTyping = typingPinger(sxBody, function () { return sxActive ? 'sx' + sxActive : null; });
+    function sxFlash(text) { showError(sxErr, text); setTimeout(function () { sxErr.classList.remove('show'); }, 5000); }
+    function openInbox(on) {
+      sxPanel.classList.toggle('open', on);
+      sxPanel.setAttribute('aria-hidden', on ? 'false' : 'true');
+      inboxRow.classList.toggle('active', on || sxActive !== null);
+      if (on) { openNew(false); openGP(false); loadInbox(); setTimeout(function () { if (!('ontouchstart' in window)) document.getElementById('sxSearch').focus(); }, 180); }
+    }
+    inboxRow.addEventListener('click', function () { openInbox(true); });
+    inboxRow.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInbox(true); } });
+    document.getElementById('sxBack').addEventListener('click', function () { openInbox(false); });
+    document.querySelectorAll('#sxChips button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        sxFilter = b.dataset.f;
+        document.querySelectorAll('#sxChips button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        renderInbox();
+      });
+    });
+    var sxSearchT = null;
+    document.getElementById('sxSearch').addEventListener('input', function () {
+      var v = this.value.trim();
+      clearTimeout(sxSearchT);
+      sxSearchT = setTimeout(function () { sxQuery = v; loadInbox(); }, 250);
+    });
+
+    function sxPreviewInto(el, c) {
+      el.textContent = '';
+      var text = document.createElement('span');
+      if (c.ringing) { text.textContent = 'Calling support…'; el.appendChild(text); return; }
+      if (c.typing) { text.textContent = 'typing…'; text.style.color = 'var(--accent-light)'; el.appendChild(text); return; }
+      var m = c.last;
+      if (!m) { text.textContent = c.guest ? 'Guest' : '@' + c.username; el.appendChild(text); return; }
+      if (m.from === 'admin') { var you = document.createElement('span'); you.className = 'who-said'; you.textContent = 'You: '; el.appendChild(you); }
+      if (KIND_ICON[m.kind]) { var ic = document.createElement('i'); ic.className = 'fas ' + KIND_ICON[m.kind] + ' kind'; el.appendChild(ic); }
+      text.textContent = (m.kind === 'location' || m.kind === 'sticker' || m.kind === 'gif' ? '' : (m.body || '').replace(/\s+/g, ' ').trim())
+        || (m.kind === 'file' ? (m.name || 'Document') : KIND_TEXT[m.kind] || '');
+      el.appendChild(text);
+    }
+    function makeSxRow(id) {
+      var el = document.createElement('div');
+      el.className = 'side-item sx-item'; el.setAttribute('role', 'button'); el.tabIndex = 0; el.dataset.ctx = 'sx' + id;
+      el.innerHTML = '<span class="side-ava"><span class="ava-in"></span><span class="dot"></span></span>'
+        + '<span class="side-txt"><span class="side-row"><b></b><span class="sx-tag" hidden>Guest</span><time></time></span>'
+        + '<span class="side-row"><span class="side-preview"></span><span class="side-badge" hidden></span></span></span>';
+      el.addEventListener('click', function () { openSx(id); });
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSx(id); } });
+      return el;
+    }
+    function sxShown(c) {
+      if (sxFilter === 'waiting') return !!c.pending;
+      if (sxFilter === 'online') return !!(c.presence && c.presence.online);
+      if (sxFilter === 'members') return !c.guest;
+      if (sxFilter === 'guests') return !!c.guest;
+      return true;
+    }
+    function sxAt(c) { return c.last ? Date.parse(c.last.at) || 0 : 0; }
+    function renderInbox() {
+      var ids = Object.keys(sxChats).sort(function (a, b) { return sxAt(sxChats[b]) - sxAt(sxChats[a]); });
+      var shown = 0, waiting = 0;
+      ids.forEach(function (k) {
+        var c = sxChats[k], el = sxRows[k] || (sxRows[k] = makeSxRow(c.id));
+        if (sxActive === c.id) c.pending = 0;
+        if (c.pending) waiting++;
+        avatarInto(el.querySelector('.ava-in'), c);
+        el.querySelector('.dot').className = 'dot' + (c.presence && c.presence.online ? ' on' : '');
+        el.querySelector('b').textContent = c.name;
+        el.querySelector('.sx-tag').hidden = !c.guest;
+        el.querySelector('time').textContent = c.last ? shortWhen(c.last.at) : '';
+        sxPreviewInto(el.querySelector('.side-preview'), c);
+        var badge = el.querySelector('.side-badge');
+        badge.textContent = c.pending > 99 ? '99+' : c.pending || ''; badge.hidden = !c.pending;
+        el.classList.toggle('has-unread', !!c.pending); el.classList.toggle('active', sxActive === c.id);
+        el.classList.toggle('ringing', !!c.ringing);
+        el.dataset.title = (c.name + ' ' + c.username).toLowerCase();
+        el.hidden = !sxShown(c);
+        if (!el.hidden) shown++;
+        sxList.appendChild(el);
+      });
+      Object.keys(sxRows).forEach(function (k) { if (!sxChats[k]) { sxRows[k].remove(); delete sxRows[k]; } });
+      var none = sxList.querySelector('.new-empty');
+      if (!shown && sxLoaded) {
+        if (!none) { none = document.createElement('p'); none.className = 'new-empty'; sxList.appendChild(none); }
+        none.textContent = sxQuery ? 'No one matches "' + sxQuery + '".' : sxFilter === 'waiting' ? 'All caught up — nobody is waiting for a reply. 🎉'
+          : sxFilter === 'all' ? 'No support messages yet.' : 'No chats here.';
+      } else if (none) none.remove();
+      if (!sxQuery) sxSetWaiting(waiting);
+    }
+    function sxSetWaiting(n) {
+      var badge = document.getElementById('inboxBadge'), prev = document.getElementById('inboxPreview');
+      badge.textContent = n > 99 ? '99+' : n; badge.hidden = !n;
+      inboxRow.classList.toggle('has-unread', !!n);
+      prev.textContent = '';
+      var t = document.createElement('span');
+      t.textContent = n ? n + (n === 1 ? ' person' : ' people') + ' waiting for a reply' : "Members' messages to " + supportName;
+      prev.appendChild(t);
+      var wn = document.getElementById('sxWaitN'); wn.textContent = n; wn.hidden = !n;
+      document.getElementById('sxSub').textContent = n ? n + ' waiting for a reply' : 'All caught up';
+      if (sxWaiting !== n) { sxWaiting = n; renderUnread(); }
+    }
+    function loadInbox() {
+      if (document.hidden) return;
+      var q = sxQuery;
+      getJSON(INBOX + (q ? '?q=' + encodeURIComponent(q) : '')).then(function (res) {
+        if (!res || !res.ok || q !== sxQuery) return;
+        var fresh = {};
+        res.chats.forEach(function (c) {
+          var old = sxChats[c.id];
+          if (old && sxActive === c.id) c.pending = 0;
+          if (old && old.last && c.last && old.last.id > c.last.id) c.last = old.last;
+          fresh[c.id] = c;
+          if (c.ringing) sxRing(c);
+        });
+        if (sxActive !== null && !fresh[sxActive] && sxChats[sxActive]) fresh[sxActive] = sxChats[sxActive];
+        sxChats = fresh; sxLoaded = true;
+        renderInbox();
+        if (q) getJSON(INBOX).then(function (all) { if (all && all.ok) sxSetWaiting(all.waiting); }).catch(function () {});
+      }).catch(function () {});
+    }
+    loadInbox();
+    setInterval(loadInbox, 5000);
+
+    // ── calls with members (either side can ring) ──
+    function sxCallsFor(id, name, photo) {
+      if (!sxCalls[id]) {
+        var c = sxChats[id] || {};
+        sxCalls[id] = new SupportChat.Calls({
+          url: INBOX + id + '/call/', side: 'admin', csrf: freshCsrf(), keep: true,
+          peerName: name || c.name || 'Member', photo: photo || c.photo || '',
+          onError: function (text) { if (sxActive !== id) openSx(id); sxFlash(text); }
+        });
+      }
+      return sxCalls[id];
+    }
+    function sxBusy() { return Object.keys(sxCalls).some(function (k) { return sxCalls[k].busy(); }); }
+    var dmAnyCall = anyCall;
+    anyCall = function () { return dmAnyCall() || sxBusy(); };
+    function sxRing(c) {
+      var cl = sxCallsFor(c.id, c.name, c.photo);
+      if (cl.busy() || anyCall()) return;
+      getJSON(INBOX + c.id + '/call/').then(function (r) { if (r && r.ok) cl.sync(r.call); }).catch(function () {});
+    }
+    function sxCall(kind) {
+      if (sxActive === null) return;
+      var c = sxChats[sxActive];
+      if (c && !c.active) return sxFlash('This account is not available any more.');
+      if (anyCall()) return sxFlash('You are already on a call.');
+      sxCallsFor(sxActive).start(kind);
+    }
+    document.getElementById('sxVoice').addEventListener('click', function () { sxCall('audio'); });
+    document.getElementById('sxVideo').addEventListener('click', function () { sxCall('video'); });
+
+    // ── the open chat ──
+    function sxHeader(c) {
+      avatarInto(document.getElementById('sxAva'), c);
+      avatarInto(document.getElementById('sxLiveAva'), c);
+      document.getElementById('sxName').textContent = c.name;
+      var p = c.presence || {}, st = document.getElementById('sxStatus');
+      document.getElementById('sxDot').className = 'dot' + (p.online ? ' on' : '');
+      st.textContent = !c.active ? 'Account deactivated' : c.typing ? 'typing…' : p.online ? 'online'
+        : p.last_seen ? lastSeen(p.last_seen) : c.guest ? 'Guest' : '@' + c.username;
+      st.parentNode.classList.toggle('is-typing', !!c.typing);
+    }
+    function sxBubble(m) {
+      var wait = sxMsgs.querySelector('.empty'); if (wait) wait.remove();
+      var d = new Date(m.at), day = d.toDateString();
+      if (day !== sxLastDay) { sxLastDay = day; var sep = document.createElement('div'); sep.className = 'day'; sep.textContent = dayLabel(d); sxMsgs.appendChild(sep); }
+      var mine = m.from === 'admin', div = document.createElement('div');
+      div.className = 'msg ' + (mine ? 'user' : 'admin');
+      var content = document.createElement('div');
+      SupportChat.renderBody(content, m);
+      div.appendChild(content);
+      var t = document.createElement('time'); t.appendChild(document.createTextNode(when(m.at)));
+      if (mine) { var k = document.createElement('span'); setTick(k, 'sending'); t.appendChild(k); }
+      div.appendChild(t);
+      var atBottom = sxMsgs.scrollHeight - sxMsgs.scrollTop - sxMsgs.clientHeight < 120;
+      sxMsgs.appendChild(div);
+      if (atBottom || mine) sxMsgs.scrollTop = sxMsgs.scrollHeight;
+      return div;
+    }
+    function sxAdd(m, pending) {
+      if (sxSeen[m.id]) { if (pending) pending.remove(); return; }
+      sxSeen[m.id] = true; sxLastId = Math.max(sxLastId, m.id);
+      var el = pending;
+      if (el) { SupportChat.renderBody(el.firstChild, m); el.classList.remove('uploading'); } else el = sxBubble(m);
+      el.dataset.id = m.id;
+      var k = el.querySelector('.tick');
+      if (k) setTick(k, m.id <= sxSeenUpto ? 'read' : 'delivered');
+    }
+    function hideSx() {
+      if (sxActive === null) return;
+      sxActive = null; sxChat.hidden = true; sxMenu.classList.remove('open'); sxLive.hidden = true;
+      inboxRow.classList.toggle('active', sxPanel.classList.contains('open'));
+      renderInbox();
+    }
+    sxHide = hideSx;
+    function openSx(id) {
+      var c = sxChats[id];
+      if (active !== null) { active = null; dmChat.hidden = true; dmMenu.classList.remove('open'); dmLive.hidden = true; renderList(); }
+      hideGroupPanel();
+      setAIOpen(false);
+      sxActive = id; sxChat.dataset.ctx = 'sx' + id; sxLastId = 0; sxLastDay = ''; sxSeenUpto = 0; sxSeen = {}; sxContactNow = null;
+      sxMsgs.textContent = '';
+      var wait = document.createElement('p'); wait.className = 'empty'; wait.textContent = 'Loading the chat…'; sxMsgs.appendChild(wait);
+      sxErr.classList.remove('show'); sxMenu.classList.remove('open'); sxLive.hidden = true;
+      sxBody.value = ''; sxBody.style.height = '';
+      sxHeader(c || { id: id, name: 'Member', initial: '?', photo: '', active: true, presence: {} });
+      sxChat.hidden = false;
+      supportRow.classList.remove('active'); inboxRow.classList.add('active');
+      if (c) c.pending = 0;
+      renderInbox();
+      document.body.classList.remove('side-open');
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      pollSx();
+      if (!('ontouchstart' in window)) sxBody.focus();
+    }
+    function pollSx() {
+      if (sxActive === null || document.hidden) return;
+      var id = sxActive;
+      getJSON(INBOX + id + '/?here=1&after=' + sxLastId).then(function (res) {
+        if (!res || sxActive !== id) return;
+        if (!res.ok) { sxFlash(res.error || 'Could not load this chat.'); return; }
+        if (!sxLastId && !res.messages.length) { var w = sxMsgs.querySelector('.empty'); if (w) w.textContent = 'No messages yet.'; }
+        res.messages.forEach(function (m) { sxAdd(m); });
+        if (res.contact) sxContactNow = res.contact;
+        if (res.seen_upto > sxSeenUpto) {
+          sxSeenUpto = res.seen_upto;
+          sxMsgs.querySelectorAll('.msg.user[data-id]').forEach(function (el) { if (+el.dataset.id <= sxSeenUpto) setTick(el.querySelector('.tick'), 'read'); });
+        }
+        var c = sxChats[id] || (sxChats[id] = res.person);
+        Object.assign(c, res.person);
+        c.typing = res.typing; c.pending = 0; c.ringing = !!(res.call && res.call.status === 'ringing' && res.call.caller === 'user');
+        if (res.messages.length) c.last = res.messages[res.messages.length - 1];
+        sxHeader(c);
+        showLive(sxLive, res.typing, res.here, c.name.split(' ')[0]);
+        SupportChat.updateLocations(sxMsgs, res.locations);
+        if (res.call || sxCalls[id]) sxCallsFor(id).sync(res.call);
+        renderInbox();
+      }).catch(function () {});
+    }
+    setInterval(pollSx, 3000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) { loadInbox(); pollSx(); } });
+
+    // replying
+    function sxSent(id, res, el) {
+      if (sxActive === id) sxAdd(res.message, el); else if (el) el.remove();
+      var c = sxChats[id]; if (c) { c.last = res.message; c.pending = 0; renderInbox(); }
+    }
+    sxComposer.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = sxBody.value.trim();
+      if (!text || sxActive === null) return;
+      var id = sxActive, cid = newCid();
+      sxBody.value = ''; sxBody.style.height = ''; sxTyping.reset();
+      var el = sxBubble({ from: 'admin', kind: 'text', body: text, at: new Date().toISOString() });
+      el.classList.add('uploading');
+      (function go() {
+        sendReliably(INBOX + id + '/', { body: text, cid: cid }, function (res) { sxSent(id, res, el); },
+          function (error) { markFailed(el, go); sxFlash(error); });
+      })();
+    });
+    sxBody.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sxComposer.requestSubmit(); } });
+    sxBody.addEventListener('input', function () { sxBody.style.height = ''; sxBody.style.height = Math.min(sxBody.scrollHeight, 140) + 'px'; });
+    function sxSendRich(payload) {   // a sticker or GIF
+      if (sxActive === null) return;
+      var id = sxActive, el = sxBubble({ from: 'admin', kind: payload.kind, body: payload.code || payload.url, at: new Date().toISOString() });
+      el.classList.add('uploading');
+      var data = Object.assign({ cid: newCid() }, payload);
+      (function go() {
+        sendReliably(INBOX + id + '/', data, function (res) { sxSent(id, res, el); },
+          function (error) { markFailed(el, go); sxFlash(error); });
+      })();
+    }
+    SupportChat.emojiPicker(document.getElementById('sxEmoji'), sxBody, {
+      gifUrl: GIFS_URL,
+      onSticker: function (code) { sxSendRich({ kind: 'sticker', code: code }); },
+      onGif: function (g) { sxSendRich({ kind: 'gif', url: g.url }); }
+    });
+    var sxAttachMenu = document.getElementById('sxAttachMenu');
+    document.getElementById('sxAttach').addEventListener('click', function (e) { e.stopPropagation(); sxAttachMenu.classList.toggle('open'); });
+    document.addEventListener('click', function (e) { if (!sxAttachMenu.contains(e.target)) sxAttachMenu.classList.remove('open'); });
+    sxAttachMenu.querySelectorAll('[data-pick]').forEach(function (b) {
+      b.addEventListener('click', function () { sxAttachMenu.classList.remove('open'); if (sxActive !== null) pickFileFor('sx' + sxActive, b.dataset.pick, b.dataset.capture); });
+    });
+    var sxBaseFlashOut = dmFlashOut;
+    dmFlashOut = function (text) { if (sxActive !== null) sxFlash(text); else sxBaseFlashOut(text); };
+    sxSendFile = function (id, file, caption, voiceSecs) {
+      var kind = voiceSecs ? 'voice' : file.type.indexOf('image') === 0 ? 'image' : file.type.indexOf('video') === 0 ? 'video' : 'file';
+      var el = null;
+      if (sxActive === id) {
+        el = sxBubble(kind === 'voice' ? { from: 'admin', kind: 'voice', url: URL.createObjectURL(file), body: voiceBody(voiceSecs), at: new Date().toISOString() }
+          : { from: 'admin', kind: kind === 'file' ? 'text' : kind, url: kind === 'file' ? null : URL.createObjectURL(file),
+              name: file.name, body: caption || (kind === 'file' ? '📎 ' + file.name : ''), at: new Date().toISOString() });
+        el.classList.add('uploading');
+      }
+      var data = new FormData(); data.append('file', file, file.name || 'file'); data.append('body', caption || ''); data.append('cid', newCid());
+      if (voiceSecs) { data.append('voice', '1'); data.append('duration', voiceSecs); }
+      (function go() {
+        sendReliably(INBOX + id + '/', data, function (res) { sxSent(id, res, el); },
+          function (error) { markFailed(el, go); sxFlash(error); });
+      })();
+    };
+    SupportChat.voiceRecorder({ form: sxComposer, textarea: sxBody, onError: sxFlash,
+      canRecord: function () { return sxActive !== null; },
+      onSend: function (file, secs) { if (sxActive !== null) sxSendFile(sxActive, file, '', secs); } });
+
+    // header + menu
+    function sxShowContact() {
+      var c = sxContactNow;
+      if (!c) return;
+      var rows = [];
+      if (c.phone) rows.push(['fa-phone', 'Phone', c.phone, 'tel:' + c.phone]);
+      if (c.email) rows.push(['fa-envelope', 'Email', c.email, 'mailto:' + c.email]);
+      if (c.ip) rows.push(['fa-network-wired', 'IP address', c.ip]);
+      if (c.city || c.state) rows.push(['fa-location-dot', 'City', [c.city, c.state].filter(Boolean).join(', ')]);
+      rows.push(['fa-calendar', 'On EduChats since', c.joined]);
+      rows.push(['fa-circle-check', 'Account', c.guest ? 'Guest — not signed up' : !c.active ? 'Deactivated' : c.verified ? 'Verified' : 'Not verified']);
+      var p = c.presence || {};
+      showIdCard({ name: c.name, username: c.username, subtitle: c.guest ? 'Guest' : '', bio: c.bio, photo: c.photo, initial: c.initial,
+        cover: c.cover, socials: c.socials, seen: p.online ? 'online' : p.last_seen ? lastSeen(p.last_seen) : '', online: p.online, rows: rows,
+        actions: [['Voice', 'fa-phone', function () { sxCall('audio'); }], ['Video', 'fa-video', function () { sxCall('video'); }],
+                  ['Dashboard', 'fa-arrow-up-right-from-square', function () { window.open(c.dashboard, '_blank', 'noopener'); }]] });
+    }
+    document.getElementById('sxSideOpen').addEventListener('click', function () { document.body.classList.add('side-open'); });
+    document.getElementById('sxMenuBtn').addEventListener('click', function (e) { e.stopPropagation(); sxMenu.classList.toggle('open'); });
+    document.addEventListener('click', function (e) { if (!e.target.closest('#sxChat .menu-wrap')) sxMenu.classList.remove('open'); });
+    ['sxWho', 'sxAva'].forEach(function (i) { document.getElementById(i).addEventListener('click', sxShowContact); });
+    document.getElementById('sxWho').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sxShowContact(); } });
+    document.getElementById('sxInfoBtn').addEventListener('click', function () { sxMenu.classList.remove('open'); sxShowContact(); });
+    document.getElementById('sxDashBtn').addEventListener('click', function () {
+      sxMenu.classList.remove('open');
+      if (sxContactNow) window.open(sxContactNow.dashboard, '_blank', 'noopener');
+    });
+    document.getElementById('sxCloseBtn').addEventListener('click', function () { sxMenu.classList.remove('open'); showHome(); });
+    function openSxFromKey(id) { openInbox(true); openSx(id); return true; }
+    {% endif %}
+
+    // notifications: open a chat from its key, once it has loaded (true = opened)
+    openChatHook = function (key) {
+      key = String(key || '');
+      if (key === 'support') { if (supportRow.classList.contains('staff-hide')) return true; supportRow.click(); return true; }
+      if (/^g\d+$/.test(key)) { if (!groups[+key.slice(1)]) return false; openGroup(+key.slice(1)); return true; }
+      if (/^sx\d+$/.test(key)) {
+        if (typeof openSxFromKey === 'function') return openSxFromKey(+key.slice(2));
+        return true;
+      }
+      if (/^\d+$/.test(key)) { if (!threads[key]) return false; openThread(+key); return true; }
+      return true;
+    };
+    pushNudge = function () { loadThreads(); loadGroups(); pollGroup(); if (typeof loadInbox === 'function') loadInbox(); };
 
     // /educhats/?to=username opens (or starts) that chat straight away
     var to = new URLSearchParams(location.search).get('to');

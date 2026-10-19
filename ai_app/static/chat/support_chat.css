@@ -96,3 +96,20 @@
 .att-viewer-save:hover{background:rgba(255,255,255,.28)}
 .att-viewer img{-webkit-touch-callout:none}
 .att-gif.broken{display:flex;align-items:center;gap:.5rem;padding:.9rem 1rem;min-width:160px;background:rgba(0,0,0,.06);color:inherit;opacity:.75;font-size:.82rem;font-weight:600}
+
+/* voice messages */
+.att-voice{display:flex;align-items:center;gap:.6rem;min-width:220px;max-width:300px;padding:.1rem 0}
+.vn-play{flex:0 0 40px;width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.95rem;background:var(--accent,#e8001e);color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.vn-play .fa-play{margin-left:2px}
+.msg.user .vn-play{background:rgba(255,255,255,.95);color:var(--accent,#e8001e)}
+.vn-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:.25rem}
+.vn-wave{display:flex;align-items:center;gap:2px;height:28px;cursor:pointer}
+.vn-wave i{flex:1;min-width:2px;border-radius:2px;background:currentColor;opacity:.32;transition:opacity .12s}
+.vn-wave i.on{opacity:1}
+.vn-meta{display:flex;align-items:center;justify-content:space-between;font-size:.7rem;opacity:.85}
+.vn-time{font-variant-numeric:tabular-nums;font-weight:600}
+.vn-speed{border:none;background:rgba(0,0,0,.1);color:inherit;font:inherit;font-weight:800;font-size:.66rem;padding:.05rem .4rem;border-radius:999px;cursor:pointer}
+.msg.user .vn-speed{background:rgba(255,255,255,.22)}
+.vn-mic{flex:0 0 auto;font-size:.8rem;opacity:.55}
+.att-voice.playing .vn-mic{color:#22c55e;opacity:1}
+.att-voice.broken .vn-play{opacity:.5;pointer-events:none}

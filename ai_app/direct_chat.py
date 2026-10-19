@@ -17,7 +17,7 @@ from django.views.decorators.http import require_POST
 from .educhats_social import SHOW_FIELDS, socials_json
 from .models import ChatUser, DirectMessage, DirectThread
 from .support_chat import (
-    ATTEMPT_WINDOW, CALL_RING_SECONDS, CALL_STALE_SECONDS, ICE_SERVERS, MAX_MESSAGE, MESSAGE_LIMIT, _fail,
+    ATTEMPT_WINDOW, CALL_RING_SECONDS, CALL_STALE_SECONDS, ICE_SERVERS, MAX_MESSAGE, SEND_LIMIT_ERROR, over_send_limit, _fail,
     _json_body, _presence, current_user, is_live, set_live,
 )
 
@@ -192,11 +192,8 @@ def api_thread_messages(request, thread_id):
             earlier = DirectMessage.objects.filter(pk=cache.get(cid_key) or 0, sender=me).first()
             if earlier:
                 return JsonResponse({'ok': True, 'message': _message_json(earlier, me)})
-        key = f'chats-send-{me.pk}'
-        sent = cache.get(key, 0)
-        if sent >= MESSAGE_LIMIT:
-            return _fail('You are sending messages too fast. Please wait a minute.', 429)
-        cache.set(key, sent + 1, 60)
+        if over_send_limit(me):
+            return _fail(SEND_LIMIT_ERROR, 429)
         message = DirectMessage.objects.create(thread=thread, sender=me, body=body, kind=kind or 'text')
         set_live('typing', f'd{thread.pk}', me.pk, False)
         DirectThread.objects.filter(pk=thread.pk).update(updated_at=message.created_at)
@@ -362,6 +359,8 @@ def _support_line(m, me_name, support_name):
         body = f'[{label}{": " + m.attachment_name if m.attachment_name else ""}]' + (f' {m.body}' if m.body else '')
     elif m.kind == ChatMessage.KIND_CALL:
         body = f'[Call] {m.body}'
+    elif m.kind == ChatMessage.KIND_VOICE:
+        body = f'[Voice message {m.body}]'
     elif m.kind in (ChatMessage.KIND_STICKER, ChatMessage.KIND_GIF):
         body = '[Sticker]' if m.kind == ChatMessage.KIND_STICKER else f'[GIF] {m.body}'
     else:
@@ -502,6 +501,8 @@ def api_thread_call(request, thread_id):
                  'offer': offer, 'started': now}
         cache.set(_dm_call_key(thread.pk), state, CALL_STALE_SECONDS)
         cache.set(_ring_key(peer.pk), thread.pk, CALL_RING_SECONDS + 5)
+        from .educhats_push import ring
+        ring(peer, str(thread.pk), me.name, state['kind'])
     elif not state or state.get('id') != data.get('id'):
         return _fail('This call has ended.', 409)
     elif action == 'answer':
@@ -545,7 +546,7 @@ def api_ring(request):
 def api_thread_upload(request, thread_id):
     """POST multipart {file, body?}: same types and 25 MB limit as the support chat."""
     import os
-    from .support_chat import MAX_UPLOAD_MB, _UPLOAD_KINDS
+    from .support_chat import MAX_UPLOAD_MB, upload_cid_key, upload_kind
     if request.method != 'POST':
         return _fail('Send a file.', 405)
     me, error = _me(request)
@@ -558,28 +559,31 @@ def api_thread_upload(request, thread_id):
         return _fail("You can't message this person.", 403)
     if not thread.other(me).is_active:
         return _fail('This account is not available any more.', 403)
-    key = f'chats-send-{me.pk}'
-    sent = cache.get(key, 0)
-    if sent >= MESSAGE_LIMIT:
-        return _fail('You are sending messages too fast. Please wait a minute.', 429)
+    key = upload_cid_key(request, f'd{thread.pk}-{me.pk}')
+    if key and cache.get(key):
+        return JsonResponse({'ok': True, 'message': cache.get(key)})
+    if over_send_limit(me):
+        return _fail(SEND_LIMIT_ERROR, 429)
     upload = request.FILES.get('file')
     if not upload:
         return _fail('Choose a file to send.')
     ext = os.path.splitext(upload.name)[1].lower()
-    kind = _UPLOAD_KINDS.get(ext)
-    if not kind:
-        return _fail('That file type is not supported. Send a photo, video, PDF, Office file, text, ZIP or audio file.')
+    kind, caption, error = upload_kind(request, upload)
+    if error:
+        return _fail(error)
     if upload.size > MAX_UPLOAD_MB * 1024 * 1024:
         return _fail(f'Files can be up to {MAX_UPLOAD_MB} MB.')
-    cache.set(key, sent + 1, 60)
-    message = DirectMessage(thread=thread, sender=me, kind=kind, body=request.POST.get('body', '').strip()[:MAX_MESSAGE],
-                            attachment_name=os.path.basename(upload.name)[:200])
+    message = DirectMessage(thread=thread, sender=me, kind=kind, body=caption,
+                            attachment_name=('Voice message' + ext) if kind == 'voice' else os.path.basename(upload.name)[:200])
     upload.name = secrets.token_hex(12) + ext   # never trust the uploaded name on disk
     message.attachment = upload
     message.save()
     set_live('typing', f'd{thread.pk}', me.pk, False)
     DirectThread.objects.filter(pk=thread.pk).update(updated_at=message.created_at)
-    return JsonResponse({'ok': True, 'message': _message_json(message, me)})
+    data = {'ok': True, 'message': _message_json(message, me)}
+    if key:
+        cache.set(key, data['message'], 6 * 3600)
+    return JsonResponse(data)
 
 
 def dm_attachment(request, pk):

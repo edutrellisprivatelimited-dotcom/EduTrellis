@@ -34,7 +34,8 @@ MAX_MESSAGE = 4000
 RESET_HOURS = 2
 ATTEMPT_LIMIT = 10          # logins / sign-ups / reset requests per 15 min, per IP
 ATTEMPT_WINDOW = 15 * 60
-MESSAGE_LIMIT = 30          # messages per minute, per account
+MESSAGE_LIMIT = 60          # messages per minute, per account (all chats together)
+SEND_LIMIT_ERROR = 'You are sending messages very fast. Please wait a few seconds.'
 ONLINE_SECONDS = 20         # seen within this long = "online" (both sides poll every 4 s)
 STAFF_SEEN_KEY = 'support-chat-staff-last-seen'
 _PHONE_RE = re.compile(r'^(?:\+?91[\s-]?)?([6-9]\d{9})$')
@@ -117,6 +118,38 @@ def current_user(request):
     return user
 
 
+def over_send_limit(user):
+    """Counts one message for this account; True once it has sent MESSAGE_LIMIT
+    in the current minute. Each minute has its own counter, so a long chat at a
+    normal pace is never blocked (the old counter restarted its 60 s on every
+    message and never ran out while someone kept chatting)."""
+    import time
+    key = f'chats-send-{user.pk}-{int(time.time() // 60)}'
+    cache.add(key, 0, 90)
+    try:
+        sent = cache.incr(key)
+    except ValueError:   # expired between add and incr
+        cache.set(key, 1, 90)
+        sent = 1
+    return sent > MESSAGE_LIMIT
+
+
+def staff_account(request, user=None):
+    """The signed-in EduChats account when it is linked to an active EduTrellis
+    staff login — the support team, who answer the Support inbox — else None."""
+    user = user or current_user(request)
+    if user and user.django_user_id and not user.is_guest:
+        admin = user.django_user
+        if admin and admin.is_active and (admin.is_staff or admin.is_superuser):
+            return user
+    return None
+
+
+def _staff_viewer(request, me=None):
+    """Staff on the dashboard, or the support team's own EduChats account."""
+    return (request.user.is_authenticated and request.user.is_staff) or bool(staff_account(request, me))
+
+
 def _remember_guest(response, user):
     response.set_signed_cookie(GUEST_COOKIE, str(user.pk), salt=GUEST_COOKIE_SALT, max_age=GUEST_COOKIE_AGE,
                                httponly=True, samesite='Lax')
@@ -172,6 +205,11 @@ def api_typing(request):
     to = data.get('to')
     if to == 'support':
         set_live('typing', f's{user.pk}', 'user', on)
+        return JsonResponse({'ok': True})
+    if isinstance(to, str) and to.startswith('sx'):   # the support team typing a reply in the inbox
+        if not staff_account(request, user) or not to[2:].isdigit():
+            return _fail('This chat is not available.', 404)
+        set_live('typing', f's{int(to[2:])}', 'staff', on)
         return JsonResponse({'ok': True})
     if user.is_guest:
         return _fail('Sign up first.', 403)
@@ -254,7 +292,39 @@ _UPLOAD_KINDS = {
 _INLINE_TYPES = {
     '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp',
     '.gif': 'image/gif', '.mp4': 'video/mp4', '.webm': 'video/webm', '.mov': 'video/quicktime',
+    '.ogg': 'audio/ogg', '.oga': 'audio/ogg', '.m4a': 'audio/mp4', '.mp3': 'audio/mpeg', '.aac': 'audio/aac',
+    '.wav': 'audio/wav',
 }
+# Voice messages: whatever the phone's recorder makes (Chrome/Android webm, Firefox ogg, iPhone mp4).
+VOICE_TYPES = {'.webm', '.ogg', '.oga', '.m4a', '.mp4', '.mp3', '.aac', '.wav'}
+MAX_VOICE_SECONDS = 15 * 60
+
+
+def upload_kind(request, upload):
+    """(kind, body, error) for an uploaded file: a voice message (voice=1, body = its
+    length "m:ss") or a photo / video / document with an optional caption."""
+    import os
+    ext = os.path.splitext(upload.name)[1].lower()
+    if request.POST.get('voice'):
+        if ext not in VOICE_TYPES:
+            return None, '', 'That voice message could not be sent.'
+        try:
+            seconds = int(round(float(request.POST.get('duration') or 0)))
+        except ValueError:
+            seconds = 0
+        seconds = max(1, min(seconds, MAX_VOICE_SECONDS))
+        return 'voice', f'{seconds // 60}:{seconds % 60:02d}', ''
+    kind = _UPLOAD_KINDS.get(ext)
+    if not kind:
+        return None, '', 'That file type is not supported. Send a photo, video, PDF, Office file, text, ZIP or audio file.'
+    return kind, request.POST.get('body', '').strip()[:MAX_MESSAGE], ''
+
+
+def upload_cid_key(request, scope):
+    """Cache key for an upload's client id: a retried upload (lost reply, flaky
+    network) gets the first copy back instead of sending the file twice."""
+    cid = re.sub(r'[^A-Za-z0-9_-]', '', request.POST.get('cid', ''))[:40]
+    return f'chats-upcid-{scope}-{cid}' if cid else ''
 
 
 def _message_from_upload(user, sender, request):
@@ -264,14 +334,13 @@ def _message_from_upload(user, sender, request):
     if not upload:
         return None, 'Choose a file to send.'
     ext = os.path.splitext(upload.name)[1].lower()
-    kind = _UPLOAD_KINDS.get(ext)
-    if not kind:
-        return None, 'That file type is not supported. Send a photo, video, PDF, Office file, text, ZIP or audio file.'
+    kind, caption, error = upload_kind(request, upload)
+    if error:
+        return None, error
     if upload.size > MAX_UPLOAD_MB * 1024 * 1024:
         return None, f'Files can be up to {MAX_UPLOAD_MB} MB.'
-    caption = request.POST.get('body', '').strip()[:MAX_MESSAGE]
     message = ChatMessage(user=user, sender=sender, kind=kind, body=caption,
-                          attachment_name=os.path.basename(upload.name)[:200])
+                          attachment_name=('Voice message' + ext) if kind == 'voice' else os.path.basename(upload.name)[:200])
     upload.name = secrets.token_hex(12) + ext   # never trust the uploaded name on disk
     message.attachment = upload
     message.save()
@@ -285,7 +354,7 @@ def attachment(request, pk):
     from django.http import FileResponse, Http404
     message = get_object_or_404(ChatMessage, pk=pk)
     user = current_user(request)
-    staff = request.user.is_authenticated and request.user.is_staff
+    staff = _staff_viewer(request, user)
     if not message.attachment or not (staff or (user and user.pk == message.user_id)):
         raise Http404
     ext = os.path.splitext(message.attachment.name)[1].lower()
@@ -365,15 +434,26 @@ def api_upload(request):
     user = current_user(request)
     if not user:
         return _fail('Please log in again.', 401)
-    key = f'chats-send-{user.pk}'
-    sent = cache.get(key, 0)
-    if sent >= MESSAGE_LIMIT:
-        return _fail('You are sending messages too fast. Please wait a minute.', 429)
-    cache.set(key, sent + 1, 60)
+    key = upload_cid_key(request, f's{user.pk}')
+    if key and cache.get(key):
+        return JsonResponse({'ok': True, 'message': cache.get(key), **_user_status(user)})
+    if over_send_limit(user):
+        return _fail(SEND_LIMIT_ERROR, 429)
     message, error = _message_from_upload(user, ChatMessage.SENDER_USER, request)
     if error:
         return _fail(error)
+    set_live('typing', f's{user.pk}', 'user', False)
+    if key:
+        cache.set(key, _message_json(message), 6 * 3600)
     return JsonResponse({'ok': True, 'message': _message_json(message), **_user_status(user)})
+
+
+def api_csrf(request):
+    """A fresh security token for a page that has been open a long time."""
+    from django.middleware.csrf import get_token
+    response = JsonResponse({'ok': True, 'csrf': get_token(request)})
+    response['Cache-Control'] = 'no-store'
+    return response
 
 
 # ── calls ────────────────────────────────────────────────────────────────────
@@ -445,6 +525,11 @@ def call_action(user, side, data):
         state = {'id': secrets.token_hex(6), 'user': user.pk, 'caller': side, 'status': 'ringing',
                  'kind': 'video' if data.get('kind') == 'video' else 'audio', 'offer': offer, 'started': now}
         cache.set(call_key(user.pk), state, CALL_STALE_SECONDS)
+        from .educhats_push import ring, ring_support_team
+        if side == 'user':
+            ring_support_team(user, state['kind'])
+        else:
+            ring(user, 'support', SupportProfile.load().display_name, state['kind'])
         return state, ''
     if not state or state.get('id') != data.get('id'):
         return None, 'This call has ended.'
@@ -520,6 +605,7 @@ def chats_page(request):
     user = current_user(request)
     stamp = ''
     support = SupportProfile.load()
+    is_staff = bool(staff_account(request, user))
     return render(request, 'chats.html', {
         'chat_user': user,
         'support': support,
@@ -527,11 +613,11 @@ def chats_page(request):
         'me_card': _me_card(user) if user and not user.is_guest else None,
         'support_socials': socials_json(support),
         'app': _app_settings(),
-        # The superuser's own EduChats account *is* the support team, so it gets a
-        # shortcut to the admin inbox instead of a "Support" chat with itself.
-        'is_support_staff': bool(user and user.django_user_id),
+        # The superuser's own EduChats account *is* the support team, so it gets the
+        # Support inbox (support_inbox.py) instead of a "Support" chat with itself.
+        'is_support_staff': is_staff,
         'support_waiting': (ChatMessage.objects.filter(sender=ChatMessage.SENDER_USER, read_by_admin=False)
-                            .values('user').distinct().count() if user and user.django_user_id else 0),
+                            .exclude(user=user).values('user').distinct().count() if is_staff else 0),
         'ai_model_name': _ai_model_name(),
         'support_name_json': json.dumps(support.display_name).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026'),
         'locations': INDIA_LOCATIONS,
@@ -718,11 +804,8 @@ def api_messages(request):
             earlier = ChatMessage.objects.filter(pk=cache.get(cid_key) or 0, user=user).first()
             if earlier:
                 return JsonResponse({'ok': True, 'message': _message_json(earlier), **_user_status(user)})
-        key = f'chats-send-{user.pk}'
-        sent = cache.get(key, 0)
-        if sent >= MESSAGE_LIMIT:
-            return _fail('You are sending messages too fast. Please wait a minute.', 429)
-        cache.set(key, sent + 1, 60)
+        if over_send_limit(user):
+            return _fail(SEND_LIMIT_ERROR, 429)
         message = ChatMessage.objects.create(user=user, sender=ChatMessage.SENDER_USER, body=body, kind=kind or ChatMessage.KIND_TEXT)
         set_live('typing', f's{user.pk}', 'user', False)
         if cid:
@@ -1136,7 +1219,7 @@ def user_photo(request, pk):
     from django.http import FileResponse, Http404
     owner = get_object_or_404(ChatUser, pk=pk)
     me = current_user(request)
-    staff = request.user.is_authenticated and request.user.is_staff
+    staff = _staff_viewer(request, me)
     ext = os.path.splitext(owner.photo.name or '')[1].lower()
     if not owner.photo or ext not in PHOTO_TYPES:
         raise Http404
@@ -1381,7 +1464,7 @@ def dashboard_chat_ips(request):
 def _can_see_pictures(request, owner):
     """A chat user's photo/cover: that user, staff, or someone they share a direct chat with."""
     me = current_user(request)
-    if request.user.is_authenticated and request.user.is_staff:
+    if _staff_viewer(request, me):
         return True
     if me and me.pk == owner.pk:
         return True

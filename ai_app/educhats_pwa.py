@@ -60,21 +60,91 @@ def manifest(request):
     return response
 
 
+SW_JS = r"""
+const OFFLINE = __OFFLINE__;
+const APP = __APP__, ICON = __ICON__, BADGE = __BADGE__, BADGE_URL = __BADGE_URL__;
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch', (e) => {
+  if (e.request.mode !== 'navigate') return;
+  e.respondWith(fetch(e.request).catch(() => new Response(OFFLINE, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })));
+});
+// ── notifications + the app-icon badge ──
+async function setBadge(n) {
+  try { if (n > 0) await self.navigator.setAppBadge(n); else await self.navigator.clearAppBadge(); } catch (_) {}
+}
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
+  e.waitUntil((async () => {
+    if (typeof d.badge === 'number') await setBadge(d.badge);
+    const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    wins.forEach((c) => c.postMessage({ type: 'educhats-push', chat: d.chat || '' }));
+    // EduChats is open and in front: the page shows the message itself (calls still ring)
+    if (!d.call && wins.some((c) => c.focused && c.visibilityState === 'visible')) return;
+    await self.registration.showNotification(d.title || APP, {
+      body: d.body || 'New message', tag: d.tag || 'educhats', renotify: true, icon: ICON, badge: BADGE,
+      data: { chat: d.chat || '' }, timestamp: d.ts || Date.now(), vibrate: d.call ? [400, 200, 400, 200, 400] : [120, 60, 120],
+      requireInteraction: !!d.call, silent: false,
+    });
+  })());
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const chat = (e.notification.data || {}).chat || '';
+  const url = self.registration.scope + (chat ? '?chat=' + encodeURIComponent(chat) : '');
+  e.waitUntil((async () => {
+    const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of wins) {
+      if (c.url.startsWith(self.registration.scope)) {
+        try { await c.focus(); } catch (_) {}
+        c.postMessage({ type: 'educhats-open', chat });
+        return;
+      }
+    }
+    await self.clients.openWindow(url);
+  })());
+});
+// the page tells the worker the badge number; on a fresh start it asks the server
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'educhats-badge') e.waitUntil(setBadge(+e.data.n || 0));
+});
+self.addEventListener('pushsubscriptionchange', (e) => {
+  e.waitUntil(self.clients.matchAll({ type: 'window' }).then((wins) => wins.forEach((c) => c.postMessage({ type: 'educhats-resubscribe' }))));
+});
+"""
+
+
 def service_worker(request):
     # Network first; when offline, page loads get a small "you're offline" screen.
-    # Chats are personal, so nothing else is cached.
-    js = (
-        "const OFFLINE = " + repr(OFFLINE_HTML) + ";\n"
-        "self.addEventListener('install', () => self.skipWaiting());\n"
-        "self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));\n"
-        "self.addEventListener('fetch', (e) => {\n"
-        "  if (e.request.mode !== 'navigate') return;\n"
-        "  e.respondWith(fetch(e.request).catch(() => new Response(OFFLINE, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })));\n"
-        "});\n"
-    )
+    # Chats are personal, so nothing else is cached. It also shows notifications
+    # (Web Push from educhats_push.py) and keeps the app-icon badge up to date.
+    import json
+    app = EduChatsAppSettings.load()
+    js = (SW_JS.replace('__OFFLINE__', json.dumps(OFFLINE_HTML)).replace('__APP__', json.dumps(app.app_name))
+          .replace('__ICON__', json.dumps(icon_url(192, app=app))).replace('__BADGE__', json.dumps(reverse('chats_badge_icon')))
+          .replace('__BADGE_URL__', json.dumps(reverse('chats_badge'))))
     response = HttpResponse(js, content_type='application/javascript')
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response['Service-Worker-Allowed'] = reverse('chats_page')
+    return response
+
+
+def badge_icon(request):
+    """Android's small status-bar icon: a white chat bubble on transparent (the system tints it)."""
+    if 'badge' not in _icon_cache:
+        big = 96 * 4
+        img = Image.new('RGBA', (big, big), (0, 0, 0, 0))
+        draw, u = ImageDraw.Draw(img), big / 100
+        draw.rounded_rectangle([12 * u, 16 * u, 88 * u, 70 * u], radius=18 * u, fill='white')
+        draw.polygon([(24 * u, 64 * u), (20 * u, 88 * u), (44 * u, 68 * u)], fill='white')
+        for cx in (32, 50, 68):
+            draw.ellipse([(cx - 6) * u, (43 - 6) * u, (cx + 6) * u, (43 + 6) * u], fill=(0, 0, 0, 0))
+        out = io.BytesIO()
+        img.resize((96, 96), Image.Resampling.LANCZOS).save(out, 'PNG')
+        _icon_cache['badge'] = out.getvalue()
+    response = HttpResponse(_icon_cache['badge'], content_type='image/png')
+    response['Cache-Control'] = 'public, max-age=86400'
     return response
 
 
