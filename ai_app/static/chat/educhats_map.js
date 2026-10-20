@@ -12,8 +12,9 @@
     east: ['East India', '#3b82f6'], northeast: ['North-East', '#a855f7'], central: ['Central India', '#06b6d4']
   };
   var STYLES = {
-    dark: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'],
-    light: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'],
+    // CARTO basemaps: OpenStreetMap's own tile servers refuse apps (403 "Access blocked").
+    dark: ['https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'],
+    light: ['https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'],
     sat: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 'Imagery &copy; Esri']
   };
   var $ = function (id) { return document.getElementById(id); };
@@ -62,7 +63,7 @@
     style = k;
     try { localStorage.setItem('educhats-map-style', k); } catch (e) {}
     if (tiles) map.removeLayer(tiles);
-    tiles = L.tileLayer(STYLES[k][0], { maxZoom: 19, attribution: STYLES[k][1] }).addTo(map);
+    tiles = L.tileLayer(STYLES[k][0], { maxZoom: 19, subdomains: 'abcd', attribution: STYLES[k][1] }).addTo(map);
     var el = $('mpMap');
     el.classList.toggle('mp-dark', k === 'dark'); el.classList.toggle('mp-light', k === 'light');
     view.querySelectorAll('.mp-seg button').forEach(function (b) { b.classList.toggle('on', b.dataset.style === k); });

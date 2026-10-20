@@ -17,7 +17,7 @@
       (lng + d) + ',' + (lat + d) + '&layer=mapnik&marker=' + lat + ',' + lng;
   }
 
-  // A clean little map for a chat bubble: OpenStreetMap tiles around the point and a pin
+  // A clean little map for a chat bubble: CARTO (OpenStreetMap data) tiles around the point and a pin
   // (no embedded page, so no buttons or credits cluttering it, and nothing to load but pictures).
   function staticMap(box, lat, lng) {
     var z = 15, n = Math.pow(2, z), r = lat * Math.PI / 180;
@@ -29,13 +29,13 @@
       var tx = cx + dx, ty = cy + dy;
       if (ty < 0 || ty >= n) continue;
       var t = el('img', 'sm-tile'); t.alt = ''; t.draggable = false; t.loading = 'lazy';
-      t.src = 'https://tile.openstreetmap.org/' + z + '/' + ((tx % n) + n) % n + '/' + ty + '.png';
+      t.src = 'https://a.basemaps.cartocdn.com/rastertiles/voyager/' + z + '/' + ((tx % n) + n) % n + '/' + ty + '.png';
       t.style.left = Math.round(tx * 256 - px) + 'px'; t.style.top = Math.round(ty * 256 - py) + 'px';
       layer.appendChild(t);
     }
     box.appendChild(layer);
     var pin = el('span', 'sm-pin'); pin.innerHTML = '<i class="fas fa-location-dot"></i>'; box.appendChild(pin);
-    box.appendChild(el('span', 'sm-credit', '© OpenStreetMap'));
+    box.appendChild(el('span', 'sm-credit', '© OpenStreetMap © CARTO'));
   }
 
   function liveLabel(loc) {
@@ -430,7 +430,8 @@
     return leafletReady;
   }
   var TILES = {
-    map: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', '&copy; OpenStreetMap contributors', 19],
+    // CARTO, not tile.openstreetmap.org — OSM's servers block apps with a 403 "Access blocked" tile.
+    map: ['https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', '&copy; OpenStreetMap contributors &copy; CARTO', 19],
     sat: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 'Imagery &copy; Esri', 19]
   };
   function pinIcon(L, live) {
@@ -543,7 +544,7 @@
       var p = wrap._loc;
       map = L.map(box, { zoomControl: false, attributionControl: true }).setView([p.lat, p.lng], 16);
       L.control.zoom({ position: 'topright' }).addTo(map);
-      layer = L.tileLayer(TILES.map[0], { attribution: TILES.map[1], maxZoom: TILES.map[2] }).addTo(map);
+      layer = L.tileLayer(TILES.map[0], { attribution: TILES.map[1], maxZoom: TILES.map[2], subdomains: 'abcd' }).addTo(map);
       pin = L.marker([p.lat, p.lng], { icon: pinIcon(L, p.live), zIndexOffset: 1000 }).addTo(map);
       map.on('dragstart', function () { follow = false; });
       setTimeout(function () { map.invalidateSize(); }, 250);
@@ -552,7 +553,7 @@
           if (t.dataset.t === 'layers') {
             layerName = layerName === 'map' ? 'sat' : 'map';
             map.removeLayer(layer);
-            layer = L.tileLayer(TILES[layerName][0], { attribution: TILES[layerName][1], maxZoom: TILES[layerName][2] }).addTo(map);
+            layer = L.tileLayer(TILES[layerName][0], { attribution: TILES[layerName][1], maxZoom: TILES[layerName][2], subdomains: layerName === 'map' ? 'abcd' : 'abc' }).addTo(map);
             t.classList.toggle('on', layerName === 'sat');
           } else if (t.dataset.t === 'pin') {
             follow = true; map.flyTo([wrap._loc.lat, wrap._loc.lng], Math.max(map.getZoom(), 16));
@@ -597,7 +598,7 @@
       var holder = el('div', 'lp-map'); box.appendChild(holder);
       var center = el('span', 'lp-center'); center.innerHTML = '<i class="fas fa-location-dot"></i>'; box.appendChild(center);
       state.map = L.map(holder, { zoomControl: false, attributionControl: false }).setView([22.6, 79.0], 4);
-      L.tileLayer(TILES.map[0], { maxZoom: 19 }).addTo(state.map);
+      L.tileLayer(TILES.map[0], { maxZoom: 19, subdomains: 'abcd' }).addTo(state.map);
       state.map.on('moveend', function () {
         if (!state.dragged || !state.pos) return;
         var c = state.map.getCenter(), far = km(state.pos, { lat: c.lat, lng: c.lng }) * 1000 > Math.max(30, Math.min(state.pos.acc || 0, 150) / 2);
