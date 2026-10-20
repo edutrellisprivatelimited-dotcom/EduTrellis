@@ -4,6 +4,8 @@ Disallow: /admin/
 Disallow: /welcomernt/
 Disallow: /store/dashboard/
 Disallow: /store/api/
-Disallow: /AI/api/
+Disallow: /ai/api/
+Disallow: /educhats/api/
 
+# Plain-text summary for AI assistants: https://www.edutrellis.in/llms.txt
 Sitemap: https://www.edutrellis.in/sitemap.xml

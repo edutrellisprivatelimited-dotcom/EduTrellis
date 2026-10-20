@@ -6,9 +6,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Website Development Company in Lucknow | SEO & Meta Ads Services | EduTrellis{% endif %}</title>
+<title>EduTrellis — Website Development, SEO &amp; Digital Marketing Company in Lucknow</title>
 
-<meta name="description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}EduTrellis is a website development company in Lucknow, Uttar Pradesh. We provide website design, website management, SEO services, Meta Ads, Google Business Profile optimization, WordPress development, Django development and digital marketing services across India.{% endif %}">
+<meta name="description" content="EduTrellis, Lucknow: website development and management, SEO, Meta Ads and Google Business Profile services across India{% if FOUNDER.is_active and FOUNDER.name %}, led by {{ FOUNDER.title }} {{ FOUNDER.name }}{% endif %}. Also the EduTrellis Store, EduTrellis AI and EduChats. Call {{ BIZ.phone_display }}.">
 
 <meta name="keywords" content="website development company in Lucknow, website designer Lucknow, SEO services Lucknow, Meta Ads management, WordPress development, Django development, website management services, digital marketing company Lucknow, Google Business Profile optimization, ecommerce website development">
 
@@ -38,33 +38,8 @@
 <!-- Favicon -->
 {% include "includes/favicon.html" %}
 
-<!-- Local Business Schema -->
-<script type="application/ld+json">
-{
- "@context":"https://schema.org",
- "@type":"LocalBusiness",
- "name":"EduTrellis",
- "url":"https://www.edutrellis.in",
- "telephone":"{{ BIZ.phone_e164 }}",
- "email":"{{ BIZ.email_support }}",
- "image":"https://www.edutrellis.in{% static 'img/og-cover.jpg' %}",
- "address":{
-   "@type":"PostalAddress",
-   "streetAddress":"{{ BIZ.address_street }}",
-   "addressLocality":"{{ BIZ.address_city }}",
-   "addressRegion":"{{ BIZ.address_state }}",
-   "postalCode":"{{ BIZ.address_zip }}",
-   "addressCountry":"{{ BIZ.address_country }}"
- },
- "areaServed":"India",
- "description":"Website Development, SEO Services, Meta Ads, Website Management, WordPress and Django Development.",
- "sameAs":[
-   "https://www.instagram.com/edutrellis",
-   "https://www.linkedin.com/company/edutrellis",
-   "https://www.facebook.com/profile.php?id=61590850943948"
- ]
-}
-</script>
+<!-- Company, founder/CEO, website and main sections for Google & AI search (myapp/seo.py) -->
+{% load seo_tags %}{% site_schema %}
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1526,14 +1501,15 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
     </div>
 
     <div class="foot-col">
-      <h4>Quick Links</h4>
+      <h4>Explore EduTrellis</h4>
       <ul>
-        <li><a href="#home"><i class="fas fa-chevron-right"></i>Home</a></li>
-        <li><a href="#products"><i class="fas fa-chevron-right"></i>Products</a></li>
-        <li><a href="#services"><i class="fas fa-chevron-right"></i>Services</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Website Development &amp; SEO</a></li>
+        <li><a href="{% url 'estore' %}"><i class="fas fa-chevron-right"></i>EduTrellis Store</a></li>
+        <li><a href="{% url 'ai_home' %}"><i class="fas fa-chevron-right"></i>EduTrellis AI</a></li>
+        <li><a href="{% url 'chats_page' %}"><i class="fas fa-chevron-right"></i>EduChats</a></li>
         <li><a href="#portfolio"><i class="fas fa-chevron-right"></i>Portfolio</a></li>
         {% if blog_settings.is_active %}<li><a href="#projects"><i class="fas fa-chevron-right"></i>Blog</a></li>{% endif %}
-        {% if FOUNDER.is_active %}<li><a href="#clients"><i class="fas fa-chevron-right"></i>Founder</a></li>{% endif %}
+        {% if FOUNDER.is_active %}<li><a href="#clients"><i class="fas fa-chevron-right"></i>Founder{% if FOUNDER.name %} — {{ FOUNDER.name }}{% endif %}</a></li>{% endif %}
         <li><a href="#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
         <li><a href="#contact"><i class="fas fa-chevron-right"></i>Contact</a></li>
       </ul>
@@ -1554,7 +1530,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
     <div class="foot-col">
       <h4>Contact</h4>
       <div class="foot-contact-item"><i class="fas fa-envelope"></i><a href="mailto:{{ BIZ.email_support }}">{{ BIZ.email_support }}</a></div>
-      <div class="foot-contact-item"><i class="fas fa-user-tie"></i><a href="mailto:{{ BIZ.email_ceo }}">{{ BIZ.email_ceo }} (Business Enquiries)</a></div>
+      <div class="foot-contact-item"><i class="fas fa-user-tie"></i><a href="mailto:{% if FOUNDER.is_active and FOUNDER.email %}{{ FOUNDER.email }}{% else %}{{ BIZ.email_ceo }}{% endif %}">{% if FOUNDER.is_active and FOUNDER.name %}{{ FOUNDER.name }}, {{ FOUNDER.title }} — {% if FOUNDER.email %}{{ FOUNDER.email }}{% else %}{{ BIZ.email_ceo }}{% endif %}{% else %}{{ BIZ.email_ceo }} (Business Enquiries){% endif %}</a></div>
       <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer">{{ BIZ.phone_display }} (WhatsApp)</a></div>
       <div class="foot-contact-item"><i class="fas fa-map-marker-alt"></i><span>{{ BIZ.address_short }}</span></div>
       <div class="foot-contact-item"><i class="fab fa-instagram"></i><a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer">@edutrellis</a></div>
@@ -1603,23 +1579,6 @@ document.addEventListener('keydown', function(e){
 </script>
 {% include '_pw_toggle.html' %}
 </body>
-  <script type="application/ld+json">
-{
- "@context": "https://schema.org",
- "@type": "LocalBusiness",
- "name": "EduTrellis",
- "email": "{{ BIZ.email_support }}",
- "address": {
-   "@type": "PostalAddress",
-   "streetAddress": "{{ BIZ.address_street }}",
-   "addressLocality": "{{ BIZ.address_city }}",
-   "addressRegion": "{{ BIZ.address_state }}",
-   "postalCode": "{{ BIZ.address_zip }}",
-   "addressCountry": "{{ BIZ.address_country }}"
- },
- "url": "https://www.edutrellis.in"
-}
-</script>
 <script>
 function filterPortfolio(cat, btn) {
   document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));

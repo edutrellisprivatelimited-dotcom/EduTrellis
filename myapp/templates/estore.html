@@ -5,9 +5,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>{% if meta_title %}{{ meta_title }}{% elif site_customization.share_title %}{{ site_customization.share_title }}{% else %}EduTrellis Store — Buy Earbuds, Smartwatches, Keyboards &amp; Tech Gadgets Online{% endif %}</title>
-<meta name="description" content="{% if meta_description %}{{ meta_description }}{% elif site_customization.share_description %}{{ site_customization.share_description }}{% else %}Official gadget store of EduTrellis, Lucknow. Shop earbuds, headphones, smartwatches, keyboards, power banks, chargers and smart home devices with warranty and fast delivery across India.{% endif %}">
-<meta name="keywords" content="buy earbuds online India, smartwatch store, mechanical keyboard India, power bank online, tech gadgets store Lucknow, EduTrellis store">
+<title>{% if meta_title %}{{ meta_title }}{% else %}EduTrellis Store — Buy EduTrellis AI Plans, Speakers &amp; Gadgets Online{% endif %}</title>
+<meta name="description" content="{% if meta_description %}{{ meta_description }}{% else %}Official online store of EduTrellis, Lucknow. Buy EduTrellis AI premium plans, Bluetooth speakers, gadgets and RC toys with secure payment and delivery across India.{% endif %}">
+<meta name="keywords" content="EduTrellis store, EduTrellis AI plan, buy AI subscription India, Bluetooth speaker online, RC toys online India, gadgets store Lucknow">
 <meta name="author" content="EduTrellis">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://www.edutrellis.in{{ request.path }}">
@@ -68,6 +68,7 @@
  ]
 }
 </script>
+{% load seo_tags %}{% site_schema %}
 {% if product_schema_json %}
 <script type="application/ld+json">{{ product_schema_json|safe }}</script>
 {% endif %}

@@ -4,10 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>{{ policy.title }} — EduTrellis Store</title>
-<meta name="description" content="{{ policy.title }} for EduTrellis Store — read our {{ policy.title|lower }} before you shop.">
+<title>{{ policy.title }} — EduTrellis</title>
+<meta name="description" content="{{ policy.title }} of EduTrellis (edutrellis.in) — covering the EduTrellis Store, EduTrellis AI and our website services. Read it before you buy or sign up.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.edutrellis.in{{ request.path }}">
+{% load seo_tags %}{% site_schema %}
 {% include "includes/favicon.html" %}
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

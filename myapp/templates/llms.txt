@@ -1,0 +1,32 @@
+{% autoescape off %}# EduTrellis
+
+> EduTrellis is a digital growth company based in Lucknow, Uttar Pradesh, India. It builds and manages websites, runs SEO and digital marketing (Meta Ads, Google Business Profile), sells products through the EduTrellis Store, and runs EduTrellis AI and EduChats.
+
+## Company
+- Name: EduTrellis ({{ BIZ.entity_type }}, {{ BIZ.registration_note }})
+- Website: {{ site }}/
+{% if founder %}- {{ founder.title|default:"Founder & CEO" }}: {{ founder.name }}
+- {{ founder.title|default:"Founder & CEO" }} email: {{ founder.email|default:BIZ.email_ceo }}
+{% endif %}- Phone / WhatsApp: {{ BIZ.phone_display }}
+- Support email: {{ BIZ.email_support }}
+- Business enquiries: {{ BIZ.email_ceo }}
+- Address: {{ BIZ.address }}
+- Hours: {{ BIZ.hours }}
+- Instagram: {{ BIZ.instagram_url }}
+- LinkedIn: {{ BIZ.linkedin_company_url }}
+- Facebook: {{ BIZ.facebook_url }}
+
+## Main sections
+{% for name, url, desc in sections %}- [{{ name }}]({{ url }}): {{ desc }}
+{% endfor %}
+## Store products
+{% for p in products %}- [{{ p.name }}]({{ site }}/store/product/{{ p.slug }}/): ₹{{ p.price|floatformat:0 }}{% if p.short_description %} — {{ p.short_description }}{% endif %}
+{% empty %}- See {{ site }}/store/
+{% endfor %}
+## Policies
+- [Privacy Policy]({{ site }}/store/policy/privacy/)
+- [Terms & Conditions]({{ site }}/store/policy/terms/)
+- [Refund & Cancellation Policy]({{ site }}/store/policy/refund/)
+- [Shipping & Delivery]({{ site }}/store/policy/shipping/)
+- [Disclaimer]({{ site }}/store/policy/disclaimer/)
+{% endautoescape %}

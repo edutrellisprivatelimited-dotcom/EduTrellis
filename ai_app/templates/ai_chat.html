@@ -67,6 +67,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Poppins:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800;900&family=Urbanist:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=Work+Sans:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800;900&family=Libre+Franklin:wght@400;500;600;700;800;900&family=Epilogue:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+{% load seo_tags %}{% site_schema %}
 <script type="application/ld+json">
 {
  "@context":"https://schema.org",
@@ -78,7 +79,7 @@
  "description":"Free {{ SITE_AI_BRAND_NAME }} AI chat assistant from EduTrellis with access to multiple AI models for fast chat, reasoning, coding, vision, and image generation.",
  "image":"https://www.edutrellis.in{% static 'img/og-cover.jpg' %}",
  "offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},
- "provider":{"@type":"Organization","name":"EduTrellis","url":"https://www.edutrellis.in"}
+ "provider":{"@id":"https://www.edutrellis.in/#organization"}
 }
 </script>
 

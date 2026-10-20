@@ -55,6 +55,20 @@ Facebook: {business_info.FACEBOOK_URL}
 
 There is one general support email and one phone/WhatsApp number. Never
 invent a separate sales line, toll-free number, international number, or
-second support address. Do not provide a physical office address or name
-an individual as founder, owner, CEO, or creator.
-"""
+second support address. Do not provide a physical office address.
+{_founder_line()}"""
+
+
+def _founder_line():
+    """The founder/CEO exactly as the dashboard's Customize > Founder page has
+    them (myapp.seo.founder); with no name set there, no person is named."""
+    from myapp.seo import founder
+    try:
+        f = founder()
+    except Exception:
+        f = None
+    if not f:
+        return 'Do not name an individual as founder, owner, CEO, or creator.'
+    title = f.title or 'Founder & CEO'
+    return (f'{title} of EduTrellis: {f.name.strip()} (email {f.email or business_info.EMAIL_CEO}, '
+            f'phone/WhatsApp {business_info.PHONE_DISPLAY}). Name no other person as founder, owner, CEO, or creator.')

@@ -137,6 +137,24 @@ def estore(request):
     return render(request, "estore.html", _estore_context(request))
 
 
+def _product_meta_description(product):
+    """A product page's own search snippet: its short description, else the
+    start of its full description, else name and brand — so it never falls
+    back to the store's or homepage's generic text."""
+    text = ' '.join((product.short_description or '').split()).rstrip('.')
+    if len(text) < 60:
+        full = ' '.join(re.sub(r'<[^>]+>', ' ', product.description or '').split())
+        if full and full not in text:
+            text = f'{text}. {full}' if text else full
+    if not text:
+        text = f'{product.name} by {product.brand}' if product.brand else product.name
+    if len(text) > 180:
+        cut = text[:180]
+        end = cut.rfind('. ')
+        text = cut[:end] if end > 60 else cut.rsplit(' ', 1)[0].rstrip(',;:—-') + '…'
+    return f'{text.rstrip(".")}. Buy at ₹{product.price:.0f} on the official EduTrellis Store.'
+
+
 def product_detail(request, slug):
     """Renders the same storefront template as estore(), pre-loaded to open
     the product detail view for `slug` on load. This gives every product a
@@ -146,14 +164,14 @@ def product_detail(request, slug):
     context = _estore_context(request)
     context['initial_product_slug'] = product.slug
     context['meta_title'] = f"{product.name} — EduTrellis Store"
-    context['meta_description'] = product.short_description
+    context['meta_description'] = _product_meta_description(product)
     context['meta_image'] = product.image.url if product.image else ''
     rating, review_count = product.review_stats
     product_schema = {
         '@context': 'https://schema.org',
         '@type': 'Product',
         'name': product.name,
-        'description': product.short_description,
+        'description': context['meta_description'],
         'sku': product.slug,
         'brand': {'@type': 'Brand', 'name': product.brand},
         'url': f'https://www.edutrellis.in/store/product/{product.slug}/',

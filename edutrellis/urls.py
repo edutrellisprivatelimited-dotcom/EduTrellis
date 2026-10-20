@@ -7,6 +7,7 @@ from django.views.generic import TemplateView, RedirectView
 
 from myapp.sitemaps import StaticViewSitemap, ProductSitemap, PolicySitemap
 from myapp.views import custom_404, favicon
+from myapp.seo import llms_txt
 
 sitemaps = {
     'static': StaticViewSitemap,
@@ -44,6 +45,9 @@ urlpatterns = [
         {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'
     ),
+
+    # Plain-text company summary for AI assistants / AI search (llmstxt.org)
+    path('llms.txt', llms_txt, name='llms_txt'),
 
     # Robots
     path(

@@ -40,7 +40,43 @@ class PublicPagePerformanceAndSEOTests(TestCase):
         response = self.client.get(f'/store/product/{product.slug}/')
 
         self.assertContains(response, '<meta property="og:title" content="Dynamic Product — EduTrellis Store">', html=True)
-        self.assertContains(response, '<meta property="og:description" content="Dynamic product description.">', html=True)
+        self.assertContains(response, '<meta property="og:description" content="Dynamic product description. Buy at ₹99 on the official EduTrellis Store.">', html=True)
+
+    def test_store_and_product_search_titles_never_reuse_homepage_share_text(self):
+        # The dashboard's share text is for WhatsApp/Facebook previews; when the
+        # store's <title> reused it, Google listed /store/ as "Your Digital
+        # Growth Partner" under the homepage.
+        customization = PWASettings.get_solo()
+        customization.share_title = 'Homepage sharing heading'
+        customization.share_description = 'Homepage sharing description.'
+        customization.save()
+        category = Category.objects.create(name='Seo Test', slug='seo-test')
+        product = Product.objects.create(
+            category=category, slug='seo-test-product', brand='EduTrellis', name='Seo Product',
+            short_description='', description='<p>A long full description of this speaker.</p>',
+            price='299.00', mrp='299.00', is_active=True,
+        )
+
+        store = self.client.get('/store/').content.decode()
+        page = self.client.get(f'/store/product/{product.slug}/').content.decode()
+
+        self.assertIn('<title>EduTrellis Store', store)
+        self.assertNotIn('Homepage sharing', store.split('<meta property="og:')[0])
+        self.assertIn('<meta name="description" content="A long full description of this speaker. Buy at ₹299 on the official EduTrellis Store.">', page)
+
+    def test_company_schema_and_llms_txt_name_the_dashboard_founder(self):
+        from .models import FounderSection
+        founder = FounderSection.get_solo()
+        founder.name, founder.email = 'Test Founder', 'ceo@edutrellis.in'
+        founder.save()
+
+        home = self.client.get('/').content.decode()
+        llms = self.client.get('/llms.txt')
+
+        self.assertIn('"@type": "Person", "@id": "https://www.edutrellis.in/#founder", "name": "Test Founder"', home)
+        self.assertEqual(llms['Content-Type'], 'text/plain; charset=utf-8')
+        self.assertContains(llms, 'Founder & CEO: Test Founder')
+        self.assertContains(llms, '[EduTrellis Store](https://www.edutrellis.in/store/)')
 
     def test_customize_dashboard_exposes_share_and_favicon_fields(self):
         admin = User.objects.create_user(
