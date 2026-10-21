@@ -348,15 +348,20 @@
       <ul id="desktopNav">
         <li><a href="#home">Home</a></li>
         <li><a href="#products">Products</a></li>
-        <li><a href="#services">Services</a></li>
         <li><a href="#estore">E-Store</a></li>
         {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
-        <li><a href="#portfolio">Portfolio</a></li>
         {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
-        {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}
         <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact Us</a></li>
+        <li class="nav-more">
+          <button type="button" class="nav-more-btn" aria-haspopup="true" aria-expanded="false">More <i class="fas fa-chevron-down"></i></button>
+          <div class="nav-more-menu" role="menu">
+            <a href="#services" role="menuitem"><span class="nmi"><i class="fas fa-layer-group"></i></span><span><b>Services</b><small>Websites, SEO, ads &amp; design</small></span></a>
+            <a href="#portfolio" role="menuitem"><span class="nmi"><i class="fas fa-briefcase"></i></span><span><b>Portfolio</b><small>Websites we've built</small></span></a>
+            {% if FOUNDER.is_active %}<a href="#clients" role="menuitem"><span class="nmi"><i class="fas fa-user-tie"></i></span><span><b>Founder</b><small>{% if FOUNDER.name %}{{ FOUNDER.name }} · {% endif %}{{ FOUNDER.title }}</small></span></a>{% endif %}
+          </div>
+        </li>
       </ul>
+      <a href="#contact" class="nav-cta"><i class="fas fa-phone-volume"></i><span>Contact Us</span></a>
       <div class="nav-account-wrap" id="navAccountWrap">
         <button class="nav-login-btn" id="openAuth" type="button" aria-label="Account">
           <i class="fas fa-user"></i><span class="lbl">Login</span>
@@ -366,10 +371,12 @@
             <div class="nam-avatar" id="navAmAvatar"></div>
             <div class="nam-meta"><b id="navAmName"></b><span id="navAmEmail"></span></div>
           </div>
-          <button type="button" id="navAmAdmin" data-action="admin" style="display:none"><i class="fas fa-user-shield"></i> Admin panel</button>
+          <button type="button" id="navAmAdmin" data-action="admin" class="nam-admin" style="display:none"><i class="fas fa-user-shield"></i> Admin panel <i class="fas fa-arrow-right nam-go"></i></button>
+          <div class="nam-label">Shopping</div>
           <button type="button" data-action="cart"><i class="fas fa-cart-shopping"></i> My cart</button>
-          <button type="button" data-action="wallet"><i class="fas fa-wallet"></i> My wallet</button>
           <button type="button" data-action="orders"><i class="fas fa-box"></i> My orders</button>
+          <button type="button" data-action="wallet"><i class="fas fa-wallet"></i> My wallet</button>
+          <div class="nam-label">Account</div>
           <button type="button" data-action="edit"><i class="fas fa-user-pen"></i> Edit profile</button>
           <button type="button" data-action="password"><i class="fas fa-key"></i> Change password</button>
           <button type="button" data-action="logout" class="nam-logout"><i class="fas fa-right-from-bracket"></i> Logout</button>
@@ -405,40 +412,61 @@
 .nav-account-wrap{position:relative;flex-shrink:0}
 .nav-login-btn{
   display:inline-flex;align-items:center;justify-content:center;gap:.5rem;flex-shrink:0;cursor:pointer;
-  border:none;background:linear-gradient(135deg,var(--red,#e8001e),var(--dark-red,#b8001a));color:#fff;
+  border:1.5px solid var(--border,#e2e8f0);background:#fff;color:var(--dark,#0f1623);
   font-family:var(--font-head,'Sora',sans-serif);font-weight:700;font-size:.82rem;
-  letter-spacing:.01em;padding:.62rem 1.35rem;border-radius:50px;
-  box-shadow:0 6px 20px rgba(232,0,30,.32);
-  transition:transform .25s,box-shadow .25s;
+  letter-spacing:.01em;padding:.6rem 1.25rem;border-radius:50px;
+  box-shadow:0 4px 14px rgba(15,22,35,.06);
+  transition:transform .25s,box-shadow .25s,border-color .25s,color .25s;
   white-space:nowrap;
 }
-.nav-login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,0,30,.42)}
+.nav-login-btn:not(.is-user) i{color:var(--red,#e8001e)}
+.nav-login-btn:hover{transform:translateY(-2px);border-color:rgba(232,0,30,.45);box-shadow:0 10px 26px rgba(15,22,35,.1)}
 .nav-login-btn:active{transform:translateY(0)}
 .nav-login-btn i{font-size:.88rem}
-.nav-login-btn .fa-chevron-down{font-size:.6rem;opacity:.85}
+.nav-login-btn .fa-chevron-down{font-size:.6rem;opacity:.85;transition:transform .25s}
 .nav-account-avatar{width:24px;height:24px;border-radius:50%;overflow:hidden;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.25);font-size:.66rem;font-weight:800}
 .nav-account-avatar img{width:100%;height:100%;object-fit:cover}
+/* Signed in: a light pill (avatar, name, chevron) so it doesn't compete with Contact Us */
+.nav-login-btn.is-user{background:#fff;color:var(--dark,#0f1623);border:1.5px solid var(--border,#e2e8f0);box-shadow:0 4px 14px rgba(15,22,35,.06);padding:.32rem .9rem .32rem .32rem;gap:.6rem}
+.nav-login-btn.is-user .nav-account-avatar{width:32px;height:32px;font-size:.74rem;color:#fff;background:linear-gradient(135deg,var(--red,#e8001e),var(--dark-red,#b8001a));box-shadow:0 0 0 2px #fff,0 0 0 3.5px rgba(232,0,30,.35)}
+.nav-login-btn.is-user .lbl{max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.nav-login-btn.is-user .fa-chevron-down{color:var(--text,#4a5568)}
+.nav-login-btn.is-user:hover,.nav-account-wrap.open .nav-login-btn.is-user{border-color:rgba(232,0,30,.45);box-shadow:0 8px 24px rgba(15,22,35,.1)}
+.nav-account-wrap.open .nav-login-btn .fa-chevron-down{transform:rotate(180deg)}
 @media(max-width:992px){
   .nav-right{gap:.6rem}
   .nav-login-btn .lbl,.nav-login-btn .fa-chevron-down{display:none}
-  .nav-login-btn{padding:0;width:38px;height:38px;border-radius:50%}
+  .nav-login-btn,.nav-login-btn.is-user{padding:0;width:38px;height:38px;border-radius:50%}
+  .nav-login-btn.is-user .nav-account-avatar{width:30px;height:30px}
 }
 
-.nav-account-menu{position:absolute;top:calc(100% + 12px);right:0;width:min(264px,88vw);background:#fff;border:1px solid var(--border,#e2e8f0);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.16);padding:.6rem;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .25s,transform .25s,visibility .25s;z-index:2100}
+.nav-account-menu{position:absolute;top:calc(100% + 12px);right:0;width:min(290px,88vw);background:#fff;border:1px solid var(--border,#e2e8f0);border-radius:18px;box-shadow:0 24px 60px rgba(15,22,35,.18);padding:.5rem;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .22s,transform .22s,visibility .22s;z-index:2100}
+.nav-account-menu::before{content:'';position:absolute;left:0;right:0;top:-14px;height:14px}
 .nav-account-menu.open{opacity:1;visibility:visible;transform:none}
-.nam-head{display:flex;gap:.75rem;align-items:center;padding:.5rem .5rem .9rem;border-bottom:1px solid var(--border,#e2e8f0);margin-bottom:.4rem}
-.nam-avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--dark,#0f1623),#1c2333);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-head,'Sora',sans-serif);font-weight:800;font-size:1rem;overflow:hidden}
+/* Desktop: also opens on hover (clicking still works everywhere) */
+@media(hover:hover) and (min-width:993px){
+  .nav-account-wrap.has-user:hover .nav-account-menu{opacity:1;visibility:visible;transform:none}
+  .nav-account-wrap.has-user:hover .nav-login-btn .fa-chevron-down{transform:rotate(180deg)}
+}
+.nam-head{display:flex;gap:.8rem;align-items:center;padding:.9rem .8rem;margin-bottom:.35rem;border-radius:14px;background:linear-gradient(135deg,#fff1f3,#f7f8fc)}
+.nam-avatar{width:46px;height:46px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--red,#e8001e),var(--dark-red,#b8001a));color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-head,'Sora',sans-serif);font-weight:800;font-size:1rem;overflow:hidden;box-shadow:0 0 0 3px #fff}
 .nam-avatar img{width:100%;height:100%;object-fit:cover}
 .nam-meta{min-width:0}
-.nam-meta b{display:block;font-size:.9rem;color:var(--dark,#0f1623);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nam-meta b{display:block;font-size:.92rem;color:var(--dark,#0f1623);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nam-meta span{display:block;font-size:.75rem;color:var(--text,#4a5568);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav-account-menu button{width:100%;display:flex;align-items:center;gap:.65rem;border:none;background:none;text-align:left;padding:.65rem .5rem;border-radius:10px;font-family:inherit;font-size:.86rem;font-weight:600;color:var(--dark,#0f1623);cursor:pointer;transition:background .2s}
+.nam-label{font-size:.64rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9aa3b0;padding:.55rem .7rem .25rem}
+.nav-account-menu button{width:100%;display:flex;align-items:center;gap:.7rem;border:none;background:none;text-align:left;padding:.55rem .6rem;border-radius:11px;font-family:inherit;font-size:.86rem;font-weight:600;color:var(--dark,#0f1623);cursor:pointer;transition:background .2s,color .2s}
+.nav-account-menu button i{width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;background:var(--bg2,#f7f8fc);color:var(--text,#4a5568);font-size:.8rem;transition:all .2s}
 .nav-account-menu button:hover{background:var(--bg2,#f7f8fc)}
-.nav-account-menu button i{width:16px;color:var(--text,#4a5568)}
-.nav-account-menu button.nam-logout{color:var(--red,#e8001e);border-top:1px solid var(--border,#e2e8f0);margin-top:.3rem;padding-top:.75rem}
-.nav-account-menu button.nam-logout i{color:var(--red,#e8001e)}
+.nav-account-menu button:hover i{background:rgba(232,0,30,.1);color:var(--red,#e8001e)}
+.nav-account-menu button.nam-admin{background:var(--dark,#0f1623);color:#fff;margin-bottom:.15rem}
+.nav-account-menu button.nam-admin i{background:rgba(255,255,255,.12);color:#fff}
+.nav-account-menu button.nam-admin .nam-go{width:auto;height:auto;background:none;margin-left:auto;font-size:.72rem;opacity:.7}
+.nav-account-menu button.nam-admin:hover{background:#1c2333}
+.nav-account-menu button.nam-logout{color:var(--red,#e8001e);border-top:1px solid var(--border,#e2e8f0);border-radius:0 0 11px 11px;margin-top:.35rem;padding-top:.7rem}
+.nav-account-menu button.nam-logout i{background:rgba(232,0,30,.08);color:var(--red,#e8001e)}
 @media(max-width:992px){
-  .nav-account-menu{right:-10px;width:min(280px,90vw)}
+  .nav-account-menu{right:-10px;width:min(290px,90vw)}
 }
 
 .auth-modal{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:1.25rem;opacity:0;visibility:hidden;background:rgba(15,22,35,.55);transition:opacity .3s,visibility .3s}
@@ -1672,10 +1700,17 @@ function filterPortfolio(cat, btn) {
   function avatarHtml(u){
     return u && u.avatar_url ? '<img src="' + u.avatar_url + '" alt="">' : initials(u && u.name);
   }
-  function closeAccountMenu(){ if (menu) menu.classList.remove('open'); }
+  function setAccountMenu(open){
+    if (menu) menu.classList.toggle('open', open);
+    if (wrap) wrap.classList.toggle('open', open);
+  }
+  function closeAccountMenu(){ setAccountMenu(false); }
+  function toggleAccountMenu(){ setAccountMenu(!(menu && menu.classList.contains('open'))); }
   function renderAccountUI(){
     var mobileLi = document.getElementById('openAuthMobile');
     mobileLi = mobileLi ? mobileLi.closest('li') : null;
+    openBtn.classList.toggle('is-user', !!user);
+    if (wrap) wrap.classList.toggle('has-user', !!user);
     if (!user){
       openBtn.innerHTML = '<i class="fas fa-user"></i><span class="lbl">Login</span>';
       closeAccountMenu();
@@ -1683,8 +1718,10 @@ function filterPortfolio(cat, btn) {
       return;
     }
     openBtn.innerHTML = '<span class="nav-account-avatar">' + avatarHtml(user) + '</span>' +
-      '<span class="lbl">' + (user.name || 'Account').split(' ')[0] + '</span>' +
+      '<span class="lbl"></span>' +
       '<i class="fas fa-chevron-down"></i>';
+    // First name, or the part before "@" when the name is an email address.
+    openBtn.querySelector('.lbl').textContent = ((user.name || 'Account').split('@')[0].split(' ')[0]) || 'Account';
     var amAvatar = document.getElementById('navAmAvatar');
     var amName = document.getElementById('navAmName');
     var amEmail = document.getElementById('navAmEmail');
@@ -1740,14 +1777,14 @@ function filterPortfolio(cat, btn) {
   var loginBtn = document.getElementById('doLogin');
 
   openBtn.addEventListener('click', function(){
-    if (user){ if (menu) menu.classList.toggle('open'); return; }
+    if (user){ toggleAccountMenu(); return; }
     openAuth();
   });
   if (openBtnMobile) openBtnMobile.addEventListener('click', function(e){
     e.preventDefault();
     document.getElementById('mobileMenu').classList.remove('open');
     document.getElementById('ham').classList.remove('open');
-    if (user){ if (menu) menu.classList.toggle('open'); return; }
+    if (user){ toggleAccountMenu(); return; }
     openAuth();
   });
   if (closeBtn) closeBtn.addEventListener('click', closeAuth);

@@ -147,13 +147,46 @@ nav ul li a{
 nav ul li a::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--red);border-radius:2px;transition:width .3s}
 nav ul li a:hover::after,nav ul li a.active::after{width:60%}
 nav ul li a:hover,nav ul li a.active{color:var(--red)}
-nav ul li:last-child a{
-  background:var(--red);color:#fff;border-color:var(--red);
-  padding:.52rem 1.3rem;
-  box-shadow:0 4px 20px rgba(232,0,30,.32);
+/* "More" dropdown (Services, Portfolio, Founder) — opens on hover or keyboard focus */
+.nav-more{position:relative}
+.nav-more-btn{
+  display:flex;align-items:center;gap:.4rem;cursor:pointer;background:none;
+  color:var(--dark);font-family:inherit;font-weight:600;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;
+  padding:.45rem .85rem;border-radius:50px;border:1.5px solid transparent;transition:all .25s;white-space:nowrap;
 }
-nav ul li:last-child a::after{display:none}
-nav ul li:last-child a:hover{background:var(--dark-red);color:#fff;transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,0,30,.42)}
+.nav-more-btn i{font-size:.55rem;transition:transform .25s}
+.nav-more:hover .nav-more-btn,.nav-more:focus-within .nav-more-btn,.nav-more:has(a.active) .nav-more-btn{color:var(--red);background:var(--red-glow)}
+.nav-more:hover .nav-more-btn i,.nav-more:focus-within .nav-more-btn i{transform:rotate(180deg)}
+.nav-more-menu{
+  position:absolute;top:calc(100% + 14px);left:50%;width:290px;padding:.5rem;
+  background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 24px 60px rgba(15,22,35,.16);
+  opacity:0;visibility:hidden;transform:translate(-50%,-6px);transition:opacity .22s,transform .22s,visibility .22s;z-index:1100;
+}
+.nav-more-menu::before{content:'';position:absolute;left:0;right:0;top:-16px;height:16px}
+.nav-more-menu::after{content:'';position:absolute;top:-7px;left:50%;width:12px;height:12px;background:#fff;border-left:1px solid var(--border);border-top:1px solid var(--border);transform:translateX(-50%) rotate(45deg)}
+.nav-more:hover .nav-more-menu,.nav-more:focus-within .nav-more-menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
+nav .nav-more-menu a{display:flex;align-items:center;gap:.8rem;padding:.65rem .7rem;border-radius:12px;text-transform:none;letter-spacing:0;font-size:.86rem;border:none}
+nav .nav-more-menu a::after{display:none}
+nav .nav-more-menu a:hover,nav .nav-more-menu a.active{background:var(--bg2,#f7f8fc);color:var(--dark)}
+.nav-more-menu .nmi{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--red-glow);color:var(--red);font-size:.9rem;transition:all .25s}
+.nav-more-menu a:hover .nmi{background:var(--red);color:#fff;transform:scale(1.06)}
+.nav-more-menu b{display:block;font-weight:700;color:var(--dark);font-size:.86rem}
+.nav-more-menu small{display:block;font-size:.73rem;color:var(--text);font-weight:500;margin-top:1px}
+
+/* Contact Us — its own button with a soft shine */
+.nav-cta{
+  position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:.55rem;flex-shrink:0;
+  background:linear-gradient(135deg,var(--red),var(--dark-red));color:#fff;text-decoration:none;
+  font-weight:700;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;
+  padding:.68rem 1.35rem;border-radius:50px;box-shadow:0 6px 22px rgba(232,0,30,.32);
+  transition:transform .25s,box-shadow .25s;
+}
+.nav-cta i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.2);font-size:.72rem;transition:transform .35s}
+.nav-cta::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:navCtaShine 4.5s ease-in-out infinite}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(232,0,30,.42)}
+.nav-cta:hover i{transform:rotate(-14deg) scale(1.08)}
+@keyframes navCtaShine{0%,70%{left:-60%}100%{left:130%}}
+@media(prefers-reduced-motion:reduce){.nav-cta::after{animation:none}}
 
 .hamburger{
   display:none;
@@ -1050,7 +1083,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 @media(max-width:992px){
   :root{--strip-h:34px;--nav-h:68px}
   nav{padding:0 1.4rem}
-  nav ul{display:none}
+  nav ul,.nav-cta{display:none}
   .nav-right{gap:.7rem}
   .hamburger{display:flex}
   .cursor,.cursor-ring{display:none}
