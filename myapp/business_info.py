@@ -47,7 +47,8 @@ ADDRESS_COUNTRY = 'IN'
 
 HOURS = 'Monday-Saturday 9 AM-8 PM; Sunday 10 AM-6 PM'
 
-INSTAGRAM_URL = 'https://www.instagram.com/edutrellis'
+INSTAGRAM_URL = 'https://www.instagram.com/edutrellisstore'
+INSTAGRAM_HANDLE = '@edutrellisstore'
 LINKEDIN_COMPANY_URL = 'https://www.linkedin.com/company/edutrellis'
 FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61590850943948'
 
@@ -80,6 +81,7 @@ def as_dict():
         'address_country': ADDRESS_COUNTRY,
         'hours': HOURS,
         'instagram_url': INSTAGRAM_URL,
+        'instagram_handle': INSTAGRAM_HANDLE,
         'linkedin_company_url': LINKEDIN_COMPANY_URL,
         'facebook_url': FACEBOOK_URL,
     }

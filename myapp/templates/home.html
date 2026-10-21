@@ -298,13 +298,13 @@
     <span class="strip-sep"></span>
 
     <!-- Instagram -->
-    <a href="https://www.instagram.com/edutrellis"
+    <a href="{{ BIZ.instagram_url }}"
        class="strip-link"
        aria-label="Instagram"
        target="_blank"
        rel="noopener noreferrer">
       <i class="fab fa-instagram"></i>
-      <span class="strip-txt">@edutrellis</span>
+      <span class="strip-txt">{{ BIZ.instagram_handle }}</span>
     </a>
 
     <span class="strip-sep"></span>
@@ -1403,7 +1403,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
         </div>
         <div class="ab-social">
           <span>Follow us</span>
-          <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ab-ig"><i class="fab fa-instagram"></i></a>
+          <a href="{{ BIZ.instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ab-ig"><i class="fab fa-instagram"></i></a>
           <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="ab-li"><i class="fab fa-linkedin-in"></i></a>
           <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="ab-fb"><i class="fab fa-facebook-f"></i></a>
         </div>
@@ -1439,7 +1439,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
         </a>
         <div class="ct-social">
           <span>Follow us</span>
-          <a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ab-ig"><i class="fab fa-instagram"></i></a>
+          <a href="{{ BIZ.instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ab-ig"><i class="fab fa-instagram"></i></a>
           <a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="ab-li"><i class="fab fa-linkedin-in"></i></a>
           <a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="ab-fb"><i class="fab fa-facebook-f"></i></a>
         </div>
@@ -1524,7 +1524,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
       <p>India's complete digital growth partner for educational businesses, coaches and creators. 1200+ happy clients and growing.</p>
       <div class="socials">
         <a href="https://www.facebook.com/profile.php?id=61590850943948" title="Facebook" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/edutrellis" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+        <a href="{{ BIZ.instagram_url }}" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
         <a href="https://www.linkedin.com/company/edutrellis" title="LinkedIn" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
         <a href="{{ BIZ.whatsapp_link }}" title="WhatsApp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
       </div>
@@ -1564,7 +1564,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
       <div class="foot-contact-item"><i class="fas fa-user-tie"></i><a href="mailto:{% if FOUNDER.is_active and FOUNDER.email %}{{ FOUNDER.email }}{% else %}{{ BIZ.email_ceo }}{% endif %}">{% if FOUNDER.is_active and FOUNDER.name %}{{ FOUNDER.name }}, {{ FOUNDER.title }} — {% if FOUNDER.email %}{{ FOUNDER.email }}{% else %}{{ BIZ.email_ceo }}{% endif %}{% else %}{{ BIZ.email_ceo }} (Business Enquiries){% endif %}</a></div>
       <div class="foot-contact-item"><i class="fab fa-whatsapp"></i><a href="{{ BIZ.whatsapp_link }}" target="_blank" rel="noopener noreferrer">{{ BIZ.phone_display }} (WhatsApp)</a></div>
       <div class="foot-contact-item"><i class="fas fa-map-marker-alt"></i><span>{{ BIZ.address_short }}</span></div>
-      <div class="foot-contact-item"><i class="fab fa-instagram"></i><a href="https://www.instagram.com/edutrellis" target="_blank" rel="noopener noreferrer">@edutrellis</a></div>
+      <div class="foot-contact-item"><i class="fab fa-instagram"></i><a href="{{ BIZ.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ BIZ.instagram_handle }}</a></div>
       <div class="foot-contact-item"><i class="fab fa-facebook-f"></i><a href="https://www.facebook.com/profile.php?id=61590850943948" target="_blank" rel="noopener noreferrer">EduTrellis on Facebook</a></div>
       <div class="foot-contact-item"><i class="fab fa-linkedin-in"></i><a href="https://www.linkedin.com/company/edutrellis" target="_blank" rel="noopener noreferrer">EduTrellis on LinkedIn</a></div>
     </div>
