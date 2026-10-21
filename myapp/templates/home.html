@@ -346,12 +346,13 @@
     </a>
     <div class="nav-right">
       <ul id="desktopNav">
-        <li><a href="#home">Home</a></li>
-        <li><a href="#products">Products</a></li>
-        <li><a href="#estore">E-Store</a></li>
-        {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
-        {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
-        <li><a href="#about">About</a></li>
+        <li><a href="#home" data-tip="Back to the top">Home</a></li>
+        <li><a href="#products" data-tip="Websites, marketing &amp; design">Products</a></li>
+        <li><a href="#estore" data-tip="Shop gadgets &amp; AI plans">E-Store</a></li>
+        {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" data-tip="Free AI chat assistant">{{ NAV_AI.name }}</a></li>{% endif %}
+        <li><a href="{% url 'chats_page' %}" data-tip="India's own chat app">EduChats</a></li>
+        {% if blog_settings.is_active %}<li><a href="#projects" data-tip="Tips to grow online">Blog</a></li>{% endif %}
+        <li><a href="#about" data-tip="Who we are, since 2020">About</a></li>
         <li class="nav-more">
           <button type="button" class="nav-more-btn" aria-haspopup="true" aria-expanded="false">More <i class="fas fa-chevron-down"></i></button>
           <div class="nav-more-menu" role="menu">
@@ -361,7 +362,7 @@
           </div>
         </li>
       </ul>
-      <a href="#contact" class="nav-cta"><i class="fas fa-phone-volume"></i><span>Contact Us</span></a>
+      <a href="#contact" class="nav-cta" aria-label="Contact Us" title="Contact Us"><i class="fas fa-phone-volume"></i><span>Contact Us</span></a>
       <div class="nav-account-wrap" id="navAccountWrap">
         <button class="nav-login-btn" id="openAuth" type="button" aria-label="Account">
           <i class="fas fa-user"></i><span class="lbl">Login</span>
@@ -397,6 +398,7 @@
     <li><a href="#services">Services</a></li>
     <li><a href="#estore">E-Store</a></li>
     {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
+    <li><a href="{% url 'chats_page' %}">EduChats</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
     {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
     {% if FOUNDER.is_active %}<li><a href="#clients">Founder</a></li>{% endif %}

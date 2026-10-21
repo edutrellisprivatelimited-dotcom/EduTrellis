@@ -147,6 +147,22 @@ nav ul li a{
 nav ul li a::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--red);border-radius:2px;transition:width .3s}
 nav ul li a:hover::after,nav ul li a.active::after{width:60%}
 nav ul li a:hover,nav ul li a.active{color:var(--red)}
+/* The links sit centred between the logo and the buttons on the right. */
+@media(min-width:993px){
+  .nav-right{flex:1;min-width:0}
+  #desktopNav{margin-inline:auto}
+}
+
+/* Hover hint under each link (data-tip): what that page or section is for */
+nav ul li a[data-tip]::before{
+  content:attr(data-tip);position:absolute;top:calc(100% + 12px);left:50%;
+  transform:translate(-50%,-4px);opacity:0;visibility:hidden;pointer-events:none;
+  background:var(--dark);color:#fff;font-size:.7rem;font-weight:600;letter-spacing:.01em;text-transform:none;
+  white-space:nowrap;padding:.38rem .7rem;border-radius:8px;box-shadow:0 10px 26px rgba(15,22,35,.22);
+  transition:opacity .2s .15s,transform .2s .15s,visibility .2s .15s;z-index:1200;
+}
+nav ul li a[data-tip]:hover::before,nav ul li a[data-tip]:focus-visible::before{opacity:1;visibility:visible;transform:translate(-50%,0)}
+
 /* "More" dropdown (Services, Portfolio, Founder) — opens on hover or keyboard focus */
 .nav-more{position:relative}
 .nav-more-btn{
@@ -187,6 +203,18 @@ nav .nav-more-menu a:hover,nav .nav-more-menu a.active{background:var(--bg2,#f7f
 .nav-cta:hover i{transform:rotate(-14deg) scale(1.08)}
 @keyframes navCtaShine{0%,70%{left:-60%}100%{left:130%}}
 @media(prefers-reduced-motion:reduce){.nav-cta::after{animation:none}}
+/* Laptops: tighter links; Contact Us becomes a round phone button so nothing is pushed off */
+@media(min-width:993px) and (max-width:1300px){
+  nav{padding:0 1.5rem}
+  nav ul li a,.nav-more-btn{padding:.45rem .6rem}
+}
+@media(min-width:993px) and (max-width:1180px){
+  .nav-cta{padding:0;width:42px;height:42px;justify-content:center}
+  .nav-cta span{display:none}
+  .nav-cta i{background:none;font-size:.9rem}
+  nav ul li a,.nav-more-btn{padding:.45rem .48rem;letter-spacing:.05em}
+  .logo-txt{font-size:1.5rem}
+}
 
 .hamburger{
   display:none;
