@@ -23,14 +23,16 @@ FOUNDER_ID = SITE + '/#founder'
 # search engines — Google picks its sitelinks itself, but it leans on the
 # pages a site links to most prominently and describes most clearly.
 SECTIONS = [
-    ('Website Development & SEO Services', SITE + '/',
-     'Website design, development and management, SEO, Meta Ads and Google Business Profile services for businesses across India.'),
     ('EduTrellis Store', SITE + '/store/',
      'Official EduTrellis online store: EduTrellis AI plans, speakers, gadgets and toys with delivery across India.'),
     ('EduTrellis AI', SITE + '/ai/',
      'EduTrellis AI chat assistant: chat, reasoning, coding, image understanding and image generation in the browser.'),
+    ('Privacy Policy', SITE + '/store/policy/privacy/',
+     'How EduTrellis collects, uses and protects your data across the EduTrellis Store, EduTrellis AI and EduChats.'),
     ('EduChats', SITE + '/educhats/',
-     'EduChats: chat directly with EduTrellis support and with other people.'),
+     "EduChats — India's own chat app by EduTrellis: free messaging, photos, voice notes, calls and the EduChats map."),
+    ('Website Development & SEO Services', SITE + '/',
+     'Website design, development and management, SEO, Meta Ads and Google Business Profile services for businesses across India.'),
     ('Contact EduTrellis', SITE + '/#contact',
      f'Call or WhatsApp {biz.PHONE_DISPLAY}, email {biz.EMAIL_SUPPORT}, or write to the CEO at {biz.EMAIL_CEO}.'),
 ]

@@ -14,7 +14,7 @@ class StaticViewSitemap(Sitemap):
         'home': 1.0,
         'estore': 0.9,
         'ai_home': 0.8,
-        'chats_page': 0.7,
+        'chats_page': 0.6,
     }
 
     def get_urls(self, page=1, site=None, protocol=None):
@@ -82,7 +82,7 @@ class PolicySitemap(Sitemap):
                 'location': 'https://{}{}'.format(DOMAIN, self.location(item)),
                 'lastmod': self.lastmod(item),
                 'changefreq': self.changefreq,
-                'priority': str(self.priority),
+                'priority': '0.7' if item.key == 'privacy' else str(self.priority),
                 'alternates': [],
                 'x_default': None,
             }

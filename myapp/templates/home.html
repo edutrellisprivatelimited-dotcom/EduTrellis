@@ -1503,10 +1503,11 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
     <div class="foot-col">
       <h4>Explore EduTrellis</h4>
       <ul>
-        <li><a href="#services"><i class="fas fa-chevron-right"></i>Website Development &amp; SEO</a></li>
         <li><a href="{% url 'estore' %}"><i class="fas fa-chevron-right"></i>EduTrellis Store</a></li>
         <li><a href="{% url 'ai_home' %}"><i class="fas fa-chevron-right"></i>EduTrellis AI</a></li>
-        <li><a href="{% url 'chats_page' %}"><i class="fas fa-chevron-right"></i>EduChats</a></li>
+        <li><a href="{% url 'policy_page' 'privacy' %}"><i class="fas fa-chevron-right"></i>Privacy Policy</a></li>
+        <li><a href="{% url 'chats_page' %}"><i class="fas fa-chevron-right"></i>EduChats — India's own chat app</a></li>
+        <li><a href="#services"><i class="fas fa-chevron-right"></i>Website Development &amp; SEO</a></li>
         <li><a href="#portfolio"><i class="fas fa-chevron-right"></i>Portfolio</a></li>
         {% if blog_settings.is_active %}<li><a href="#projects"><i class="fas fa-chevron-right"></i>Blog</a></li>{% endif %}
         {% if FOUNDER.is_active %}<li><a href="#clients"><i class="fas fa-chevron-right"></i>Founder{% if FOUNDER.name %} — {{ FOUNDER.name }}{% endif %}</a></li>{% endif %}
