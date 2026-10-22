@@ -5,7 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>{{ policy.title }} — EduTrellis</title>
-<meta name="description" content="{% if policy.key == 'privacy' %}EduTrellis Privacy Policy: how we collect, use and protect your data across the EduTrellis Store, EduTrellis AI and EduChats — and how to reach us about it.{% else %}{{ policy.title }} of EduTrellis (edutrellis.in) — covering the EduTrellis Store, EduTrellis AI, EduChats and our website services. Read it before you buy or sign up.{% endif %}">
+<meta name="description" content="{% if policy.key == 'privacy' %}EduTrellis Privacy Policy: how we collect, use and protect your data across the EduTrellis Store, EduTrellis AI and EduChats — and how to reach us about it.{% else %}{{ policy.title }} of EduTrellis — for the EduTrellis Store, EduTrellis AI, EduChats and our website services.{% endif %}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="EduTrellis">
+<meta property="og:title" content="{{ policy.title }} — EduTrellis">
+<meta property="og:url" content="https://www.edutrellis.in{{ request.path }}">
+<meta property="og:image" content="https://www.edutrellis.in{% static 'img/og-cover.jpg' %}">
+<meta property="og:locale" content="en_IN">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.edutrellis.in{{ request.path }}">
 {% load seo_tags %}{% site_schema %}

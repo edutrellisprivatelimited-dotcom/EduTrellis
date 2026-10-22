@@ -6,9 +6,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>EduTrellis — Website Development, SEO &amp; Digital Marketing Company in Lucknow</title>
+<title>EduTrellis — Website Development &amp; SEO Company in Lucknow</title>
 
-<meta name="description" content="EduTrellis, Lucknow: website development and management, SEO, Meta Ads and Google Business Profile services across India{% if FOUNDER.is_active and FOUNDER.name %}, led by {{ FOUNDER.title }} {{ FOUNDER.name }}{% endif %}. Also the EduTrellis Store, EduTrellis AI and EduChats. Call {{ BIZ.phone_display }}.">
+<meta name="description" content="EduTrellis, Lucknow: website design, management, SEO and Meta Ads for businesses across India. Plus the EduTrellis Store, EduTrellis AI and EduChats.">
 
 <meta name="keywords" content="website development company in Lucknow, website designer Lucknow, SEO services Lucknow, Meta Ads management, WordPress development, Django development, website management services, digital marketing company Lucknow, Google Business Profile optimization, ecommerce website development">
 
@@ -532,7 +532,7 @@
       {% for icon, text in slide.floats %}<div class="hero-float hf-{{ forloop.counter }}" aria-hidden="true"><span class="hf-ico"><i class="fas {{ icon }}"></i></span>{{ text }}</div>{% endfor %}
       <div class="slide-content">
         <div class="slide-badge">{% if slide.badge_icon %}<i class="fas {{ slide.badge_icon }}"></i> {% endif %}{{ slide.badge }}</div>
-        <h1>{{ slide.heading_html|safe }}</h1>
+        {% if forloop.first %}<h1>{{ slide.heading_html|safe }}</h1>{% else %}<h2>{{ slide.heading_html|safe }}</h2>{% endif %}
         <p>{{ slide.subtitle }}</p>
         <div class="hero-btns">
           <a href="{{ slide.cta1_url }}" class="cta-btn">{{ slide.cta1_text }} <i class="fas {{ slide.cta1_icon }}"></i></a>

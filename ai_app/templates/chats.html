@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EduChats — India's Own Chat App by EduTrellis</title>
-<meta name="description" content="EduChats is India's own chat app by EduTrellis. Free messaging with friends and groups, photos, voice notes, voice &amp; video calls, location sharing, the EduChats map and direct EduTrellis support.">
+<meta name="description" content="EduChats is India's own chat app by EduTrellis: free messaging, groups, photos, voice notes, voice &amp; video calls and direct EduTrellis support.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://www.edutrellis.in/educhats/">
 <meta property="og:type" content="website">
@@ -13,6 +13,8 @@
 <meta property="og:description" content="Free messaging, groups, photos, voice notes and calls — India's own chat app by EduTrellis.">
 <meta property="og:url" content="https://www.edutrellis.in/educhats/">
 <meta property="og:locale" content="en_IN">
+{% load static %}<meta property="og:image" content="https://www.edutrellis.in{% static 'img/og-cover.jpg' %}">
+<meta name="twitter:card" content="summary_large_image">
 {% load seo_tags %}{% site_schema %}
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"EduChats","alternateName":"EduChats by EduTrellis","url":"https://www.edutrellis.in/educhats/","description":"India's own chat app by EduTrellis: free messaging with friends and groups, photos, voice notes, voice and video calls, location sharing and direct EduTrellis support.","applicationCategory":"CommunicationApplication","operatingSystem":"Any","inLanguage":"en-IN","countriesSupported":"IN","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"publisher":{"@id":"https://www.edutrellis.in/#organization"}}</script>
 <script>
@@ -1577,6 +1579,7 @@ EduLook.apply(EduLook.get());
 <style>*{-webkit-tap-highlight-color:transparent}:focus:not(:focus-visible){outline:none}</style>
 </head>
 <body>
+<h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">EduChats — India's own chat app by EduTrellis</h1>
 <div class="live-chip" id="liveBar" role="status"><span class="lc-dot"></span><i class="fas fa-location-crosshairs"></i> <span id="liveText">Sharing live location</span><button type="button" id="liveStop">Stop</button></div>
 <div class="boot" id="boot" aria-hidden="true">
   {% with boot_name=app.app_name|default:"EduChats" %}<div class="boot-word"><span class="bw-edu">{{ boot_name|slice:":3" }}</span><span class="bw-chats">{{ boot_name|slice:"3:" }}</span></div>{% endwith %}

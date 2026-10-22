@@ -5,8 +5,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>{% if meta_title %}{{ meta_title }}{% else %}EduTrellis Store — Buy EduTrellis AI Plans, Speakers &amp; Gadgets Online{% endif %}</title>
-<meta name="description" content="{% if meta_description %}{{ meta_description }}{% else %}Official online store of EduTrellis, Lucknow. Buy EduTrellis AI premium plans, Bluetooth speakers, gadgets and RC toys with secure payment and delivery across India.{% endif %}">
+<title>{% if meta_title %}{{ meta_title }}{% else %}EduTrellis Store — AI Plans, Speakers &amp; Gadgets Online{% endif %}</title>
+<meta name="description" content="{% if meta_description %}{{ meta_description }}{% else %}Official EduTrellis online store, Lucknow: EduTrellis AI plans, Bluetooth speakers, gadgets and RC toys with secure payment and delivery across India.{% endif %}">
 <meta name="keywords" content="EduTrellis store, EduTrellis AI plan, buy AI subscription India, Bluetooth speaker online, RC toys online India, gadgets store Lucknow">
 <meta name="author" content="EduTrellis">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -779,6 +779,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
 </head>
 
 <body>
+{% if initial_product_slug %}<h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">{{ page_h1 }}</h1>{% endif %}
 {% csrf_token %}
 <script id="storeBoot" type="application/json">{{ store_boot_json|safe }}</script>
 <script id="productsBoot" type="application/json">{{ products_json|safe }}</script>
@@ -890,7 +891,7 @@ footer{background:var(--head);color:rgba(255,255,255,.68);padding:3.5rem 0 0}
       <div class="hslide-mesh"></div>
       <div class="hslide-in">
         <div class="hbadge"><i class="fas fa-circle-check"></i> The official gadget store of EduTrellis</div>
-        <h1>Gadgets That Actually <em>Last</em> the Year</h1>
+        {% if initial_product_slug %}<h2>Gadgets That Actually <em>Last</em> the Year</h2>{% else %}<h1>Gadgets That Actually <em>Last</em> the Year</h1>{% endif %}
         <p>Earbuds, smartwatches, keyboards and chargers — every unit boxed, warrantied and tested before it ships from our Lucknow warehouse.</p>
         <div class="hero-btns">
           <a href="#shop" class="cta-btn">Shop all gadgets <i class="fas fa-arrow-right"></i></a>

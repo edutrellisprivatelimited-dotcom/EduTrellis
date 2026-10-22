@@ -148,11 +148,12 @@ def _product_meta_description(product):
             text = f'{text}. {full}' if text else full
     if not text:
         text = f'{product.name} by {product.brand}' if product.brand else product.name
-    if len(text) > 180:
-        cut = text[:180]
+    if len(text) > 105:
+        cut = text[:105]
         end = cut.rfind('. ')
-        text = cut[:end] if end > 60 else cut.rsplit(' ', 1)[0].rstrip(',;:—-') + '…'
-    return f'{text.rstrip(".")}. Buy at ₹{product.price:.0f} on the official EduTrellis Store.'
+        text = cut[:end] if end > 50 else cut.rsplit(' ', 1)[0].rstrip(',;:—-') + '…'
+    end = ' ' if text.endswith('…') else '. '
+    return f'{text.rstrip(".")}{end}Buy at ₹{product.price:.0f} on the official EduTrellis Store.'
 
 
 def product_detail(request, slug):
@@ -164,6 +165,7 @@ def product_detail(request, slug):
     context = _estore_context(request)
     context['initial_product_slug'] = product.slug
     context['meta_title'] = f"{product.name} — EduTrellis Store"
+    context['page_h1'] = product.name
     context['meta_description'] = _product_meta_description(product)
     context['meta_image'] = product.image.url if product.image else ''
     rating, review_count = product.review_stats
