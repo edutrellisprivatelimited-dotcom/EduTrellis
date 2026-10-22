@@ -1526,6 +1526,7 @@ section,footer,.top-strip,.hero,.marquee-wrap,.mobile-menu{max-width:100vw;overf
 .ab-social a{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:.9rem;transition:transform .3s,box-shadow .3s}
 .ab-social a:hover{transform:translateY(-3px)}
 .ab-ig{background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af)}
+.ab-pin{background:#e60023}
 .ab-li{background:#0a66c2}
 .ab-fb{background:#1877f2}
 @media(max-width:1100px){.ab-feats{grid-template-columns:repeat(2,1fr)}}

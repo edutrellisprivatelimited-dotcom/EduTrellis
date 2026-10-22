@@ -13,6 +13,7 @@
 - Address: {{ BIZ.address }}
 - Hours: {{ BIZ.hours }}
 - Instagram: {{ BIZ.instagram_url }}
+- Pinterest: {{ BIZ.pinterest_url }}
 - LinkedIn: {{ BIZ.linkedin_company_url }}
 - Facebook: {{ BIZ.facebook_url }}
 

@@ -59,7 +59,7 @@ def _postal_address():
 
 
 def graph(logo_url):
-    same_as = [biz.INSTAGRAM_URL, biz.LINKEDIN_COMPANY_URL, biz.FACEBOOK_URL]
+    same_as = [biz.INSTAGRAM_URL, biz.PINTEREST_URL, biz.LINKEDIN_COMPANY_URL, biz.FACEBOOK_URL]
     org = {
         '@type': ['Organization', 'LocalBusiness'],
         '@id': ORG_ID,

@@ -49,6 +49,7 @@ HOURS = 'Monday-Saturday 9 AM-8 PM; Sunday 10 AM-6 PM'
 
 INSTAGRAM_URL = 'https://www.instagram.com/edutrellisstore'
 INSTAGRAM_HANDLE = '@edutrellisstore'
+PINTEREST_URL = 'https://www.pinterest.com/edutrellisstore'
 LINKEDIN_COMPANY_URL = 'https://www.linkedin.com/company/edutrellis'
 FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61590850943948'
 
@@ -82,6 +83,7 @@ def as_dict():
         'hours': HOURS,
         'instagram_url': INSTAGRAM_URL,
         'instagram_handle': INSTAGRAM_HANDLE,
+        'pinterest_url': PINTEREST_URL,
         'linkedin_company_url': LINKEDIN_COMPANY_URL,
         'facebook_url': FACEBOOK_URL,
     }

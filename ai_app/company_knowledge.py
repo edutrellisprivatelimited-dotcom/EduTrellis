@@ -10,7 +10,7 @@ _DEFAULT_BRAND_NAME = 'EduTrellis'
 
 _CONTACT_KEYWORD_RE = re.compile(
     r"\b(phone|telephone|mobile|whatsapp|what.?s ?app|call(?:ing)?|e-?mail|"
-    r"contact|address|location|office|sales|support|helpline|instagram|"
+    r"contact|address|location|office|sales|support|helpline|instagram|pinterest|"
     r"facebook|linkedin|social(?:\s*media|\s*handles?)?|hours|timings?)\b",
     re.IGNORECASE,
 )
@@ -50,6 +50,7 @@ Support: {business_info.EMAIL_SUPPORT}
 Call/WhatsApp: {business_info.PHONE_DISPLAY}
 Hours: {business_info.HOURS}
 Instagram: {business_info.INSTAGRAM_URL}
+Pinterest: {business_info.PINTEREST_URL}
 LinkedIn: {business_info.LINKEDIN_COMPANY_URL}
 Facebook: {business_info.FACEBOOK_URL}
 
