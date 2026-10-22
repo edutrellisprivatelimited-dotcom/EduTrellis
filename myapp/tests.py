@@ -146,3 +146,40 @@ class PublicPagePerformanceAndSEOTests(TestCase):
             f'<link rel="canonical" href="https://www.edutrellis.in/store/product/{product.slug}/">',
             html=True,
         )
+
+
+class FriendlyErrorPageTests(TestCase):
+    """DEBUG is on, yet visitors never see Django's debug page."""
+
+    def _crash(self, path='/store/'):
+        from unittest import mock
+        return mock.patch('myapp.views._estore_context', side_effect=RuntimeError('boom'))
+
+    def test_visitor_gets_something_went_wrong_page(self):
+        with self._crash():
+            response = self.client.get('/store/')
+        self.assertEqual(response.status_code, 500)
+        self.assertContains(response, 'Something went wrong', status_code=500)
+        self.assertNotContains(response, 'Traceback', status_code=500)
+        self.assertNotContains(response, 'boom', status_code=500)
+
+    def test_api_call_gets_short_json_error(self):
+        from unittest import mock
+        with mock.patch('myapp.views._get_or_create_cart', side_effect=RuntimeError('boom')):
+            response = self.client.get('/store/api/cart/')
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json()['status'], 'error')
+        self.assertNotIn('boom', response.content.decode())
+
+    def test_missing_product_shows_site_404_not_debug_page(self):
+        response = self.client.get('/store/product/no-such-product/')
+        self.assertEqual(response.status_code, 404)
+        self.assertContains(response, 'Page Not Found', status_code=404)
+        self.assertNotContains(response, 'URLconf', status_code=404)
+
+    def test_staff_still_get_the_debug_page(self):
+        staff = User.objects.create_user(username='dev@example.com', password='pw-123456789', is_staff=True)
+        self.client.force_login(staff)
+        self.client.raise_request_exception = True
+        with self._crash(), self.assertRaises(RuntimeError):
+            self.client.get('/store/')

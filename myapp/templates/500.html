@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Something Went Wrong — EduTrellis</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--red:#e8001e;--red-dark:#c0001a;--dark:#1c2333;--text:#555f6d;--head:#111418;--line:#e7eaf0;--bg-alt:#f8f9fc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:var(--bg-alt);line-height:1.75;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--red);text-decoration:none}
+header{background:#fff;border-bottom:1px solid var(--line);padding:1.1rem 1.25rem}
+.hd-wrap{max-width:760px;margin:0 auto}
+.logo-txt{font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:900;letter-spacing:-.03em;color:var(--head)}
+.logo-txt span{color:var(--red)}
+main{flex:1;max-width:760px;margin:0 auto;padding:4rem 1.25rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.icon{width:88px;height:88px;border-radius:26px;display:grid;place-items:center;background:rgba(232,0,30,.09);color:var(--red);font-size:2.2rem;margin-bottom:1.2rem}
+h1{font-family:'Sora',sans-serif;font-size:clamp(1.4rem,4vw,1.9rem);font-weight:800;color:var(--head);letter-spacing:-.02em;margin-bottom:.75rem}
+p{font-size:.96rem;color:var(--text);max-width:32rem;margin-bottom:2rem}
+.btn-row{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:.5rem;font-weight:700;font-size:.9rem;padding:.75rem 1.5rem;border-radius:.5rem;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s,color .15s}
+.btn-main{background:var(--red);color:#fff;border:none}
+.btn-main:hover{background:var(--red-dark)}
+.btn-ghost{background:#fff;color:var(--head);border:1.5px solid var(--line)}
+.btn-ghost:hover{border-color:var(--red);color:var(--red)}
+.help{margin-top:2rem;font-size:.85rem;color:#9aa3b0}
+footer{text-align:center;padding:2rem 1.25rem;font-size:.8rem;color:#9aa3b0}
+</style>
+</head>
+<body>
+<header><div class="hd-wrap"><a href="/" class="logo-txt">Edu<span>Trellis</span></a></div></header>
+<main>
+  <div class="icon"><i class="fas fa-screwdriver-wrench"></i></div>
+  <h1>Something went wrong</h1>
+  <p>Sorry — this page ran into a problem on our side. It isn't anything you did. Please try again in a moment.</p>
+  <div class="btn-row">
+    <button type="button" class="btn btn-main" onclick="location.reload()"><i class="fas fa-rotate-right"></i>Try again</button>
+    <a href="/" class="btn btn-ghost"><i class="fas fa-home"></i>EduTrellis Homepage</a>
+  </div>
+  <div class="help">Still not working? Email <a href="mailto:support@edutrellis.in">support@edutrellis.in</a> or WhatsApp <a href="https://wa.me/919695953183">+91 96959 53183</a>.</div>
+</main>
+<footer>&copy; 2026 EduTrellis. All rights reserved.</footer>
+</body>
+</html>

@@ -53,6 +53,9 @@ MIDDLEWARE = [
     'myapp.middleware.HideAdminFromNonStaffMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # DEBUG stays on, but visitors see "Something went wrong" instead of the
+    # debug page; staff still get the full traceback.
+    'myapp.middleware.FriendlyErrorPageMiddleware',
 ]
 
 ROOT_URLCONF = 'edutrellis.urls'
