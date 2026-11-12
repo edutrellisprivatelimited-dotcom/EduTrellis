@@ -2617,6 +2617,68 @@ EduLook.apply(EduLook.get());
   }
 
   {% if chat_user %}
+  // ── Polling pace: EduChats only talks to the server while someone uses it ──
+  // Every repeating "anything new?" check goes through pace.make(fn, opts):
+  //  · nothing at all while the tab is hidden (unless opts.hidden gives a gap)
+  //  · lists slow down from opts.fast to opts.slow while nothing changes
+  //    (fn's promise resolving to true = "something new" = back to fast)
+  //  · opts.idle once nobody has touched the page for IDLE_MS
+  //  · a tap, a key, the tab coming back or a push puts everything back to fast.
+  // opts may be a function, for a check whose pace depends on what's open.
+  var pace = (function () {
+    var IDLE_MS = 120000, lastUse = Date.now(), all = [], pushOn = false;
+    function idle() { return Date.now() - lastUse > IDLE_MS; }
+    function use() {
+      var was = idle() || document.hidden;
+      lastUse = Date.now();
+      if (was) all.forEach(function (p) { p.wake(); });
+    }
+    ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) { addEventListener(ev, use, { capture: true, passive: true }); });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) use(); });
+    function make(fn, opts) {
+      var gap = 0, timer = null, running = false, again = false, last = Date.now();
+      function o() { return typeof opts === 'function' ? opts() : opts; }
+      function delay() {
+        var c = o();
+        if (document.hidden) return c.hidden ? (typeof c.hidden === 'function' ? c.hidden() : c.hidden) : 0;
+        return idle() ? Math.max(gap, c.idle || c.slow) : gap;
+      }
+      function plan(wait) {
+        clearTimeout(timer); timer = null;
+        var d = wait != null ? wait : delay();
+        if (d || wait === 0) timer = setTimeout(run, d);
+      }
+      function run() {
+        timer = null;
+        if (running) { again = true; return; }
+        if (document.hidden && !delay()) return;   // hidden: wait for the tab to come back
+        running = true; last = Date.now();
+        var p; try { p = fn(); } catch (e) { p = null; }
+        Promise.resolve(p).then(function (fresh) { var c = o(); gap = fresh ? c.fast : Math.min(c.slow, Math.round(gap * 1.5)); },
+                                function () { var c = o(); gap = Math.min(c.slow, gap * 2); })
+          .then(function () {
+            running = false;
+            if (again) { again = false; gap = o().fast; plan(0); } else plan();
+          });
+      }
+      var self = {
+        // check right now, then at full speed
+        now: function () { gap = o().fast; if (running) again = true; else plan(0); },
+        // back to full speed, but no sooner than one fast gap after the last check
+        wake: function () { gap = o().fast; if (!running) plan(Math.max(0, gap - (Date.now() - last))); },
+        fast: function () { return o().fast; }
+      };
+      gap = o().fast; plan();
+      all.push(self);
+      return self;
+    }
+    // a push arrived: every quick check runs now (not the minute-long ones)
+    function kick() { all.forEach(function (p) { if (p.fast() < 30000) p.now(); }); }
+    // This device gets push notifications: every new message (outside muted
+    // chats) and every call arrives as a push, which kick()s the checks — so
+    // the lists and the ring check only need to be a slow safety net.
+    return { make: make, kick: kick, pushed: function () { return pushOn; }, setPush: function (on) { pushOn = !!on; } };
+  })();
   var supportAbout = document.getElementById('supportText').textContent;
   var list = document.getElementById('msgs'), empty = document.getElementById('empty');
   var box = document.getElementById('body'), sendErr = document.getElementById('sendErr');
@@ -2720,7 +2782,7 @@ EduLook.apply(EduLook.get());
   var dmCloseHook = null;   // closes the open direct chat without opening anything else
   var gMenuAction = null, gSendFile = null, gHide = null, gUnreadTotal = 0, gUnreadChats = 0;   // groups
   var sxHide = null, sxSendFile = null, sxWaiting = 0;   // support inbox (support team only)
-  var openChatHook = null, pushNudge = null;   // notifications: open a chat by key / refresh lists now
+  var openChatHook = null;   // notifications: open a chat by key (a push itself just runs pace.kick())
   var callBackHook = null;                      // Calls tab: ring someone back
   // A tap outside an open menu just closes the menu — it never also opens the
   // chat (or presses the button) underneath, which on a phone looked like a
@@ -3655,17 +3717,28 @@ EduLook.apply(EduLook.get());
     if ('call' in res) calls.sync(res.call);
   }
   function poll() {
-    fetch('{% url "chats_messages" %}?after=' + lastId + (supportVisible() ? '&here=1' : ''), { credentials: 'same-origin' })
+    return fetch('{% url "chats_messages" %}?after=' + lastId + (supportVisible() ? '&here=1' : ''), { credentials: 'same-origin' })
       .then(function (r) { if (r.status === 401) { location.reload(); return null; } return r.json(); })
       .then(function (res) {
-        if (res && res.ok) { res.messages.forEach(function (m) { add(m); }); applyStatus(res); }
+        var fresh = false;
+        if (res && res.ok) {
+          res.messages.forEach(function (m) { add(m); }); applyStatus(res);
+          fresh = !!(res.messages.length || res.call || res.support_typing);
+        }
         if (restoreOutbox) { var r = restoreOutbox; restoreOutbox = null; r(); }
+        return fresh;
       })
       .catch(function () { if (restoreOutbox) { var r = restoreOutbox; restoreOutbox = null; r(); } });
   }
   poll();
-  setInterval(function () { if (!document.hidden) poll(); }, 3000);
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+  // The support chat open on screen: every 3 s. Otherwise this is only the
+  // "I'm online" heartbeat, the support row's preview and a support call
+  // ringing, so it eases off (ONLINE_SECONDS on the server is 45 s).
+  var supportPace = pace.make(poll, function () {
+    return supportVisible() ? { fast: 3000, slow: 3000, idle: 10000 } : { fast: 4000, slow: 12000, idle: 30000 };
+  });
+  // opening the support chat switches to its 3 s pace straight away (after the other click handlers have run)
+  supportRow.addEventListener('click', function (e) { if (!e.target.closest('.side-more')) setTimeout(supportPace.now, 0); });
 
   // Outbox: messages wait (🕒) and are retried in order until the server has them.
   var OUTBOX_KEY = 'chats-outbox-{{ chat_user.pk }}', outbox = [], sending = false, retryTimer = null, retryDelay = 2000;
@@ -3865,6 +3938,7 @@ EduLook.apply(EduLook.get());
             }).then(function (s) {
               sub = s; lastMuted = JSON.stringify(mutedKeys());
               return post(PUSH, { action: 'subscribe', subscription: s.toJSON(), muted: mutedKeys() }).then(function (r) {
+                pace.setPush(r.ok);
                 render();
                 if (ask && r.ok) reg.showNotification('Notifications are on', { body: "You'll get a notification for new messages.", icon: '{{ app.icon_192|escapejs }}', badge: '{% url "chats_badge_icon" %}', tag: 'educhats-on' });
                 return !!r.ok;
@@ -3878,7 +3952,7 @@ EduLook.apply(EduLook.get());
       if (!sub) return;
       var endpoint = sub.endpoint;
       sub.unsubscribe().catch(function () {});
-      sub = null;
+      sub = null; pace.setPush(false);
       post(PUSH, { action: 'unsubscribe', endpoint: endpoint }).catch(function () {});
       render();
     }
@@ -3912,7 +3986,7 @@ EduLook.apply(EduLook.get());
         var d = e.data || {};
         if (d.type === 'educhats-open' && d.answer) answerFromNotification();
         if (d.type === 'educhats-open' && openChatHook) { openChatHook(d.chat || ''); if (d.reply) focusComposer(d.draft); }
-        else if (d.type === 'educhats-push' && pushNudge) pushNudge();
+        else if (d.type === 'educhats-push') pace.kick();   // something new: check now instead of waiting
         else if (d.type === 'educhats-resubscribe') subscribe(false);
       });
     }
@@ -4678,20 +4752,24 @@ EduLook.apply(EduLook.get());
       renderUnread();
     }
     dmReload = function () { loadThreads(); };
+    var threadsSig = '';
     function loadThreads() {
       if (document.hidden) return;
-      getJSON(DM).then(function (res) {
+      return getJSON(DM).then(function (res) {
         if (!res || !res.ok) return;
+        var sig = JSON.stringify(res.threads), changed = sig !== threadsSig;   // before renderList touches the objects
+        threadsSig = sig;
         var fresh = {};
         res.threads.forEach(function (t) { fresh[t.id] = true; threads[t.id] = t; });
         Object.keys(threads).forEach(function (id) {
           if (!fresh[id] && +id !== active) { delete threads[id]; if (rows[id]) { rows[id].remove(); delete rows[id]; } }
         });
         renderList();
+        return changed;   // nothing new → the list check eases off (6 s → 20 s, or 30 s with push on)
       }).catch(function () {});
     }
     loadThreads();
-    setInterval(loadThreads, 6000);
+    pace.make(loadThreads, function () { return pace.pushed() ? { fast: 6000, slow: 30000, idle: 120000 } : { fast: 6000, slow: 20000, idle: 60000 }; });
 
     // ── the open direct chat ──
     var dmChat = document.getElementById('dmChat'), dmMsgs = document.getElementById('dmMsgs');
@@ -4834,8 +4912,8 @@ EduLook.apply(EduLook.get());
         headerFrom(t); liveFrom(t, res.peer_typing, res.peer_here); renderList();
       }).catch(function () {});
     }
-    setInterval(pollThread, 3000);
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) { loadThreads(); pollThread(); } });
+    // the open chat: every 3 s (10 s once nobody has touched the page for a while); no chat open = no request
+    pace.make(pollThread, { fast: 3000, slow: 3000, idle: 10000 });
 
     // sending (retries a dropped connection; the client id stops duplicates)
     dmComposer.addEventListener('submit', function (e) {
@@ -5033,7 +5111,12 @@ EduLook.apply(EduLook.get());
         loadThreads();
       }).catch(function () {});
     }
-    setInterval(checkRing, 4000);
+    // Incoming calls ring for 45 s. With notifications on, the call's push
+    // runs this at once (pace.kick), so the timer is only a safety net; without
+    // them it has to keep checking — even in a hidden tab, slowly.
+    pace.make(checkRing, function () {
+      return pace.pushed() ? { fast: 15000, slow: 15000, idle: 30000, hidden: 0 } : { fast: 4000, slow: 4000, idle: 10000, hidden: 15000 };
+    });
     checkRing();
 
     // the row menu's direct-chat actions, and what "Delete chat" leaves behind
@@ -5197,10 +5280,13 @@ EduLook.apply(EduLook.get());
       if (gActive === id) closeGroup(true);
       renderGroups();
     }
+    var groupsSig = '';
     function loadGroups() {
       if (document.hidden) return;
-      getJSON(GROUPS).then(function (res) {
+      return getJSON(GROUPS).then(function (res) {
         if (!res || !res.ok) return;
+        var sig = JSON.stringify(res.groups), changed = sig !== groupsSig;
+        groupsSig = sig;
         var fresh = {};
         res.groups.forEach(function (g) {
           fresh[g.id] = true;
@@ -5210,10 +5296,11 @@ EduLook.apply(EduLook.get());
         });
         Object.keys(groups).forEach(function (id) { if (!fresh[id]) dropGroup(+id); });
         renderGroups();
+        return changed;   // nothing new → the list check eases off (6 s → 20 s, or 30 s with push on)
       }).catch(function () {});
     }
     loadGroups();
-    setInterval(loadGroups, 6000);
+    pace.make(loadGroups, function () { return pace.pushed() ? { fast: 6000, slow: 30000, idle: 120000 } : { fast: 6000, slow: 20000, idle: 60000 }; });
 
     // ── the open group ──
     function gHeader(g) {
@@ -5335,8 +5422,7 @@ EduLook.apply(EduLook.get());
         gHeader(g); renderGroups();
       }).catch(function () {});
     }
-    setInterval(pollGroup, 3000);
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) { loadGroups(); pollGroup(); } });
+    pace.make(pollGroup, { fast: 3000, slow: 3000, idle: 10000 });   // the open group; none open = no request
 
     // sending
     gComposer.addEventListener('submit', function (e) {
@@ -5858,24 +5944,28 @@ EduLook.apply(EduLook.get());
     function loadInbox() {
       if (document.hidden) return;
       var q = sxQuery;
-      getJSON(INBOX + (q ? '?q=' + encodeURIComponent(q) : '')).then(function (res) {
+      return getJSON(INBOX + (q ? '?q=' + encodeURIComponent(q) : '')).then(function (res) {
         if (!res || !res.ok || q !== sxQuery) return;
+        var sig = JSON.stringify(res.chats) + '|' + res.waiting, changed = sig !== sxSig, ringing = false;
+        sxSig = sig;
         var fresh = {};
         res.chats.forEach(function (c) {
           var old = sxChats[c.id];
           if (old && sxActive === c.id) c.pending = 0;
           if (old && old.last && c.last && old.last.id > c.last.id) c.last = old.last;
           fresh[c.id] = c;
-          if (c.ringing) sxRing(c);
+          if (c.ringing) { ringing = true; sxRing(c); }
         });
         if (sxActive !== null && !fresh[sxActive] && sxChats[sxActive]) fresh[sxActive] = sxChats[sxActive];
         sxChats = fresh; sxLoaded = true;
         renderInbox();
         if (q) getJSON(INBOX).then(function (all) { if (all && all.ok) sxSetWaiting(all.waiting); }).catch(function () {});
+        return changed || ringing;   // a quiet inbox eases off (5 s → 12 s); a member calling keeps it quick
       }).catch(function () {});
     }
+    var sxSig = '';
     loadInbox();
-    setInterval(loadInbox, 5000);
+    pace.make(loadInbox, { fast: 5000, slow: 12000, idle: 30000 });
 
     // ── calls with members (either side can ring) ──
     function sxCallsFor(id, name, photo) {
@@ -5995,8 +6085,7 @@ EduLook.apply(EduLook.get());
         renderInbox();
       }).catch(function () {});
     }
-    setInterval(pollSx, 3000);
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) { loadInbox(); pollSx(); } });
+    pace.make(pollSx, { fast: 3000, slow: 3000, idle: 10000 });   // the open support chat; none open = no request
 
     // replying
     function sxSent(id, res, el) {
@@ -6244,7 +6333,6 @@ EduLook.apply(EduLook.get());
       if (/^\d+$/.test(key)) { if (!threads[key]) return false; openThread(+key); return true; }
       return true;
     };
-    pushNudge = function () { loadThreads(); loadGroups(); pollGroup(); if (typeof loadInbox === 'function') loadInbox(); };
     callBackHook = function (key, kind) {
       key = String(key || '');
       if (window.educhatsTab) window.educhatsTab('chats');
@@ -6355,7 +6443,7 @@ EduLook.apply(EduLook.get());
       }).catch(function () {});
     }
     loadCalls(false);
-    setInterval(function () { loadCalls(tab === 'calls'); }, 60000);
+    pace.make(function () { return loadCalls(tab === 'calls'); }, { fast: 60000, slow: 60000, idle: 300000 });
 
     // ── Updates ──
     var stories = { mine: null, people: [] }, updDot = document.getElementById('tabUpdDot');
@@ -6391,7 +6479,7 @@ EduLook.apply(EduLook.get());
       document.getElementById('updEmpty').hidden = !!stories.people.length;
     }
     loadStories();
-    setInterval(loadStories, 120000);
+    pace.make(loadStories, { fast: 120000, slow: 120000, idle: 600000 });
 
     // the story viewer: tap right = next, left = back, hold = pause
     var viewer = (function () {

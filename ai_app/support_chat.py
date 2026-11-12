@@ -38,7 +38,7 @@ ATTEMPT_WINDOW = 15 * 60
 MESSAGE_LIMIT = 60          # messages per minute, per account (all chats together)
 SEND_LIMIT_ERROR = 'You are sending messages very fast. Please wait a few seconds.'
 GUEST_SUPPORT_ERROR = 'Log in or sign up to message support.'
-ONLINE_SECONDS = 20         # seen within this long = "online" (both sides poll every 4 s)
+ONLINE_SECONDS = 45         # seen within this long = "online": an open EduChats checks in every 4–12 s (30 s when idle), and not at all while hidden
 STAFF_SEEN_KEY = 'support-chat-staff-last-seen'
 _PHONE_RE = re.compile(r'^(?:\+?91[\s-]?)?([6-9]\d{9})$')
 # 3–30 chars: lowercase letters, numbers, dot and underscore; starts and ends
