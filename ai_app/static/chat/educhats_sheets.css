@@ -1,0 +1,37 @@
+/* EduChats sheets: ⋮ → Data privacy, ⋮ → Backup, and the small section labels */
+.mm-sec{margin:.9rem 0 .2rem;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+/* ⋮ → Data privacy */
+.legal-card{width:min(560px,100%)}
+.lg-hero{display:flex;align-items:center;gap:.85rem;padding-right:2rem}
+.lg-hero h3{margin:0;font-size:1.15rem}
+.lg-hero small{color:var(--text);font-size:.8rem;font-weight:600}
+.lg-flag{position:relative;display:flex;flex-direction:column;width:58px;height:42px;flex:0 0 58px;border-radius:9px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.15),inset 0 0 0 1px rgba(0,0,0,.06)}
+.lg-flag i{flex:1;display:grid;place-items:center}
+.lg-flag i:nth-child(1){background:#ff9933}.lg-flag i:nth-child(2){background:#fff}.lg-flag i:nth-child(3){background:#138808}
+.lg-flag b{color:#000080;font-size:.7rem;animation:fxSpin 12s linear infinite}
+.lg-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin:.9rem 0 .3rem}
+.lg-badges span{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .65rem;border-radius:999px;background:rgba(var(--accent-rgb),.07);color:var(--head);font-size:.74rem;font-weight:700}
+.lg-badges i{color:var(--accent)}
+.lg-sec{margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--line)}
+.lg-sec h4{display:flex;align-items:center;gap:.5rem;margin:0 0 .35rem;font-size:.92rem;color:var(--head)}
+.lg-sec h4 i{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.09);color:var(--accent);font-size:.75rem}
+.lg-sec p,.lg-sec li{font-size:.84rem;line-height:1.55;color:var(--text);margin:0}
+.lg-sec ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.25rem}
+.lg-sec .sup-rows{margin-top:.5rem}
+.lg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.lg-links a{flex:1 1 180px;display:flex;align-items:center;justify-content:center;gap:.45rem;height:42px;border-radius:999px;border:1.5px solid rgba(var(--accent-rgb),.35);color:var(--accent);font-size:.84rem;font-weight:700;text-decoration:none}
+.lg-foot{margin:.9rem 0 0;text-align:center;font-size:.72rem;color:var(--text)}
+/* ⋮ → Backup (superuser) */
+.backup-pop{width:min(980px,100%);height:min(86dvh,820px);display:flex;flex-direction:column;padding:1rem}
+.bk-head{display:flex;align-items:center;gap:.7rem;padding-right:2.6rem;margin-bottom:.75rem}
+.bk-head h3{margin:0;font-size:1.05rem}
+.bk-head small{color:var(--text);font-size:.76rem}
+.bk-head>div{flex:1;min-width:0}
+.bk-ic{width:40px;height:40px;flex:0 0 40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#3b5bdb,#2b3fa8);color:#fff}
+.bk-open{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--head);background:rgba(15,22,35,.06);text-decoration:none}
+.bk-frame{flex:1;width:100%;border:1px solid var(--line);border-radius:14px;background:#fff}
+.bk-login{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;text-align:center;padding:1.5rem;color:var(--text)}
+.bk-login>i{font-size:2rem;color:var(--accent)}
+.bk-login b{color:var(--head)}
+.bk-login p{max-width:360px;font-size:.85rem;margin:0 0 .5rem}
+.bk-login .pf-save{display:inline-flex;align-items:center;padding:0 1.2rem;text-decoration:none}

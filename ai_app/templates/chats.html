@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Poppins:wght@800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-{% load static asset_version %}<link rel="stylesheet" href="{% versioned_static 'chat/support_chat.css' %}"><link rel="stylesheet" href="{% versioned_static 'chat/educhats_map.css' %}">
+{% load static asset_version %}<link rel="stylesheet" href="{% versioned_static 'chat/support_chat.css' %}"><link rel="stylesheet" href="{% versioned_static 'chat/educhats_sheets.css' %}">
 <style>
 :root{--bg:#f4f7f6;--card:#fff;--head:#111827;--text:#4b5563;--line:#e5e7eb;--accent:#e8001e;--accent-dark:#b8001a;--accent-deep:#8f0014;--accent-rgb:232,0,30;--accent-light:#ff4d63;--bubble:rgba(var(--accent-rgb),.08);--ink:#0f1623;--ink-2:#171f2e;--side-w:380px;--danger:#dc2626;--wall:#f6f6f8;--wall-glow:rgba(var(--accent-rgb),.13)}
 :root{color-scheme:light}
@@ -1445,7 +1445,7 @@ window.EduLook = (function () {
   };
   // ⋮ → Themes: each one sets the colours, wallpaper, font and message colours, and gives the
   // chat list, headers, the EduChats name and the main icons their own look.
-  var ICONS = { chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone', maps: 'fa-map-location-dot', plus: 'fa-plus', menu: 'fa-ellipsis-vertical', search: 'fa-magnifying-glass' };
+  var ICONS = { chats: 'fa-message', updates: 'fa-circle-notch', calls: 'fa-phone', plus: 'fa-plus', menu: 'fa-ellipsis-vertical', search: 'fa-magnifying-glass' };
   var THEMES = {
     classic: { name: 'EduTrellis Classic', tag: 'The original red & midnight', fx: 'glow', fxName: 'Soft red glow',
       look: { accent: 'red', wall: 'doodle', font: 'inter', bubble: 'theme', bubble2: 'theme' },
@@ -1710,7 +1710,6 @@ EduLook.apply(EduLook.get());
     <button type="button" class="side-tab on" data-tab="chats" role="tab" aria-selected="true"><span class="tab-ic"><i class="fas fa-message" data-ico="chats"></i><b class="tab-badge" id="tabChatsN" hidden></b></span>Chats</button>
     <button type="button" class="side-tab" data-tab="updates" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-circle-notch" data-ico="updates"></i><b class="tab-dot" id="tabUpdDot" hidden></b></span>Updates</button>
     <button type="button" class="side-tab" data-tab="calls" role="tab" aria-selected="false"><span class="tab-ic"><i class="fas fa-phone" data-ico="calls"></i><b class="tab-badge" id="tabCallsN" hidden></b></span>Calls</button>
-    <button type="button" class="side-tab" data-tab="maps" id="mapsTab" aria-haspopup="dialog"><span class="tab-ic"><i class="fas fa-map-location-dot" data-ico="maps"></i></span>Maps</button>
   </nav>
   <div class="new-panel" id="newPanel" aria-hidden="true">
     <div class="new-head"><button class="side-icon" id="newBack" type="button" aria-label="Back"><i class="fas fa-arrow-left"></i></button><b>New chat</b></div>
@@ -2252,10 +2251,6 @@ EduLook.apply(EduLook.get());
       <label class="pv-row" id="setAIPinRow"><span class="pv-ic"><i class="fas fa-thumbtack"></i></span><span class="pv-txt"><b>Pin EduTrellis AI to the top</b><small>Off: it moves with your other chats</small></span><span class="switch"><input type="checkbox" id="setAIPin"><span></span></span></label>
       {% if not is_support_staff %}<label class="pv-row"><span class="pv-ic"><i class="fas fa-headset"></i></span><span class="pv-txt"><b>Show {{ support.display_name }}</b><small>Comes back by itself when support replies</small></span><span class="switch"><input type="checkbox" id="setSupport"><span></span></span></label>{% endif %}
     </div>
-    <div class="set-list">
-      <div class="pv-sec">Bottom bar</div>
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-map-location-dot"></i></span><span class="pv-txt"><b>Show Maps tab</b><small>The map of people on EduChats across India</small></span><span class="switch"><input type="checkbox" id="setMaps" checked><span></span></span></label>
-    </div>
     {% if chat_user %}<div class="pv-sec" style="margin-top:.8rem">Calls</div>
     <button type="button" class="sheet-opt" id="setPerms" style="margin-top:.3rem"><span class="pv-ic"><i class="fas fa-shield-heart"></i></span><span style="flex:1">Permissions &amp; ringtone<small style="display:block;font-weight:500;font-size:.75rem;color:var(--text)">Microphone, camera, notifications · call sound</small></span><i class="fas fa-chevron-right" style="font-size:.75rem;color:var(--text)"></i></button>{% endif %}
     <button class="sheet-opt" type="button" data-close style="justify-content:center;margin-top:1rem">Done</button>
@@ -2269,7 +2264,7 @@ EduLook.apply(EduLook.get());
       <div class="perm-row" data-perm="mic"><span class="pv-ic"><i class="fas fa-microphone"></i></span><span class="pv-txt"><b>Microphone</b><small>Voice &amp; video calls, voice messages</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
       <div class="perm-row" data-perm="cam"><span class="pv-ic"><i class="fas fa-video"></i></span><span class="pv-txt"><b>Camera</b><small>Video calls, photos and stories</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
       <div class="perm-row" data-perm="notif"><span class="pv-ic"><i class="fas fa-bell"></i></span><span class="pv-txt"><b>Notifications</b><small>Calls and messages ring even when EduChats is closed</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
-      <div class="perm-row" data-perm="loc"><span class="pv-ic"><i class="fas fa-location-dot"></i></span><span class="pv-txt"><b>Location <small style="display:inline">· optional</small></b><small>Share where you are and join the Maps tab</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
+      <div class="perm-row" data-perm="loc"><span class="pv-ic"><i class="fas fa-location-dot"></i></span><span class="pv-txt"><b>Location <small style="display:inline">· optional</small></b><small>Share where you are in a chat</small><span class="perm-st">Checking…</span></span><button type="button" class="perm-go">Allow</button></div>
     </div>
     <div class="perm-help" id="permHelp" hidden><b>Something is blocked.</b> Your browser only lets you turn it back on yourself: tap the <i class="fas fa-lock"></i> or <i class="fas fa-sliders"></i> icon next to the web address → <b>Permissions</b> (or Site settings) → set it to <b>Allow</b>, then come back here.</div>
     <div class="mm-sec">Ringtone for incoming calls</div>
@@ -2365,7 +2360,7 @@ EduLook.apply(EduLook.get());
         <li>What you send: messages, photos, videos, files and locations you choose to share.</li>
         <li>Basic technical details (IP address, device, last seen) to keep accounts safe and stop misuse.</li></ul></section>
     <section class="lg-sec"><h4><i class="fas fa-user-check"></i> Your choices and rights</h4>
-      <p>Under India's Digital Personal Data Protection Act, 2023 you can ask us to show, correct or erase your personal data, withdraw your consent, and raise a complaint. Use ⋮ → Privacy to control what others see about you, and Maps to choose what shows on the map.</p></section>
+      <p>Under India's Digital Personal Data Protection Act, 2023 you can ask us to show, correct or erase your personal data, withdraw your consent, and raise a complaint. Use ⋮ → Privacy to control what others see about you.</p></section>
     <section class="lg-sec"><h4><i class="fas fa-headset"></i> Complaints and grievances</h4>
       <p>For any complaint about your data, a chat or another user, contact our grievance team. We aim to reply within 24 hours and settle complaints within 15 days.</p>
       <div class="sup-rows">
@@ -2377,25 +2372,6 @@ EduLook.apply(EduLook.get());
   </div>
 </div>
 {% endwith %}
-<div class="sheet pf-sheet" id="mapMeSheet">
-  <div class="sheet-card">
-    <h3><i class="fas fa-map-pin" style="color:var(--accent)"></i> You on the map</h3>
-    <p class="pv-intro">Show up on the EduChats map of India. Your spot is rounded to about 1 km, so nobody sees your exact home.</p>
-    <button type="button" class="mm-loc" id="mmLocate"><span class="pv-ic"><i class="fas fa-location-crosshairs"></i></span><span class="pv-txt"><b id="mmLocTitle">Use my current location</b><small id="mmLocSub">Allow location when your browser asks</small></span><i class="fas fa-chevron-right"></i></button>
-    <div class="mm-sec">What others can see</div>
-    <div class="set-list">
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-eye"></i></span><span class="pv-txt"><b>Show me on the map</b><small>Turn off to hide your pin for now</small></span><span class="switch"><input type="checkbox" data-mm="visible" checked><span></span></span></label>
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-id-card"></i></span><span class="pv-txt"><b>My name</b><small>{{ chat_user.name }}</small></span><span class="switch"><input type="checkbox" data-mm="show_name"><span></span></span></label>
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-at"></i></span><span class="pv-txt"><b>My username</b><small>{% if chat_user.username %}@{{ chat_user.username }}{% else %}You haven't picked one yet{% endif %}</small></span><span class="switch"><input type="checkbox" data-mm="show_username"><span></span></span></label>
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-envelope"></i></span><span class="pv-txt"><b>My email</b><small>{{ chat_user.email }}</small></span><span class="switch"><input type="checkbox" data-mm="show_email"><span></span></span></label>
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-city"></i></span><span class="pv-txt"><b>My city &amp; state</b><small>{{ chat_user.city }}{% if chat_user.state %}, {{ chat_user.state }}{% endif %}</small></span><span class="switch"><input type="checkbox" data-mm="show_city" checked><span></span></span></label>
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-image"></i></span><span class="pv-txt"><b>My profile photo</b><small>Anyone on EduChats can see it on the map</small></span><span class="switch"><input type="checkbox" data-mm="show_photo"><span></span></span></label>
-      <label class="pv-row"><span class="pv-ic"><i class="fas fa-quote-left"></i></span><span class="pv-txt"><b>My bio</b><small>{{ chat_user.bio|default:"Your short about line" }}</small></span><span class="switch"><input type="checkbox" data-mm="show_bio"><span></span></span></label>
-    </div>
-    <p class="mm-err" id="mmErr" hidden></p>
-    <div class="look-actions"><button type="button" class="sheet-opt" id="mmRemove" hidden><i class="fas fa-trash"></i> Remove me</button><button type="button" class="pf-save" id="mmSave">Save</button></div>
-  </div>
-</div>
 {% if is_superuser_viewer %}
 <div class="sheet pf-sheet" id="backupSheet">
   <div class="sheet-card backup-pop">
@@ -2524,26 +2500,7 @@ EduLook.apply(EduLook.get());
 {% if chat_user and not chat_user.is_guest %}{{ me_card|json_script:"me-card" }}{% endif %}
 {{ support_socials|json_script:"support-socials" }}
 
-<div class="maps-view" id="mapsView" role="dialog" aria-modal="true" aria-label="EduChats map" hidden>
-  <div class="mp-map" id="mpMap"></div>
-  <div class="mp-top">
-    <button type="button" class="mp-btn" id="mpBack" aria-label="Close map"><i class="fas fa-arrow-left"></i></button>
-    <div class="mp-title"><b>EduChats Map</b><small>People across India</small></div>
-    <div class="mp-seg" role="group" aria-label="Map style">
-      <button type="button" data-style="dark" title="Dark"><i class="fas fa-moon"></i></button><button type="button" data-style="light" title="Light"><i class="fas fa-sun"></i></button><button type="button" data-style="sat" title="Satellite"><i class="fas fa-earth-asia"></i></button>
-    </div>
-  </div>
-  <div class="mp-card" id="mpCard">
-    <div class="mp-stats"><div><b id="mpTotal">0</b><small>people</small></div><div><b id="mpStates">0</b><small>states</small></div><div><b id="mpCities">0</b><small>cities</small></div></div>
-    <div class="mp-legend" id="mpLegend"></div>
-    <div class="mp-demo" id="mpDemo" hidden><span><i class="fas fa-flask"></i> <b id="mpDemoN">0</b> demo users</span><button type="button" id="mpDemoDel">Remove demo users</button></div>
-  </div>
-  <div class="mp-load" id="mpLoad"><span></span>Loading the map…</div>
-  <button type="button" class="mp-btn mp-locate" id="mpLocate" aria-label="Show where I am"><i class="fas fa-location-crosshairs"></i></button>
-  <button type="button" class="mp-join" id="mpJoin"><i class="fas fa-map-pin"></i> <span id="mpJoinLabel">Add me to the map</span></button>
-</div>
-{{ maps_config|json_script:"maps-config" }}
-{% if chat_user %}<script src="{% versioned_static 'chat/support_chat.js' %}"></script><script src="{% versioned_static 'chat/educhats_map.js' %}" defer></script>{% endif %}
+{% if chat_user %}<script src="{% versioned_static 'chat/support_chat.js' %}"></script>{% endif %}
 <script>
 (function () {
   var csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -2863,14 +2820,12 @@ EduLook.apply(EduLook.get());
     if (savedPrefs) for (var pk in prefs) if (pk in savedPrefs) prefs[pk] = !!savedPrefs[pk];
   } catch (e) {}
   // EduTrellis AI and Support in the list: AI shows (pinned) unless turned off; Support only once you open it
-  var ROWS_KEY = 'chats-rows-{{ chat_user.pk }}', rowVis = { ai: true, aiPin: true, support: false, maps: true }, aiTs = 0;
+  var ROWS_KEY = 'chats-rows-{{ chat_user.pk }}', rowVis = { ai: true, aiPin: true, support: false }, aiTs = 0;
   try {
     var savedRows = JSON.parse(localStorage.getItem(ROWS_KEY) || 'null');
     if (savedRows) for (var rk in rowVis) if (rk in savedRows) rowVis[rk] = !!savedRows[rk];
   } catch (e) {}
   function saveRowVis() { try { localStorage.setItem(ROWS_KEY, JSON.stringify(rowVis)); } catch (e) {} }
-  function paintMapsTab() { var t = document.getElementById('mapsTab'); if (t) t.hidden = !rowVis.maps; }
-  paintMapsTab();
   function showRow(which, on) {
     if (rowVis[which] === on) return;
     rowVis[which] = on; saveRowVis(); renderUnread();
@@ -4573,11 +4528,7 @@ EduLook.apply(EduLook.get());
       setAI.checked = rowVis.ai; setAIPin.checked = rowVis.aiPin;
       document.getElementById('setAIPinRow').classList.toggle('off', !rowVis.ai);
       if (setSupport) setSupport.checked = rowVis.support;
-      document.getElementById('setMaps').checked = rowVis.maps;
     }
-    document.getElementById('setMaps').addEventListener('change', function () {
-      rowVis.maps = this.checked; saveRowVis(); paintMapsTab();
-    });
     document.getElementById('openSettings').addEventListener('click', function () {
       sideMenu.classList.remove('open'); fillSettings();
       document.getElementById('settingsSheet').classList.add('open');
@@ -6387,14 +6338,13 @@ EduLook.apply(EduLook.get());
       side.classList.toggle('tab-updates', name === 'updates');
       side.classList.toggle('tab-calls', name === 'calls');
       updPane.hidden = name !== 'updates'; callsPane.hidden = name !== 'calls';
-      tabs.forEach(function (t) { if (t.dataset.tab === 'maps') return; var on = t.dataset.tab === name; t.classList.toggle('on', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      tabs.forEach(function (t) { var on = t.dataset.tab === name; t.classList.toggle('on', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
       if (name === 'updates') loadStories();
       if (name === 'calls') loadCalls(true);
       try { sessionStorage.setItem('educhats-tab', name); } catch (e) {}
     }
     tabs.forEach(function (t) {
       t.addEventListener('click', function () {
-        if (t.dataset.tab === 'maps') { if (window.EduMaps) EduMaps.open(); return; }   // full-screen map, the tab stays as it was
         setTab(t.dataset.tab);
       });
     });
