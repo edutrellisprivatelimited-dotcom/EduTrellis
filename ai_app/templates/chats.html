@@ -905,6 +905,7 @@ textarea.gi-desc-edit{width:100%;max-width:none;height:76px;padding:.5rem .7rem;
 .soc-instagram{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285aeb 90%) !important;color:#fff !important}
 .soc-facebook{background:#1877f2 !important;color:#fff !important}
 .soc-linkedin{background:#0a66c2 !important;color:#fff !important}
+.soc-pinterest{background:#e60023 !important;color:#fff !important}
 .pf-socials{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
 .pf-sheet label.pf-soc{display:flex;align-items:center;margin:0;border:1.5px solid var(--line);border-radius:11px;background:var(--card);overflow:hidden;cursor:text}
 .pf-soc:focus-within{border-color:var(--accent) !important}
@@ -1978,6 +1979,7 @@ EduLook.apply(EduLook.get());
           <label class="pf-soc" title="Instagram"><span class="b soc-instagram"><i class="fab fa-instagram"></i></span><input name="instagram" value="{{ chat_user.instagram }}" maxlength="200" autocapitalize="none" spellcheck="false" placeholder="Instagram" aria-label="Instagram username or link"></label>
           <label class="pf-soc" title="Facebook"><span class="b soc-facebook"><i class="fab fa-facebook-f"></i></span><input name="facebook" value="{{ chat_user.facebook }}" maxlength="200" autocapitalize="none" spellcheck="false" placeholder="Facebook" aria-label="Facebook username or link"></label>
           <label class="pf-soc" title="LinkedIn"><span class="b soc-linkedin"><i class="fab fa-linkedin-in"></i></span><input name="linkedin" value="{{ chat_user.linkedin }}" maxlength="200" autocapitalize="none" spellcheck="false" placeholder="LinkedIn (linkedin.com/in/…)" aria-label="LinkedIn profile link or name"></label>
+          <label class="pf-soc" title="Pinterest"><span class="b soc-pinterest"><i class="fab fa-pinterest-p"></i></span><input name="pinterest" value="{{ chat_user.pinterest }}" maxlength="200" autocapitalize="none" spellcheck="false" placeholder="Pinterest" aria-label="Pinterest username or link"></label>
         </div>
         <p class="pf-soc-hint"><i class="fas fa-eye"></i> Shown on your EduChats ID card. Hide any of them in ⋮ → Privacy.</p>
         <p class="pf-sep">Change password — leave empty to keep your current one.</p>
@@ -2173,6 +2175,7 @@ EduLook.apply(EduLook.get());
       <label class="pv-row"><span class="pv-ic soc-instagram"><i class="fab fa-instagram"></i></span><span class="pv-txt"><b>Instagram</b><small data-soc="instagram">Not added yet</small></span><span class="switch"><input type="checkbox" name="show_instagram"><span></span></span></label>
       <label class="pv-row"><span class="pv-ic soc-facebook"><i class="fab fa-facebook-f"></i></span><span class="pv-txt"><b>Facebook</b><small data-soc="facebook">Not added yet</small></span><span class="switch"><input type="checkbox" name="show_facebook"><span></span></span></label>
       <label class="pv-row"><span class="pv-ic soc-linkedin"><i class="fab fa-linkedin-in"></i></span><span class="pv-txt"><b>LinkedIn</b><small data-soc="linkedin">Not added yet</small></span><span class="switch"><input type="checkbox" name="show_linkedin"><span></span></span></label>
+      <label class="pv-row"><span class="pv-ic soc-pinterest"><i class="fab fa-pinterest-p"></i></span><span class="pv-txt"><b>Pinterest</b><small data-soc="pinterest">Not added yet</small></span><span class="switch"><input type="checkbox" name="show_pinterest"><span></span></span></label>
       <div class="pv-sec">Messages</div>
       <label class="pv-row"><span class="pv-ic"><i class="fas fa-keyboard"></i></span><span class="pv-txt"><b>Typing &amp; "is here"</b><small>When you're typing or in their chat</small></span><span class="switch"><input type="checkbox" name="show_activity"><span></span></span></label>
       <label class="pv-row"><span class="pv-ic"><i class="fas fa-check-double"></i></span><span class="pv-txt"><b>Read receipts (blue ticks)</b><small>Off = you won't see theirs either</small></span><span class="switch"><input type="checkbox" name="read_receipts"><span></span></span></label>
@@ -2934,7 +2937,7 @@ EduLook.apply(EduLook.get());
     var bio = document.getElementById('idBio'); bio.hidden = !c.bio; bio.textContent = c.bio || '';
     var socs = document.getElementById('idSocials'); socs.textContent = '';
     (c.socials || []).forEach(function (sx) {
-      if (!/^https:\/\/www\.(snapchat|instagram|facebook|linkedin)\.com\//.test(sx.url)) return;
+      if (!/^https:\/\/(www\.(snapchat|instagram|facebook|linkedin|pinterest)|[a-z]{2}\.pinterest)\.com\//.test(sx.url)) return;
       var a = document.createElement('a'); a.className = 'id-soc' + (c.ownCard && !sx.shown ? ' off' : '');
       a.href = sx.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.title = sx.label;
       a.innerHTML = '<span class="b soc-' + sx.key + '"><i class="fab ' + sx.icon + '"></i></span><span class="h"></span>';
@@ -4324,7 +4327,7 @@ EduLook.apply(EduLook.get());
       e.preventDefault();
       var data = {}, btn = privacyForm.querySelector('.pf-save');
       ['show_phone', 'show_email', 'show_ip', 'show_last_seen', 'show_activity', 'read_receipts',
-       'show_snapchat', 'show_instagram', 'show_facebook', 'show_linkedin'].forEach(function (k) { data[k] = privacyForm.elements[k].checked; });
+       'show_snapchat', 'show_instagram', 'show_facebook', 'show_linkedin', 'show_pinterest'].forEach(function (k) { data[k] = privacyForm.elements[k].checked; });
       data.tick_style = privacyForm.elements.tick_style.value || 'double';
       var before = savedTicks;
       btn.disabled = true; pvSaved.classList.remove('show'); pvErr.classList.remove('show');

@@ -1,8 +1,8 @@
-"""Social links on EduChats profiles (Snapchat, Instagram, Facebook, LinkedIn).
+"""Social links on EduChats profiles (Snapchat, Instagram, Facebook, LinkedIn, Pinterest).
 
 People type either a username or a profile link; it's stored as a clean
 https URL on that site's own domain, so a link on someone's ID card can only
-ever point to the real Snapchat / Instagram / Facebook / LinkedIn.
+ever point to the real Snapchat / Instagram / Facebook / LinkedIn / Pinterest.
 """
 import re
 from urllib.parse import parse_qs, urlsplit
@@ -16,13 +16,18 @@ SOCIALS = {
                  'handle': r'[A-Za-z0-9.]{3,50}', 'url': 'https://www.facebook.com/{}'},
     'linkedin': {'label': 'LinkedIn', 'icon': 'fa-linkedin', 'hosts': ('linkedin.com',),
                  'handle': r'[A-Za-z0-9_%-]{3,100}', 'url': 'https://www.linkedin.com/in/{}'},
+    'pinterest': {'label': 'Pinterest', 'icon': 'fa-pinterest', 'hosts': ('pinterest.com',),
+                  'handle': r'[A-Za-z0-9_]{3,30}', 'url': 'https://www.pinterest.com/{}/'},
 }
+# Pinterest has country sites (in.pinterest.com …); a link keeps its own.
+_PINTEREST_HOST_RE = re.compile(r'(www|[a-z]{2})\.pinterest\.com\Z')
 SOCIAL_KEYS = tuple(SOCIALS)
 SHOW_FIELDS = tuple(f'show_{key}' for key in SOCIAL_KEYS)
 MAX_URL = 200
 
 _NOT_PROFILE = {'p', 'reel', 'reels', 'stories', 'explore', 'share', 'sharer', 'login', 'groups',
-                'events', 'watch', 'pages', 'feed', 'jobs', 'posts', 'pulse', 'tv', 'accounts'}
+                'events', 'watch', 'pages', 'feed', 'jobs', 'posts', 'pulse', 'tv', 'accounts',
+                'pin', 'ideas', 'search', 'today', 'business', 'settings'}
 
 
 def _host_ok(host, hosts):
@@ -66,6 +71,10 @@ def clean_social(key, value):
     if not path or path[0].lower() in _NOT_PROFILE or not handle_re.match(path[0].lstrip('@')):
         return '', bad
     url = spec['url'].format(path[0].lstrip('@'))
+    if key == 'pinterest':
+        host = parts.netloc.lower().split(':')[0]
+        if _PINTEREST_HOST_RE.match(host):
+            url = f'https://{host}/{path[0]}/'
     return (url, '') if len(url) <= MAX_URL else ('', bad)
 
 

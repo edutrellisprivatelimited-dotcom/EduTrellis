@@ -49,7 +49,7 @@ HOURS = 'Monday-Saturday 9 AM-8 PM; Sunday 10 AM-6 PM'
 
 INSTAGRAM_URL = 'https://www.instagram.com/edutrellisstore'
 INSTAGRAM_HANDLE = '@edutrellisstore'
-PINTEREST_URL = 'https://www.pinterest.com/edutrellisstore'
+PINTEREST_URL = 'https://in.pinterest.com/edutrellisstore/'
 LINKEDIN_COMPANY_URL = 'https://www.linkedin.com/company/edutrellis'
 FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61590850943948'
 

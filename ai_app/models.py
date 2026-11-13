@@ -1004,10 +1004,12 @@ class ChatUser(models.Model):
     instagram = models.CharField(max_length=200, blank=True)
     facebook = models.CharField(max_length=200, blank=True)
     linkedin = models.CharField(max_length=200, blank=True)
+    pinterest = models.CharField(max_length=200, blank=True)
     show_snapchat = models.BooleanField(default=True)
     show_instagram = models.BooleanField(default=True)
     show_facebook = models.BooleanField(default=True)
     show_linkedin = models.BooleanField(default=True)
+    show_pinterest = models.BooleanField(default=True)
     # ⋮ → Customize: accent colour, font, text size and wallpaper (preset keys),
     # so the look follows the account to other devices.
     appearance = models.JSONField(default=dict, blank=True)
@@ -1085,6 +1087,7 @@ class SupportProfile(models.Model):
     instagram = models.CharField(max_length=200, blank=True)
     facebook = models.CharField(max_length=200, blank=True)
     linkedin = models.CharField(max_length=200, blank=True)
+    pinterest = models.CharField(max_length=200, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     @classmethod
