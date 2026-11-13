@@ -363,4 +363,6 @@ LOGGING = {
     },
 }
 
-
+# Homepage "Explore our Test Series platform" section: every click goes here.
+# Until it's set, the section falls back to the homepage contact form.
+TEST_SERIES_URL = os.environ.get('TEST_SERIES_URL', '').strip()

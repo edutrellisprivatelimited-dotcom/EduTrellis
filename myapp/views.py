@@ -125,6 +125,7 @@ def home(request):
         "blog_settings": BlogSettings.get_solo(),
         "blog_items": BlogGalleryItem.objects.all(),
         "product_cards": ProductCard.objects.all(),
+        "test_series_url": settings.TEST_SERIES_URL,
     })
 
 
