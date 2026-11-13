@@ -6,11 +6,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>EduTrellis — Website Development &amp; SEO Company in Lucknow</title>
+<title>EduTrellis — Online Test Series &amp; Mock Tests | Website Development in Lucknow</title>
 
-<meta name="description" content="EduTrellis, Lucknow: website design, management, SEO and Meta Ads for businesses across India. Plus the EduTrellis Store, EduTrellis AI and EduChats.">
+<meta name="description" content="EduTrellis Test Series: online mock tests for JEE, NEET, UPSC, SSC, banking, railways, CUET and CBSE boards. Plus website development, SEO and Meta Ads from Lucknow, the EduTrellis Store, EduTrellis AI and EduChats.">
 
-<meta name="keywords" content="website development company in Lucknow, website designer Lucknow, SEO services Lucknow, Meta Ads management, WordPress development, Django development, website management services, digital marketing company Lucknow, Google Business Profile optimization, ecommerce website development">
+<meta name="keywords" content="online test series, mock test, JEE Main mock test, NEET mock test, UPSC prelims test series, SSC CGL mock test, IBPS PO mock test, RRB NTPC mock test, CUET mock test, CBSE board test series, website development company in Lucknow, website designer Lucknow, SEO services Lucknow, Meta Ads management, WordPress development, Django development, website management services, digital marketing company Lucknow, Google Business Profile optimization, ecommerce website development">
 
 <meta name="author" content="EduTrellis">
 
@@ -21,19 +21,19 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="EduTrellis">
-<meta property="og:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Website Development Company in Lucknow | EduTrellis{% endif %}">
-<meta property="og:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Professional Website Development, SEO, Meta Ads, Website Management and Digital Marketing Services across India.{% endif %}">
+<meta property="og:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Online Test Series &amp; Website Development | EduTrellis{% endif %}">
+<meta property="og:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Mock tests for JEE, NEET, UPSC, SSC, banking, railways, CUET and boards on the EduTrellis Test Series platform, plus website development, SEO and Meta Ads across India.{% endif %}">
 <meta property="og:url" content="https://www.edutrellis.in/">
-<meta property="og:image" content="{% if site_customization.share_image %}https://www.edutrellis.in{{ site_customization.share_image.url }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
+{% load seo_tags %}<meta property="og:image" content="{% if site_customization.share_image %}{{ site_customization.share_image.url|absolute }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_IN">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Website Development Company in Lucknow | EduTrellis{% endif %}">
-<meta name="twitter:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Professional Website Development, SEO, Meta Ads and Website Management Services.{% endif %}">
-<meta name="twitter:image" content="{% if site_customization.share_image %}https://www.edutrellis.in{{ site_customization.share_image.url }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
+<meta name="twitter:title" content="{% if site_customization.share_title %}{{ site_customization.share_title }}{% else %}Online Test Series &amp; Website Development | EduTrellis{% endif %}">
+<meta name="twitter:description" content="{% if site_customization.share_description %}{{ site_customization.share_description }}{% else %}Mock tests for JEE, NEET, UPSC, SSC, banking and more on EduTrellis Test Series, plus website development and SEO.{% endif %}">
+<meta name="twitter:image" content="{% if site_customization.share_image %}{{ site_customization.share_image.url|absolute }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
 
 <!-- Favicon -->
 {% include "includes/favicon.html" %}
@@ -362,6 +362,7 @@
         <li><a href="#products" data-tip="Websites, marketing &amp; design">Products</a></li>
         <li><a href="#estore" data-tip="Shop gadgets &amp; AI plans">E-Store</a></li>
         {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}" data-tip="Free AI chat assistant">{{ NAV_AI.name }}</a></li>{% endif %}
+        <li><a href="{{ TEST_SERIES_URL }}" data-tip="Mock tests for JEE, NEET, UPSC &amp; more">Test Series</a></li>
         <li><a href="{% url 'chats_page' %}" data-tip="India's own chat app">EduChats</a></li>
         {% if blog_settings.is_active %}<li><a href="#projects" data-tip="Tips to grow online">Blog</a></li>{% endif %}
         <li><a href="#about" data-tip="Who we are, since 2020">About</a></li>
@@ -410,6 +411,7 @@
     <li><a href="#services">Services</a></li>
     <li><a href="#estore">E-Store</a></li>
     {% if NAV_AI.is_active %}<li><a href="{{ NAV_AI.url }}">{{ NAV_AI.name }}</a></li>{% endif %}
+    <li><a href="{{ TEST_SERIES_URL }}">Test Series</a></li>
     <li><a href="{% url 'chats_page' %}">EduChats</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
     {% if blog_settings.is_active %}<li><a href="#projects">Blog</a></li>{% endif %}
@@ -681,7 +683,7 @@
   </script>
 </section>
 
-<!-- TEST SERIES: the whole section is one link to the test series platform (settings.TEST_SERIES_URL) -->
+<!-- TEST SERIES: the whole section is one link to the test series platform (myapp/test_series.py) -->
 <section id="test-series" class="ts-sec">
   <style>
   .ts-sec{background:radial-gradient(1200px 500px at 85% -10%,rgba(232,0,30,.22),transparent 60%),linear-gradient(160deg,#0f1623 0%,#151d2e 55%,#0b111c 100%);color:#e5e7eb;position:relative;overflow:hidden}
@@ -711,69 +713,22 @@
   @media (max-width:560px){.ts-grid{grid-template-columns:1fr;gap:.9rem}.ts-band{padding:1.1rem}.ts-cta{width:100%;justify-content:center}}
   @media (prefers-reduced-motion:reduce){.ts-card,.ts-go i{transition:none}.ts-card:hover{transform:none}}
   </style>
-  <a class="ts-link" href="{{ test_series_url|default:'#contact' }}" aria-label="Explore the EduTrellis Test Series platform">
+  <a class="ts-link" href="{{ TEST_SERIES_URL }}" aria-label="Explore the EduTrellis Test Series platform">
     <div class="wrap">
       <span class="svc-eyebrow reveal"><i class="fas fa-clipboard-check"></i> Test Series</span>
       <h2 class="reveal">Explore our <span>Test Series</span> platform</h2>
       <div class="accent reveal d1"></div>
       <p class="sub reveal d2">Practise on the real exam pattern with mock tests, sectional tests and previous year papers, then see where you stand</p>
       <div class="ts-grid">
-        <div class="ts-card reveal d1" style="--ts-c:#e8001e">
-          <span class="ts-ic"><i class="fas fa-atom"></i></span>
-          <h3>JEE Main &amp; Advanced</h3>
-          <p>Physics, Chemistry and Maths on the real JEE pattern</p>
-          <div class="ts-tags"><span>Full mocks</span><span>Chapter tests</span><span>PYQs</span></div>
+        {% for ts in test_series_cards %}
+        <div class="ts-card reveal d{% cycle '1' '2' '3' %}" style="--ts-c:{{ ts.color }}">
+          <span class="ts-ic"><i class="fas {{ ts.icon }}"></i></span>
+          <h3>{{ ts.name }}</h3>
+          <p>{{ ts.desc }}</p>
+          <div class="ts-tags">{% for tag in ts.tags %}<span>{{ tag }}</span>{% endfor %}</div>
           <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
         </div>
-        <div class="ts-card reveal d2" style="--ts-c:#16a34a">
-          <span class="ts-ic"><i class="fas fa-stethoscope"></i></span>
-          <h3>NEET UG</h3>
-          <p>Biology-heavy mocks timed exactly like the real NEET</p>
-          <div class="ts-tags"><span>Full mocks</span><span>NCERT-based</span><span>PYQs</span></div>
-          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
-        </div>
-        <div class="ts-card reveal d3" style="--ts-c:#7c3aed">
-          <span class="ts-ic"><i class="fas fa-building-columns"></i></span>
-          <h3>UPSC Prelims</h3>
-          <p>General Studies and CSAT papers with detailed answers</p>
-          <div class="ts-tags"><span>GS + CSAT</span><span>Current affairs</span><span>PYQs</span></div>
-          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
-        </div>
-        <div class="ts-card reveal d1" style="--ts-c:#2563eb">
-          <span class="ts-ic"><i class="fas fa-file-signature"></i></span>
-          <h3>SSC CGL &amp; CHSL</h3>
-          <p>Tier-wise tests for reasoning, quant, English and GK</p>
-          <div class="ts-tags"><span>Tier 1 &amp; 2</span><span>Sectional</span><span>Speed tests</span></div>
-          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
-        </div>
-        <div class="ts-card reveal d2" style="--ts-c:#0891b2">
-          <span class="ts-ic"><i class="fas fa-landmark"></i></span>
-          <h3>Banking: IBPS &amp; SBI</h3>
-          <p>PO and Clerk prelims and mains with sectional timers</p>
-          <div class="ts-tags"><span>PO &amp; Clerk</span><span>Prelims + Mains</span><span>Puzzles</span></div>
-          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
-        </div>
-        <div class="ts-card reveal d3" style="--ts-c:#ea580c">
-          <span class="ts-ic"><i class="fas fa-train"></i></span>
-          <h3>Railways: RRB NTPC</h3>
-          <p>CBT 1 and CBT 2 practice on the latest pattern</p>
-          <div class="ts-tags"><span>CBT 1 &amp; 2</span><span>Group D</span><span>GK boosters</span></div>
-          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
-        </div>
-        <div class="ts-card reveal d1" style="--ts-c:#db2777">
-          <span class="ts-ic"><i class="fas fa-graduation-cap"></i></span>
-          <h3>CUET UG</h3>
-          <p>Domain subjects, languages and the general test</p>
-          <div class="ts-tags"><span>Domain tests</span><span>General test</span><span>Languages</span></div>
-          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
-        </div>
-        <div class="ts-card reveal d2" style="--ts-c:#ca8a04">
-          <span class="ts-ic"><i class="fas fa-book-open"></i></span>
-          <h3>Class 10 &amp; 12 Boards</h3>
-          <p>CBSE sample-paper style tests for every main subject</p>
-          <div class="ts-tags"><span>CBSE</span><span>Sample papers</span><span>Chapter-wise</span></div>
-          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
-        </div>
+        {% endfor %}
       </div>
       <div class="ts-band reveal">
         <div><h3>Ready to test yourself?</h3><p>Pick your exam and take your first test on the EduTrellis Test Series platform.</p></div>
@@ -1472,6 +1427,7 @@ document.querySelectorAll('.gallery-imgbox').forEach(el => {
       <div class="faq-item reveal d3"><div class="faq-q" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false"><span class="faq-num">09</span><span class="faq-qi"><i class="fas fa-headset"></i></span><h4>What support do I get after my website goes live?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>Ongoing bug fixes, updates, backups and technical support through our maintenance service, plus a dedicated manager on management plans. You can reach us anytime on WhatsApp.</p></div></div>
       <div class="faq-item reveal d1"><div class="faq-q" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false"><span class="faq-num">10</span><span class="faq-qi"><i class="fas fa-file-signature"></i></span><h4>Is there a contract or lock-in period?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>The monthly management plan has no long-term lock-in — you can cancel anytime after the first month. The Complete Manager Package is a fixed 6-month commitment at a discounted rate. One-time website projects have no recurring obligations.</p></div></div>
       <div class="faq-item reveal d2"><div class="faq-q" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false"><span class="faq-num">11</span><span class="faq-qi"><i class="fas fa-rocket"></i></span><h4>How do I get started?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>Book a free consultation or message us on WhatsApp. We understand your business and goals, share a plan, then build, launch and keep growing it with you — no commitment until you're happy with the plan.</p></div></div>
+      <div class="faq-item reveal d3"><div class="faq-q" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false"><span class="faq-num">12</span><span class="faq-qi"><i class="fas fa-clipboard-check"></i></span><h4>Which exams does the EduTrellis Test Series cover?</h4><div class="faq-icon"><i class="fas fa-plus"></i></div></div><div class="faq-a"><p>The EduTrellis Test Series has online mock tests for JEE Main &amp; Advanced, NEET UG, UPSC Prelims, SSC CGL &amp; CHSL, banking (IBPS &amp; SBI PO and Clerk), railways (RRB NTPC), CUET UG and Class 10 &amp; 12 boards: full-length mocks, sectional tests and previous year papers on the real exam pattern. <a href="{{ TEST_SERIES_URL }}">Explore the Test Series</a>.</p></div></div>
       </div>
     </div>
   </div>

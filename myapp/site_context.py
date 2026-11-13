@@ -1,3 +1,4 @@
+from . import test_series
 from .models import FounderSection, NavAISettings, PWASettings
 
 
@@ -9,4 +10,5 @@ def context_processor(request):
         'site_customization': PWASettings.get_solo(),
         'NAV_AI': NavAISettings.get_solo(),
         'FOUNDER': FounderSection.get_solo(),
+        'TEST_SERIES_URL': test_series.url(),
     }

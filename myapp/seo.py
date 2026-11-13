@@ -12,6 +12,7 @@ import json
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 
+from myapp import test_series
 from myapp import business_info as biz
 
 SITE = 'https://www.edutrellis.in'
@@ -23,6 +24,7 @@ FOUNDER_ID = SITE + '/#founder'
 # search engines — Google picks its sitelinks itself, but it leans on the
 # pages a site links to most prominently and describes most clearly.
 SECTIONS = [
+    (test_series.NAME, test_series.absolute_url(), test_series.DESCRIPTION),
     ('EduTrellis Store', SITE + '/store/',
      'Official EduTrellis online store: EduTrellis AI plans, speakers, gadgets and toys with delivery across India.'),
     ('EduTrellis AI', SITE + '/ai/',
@@ -30,7 +32,7 @@ SECTIONS = [
     ('Privacy Policy', SITE + '/store/policy/privacy/',
      'How EduTrellis collects, uses and protects your data across the EduTrellis Store, EduTrellis AI and EduChats.'),
     ('EduChats', SITE + '/educhats/',
-     "EduChats — India's own chat app by EduTrellis: free messaging, photos, voice notes, calls and the EduChats map."),
+     "EduChats — India's own chat app by EduTrellis: free messaging, photos, voice notes, calls and stories."),
     ('Website Development & SEO Services', SITE + '/',
      'Website design, development and management, SEO, Meta Ads and Google Business Profile services for businesses across India.'),
     ('Contact EduTrellis', SITE + '/#contact',
@@ -68,9 +70,10 @@ def graph(logo_url):
         'url': SITE + '/',
         'logo': logo_url,
         'image': logo_url,
-        'description': ('EduTrellis is a digital growth company in Lucknow, India: website development '
-                        'and management, SEO and digital marketing, the EduTrellis online store, '
-                        'EduTrellis AI and EduChats.'),
+        'description': ('EduTrellis is a digital growth company in Lucknow, India: the EduTrellis Test Series '
+                        'platform (online mock tests for JEE, NEET, UPSC, SSC, banking, railways, CUET and '
+                        'boards), website development and management, SEO and digital marketing, the '
+                        'EduTrellis online store, EduTrellis AI and EduChats.'),
         'email': biz.EMAIL_SUPPORT,
         'telephone': biz.PHONE_E164,
         'address': _postal_address(),
@@ -100,7 +103,7 @@ def graph(logo_url):
         if f.linkedin:
             person['sameAs'] = [f.linkedin]
         if f.photo:
-            person['image'] = SITE + f.photo.url
+            person['image'] = absolute(f.photo.url)
         nodes.append(person)
         org['founder'] = {'@id': FOUNDER_ID}
         org['employee'] = [{'@id': FOUNDER_ID}]
@@ -112,6 +115,7 @@ def graph(logo_url):
         'inLanguage': 'en-IN',
         'publisher': {'@id': ORG_ID},
     })
+    nodes.append(_test_series_node())
     nodes.append({
         '@type': 'ItemList',
         '@id': SITE + '/#sections',
@@ -122,6 +126,37 @@ def graph(logo_url):
         ],
     })
     return {'@context': 'https://schema.org', '@graph': nodes}
+
+
+def _test_series_node():
+    """The Test Series platform: one Course per exam, offered by EduTrellis."""
+    link = test_series.absolute_url()
+    return {
+        '@type': 'ItemList',
+        '@id': SITE + '/#test-series',
+        'name': test_series.NAME,
+        'description': test_series.DESCRIPTION,
+        'url': link,
+        'itemListElement': [
+            {'@type': 'ListItem', 'position': i, 'item': {
+                '@type': 'Course',
+                'name': f'{name} Test Series',
+                'description': f'{desc}. Online mock tests by EduTrellis.',
+                'url': link,
+                'educationalLevel': 'Competitive exam' if 'Boards' not in name else 'Class 10 and 12',
+                'keywords': kws,
+                'inLanguage': 'en-IN',
+                'provider': {'@id': ORG_ID},
+            }}
+            for i, (_, name, desc, _, _, kws) in enumerate(test_series.SERIES, 1)
+        ],
+    }
+
+
+def absolute(url):
+    """A full URL for a file or static URL: stored Dropbox links already are."""
+    url = str(url or '')
+    return url if url.startswith(('http://', 'https://')) else SITE + url
 
 
 def to_script_json(data):
