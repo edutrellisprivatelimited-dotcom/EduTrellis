@@ -363,6 +363,7 @@ LOGGING = {
     },
 }
 
-# Homepage "Explore our Test Series platform" section: every click goes here.
-# Until it's set, the section falls back to the homepage contact form.
-TEST_SERIES_URL = os.environ.get('TEST_SERIES_URL', '').strip()
+# The EduTrellis Test Series platform: the homepage section, the navbar's
+# "Test Series" link and the SEO data all send people here (myapp/test_series.py).
+# The TEST_SERIES_URL env var overrides it.
+TEST_SERIES_URL = os.environ.get('TEST_SERIES_URL', '').strip() or 'https://www.exams.edutrellis.in/'
