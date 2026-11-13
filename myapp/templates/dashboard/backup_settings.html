@@ -2,9 +2,21 @@
 {% block title %}Backup Settings{% endblock %}
 {% block page_title %}Backup Settings{% endblock %}
 
-{% block content %}
-{% if saved %}<div class="save-msg"><i class="fas fa-circle-check"></i> Saved.</div>{% endif %}
+{% block extra_head %}
+<style>
+.set-sec{font-size:.74rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#8a93a3;margin:1.6rem 0 .7rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+.set-sec:first-of-type{border-top:none;padding-top:0;margin-top:0}
+.check-row{display:flex;gap:.6rem;align-items:flex-start;cursor:pointer}
+.check-row input{width:18px;height:18px;margin-top:.15rem;accent-color:var(--red)}
+.check-row b{display:block;color:var(--head);font-size:.9rem}
+.check-row span{font-size:.8rem;color:var(--text)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
+.errorlist{color:var(--red);font-size:.8rem;margin-top:.3rem;list-style:none}
+</style>
+{% endblock %}
 
+{% block content %}
 {% if not dropbox_installed %}
 <div class="panel" style="padding:1.1rem 1.4rem;background:#fff7e6;border-color:#f5c26b">
   <b style="color:#b45309"><i class="fas fa-triangle-exclamation"></i> The <code>dropbox</code> Python package isn't installed on this server yet.</b>
@@ -12,33 +24,53 @@
 </div>
 {% endif %}
 
-<form class="form-card" style="max-width:640px" method="post">
+<form class="form-card" style="max-width:680px" method="post">
   {% csrf_token %}
 
+  <div class="set-sec"><i class="fab fa-dropbox"></i> Dropbox connection</div>
   <div class="form-group">
     <label for="{{ form.app_key.id_for_label }}">Dropbox App Key</label>
     {{ form.app_key }}
-    <div class="help">From your app at the Dropbox App Console.</div>
+    <div class="help">From your app at the Dropbox App Console. Leave blank to use the server's own settings.</div>
     {{ form.app_key.errors }}
   </div>
-
   <div class="form-group">
     <label for="{{ form.app_secret.id_for_label }}">Dropbox App Secret</label>
     {{ form.app_secret }}
     {{ form.app_secret.errors }}
   </div>
-
   <div class="form-group">
     <label for="{{ form.refresh_token.id_for_label }}">Dropbox Refresh Token</label>
     {{ form.refresh_token }}
+    <div class="help">Made once through your app's OAuth2 flow with <code>token_access_type=offline</code> — unlike a normal access token it doesn't expire. Give the app the <code>files.content.write</code>, <code>files.content.read</code>, <code>sharing.write</code>, <code>sharing.read</code> and <code>account_info.read</code> permissions.</div>
     {{ form.refresh_token.errors }}
   </div>
 
+  <div class="set-sec"><i class="fas fa-folder"></i> Folders</div>
   <div class="form-group">
-    <div class="help">
-      Backups are stored under <code>/EduTrellis Store/backups/</code> in this Dropbox account.
-      A refresh token is generated once via your app's OAuth2 authorization flow with
-      <code>token_access_type=offline</code> — unlike a normal access token, it doesn't expire.
+    <label for="{{ form.backup_folder.id_for_label }}">Backup folder in Dropbox</label>
+    {{ form.backup_folder }}
+    <div class="help">Database backups are saved here, e.g. <code>/EduTrellis Store/backups</code>. The folder is created if it doesn't exist.</div>
+    {{ form.backup_folder.errors }}
+  </div>
+  <label class="check-row" for="{{ form.move_existing.id_for_label }}">{{ form.move_existing }}
+    <div><b>Move the existing backups too</b><span>When you change the folder, the backups already saved are moved to the new one so they stay in Backup History.</span></div></label>
+  <div class="help" style="margin-top:.9rem;font-size:.8rem"><i class="fas fa-circle-info"></i> Uploaded images and files (website, EduTrellis AI, EduChats) always live in <code>{{ media_root }}</code>; that folder is fixed so links to them never break.</div>
+
+  <div class="set-sec"><i class="fas fa-clock"></i> Automatic backups</div>
+  <label class="check-row" for="{{ form.auto_backup_enabled.id_for_label }}">{{ form.auto_backup_enabled }}
+    <div><b>Back up automatically</b><span>Saves <code>EduTrellis_AutoBackup_…</code> copies on a schedule{% if not auto_runs_here %} (runs on the live server only){% endif %}.</span></div></label>
+  <div class="two" style="margin-top:1rem">
+    <div class="form-group">
+      <label for="{{ form.auto_backup_every_hours.id_for_label }}">How often</label>
+      {{ form.auto_backup_every_hours }}
+      {{ form.auto_backup_every_hours.errors }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.auto_backup_keep.id_for_label }}">Automatic backups to keep</label>
+      {{ form.auto_backup_keep }}
+      <div class="help">Older automatic ones are deleted. Manual, uploaded and BeforeRestore backups are never deleted automatically.</div>
+      {{ form.auto_backup_keep.errors }}
     </div>
   </div>
 

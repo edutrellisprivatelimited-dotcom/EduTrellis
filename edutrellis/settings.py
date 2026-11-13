@@ -322,6 +322,9 @@ DROPBOX_REFRESH_TOKEN = 'Si57f7yXuB0AAAAAAAAAAZGrsYbd1YLQpvGHxlJES4DRvKr7mDfZo8x
 # Tests that mean to cover archiving turn it back on with override_settings
 # and patch the client, so they never touch the network.
 DROPBOX_IMAGE_ARCHIVE_ENABLED = not TESTING
+# Automatic database backups (myapp/auto_backup.py): the live server only, so a
+# local run never writes backups into the production Dropbox.
+AUTO_BACKUP_RUNS = ON_RAILWAY and not TESTING
 # Long messages and long chats are shortened before they reach the chat model
 # (ai_app.context_compress). Off under tests so no test calls the real model.
 AI_CONTEXT_COMPRESSION_ENABLED = DROPBOX_IMAGE_ARCHIVE_ENABLED

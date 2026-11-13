@@ -451,9 +451,29 @@ class DropboxSettingsForm(forms.ModelForm):
         help_text="A long-lived OAuth2 refresh token for your Dropbox app (doesn't expire like a short-lived access token).",
     )
 
+    move_existing = forms.BooleanField(
+        required=False, initial=True,
+        help_text='When the folder changes, move the backups already in the old folder there too.',
+    )
+
     class Meta:
         model = DropboxSettings
-        fields = ['app_key', 'app_secret', 'refresh_token']
+        fields = ['app_key', 'app_secret', 'refresh_token', 'backup_folder',
+                  'auto_backup_enabled', 'auto_backup_every_hours', 'auto_backup_keep']
+        widgets = {'backup_folder': forms.TextInput(attrs={'spellcheck': 'false', 'autocomplete': 'off'})}
+
+    def clean_backup_folder(self):
+        from myapp.dropbox_backup import BackupError, clean_folder
+        try:
+            return clean_folder(self.cleaned_data.get('backup_folder'))
+        except BackupError as exc:
+            raise forms.ValidationError(str(exc))
+
+    def clean_auto_backup_keep(self):
+        keep = self.cleaned_data.get('auto_backup_keep') or 14
+        if not 1 <= keep <= 200:
+            raise forms.ValidationError('Keep between 1 and 200 automatic backups.')
+        return keep
 
 
 class PWASettingsForm(forms.ModelForm):

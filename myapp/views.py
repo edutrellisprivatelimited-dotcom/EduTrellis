@@ -1915,22 +1915,51 @@ def dashboard_payments(request):
     })
 
 
+def _stored_files_overview(q=''):
+    """Dashboard → Backup & Restore → Uploaded files: what is in Dropbox
+    '/EduTrellis Site', by folder, and the newest (or searched) files."""
+    from myapp.models import StoredFile
+    groups = {}
+    total_size = 0
+    for name, size in StoredFile.objects.values_list('name', 'size').iterator():
+        parts = name.split('/')
+        key = '/'.join(parts[:2]) if parts[0] in ('website', 'ai', 'educhats') and len(parts) > 2 else parts[0]
+        count, used = groups.get(key, (0, 0))
+        groups[key] = (count + 1, used + (size or 0))
+        total_size += size or 0
+    folders = [{'name': k, 'files': c, 'size': u, 'private': dropbox_storage.is_private(k + '/')}
+               for k, (c, u) in sorted(groups.items())]
+    files = StoredFile.objects.order_by('-created_at')
+    if q:
+        files = files.filter(name__icontains=q)
+    recent = [{'name': f.name, 'size': f.size, 'created_at': f.created_at, 'private': dropbox_storage.is_private(f.name),
+               'url': settings.MEDIA_URL + f.name} for f in files[:60]]
+    return {'folders': folders, 'recent': recent, 'total_files': sum(c for c, _ in groups.values()),
+            'total_size': total_size, 'matches': files.count() if q else None}
+
+
 @xframe_options_sameorigin   # EduChats ⋮ → Backup shows this page in a pop-up
 @dashboard_staff_required
 def dashboard_backup(request):
+    from myapp import auto_backup
     settings_obj = DropboxSettings.get_solo()
-    backups = []
-    list_error = None
-    if settings_obj.is_configured:
-        try:
-            backups = dropbox_backup.list_backups(settings_obj)
-        except dropbox_backup.BackupError as exc:
-            list_error = str(exc)
-
+    backups, list_error, connection = [], None, None
+    if settings_obj.is_configured and dropbox_backup.dropbox is not None:
+        connection = dropbox_backup.connection_info(settings_obj, fresh=bool(request.GET.get('check')))
+        if connection['ok']:
+            try:
+                backups = dropbox_backup.list_backups(settings_obj)
+            except dropbox_backup.BackupError as exc:
+                list_error = str(exc)
+    q = request.GET.get('q', '').strip()[:100]
     return render(request, 'dashboard/backup.html', {
         'active': 'backup', 'settings_obj': settings_obj, 'backups': backups,
         'list_error': list_error, 'dropbox_installed': dropbox_backup.dropbox is not None,
-        'backup_folder': dropbox_backup.BACKUP_FOLDER,
+        'connection': connection, 'backup_folder': dropbox_backup.folder(settings_obj),
+        'media_root': settings.DROPBOX_MEDIA_ROOT, 'latest_name': dropbox_backup.LATEST_NAME,
+        'next_auto': auto_backup.next_due(settings_obj), 'auto_runs_here': settings.AUTO_BACKUP_RUNS,
+        'last_backup': backups[0] if backups else None,
+        'files': _stored_files_overview(q), 'q': q,
     })
 
 
@@ -1938,15 +1967,31 @@ def dashboard_backup(request):
 @dashboard_staff_required
 def dashboard_backup_settings(request):
     settings_obj = DropboxSettings.get_solo()
+    old_folder = dropbox_backup.folder(settings_obj)
     form = DropboxSettingsForm(request.POST or None, instance=settings_obj)
-    saved = False
     if request.method == 'POST' and form.is_valid():
-        form.save()
-        saved = True
-        form = DropboxSettingsForm(instance=settings_obj)
+        settings_obj = form.save()
+        dropbox_backup._status_cache.clear()
+        try:
+            from ai_app import dropbox_images
+            dropbox_images.reset_credentials()
+        except Exception:
+            pass
+        new_folder = dropbox_backup.folder(settings_obj)
+        if new_folder != old_folder and form.cleaned_data.get('move_existing'):
+            try:
+                moved = dropbox_backup.move_folder(settings_obj, old_folder, new_folder)
+                plural = 's' if moved != 1 else ''
+                messages.success(request, f'Settings saved. Moved {moved} backup file{plural} from {old_folder} to {new_folder}.')
+            except dropbox_backup.BackupError as exc:
+                messages.error(request, f'Settings saved, but the old backups could not be moved: {exc}')
+        else:
+            messages.success(request, 'Backup settings saved.')
+        return redirect('dashboard_backup')
     return render(request, 'dashboard/backup_settings.html', {
-        'active': 'backup', 'form': form, 'settings_obj': settings_obj, 'saved': saved,
+        'active': 'backup', 'form': form, 'settings_obj': settings_obj,
         'dropbox_installed': dropbox_backup.dropbox is not None,
+        'media_root': settings.DROPBOX_MEDIA_ROOT, 'auto_runs_here': settings.AUTO_BACKUP_RUNS,
     })
 
 
@@ -1962,6 +2007,20 @@ def dashboard_backup_run(request):
     return redirect('dashboard_backup')
 
 
+def _keep_session_after_restore(request):
+    """A restore swaps the database out from under this very request, taking
+    the django_session table — and this request's own row — with it. Without
+    recreating it, SessionMiddleware's save() at the end of the request can't
+    find the row to UPDATE and raises SessionInterrupted. must_create=True
+    INSERTs into the restored table instead, so the admin stays logged in; if
+    the backup was taken during this same login the row exists, so UPDATE it."""
+    from django.contrib.sessions.backends.base import CreateError
+    try:
+        request.session.save(must_create=True)
+    except CreateError:
+        request.session.save()
+
+
 @dashboard_staff_required
 def dashboard_backup_restore(request):
     if request.method == 'POST':
@@ -1972,25 +2031,75 @@ def dashboard_backup_restore(request):
         else:
             try:
                 safety = dropbox_backup.restore_backup(settings_obj, filename)
-                # restore_backup just swapped out db.sqlite3 from under this
-                # very request, taking the django_session table — and this
-                # request's own session row — with it. Without recreating it,
-                # SessionMiddleware's save() at the end of the request can't
-                # find the row to UPDATE and raises SessionInterrupted.
-                # must_create=True forces an INSERT into the freshly-restored
-                # table instead, so the admin doesn't get logged out or hit
-                # an error page by restoring a backup.
-                # If the backup was taken during this same login it already
-                # has this session's row, so INSERT fails — then UPDATE it.
-                from django.contrib.sessions.backends.base import CreateError
-                try:
-                    request.session.save(must_create=True)
-                except CreateError:
-                    request.session.save()
+                _keep_session_after_restore(request)
                 messages.success(request, f'Database restored from "{filename}". Your data from just before the restore '
                                           f'was saved as "{safety}" — restore that to undo.')
             except dropbox_backup.BackupError as exc:
                 messages.error(request, str(exc))
+    return redirect('dashboard_backup')
+
+
+@dashboard_staff_required
+def dashboard_backup_upload(request):
+    """Upload a database file: keep it in the backups, or restore it now."""
+    if request.method == 'POST':
+        uploaded = request.FILES.get('database')
+        restore = request.POST.get('then') == 'restore'
+        if not uploaded:
+            messages.error(request, 'Choose a database file (.sqlite3) to upload.')
+            return redirect('dashboard_backup')
+        try:
+            stored, safety = dropbox_backup.upload_database(DropboxSettings.get_solo(), uploaded, restore=restore)
+            if restore:
+                _keep_session_after_restore(request)
+                messages.success(request, f'Database restored from the uploaded "{uploaded.name}" (kept on Dropbox as '
+                                          f'"{stored}"). Your data from just before was saved as "{safety}" — restore that to undo.')
+            else:
+                messages.success(request, f'"{uploaded.name}" checked and saved to the Dropbox backups as "{stored}". '
+                                          f'Restore it from Backup History whenever you need it.')
+        except dropbox_backup.BackupError as exc:
+            messages.error(request, str(exc))
+    return redirect('dashboard_backup')
+
+
+@dashboard_staff_required
+def dashboard_backup_download(request):
+    """Download one backup from Dropbox (?name=…), or the live database (?live=1)."""
+    from django.http import StreamingHttpResponse
+    if request.GET.get('live'):
+        try:
+            data = dropbox_backup.snapshot_database()
+        except dropbox_backup.BackupError as exc:
+            messages.error(request, str(exc))
+            return redirect('dashboard_backup')
+        stamp = timezone.localtime().strftime('%Y-%m-%d_%H-%M-%S')
+        response = HttpResponse(data, content_type='application/vnd.sqlite3')
+        response['Content-Disposition'] = f'attachment; filename="{dropbox_backup.BRAND}_Database_{stamp}.sqlite3"'
+    else:
+        name = request.GET.get('name', '')
+        try:
+            chunks, size = dropbox_backup.download_backup(DropboxSettings.get_solo(), name)
+        except dropbox_backup.BackupError as exc:
+            messages.error(request, str(exc))
+            return redirect('dashboard_backup')
+        response = StreamingHttpResponse(chunks, content_type='application/vnd.sqlite3')
+        response['Content-Length'] = str(size)
+        response['Content-Disposition'] = f'attachment; filename="{name}"'
+    response['Cache-Control'] = 'private, no-store'
+    response['X-Content-Type-Options'] = 'nosniff'
+    return response
+
+
+@dashboard_staff_required
+def dashboard_backup_delete(request):
+    """Backup History → Delete on one row."""
+    if request.method == 'POST':
+        name = request.POST.get('filename', '').strip()
+        try:
+            dropbox_backup.delete_backup(DropboxSettings.get_solo(), name)
+            messages.success(request, f'Deleted "{name}" from Dropbox.')
+        except dropbox_backup.BackupError as exc:
+            messages.error(request, str(exc))
     return redirect('dashboard_backup')
 
 
@@ -2006,7 +2115,7 @@ def dashboard_backup_delete_all(request):
             if total:
                 plural = 's' if databases != 1 else ''
                 messages.success(request, f'Deleted all backups from Dropbox: {databases} database backup{plural} '
-                                          f'({total} files including the image archives and latest copies).')
+                                          f'({total} files including the latest copy and older image archives).')
             else:
                 messages.success(request, 'There were no backups on Dropbox to delete.')
         except dropbox_backup.BackupError as exc:

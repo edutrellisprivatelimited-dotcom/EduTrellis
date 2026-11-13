@@ -295,3 +295,107 @@ class MediaRedirectTests(TestCase):
         from unittest import mock
         with mock.patch('myapp.dropbox_storage.temporary_link', side_effect=FileNotFoundError):
             self.assertEqual(self.client.get('/media/products/none.jpg').status_code, 404)
+
+
+class BackupTests(TestCase):
+    """Dashboard → Backup & Restore. Dropbox itself is never called here."""
+
+    def setUp(self):
+        self.staff = User.objects.create_user(username='backup-admin@example.com', password='pw-123456789', is_staff=True)
+        self.client.force_login(self.staff)
+
+    def test_backup_names_carry_the_brand_date_and_kind(self):
+        from datetime import datetime, timezone as tz
+        from myapp import dropbox_backup as b
+        when = datetime(2026, 11, 14, 4, 30, 15, tzinfo=tz.utc)   # 10:00:15 IST
+        self.assertEqual(b.backup_filename(b.KIND_MANUAL, when), 'EduTrellis_Backup_2026-11-14_10-00-15.sqlite3')
+        self.assertEqual(b.backup_filename(b.KIND_AUTO, when), 'EduTrellis_AutoBackup_2026-11-14_10-00-15.sqlite3')
+        for name, kind in [('EduTrellis_BeforeRestore_2026-11-14_10-00-15.sqlite3', b.KIND_SAFETY),
+                           ('EduTrellis_Uploaded_2026-11-14_10-00-15_1.sqlite3', b.KIND_UPLOAD),
+                           ('db_20261113_020345_before_restore.sqlite3', b.KIND_SAFETY),
+                           ('db_20261102_233956.sqlite3', b.KIND_MANUAL)]:
+            self.assertTrue(b.is_backup_name(name), name)
+            self.assertEqual(b.kind_of(name), kind, name)
+        for name in ('EduTrellis_Latest.sqlite3', 'db_latest.sqlite3', '../db.sqlite3', 'x/db_1.sqlite3', 'notes.txt'):
+            self.assertFalse(b.is_backup_name(name), name)
+
+    def test_backup_folder_is_checked(self):
+        from myapp import dropbox_backup as b
+        self.assertEqual(b.clean_folder('EduTrellis Store//backups/'), '/EduTrellis Store/backups')
+        for bad in ('/', '/a/../b', '/EduTrellis Site/backups', '/a/b?', ''):
+            with self.assertRaises(b.BackupError, msg=bad):
+                b.clean_folder(bad)
+
+    def test_page_shows_connection_backups_and_files(self):
+        from unittest import mock
+        from myapp import dropbox_backup as b
+        meta = mock.Mock(size=2048, client_modified=None)
+        meta.name = 'EduTrellis_AutoBackup_2026-11-14_10-00-15.sqlite3'
+        StoredFile.objects.create(name='website/home/hero/a.webp', size=10)
+        StoredFile.objects.create(name='educhats/dm/2026/11/b.jpg', size=20)
+        with override_settings(DROPBOX_REFRESH_TOKEN='t', DROPBOX_APP_KEY='k', DROPBOX_APP_SECRET='s'), \
+                mock.patch.object(b, 'connection_info', return_value={'ok': True, 'name': 'Owner', 'email': 'o@x.in',
+                                                                     'used': 10, 'allocated': 100, 'error': ''}), \
+                mock.patch.object(b, 'list_backups', return_value=[b.BackupFile(meta)]):
+            html = self.client.get('/store/dashboard/backup/').content.decode()
+        self.assertIn('Connected', html)
+        self.assertIn('Owner', html)
+        self.assertIn('/EduTrellis Store/backups', html)
+        self.assertIn('EduTrellis_AutoBackup_2026-11-14_10-00-15.sqlite3', html)
+        self.assertIn('Automatic', html)
+        self.assertIn('website/home/hero/a.webp', html)
+        self.assertIn('fa-lock', html)   # the EduChats file is private
+
+    def test_delete_one_and_download_go_through_dropbox_backup(self):
+        from unittest import mock
+        from myapp import dropbox_backup as b
+        name = 'EduTrellis_Backup_2026-11-14_10-00-15.sqlite3'
+        with mock.patch.object(b, 'delete_backup') as delete:
+            self.client.post('/store/dashboard/backup/delete/', {'filename': name})
+        self.assertEqual(delete.call_args[0][1], name)
+        with mock.patch.object(b, 'download_backup', return_value=(iter([b'SQLite']), 6)):
+            response = self.client.get('/store/dashboard/backup/download/', {'name': name})
+        self.assertEqual(b''.join(response.streaming_content), b'SQLite')
+        self.assertIn(name, response['Content-Disposition'])
+
+    def test_uploaded_file_must_be_an_edutrellis_database(self):
+        from unittest import mock
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from myapp import dropbox_backup as b
+        with mock.patch.object(b, '_client') as client, mock.patch.object(b, 'connection_info', return_value={'ok': False, 'error': 'offline'}):
+            with self.assertRaisesMessage(b.BackupError, 'not an SQLite database'):
+                b.upload_database(None, SimpleUploadedFile('x.sqlite3', b'not a database'), restore=True)
+            response = self.client.post('/store/dashboard/backup/upload/',
+                                        {'database': SimpleUploadedFile('x.sqlite3', b'not a database'), 'then': 'restore'},
+                                        follow=True)
+        client.assert_not_called()   # rejected before anything reaches Dropbox
+        self.assertContains(response, 'not an SQLite database')
+
+    def test_backup_pages_are_staff_only(self):
+        self.client.logout()
+        for url in ('/store/dashboard/backup/', '/store/dashboard/backup/download/?live=1'):
+            self.assertNotEqual(self.client.get(url).status_code, 200, url)
+
+    def test_automatic_backup_runs_once_when_due_and_prunes(self):
+        from unittest import mock
+        from django.utils import timezone
+        from myapp import auto_backup, dropbox_backup as b
+        from myapp.models import DropboxSettings
+        DropboxSettings.objects.update_or_create(pk=1, defaults={'app_key': 'k', 'app_secret': 's', 'refresh_token': 't',
+                                                                 'auto_backup_enabled': True, 'auto_backup_keep': 3})
+        with mock.patch.object(b, 'create_backup', return_value='EduTrellis_AutoBackup_x.sqlite3') as create, \
+                mock.patch.object(b, 'prune_auto_backups') as prune:
+            self.assertEqual(auto_backup.run_if_due(), 'EduTrellis_AutoBackup_x.sqlite3')
+            self.assertIsNone(auto_backup.run_if_due())   # not due again for a day
+        create.assert_called_once()
+        self.assertEqual(create.call_args.kwargs['kind'], b.KIND_AUTO)
+        self.assertEqual(prune.call_args[0][1], 3)
+        self.assertLess(timezone.now() - DropboxSettings.get_solo().last_auto_backup_at, timezone.timedelta(minutes=1))
+
+    def test_restore_keeps_the_current_dropbox_settings(self):
+        from myapp import dropbox_backup as b
+        from myapp.models import DropboxSettings
+        DropboxSettings.objects.update_or_create(pk=1, defaults={'refresh_token': 'old', 'backup_folder': '/Old'})
+        b._keep_dropbox_settings({'refresh_token': 'current', 'backup_folder': '/Current/backups'})
+        row = DropboxSettings.get_solo()
+        self.assertEqual((row.refresh_token, row.backup_folder), ('current', '/Current/backups'))

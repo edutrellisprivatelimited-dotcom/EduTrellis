@@ -842,6 +842,15 @@ class DropboxSettings(models.Model):
     app_key       = models.CharField(max_length=200, blank=True)
     app_secret    = models.CharField(max_length=200, blank=True)
     refresh_token = models.CharField(max_length=400, blank=True)
+    # Where database backups go in this Dropbox (Backup Settings can move it).
+    backup_folder = models.CharField(max_length=200, default='/EduTrellis Store/backups')
+    # Automatic backups (myapp/auto_backup.py, runs on the live server only).
+    AUTO_EVERY_CHOICES = [(6, 'Every 6 hours'), (12, 'Every 12 hours'), (24, 'Every day'), (168, 'Every week')]
+    auto_backup_enabled = models.BooleanField(default=True)
+    auto_backup_every_hours = models.PositiveSmallIntegerField(default=24, choices=AUTO_EVERY_CHOICES)
+    auto_backup_keep = models.PositiveSmallIntegerField(default=14, help_text='How many automatic backups to keep; older ones are deleted.')
+    last_auto_backup_at = models.DateTimeField(null=True, blank=True)
+    last_auto_backup_error = models.CharField(max_length=300, blank=True)
     updated_at    = models.DateTimeField(auto_now=True)
 
     class Meta:
