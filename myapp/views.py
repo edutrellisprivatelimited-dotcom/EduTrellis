@@ -130,6 +130,34 @@ def home(request):
     })
 
 
+def test_series_page(request):
+    """/test-series/ — the Test Series on the main site, so search engines can
+    list it with EduTrellis (sitelinks). Every click goes to the platform."""
+    from myapp import test_series
+    page = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {'@type': 'WebPage', '@id': test_series.PAGE_URL, 'url': test_series.PAGE_URL,
+             'name': test_series.NAME, 'description': test_series.DESCRIPTION, 'inLanguage': 'en-IN',
+             'isPartOf': {'@id': 'https://www.edutrellis.in/#website'},
+             'about': {'@id': 'https://www.edutrellis.in/#test-series'},
+             'potentialAction': {'@type': 'ViewAction', 'target': test_series.absolute_url()}},
+            {'@type': 'FAQPage', 'mainEntity': [
+                {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}}
+                for q, a in test_series.FAQS]},
+            {'@type': 'BreadcrumbList', 'itemListElement': [
+                {'@type': 'ListItem', 'position': 1, 'name': 'EduTrellis', 'item': 'https://www.edutrellis.in/'},
+                {'@type': 'ListItem', 'position': 2, 'name': 'Test Series', 'item': test_series.PAGE_URL}]},
+        ],
+    }
+    return render(request, 'test_series.html', {
+        'test_series_cards': test_series.cards(),
+        'test_series_keywords': test_series.keywords(),
+        'faqs': test_series.FAQS,
+        'page_schema': to_script_json(page),
+    })
+
+
 def ai_redirect(request):
     """/AI/, /aii/ — old typo'd/legacy links to the AI chat, which now lives
     at /ai/ (a real in-app page, ai_app.views.ai_page) rather than an

@@ -24,7 +24,7 @@ FOUNDER_ID = SITE + '/#founder'
 # search engines — Google picks its sitelinks itself, but it leans on the
 # pages a site links to most prominently and describes most clearly.
 SECTIONS = [
-    (test_series.NAME, test_series.absolute_url(), test_series.DESCRIPTION),
+    (test_series.NAME, test_series.PAGE_URL, test_series.DESCRIPTION),
     ('EduTrellis Store', SITE + '/store/',
      'Official EduTrellis online store: EduTrellis AI plans, speakers, gadgets and toys with delivery across India.'),
     ('EduTrellis AI', SITE + '/ai/',

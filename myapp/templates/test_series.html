@@ -1,0 +1,69 @@
+{% load static asset_version seo_tags %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduTrellis Test Series — Online Mock Tests for JEE, NEET, UPSC, SSC &amp; Banking</title>
+<meta name="description" content="EduTrellis Test Series: online mock tests and test series for JEE Main &amp; Advanced, NEET UG, UPSC Prelims, SSC CGL &amp; CHSL, IBPS &amp; SBI, RRB NTPC, CUET UG and CBSE boards. Full mocks, sectional tests and previous year papers.">
+<meta name="keywords" content="EduTrellis Test Series, online test series, mock test, {{ test_series_keywords|join:', ' }}">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.edutrellis.in/test-series/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="EduTrellis">
+<meta property="og:title" content="EduTrellis Test Series — Online Mock Tests">
+<meta property="og:description" content="Mock tests for JEE, NEET, UPSC, SSC, banking, railways, CUET and boards on the real exam pattern.">
+<meta property="og:url" content="https://www.edutrellis.in/test-series/">
+<meta property="og:image" content="{% if site_customization.share_image %}{{ site_customization.share_image.url|absolute }}{% else %}https://www.edutrellis.in{% static 'img/og-cover.jpg' %}{% endif %}">
+<meta property="og:locale" content="en_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="EduTrellis Test Series — Online Mock Tests">
+<meta name="twitter:description" content="Mock tests for JEE, NEET, UPSC, SSC, banking, railways, CUET and boards on the real exam pattern.">
+{% site_schema %}
+<script type="application/ld+json">{{ page_schema|safe }}</script>
+{% include "includes/favicon.html" %}
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% versioned_static 'style.css' %}">
+<style>
+body{background:#0b111c;margin:0}
+.reveal{opacity:1!important;transform:none!important}
+.tp-head{position:sticky;top:0;z-index:10;background:rgba(11,17,28,.86);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}
+.tp-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 1rem}
+.tp-logo{font-family:var(--font-head);font-weight:900;font-size:1.2rem;letter-spacing:-.03em;color:#fff;text-decoration:none}
+.tp-logo span{color:var(--red)}
+.tp-go{display:inline-flex;align-items:center;gap:.45rem;padding:.6rem 1.1rem;border-radius:999px;background:var(--red);color:#fff;font-weight:800;font-size:.86rem;text-decoration:none;box-shadow:0 8px 22px rgba(232,0,30,.35)}
+.ts-sec{padding-top:70px!important}
+.tp-faq{background:#0b111c;color:#c3cad8;padding:10px 1.25rem 70px}
+.tp-faq .wrap{max-width:820px}
+.tp-faq h2{font-family:var(--font-head);color:#fff;font-size:1.5rem;margin:0 0 1rem;text-align:center}
+.tp-faq details{border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.03);padding:1rem 1.2rem;margin-bottom:.7rem}
+.tp-faq summary{cursor:pointer;color:#fff;font-weight:700;font-size:.98rem}
+.tp-faq p{margin:.6rem 0 0;font-size:.9rem;line-height:1.6}
+.tp-faq a{color:#ff8fa0}
+.tp-foot{background:#080d16;color:#7d869a;text-align:center;font-size:.8rem;padding:1.4rem 1rem}
+.tp-foot a{color:#aab3c5;margin:0 .5rem}
+@media (max-width:560px){.tp-go span{display:none}.tp-go{padding:.6rem .8rem}}
+</style>
+</head>
+<body>
+<header class="tp-head">
+  <div class="wrap">
+    <a class="tp-logo" href="/">Edu<span>Trellis</span></a>
+    <a class="tp-go" href="{{ TEST_SERIES_URL }}"><span>Open Test Series</span> <i class="fas fa-arrow-right"></i></a>
+  </div>
+</header>
+<main>
+{% include "includes/test_series_section.html" with ts_h1=True %}
+<section class="tp-faq" aria-label="Questions about the EduTrellis Test Series">
+  <div class="wrap">
+    <h2>Questions about the Test Series</h2>
+    {% for q, a in faqs %}<details><summary>{{ q }}</summary><p>{{ a }} <a href="{{ TEST_SERIES_URL }}">Open the Test Series</a>.</p></details>
+    {% endfor %}
+  </div>
+</section>
+</main>
+<footer class="tp-foot">
+  © EduTrellis · <a href="/">Home</a><a href="{% url 'estore' %}">Store</a><a href="{% url 'ai_home' %}">EduTrellis AI</a><a href="{% url 'policy_page' 'privacy' %}">Privacy</a>
+</footer>
+</body>
+</html>

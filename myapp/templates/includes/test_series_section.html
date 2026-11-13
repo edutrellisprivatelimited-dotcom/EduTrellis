@@ -1,0 +1,56 @@
+{# The Test Series section: homepage (h2) and /test-series/ (h1, ts_h1=True). Needs test_series_cards + TEST_SERIES_URL. #}
+<!-- TEST SERIES: the whole section is one link to the test series platform (myapp/test_series.py) -->
+<section id="test-series" class="ts-sec">
+  <style>
+  .ts-sec{background:radial-gradient(1200px 500px at 85% -10%,rgba(232,0,30,.22),transparent 60%),linear-gradient(160deg,#0f1623 0%,#151d2e 55%,#0b111c 100%);color:#e5e7eb;position:relative;overflow:hidden}
+  .ts-link{display:block;color:inherit;text-decoration:none;cursor:pointer}
+  .ts-link:focus-visible{outline:3px solid var(--red);outline-offset:6px;border-radius:24px}
+  .ts-sec .svc-eyebrow{background:rgba(232,0,30,.14);border-color:rgba(232,0,30,.35);color:#ff8fa0}
+  .ts-sec h2,.ts-sec h1{color:#fff}
+  .ts-h1{font-family:var(--font-head);font-size:clamp(1.9rem,4.5vw,3rem);font-weight:800;text-align:center;letter-spacing:-.02em;line-height:1.15}
+  .ts-sec h2 span,.ts-sec h1 span{background:linear-gradient(90deg,#ff5a70,#ff9aaa);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .ts-sec .sub{color:#aab3c5}
+  .ts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:2.4rem}
+  .ts-card{--ts-c:var(--red);position:relative;display:flex;flex-direction:column;gap:.55rem;padding:1.35rem 1.3rem 1.25rem;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .45s,background .45s,box-shadow .45s}
+  .ts-card::before{content:'';position:absolute;top:0;left:18px;right:18px;height:3px;border-radius:0 0 3px 3px;background:var(--ts-c);opacity:.9}
+  .ts-card:hover{transform:translateY(-6px);background:rgba(255,255,255,.07);border-color:color-mix(in srgb,var(--ts-c) 55%,transparent);box-shadow:0 22px 50px color-mix(in srgb,var(--ts-c) 22%,transparent)}
+  .ts-ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.1rem;color:#fff;background:linear-gradient(135deg,var(--ts-c),color-mix(in srgb,var(--ts-c) 55%,#000));box-shadow:0 8px 20px color-mix(in srgb,var(--ts-c) 35%,transparent)}
+  .ts-card h3{font-family:var(--font-head);font-size:1.05rem;font-weight:800;color:#fff;margin:.35rem 0 0;line-height:1.3}
+  .ts-card p{font-size:.84rem;line-height:1.5;color:#aab3c5;margin:0}
+  .ts-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.15rem}
+  .ts-tags span{font-size:.68rem;font-weight:700;padding:.22rem .55rem;border-radius:999px;color:#dbe1ec;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+  .ts-go{margin-top:auto;padding-top:.6rem;display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;color:color-mix(in srgb,var(--ts-c) 55%,#fff)}
+  .ts-go i{transition:transform .3s}
+  .ts-card:hover .ts-go i{transform:translateX(4px)}
+  .ts-band{margin-top:2.2rem;display:flex;align-items:center;justify-content:space-between;gap:1.2rem;flex-wrap:wrap;padding:1.3rem 1.5rem;border-radius:20px;background:linear-gradient(135deg,rgba(232,0,30,.18),rgba(232,0,30,.06));border:1px solid rgba(232,0,30,.3)}
+  .ts-band h3{font-family:var(--font-head);color:#fff;font-size:1.15rem;margin:0 0 .2rem}
+  .ts-band p{margin:0;color:#c3cad8;font-size:.88rem}
+  .ts-cta{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.4rem;border-radius:999px;background:var(--red);color:#fff;font-weight:800;font-size:.92rem;box-shadow:0 10px 26px rgba(232,0,30,.4);white-space:nowrap}
+  @media (max-width:1100px){.ts-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.ts-grid{grid-template-columns:1fr;gap:.9rem}.ts-band{padding:1.1rem}.ts-cta{width:100%;justify-content:center}}
+  @media (prefers-reduced-motion:reduce){.ts-card,.ts-go i{transition:none}.ts-card:hover{transform:none}}
+  </style>
+  <a class="ts-link" href="{{ TEST_SERIES_URL }}" aria-label="Explore the EduTrellis Test Series platform">
+    <div class="wrap">
+      <span class="svc-eyebrow reveal"><i class="fas fa-clipboard-check"></i> Test Series</span>
+      {% if ts_h1 %}<h1 class="reveal ts-h1">EduTrellis <span>Test Series</span>: online mock tests</h1>{% else %}<h2 class="reveal">Explore our <span>Test Series</span> platform</h2>{% endif %}
+      <div class="accent reveal d1"></div>
+      <p class="sub reveal d2">Practise on the real exam pattern with mock tests, sectional tests and previous year papers, then see where you stand</p>
+      <div class="ts-grid">
+        {% for ts in test_series_cards %}
+        <div class="ts-card reveal d{% cycle '1' '2' '3' %}" style="--ts-c:{{ ts.color }}">
+          <span class="ts-ic"><i class="fas {{ ts.icon }}"></i></span>
+          <h3>{{ ts.name }}</h3>
+          <p>{{ ts.desc }}</p>
+          <div class="ts-tags">{% for tag in ts.tags %}<span>{{ tag }}</span>{% endfor %}</div>
+          <span class="ts-go">Start practising <i class="fas fa-arrow-right"></i></span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="ts-band reveal">
+        <div><h3>Ready to test yourself?</h3><p>Pick your exam and take your first test on the EduTrellis Test Series platform.</p></div>
+        <span class="ts-cta">Explore Test Series <i class="fas fa-arrow-right"></i></span>
+      </div>
+    </div>
+  </a>
+</section>

@@ -39,6 +39,7 @@ urlpatterns = [
     path('store/api/contact/', views.store_contact, name='store_contact'),
 
     path('store/policy/<str:key>/', views.policy_page, name='policy_page'),
+    path('test-series/', views.test_series_page, name='test_series_page'),
     path('store/product/<slug:slug>/', views.product_detail, name='product_detail'),
     path('store/api/product/<slug:slug>/reviews/', views.product_reviews, name='product_reviews'),
     path('store/api/product/<slug:slug>/reviews/submit/', views.product_review_submit, name='product_review_submit'),
