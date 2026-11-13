@@ -12,6 +12,8 @@ from django.core.files.storage import default_storage
 from django.db import close_old_connections
 from django.utils import timezone
 
+from myapp import media_folders
+
 from . import media_models
 
 logger = logging.getLogger(__name__)
@@ -43,7 +45,7 @@ def _run(job_id):
             if row is None:
                 raise media_models.MediaError('The video model was removed.', 'missing')
             content, extension = media_models.generate(row, job.prompt)
-            name = f"ai_videos/{timezone.now():%Y/%m/%d}/{secrets.token_hex(16)}.{extension}"
+            name = f"{media_folders.AI_VIDEOS}{timezone.now():%Y/%m/%d}/{secrets.token_hex(16)}.{extension}"
             url = default_storage.url(default_storage.save(name, ContentFile(content)))
         except media_models.MediaError as exc:
             finish(job, error=_user_error(exc))

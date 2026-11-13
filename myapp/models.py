@@ -3,6 +3,8 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+
+from myapp import media_folders as folders
 from django.db.models import F
 from django.utils import timezone
 
@@ -53,7 +55,7 @@ class StoreProfile(models.Model):
     age            = models.PositiveSmallIntegerField(null=True, blank=True)
     state          = models.CharField(max_length=100, blank=True)
     city           = models.CharField(max_length=100, blank=True)
-    avatar         = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar         = models.ImageField(upload_to=folders.AVATARS, blank=True, null=True)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     manual_amount_paid = models.DecimalField(
         max_digits=12, decimal_places=2, default=0,
@@ -139,7 +141,7 @@ class Category(models.Model):
     name        = models.CharField(max_length=80)
     slug        = models.SlugField(max_length=80, unique=True, help_text="Used to match product filter tags, e.g. 'audio'.")
     description = models.CharField(max_length=200, blank=True)
-    image       = models.ImageField(upload_to='categories/', blank=True, null=True)
+    image       = models.ImageField(upload_to=folders.CATEGORIES, blank=True, null=True)
     order       = models.PositiveIntegerField(default=0)
     is_active   = models.BooleanField(default=True)
     created_at  = models.DateTimeField(auto_now_add=True)
@@ -169,8 +171,8 @@ class Product(models.Model):
     specs             = models.TextField(blank=True, help_text="One spec per line, formatted as 'Label: Value' — shown on the product detail view.")
     price             = models.DecimalField(max_digits=10, decimal_places=2)
     mrp               = models.DecimalField(max_digits=10, decimal_places=2)
-    image             = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Cover image. Falls back to the icon + gradient tile below when left blank. Add more angles under 'Product images' below (up to 5 total).")
-    video             = models.FileField(upload_to='products/videos/', blank=True, null=True, help_text="Optional MP4 product video, shown as a slide in the detail page gallery.")
+    image             = models.ImageField(upload_to=folders.PRODUCTS, blank=True, null=True, help_text="Cover image. Falls back to the icon + gradient tile below when left blank. Add more angles under 'Product images' below (up to 5 total).")
+    video             = models.FileField(upload_to=folders.PRODUCT_VIDEOS, blank=True, null=True, help_text="Optional MP4 product video, shown as a slide in the detail page gallery.")
     icon              = models.CharField(max_length=60, default='fa-box', help_text="Font Awesome icon class shown when no image is set, e.g. 'fa-headphones'.")
     gradient          = models.CharField(max_length=200, default='linear-gradient(135deg,#e8001e,#c0001a)', help_text="CSS background used behind the icon when no image is set.")
     flag              = models.CharField(max_length=40, blank=True, help_text="Small badge on the card, e.g. 'Bestseller'.")
@@ -251,7 +253,7 @@ class ProductImage(models.Model):
     """One extra gallery photo for a Product's detail-page slider. Capped at
     5 per product by the admin form (ProductImageFormSet)."""
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image   = models.ImageField(upload_to='products/gallery/')
+    image   = models.ImageField(upload_to=folders.PRODUCT_GALLERY)
     order   = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -270,7 +272,7 @@ class HeroSlideImage(models.Model):
     admin-editable — only the images are); if there are more images than
     text sets, later slides reuse an earlier set. At least one image must
     always exist so the hero section is never left empty."""
-    image = models.ImageField(upload_to='hero/')
+    image = models.ImageField(upload_to=folders.HERO)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -304,7 +306,7 @@ class BlogSettings(models.Model):
 class BlogGalleryItem(models.Model):
     """One tile in the homepage's "Our Blog" gallery section — an image
     plus its caption, managed from the dashboard (Customize > Blog)."""
-    image   = models.ImageField(upload_to='blog/')
+    image   = models.ImageField(upload_to=folders.BLOG)
     caption = models.CharField(max_length=200)
     order   = models.PositiveIntegerField(default=0)
 
@@ -322,7 +324,7 @@ class ProductCard(models.Model):
     confused with the EduTrellis Store's Product model), managed from the
     dashboard (Customize > Products). Admin can add, remove, reorder and
     fully edit these — image, price, feature list and the CTA button."""
-    image        = models.ImageField(upload_to='products_home/')
+    image        = models.ImageField(upload_to=folders.SERVICES)
     badge_text   = models.CharField(max_length=40, blank=True, default='', help_text='Optional ribbon shown on the image, e.g. "⭐ Most Popular". Leave blank to hide.')
     title        = models.CharField(max_length=100)
     subtitle     = models.CharField(max_length=150, blank=True, default='')
@@ -362,7 +364,7 @@ class ProductColor(models.Model):
     product   = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
     name      = models.CharField(max_length=60, help_text="e.g. 'Midnight Black'.")
     hex_code  = models.CharField(max_length=7, default='#1c2333', help_text="e.g. #1c2333 — used for the swatch colour.")
-    image     = models.ImageField(upload_to='products/colors/', blank=True, null=True, help_text="Optional — the gallery switches to this image when the shopper picks this colour.")
+    image     = models.ImageField(upload_to=folders.PRODUCT_COLORS, blank=True, null=True, help_text="Optional — the gallery switches to this image when the shopper picks this colour.")
     order     = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -376,7 +378,7 @@ class ProductColor(models.Model):
 
 class AboutUsContent(models.Model):
     """Singleton content block backing the storefront's About Us section."""
-    photo          = models.ImageField(upload_to='about/', blank=True, null=True)
+    photo          = models.ImageField(upload_to=folders.ABOUT, blank=True, null=True)
     badge_title    = models.CharField(max_length=120, default='Working since 2020')
     badge_subtitle = models.CharField(max_length=200, default='Websites & technical services · store launched 2026')
 
@@ -445,7 +447,7 @@ class FounderSection(models.Model):
     title     = models.CharField(max_length=120, default='Founder & CEO')
     email     = models.EmailField(blank=True, default='ceo@edutrellis.in')
     linkedin  = models.URLField(blank=True, default='', help_text='Optional personal LinkedIn profile link.')
-    photo     = models.ImageField(upload_to='founder/', blank=True, null=True, help_text='Falls back to a default illustration when left blank.')
+    photo     = models.ImageField(upload_to=folders.FOUNDER, blank=True, null=True, help_text='Falls back to a default illustration when left blank.')
 
     badge_value = models.CharField(max_length=20, default='10+')
     badge_label = models.CharField(max_length=60, default='Years Experience')
@@ -880,11 +882,11 @@ class PWASettings(models.Model):
     app_name          = models.CharField(max_length=100, default='EduTrellis Store', help_text='Full name shown during install and on the splash screen.')
     short_name        = models.CharField(max_length=40, default='EduTrellis', help_text='Short name shown under the home-screen icon.')
     description       = models.CharField(max_length=200, blank=True, default="Shop gadgets from EduTrellis — audio, wearables, charging and more.")
-    icon              = models.ImageField(upload_to='pwa/', blank=True, null=True, help_text='Square logo, ideally 512×512px or larger — used as the installed app icon.')
+    icon              = models.ImageField(upload_to=folders.PWA, blank=True, null=True, help_text='Square logo, ideally 512×512px or larger — used as the installed app icon.')
     share_title       = models.CharField(max_length=200, blank=True, default='', help_text='Heading shown when a website link is shared on WhatsApp, Facebook, X and other apps.')
     share_description = models.CharField(max_length=300, blank=True, default='', help_text='Short description shown beneath the heading in shared-link previews.')
-    share_image       = models.ImageField(upload_to='customize/', blank=True, null=True, help_text='Link-preview image. Recommended size: 1200×630px.')
-    favicon           = models.FileField(upload_to='customize/', blank=True, null=True, help_text='Browser-tab icon. Upload an ICO, PNG, SVG or WebP file.')
+    share_image       = models.ImageField(upload_to=folders.BRANDING, blank=True, null=True, help_text='Link-preview image. Recommended size: 1200×630px.')
+    favicon           = models.FileField(upload_to=folders.BRANDING, blank=True, null=True, help_text='Browser-tab icon. Upload an ICO, PNG, SVG or WebP file.')
     theme_color       = models.CharField(max_length=7, default='#e8001e', help_text='Hex color, e.g. #e8001e — used for the browser/app toolbar.')
     background_color  = models.CharField(max_length=7, default='#ffffff', help_text='Hex color shown behind the splash screen while the app loads.')
     updated_at        = models.DateTimeField(auto_now=True)

@@ -282,7 +282,8 @@ class MediaRedirectTests(TestCase):
     def test_private_chat_files_are_never_handed_out(self):
         from unittest import mock
         with mock.patch('myapp.dropbox_storage.temporary_link') as link:
-            for path in ('/media/educhats/dm/2026/10/a.jpg', '/media/support_chat/users/a.jpg', '/media/ai_calls/1/2.webm'):
+            for path in ('/media/educhats/dm/2026/10/a.jpg', '/media/support_chat/users/a.jpg', '/media/ai_calls/1/2.webm',
+                         '/media/ai/calls/1/2.webm', '/media/ai/archive/a@b.com/x.png', '/media/educhats/users/photos/a.jpg'):
                 self.assertEqual(self.client.get(path).status_code, 404, path)
         link.assert_not_called()
 

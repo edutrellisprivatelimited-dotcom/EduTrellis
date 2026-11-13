@@ -46,12 +46,17 @@ import time
 from django.conf import settings
 from django.utils import timezone
 
+from myapp import media_folders
+
 logger = logging.getLogger(__name__)
 
 # Everything this app writes lives under one root folder, so the images can
 # never collide with the db.sqlite3 backups dropbox_backup.py keeps in
 # '/EduTrellis Store'.
-ROOT_FOLDER = '/edutrellis-ai'
+# Lives inside the site's media folder (myapp/media_folders.py: ai/archive/),
+# private like the chats. organize_media moved the old '/edutrellis-ai' here.
+ROOT_FOLDER = f"{getattr(settings, 'DROPBOX_MEDIA_ROOT', '/EduTrellis Site').rstrip('/')}/{media_folders.AI_ARCHIVE}"
+LEGACY_ROOT_FOLDER = '/edutrellis-ai'
 # Guests have no email to file under. They still get archived, just together.
 GUEST_FOLDER = 'guests'
 # Report evidence sits under the reporter's own folder, not a separate tree.

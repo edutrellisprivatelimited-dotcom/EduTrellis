@@ -28,6 +28,8 @@ from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from myapp import media_folders
+
 from myapp import dropbox_storage
 
 TEMPORARY = {'ai_youtube'}
@@ -119,7 +121,7 @@ class Command(BaseCommand):
                 raw = base64.b64decode(value[match.end():])
                 extension = match.group(1).lower().replace('jpeg', 'jpg')
                 name = default_storage.save(
-                    f'ai_uploads/{timezone.now():%Y/%m/%d}/{secrets.token_hex(16)}.{extension}', ContentFile(raw),
+                    f'{media_folders.AI_UPLOADS}{timezone.now():%Y/%m/%d}/{secrets.token_hex(16)}.{extension}', ContentFile(raw),
                 )
             except (binascii.Error, ValueError) as exc:
                 self.stderr.write(f'  message {pk} has an unreadable picture, left as it is: {exc}')

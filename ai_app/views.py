@@ -40,6 +40,8 @@ from django.core.management import call_command
 from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+
+from myapp import media_folders
 from datetime import datetime, timedelta, timezone as dt_timezone
 from .forms import PhoneVerifyForm, AILoginForm, AIProfileEditForm, AIPasswordChangeForm, GrantAISubscriptionForm, GrantAPIAccessForm, MAX_AMOUNT_PAID, AISiteSettingsForm, AIAddUserForm
 from .models import AISiteSettings, AIAccountMessageSettings, AIConversation, AIMessage, AIBlock, AINote, AIReport, AIGeneratedFile, AIUserImage, GitHubConnection, YouTubeDownloadJob, AIAPIAccess, AIAPIKey, ProviderAPICredential, AIVideoJob
@@ -3384,7 +3386,7 @@ def _ai_flux_response(conversation, prompt, source_image, response_model_key=Non
             )[:image_generation.MAX_PROMPT_CHARS]
             generated = image_generation.generate_image(combined_prompt, None)
         dated_folder = timezone.now().strftime('%Y/%m/%d')
-        filename = f"ai_generated/{dated_folder}/{secrets.token_hex(16)}.{generated.extension}"
+        filename = f"{media_folders.AI_GENERATED}{dated_folder}/{secrets.token_hex(16)}.{generated.extension}"
         stored_name = default_storage.save(filename, ContentFile(generated.content))
         generated_url = default_storage.url(stored_name)
     except image_generation.ImageGenerationError as exc:
@@ -5786,7 +5788,7 @@ def _ai_store_attachment_later(message_id, data_uri):
         raw = base64.b64decode(data_uri[match.end():])
         extension = match.group(1).lower().replace('jpeg', 'jpg')
         name = default_storage.save(
-            f'ai_uploads/{timezone.now():%Y/%m/%d}/{secrets.token_hex(16)}.{extension}', ContentFile(raw),
+            f'{media_folders.AI_UPLOADS}{timezone.now():%Y/%m/%d}/{secrets.token_hex(16)}.{extension}', ContentFile(raw),
         )
         AIMessage.objects.filter(pk=message_id, image_data__startswith='data:').update(
             image_data=default_storage.url(name),

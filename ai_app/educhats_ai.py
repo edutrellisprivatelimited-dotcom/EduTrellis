@@ -15,6 +15,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from myapp import media_folders
+
 from .models import EduChatsAIMessage
 from .support_chat import MAX_MESSAGE, _fail, _ip, _json_body, current_user
 
@@ -63,7 +65,7 @@ def _image_reply(prompt):
     from . import image_generation
     generated = image_generation.generate_image(prompt)
     folder = timezone.now().strftime('%Y/%m/%d')
-    name = default_storage.save(f'ai_generated/{folder}/{secrets.token_hex(16)}.{generated.extension}',
+    name = default_storage.save(f'{media_folders.AI_GENERATED}{folder}/{secrets.token_hex(16)}.{generated.extension}',
                                 ContentFile(generated.content))
     return default_storage.url(name)
 

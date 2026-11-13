@@ -18,12 +18,16 @@ import json
 import logging
 import os
 import re
+import threading
 from datetime import datetime, timezone as dt_timezone
 from pathlib import Path
 
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.shortcuts import redirect
 from django.utils import timezone
+
+from myapp import dropbox_storage, media_folders
 
 from myapp.dropbox_storage import private_storage
 from . import ai_chat, chat_export, file_convert
@@ -164,6 +168,7 @@ def save(request, pk):
     now = timezone.now()
     if data.get('final') is True and not call.ended_at:
         call.ended_at = now
+        schedule_archive(call.pk)
     call.duration_seconds = max(0, int(((call.ended_at or now) - call.started_at).total_seconds()))
     call.save()
     return JsonResponse({'status': 'ok', 'call': summary(call)})
@@ -195,7 +200,9 @@ def upload_audio(request, pk):
     if seq > call.audio_chunks:
         return JsonResponse({'status': 'error', 'detail': 'A piece of the recording is missing.', 'expected': call.audio_chunks}, status=409)
 
-    name = call.audio.name or f'ai_calls/{call.user_id}/{call.pk}.{extension}'
+    name = call.audio.name or f'{media_folders.AI_CALLS}{call.user_id}/{call.pk}.{extension}'
+    if call.audio_chunks and not _on_disk(name):
+        return _error('This call has finished and its recording is saved.', 409)
     try:
         target = Path(private_storage().path(name))
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -346,6 +353,8 @@ def audio_response(request, call):
     """Stream one call's recording (also used by the dashboard's Call Data)."""
     if not call or not call.audio or not call.audio_bytes:
         return _error('There is no recording for this call.', 404)
+    if not _on_disk(call.audio.name):
+        return _archived_response(request, call)
     try:
         path = private_storage().path(call.audio.name)
         size = os.path.getsize(path)
@@ -397,6 +406,74 @@ def _remove_audio(call):
             private_storage().delete(call.audio.name)
         except Exception:
             logger.warning('Could not delete call recording %s', call.audio.name)
+        if dropbox_storage.is_stored(call.audio.name):
+            try:
+                dropbox_storage.DropboxStorage().delete(call.audio.name)
+            except Exception:
+                logger.warning('Could not delete call recording %s from Dropbox', call.audio.name)
+
+
+# ------------------------------------------------- recordings in Dropbox
+# A recording is written to the server's disk piece by piece while the call
+# runs. A few minutes after the call ends it moves to Dropbox
+# ('/EduTrellis Site/ai/calls/<user>/<call>.webm', private: never a public
+# link) and the disk copy is deleted. organize_media also sweeps up any
+# recording a restart interrupted.
+
+ARCHIVE_DELAY_SECONDS = 3 * 60
+
+
+def _on_disk(name):
+    try:
+        return bool(name) and os.path.isfile(private_storage().path(name))
+    except NotImplementedError:
+        return False
+
+
+def schedule_archive(call_pk):
+    timer = threading.Timer(ARCHIVE_DELAY_SECONDS, dropbox_storage.run_later, (archive_recording, call_pk))
+    timer.daemon = True
+    timer.start()
+
+
+def archive_recording(call_pk):
+    """Uploads one finished call's recording to Dropbox, then deletes the
+    disk copy. Returns True when it moved."""
+    from .models import AICall
+    call = AICall.objects.filter(pk=call_pk).first()
+    if not call or not call.audio or not call.ended_at or not _on_disk(call.audio.name):
+        return False
+    name = call.audio.name
+    path = Path(private_storage().path(name))
+    data = path.read_bytes()
+    meta = dropbox_storage.upload(data, name, overwrite=True)
+    dropbox_storage.record(name, meta.size)
+    if os.path.getsize(path) != len(data):
+        return False   # a late piece arrived meanwhile; the next sweep uploads it again
+    path.unlink(missing_ok=True)
+    return True
+
+
+def _archived_response(request, call):
+    name = call.audio.name
+    if not dropbox_storage.is_stored(name):
+        return _error('The recording file is no longer available.', 404)
+    try:
+        if request.GET.get('download'):
+            extension = Path(name).suffix or '.webm'
+            response = HttpResponse(dropbox_storage.download(name), content_type=call.audio_mime or 'audio/webm')
+            response['Content-Disposition'] = f'attachment; filename="voice-call-{_local(call.started_at):%Y-%m-%d-%H%M}{extension}"'
+        else:
+            # A short-lived Dropbox link, handed only to whoever may play it
+            # (the owner, or the dashboard); the player can seek on it.
+            response = redirect(dropbox_storage.temporary_link(name))
+    except FileNotFoundError:
+        return _error('The recording file is no longer available.', 404)
+    except Exception:
+        logger.exception('Could not fetch call recording %s from Dropbox', name)
+        return _error('The recording is unavailable right now. Please try again shortly.', 503)
+    response['Cache-Control'] = 'private, no-store'
+    return response
 
 
 def delete(request, pk):

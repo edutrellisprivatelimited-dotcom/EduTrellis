@@ -38,8 +38,10 @@ from .dropbox_backup import _content_hash
 
 logger = logging.getLogger(__name__)
 
-# Chats and call recordings: only ever streamed through permission-checked views.
-PRIVATE_PREFIXES = ('support_chat/', 'educhats/', 'ai_calls/')
+# Chats, call recordings and the per-account AI image archive: only ever
+# streamed through permission-checked views (folder layout: media_folders.py).
+# The old pre-reorganization folders stay listed until every file has moved.
+PRIVATE_PREFIXES = ('educhats/', 'ai/calls/', 'ai/archive/', 'support_chat/', 'ai_calls/')
 
 SINGLE_UPLOAD_LIMIT = 140 * 1024 * 1024   # Dropbox's one-shot upload limit is 150 MB
 UPLOAD_CHUNK = 8 * 1024 * 1024
@@ -251,6 +253,11 @@ def _known_url(name):
         return False, ''
     _urls[name] = row
     return True, row
+
+
+def is_stored(name):
+    """True when the database knows this file is in Dropbox."""
+    return _known_url(name)[0]
 
 
 def permanent_link(name):

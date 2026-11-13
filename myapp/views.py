@@ -35,12 +35,12 @@ from myapp.models import (
     DropboxSettings, Review, PhoneVerification, PWASettings, FeeSettings, NavAISettings, FounderSection,
     HeroSlideImage, BlogSettings, BlogGalleryItem, ProductCard, SiteStatus,
 )
-from myapp import dropbox_backup, dropbox_storage
+from myapp import dropbox_backup, dropbox_storage, media_folders
 from myapp.middleware import SiteSwitchMiddleware
 from myapp.emailing import send_store_email, get_notify_email
 from myapp.sms import send_phone_otp, verify_phone_otp
 from myapp.seed_data import seed_demo_reviews
-from myapp.seo import to_script_json
+from myapp.seo import absolute, to_script_json
 from myapp import ratelimit
 
 logger = logging.getLogger(__name__)
@@ -115,6 +115,7 @@ def _hero_slides():
 
 
 def home(request):
+    from myapp import test_series
     trending_products = Product.objects.filter(is_active=True).select_related('category')[:8]
     nav_user = _user_payload(request.user) if request.user.is_authenticated else None
     return render(request, "home.html", {
@@ -125,7 +126,7 @@ def home(request):
         "blog_settings": BlogSettings.get_solo(),
         "blog_items": BlogGalleryItem.objects.all(),
         "product_cards": ProductCard.objects.all(),
-        "test_series_url": settings.TEST_SERIES_URL,
+        "test_series_cards": test_series.cards(),
     })
 
 
@@ -190,7 +191,7 @@ def product_detail(request, slug):
         },
     }
     if product.image:
-        product_schema['image'] = f'https://www.edutrellis.in{product.image.url}'
+        product_schema['image'] = absolute(product.image.url)
     if review_count:
         product_schema['aggregateRating'] = {
             '@type': 'AggregateRating',
@@ -1263,10 +1264,19 @@ def media_redirect(request, name):
         return HttpResponse(status=405)
     if not dropbox_storage.is_safe_name(name) or dropbox_storage.is_private(name):
         return render(request, '404.html', status=404)
+    moved = media_folders.new_name(name)
+    if moved and dropbox_storage.is_stored(moved):
+        # Saved before the folders were organized (organize_media moved it).
+        return redirect(settings.MEDIA_URL + moved, permanent=True)
     try:
         link = dropbox_storage.permanent_link(name) or dropbox_storage.temporary_link(name)
     except FileNotFoundError:
-        return render(request, '404.html', status=404)
+        if not moved:
+            return render(request, '404.html', status=404)
+        try:   # organize_media is moving it right now
+            link = dropbox_storage.temporary_link(moved)
+        except FileNotFoundError:
+            return render(request, '404.html', status=404)
     except Exception:
         logging.getLogger('myapp').exception('Could not get a Dropbox link for %s', name)
         response = HttpResponse('This file is unavailable right now. Please try again shortly.',

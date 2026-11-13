@@ -6,6 +6,8 @@ import uuid
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+
+from myapp import media_folders as folders
 from django.db.models import F
 from django.utils import timezone
 
@@ -372,7 +374,7 @@ class AISiteSettings(models.Model):
     the dashboard's 'EduTrellis AI → AI Settings' page (was Vidhyora's
     standalone 'Customize' page — renamed here since EduTrellis's own
     Customize group already means storefront content management)."""
-    favicon    = models.ImageField(upload_to='ai_branding/', blank=True, null=True, help_text='Browser-tab icon for the /ai/ pages. Square, ideally 512×512px or smaller (PNG/ICO). Leave blank to use the default favicon.')
+    favicon    = models.ImageField(upload_to=folders.AI_BRANDING, blank=True, null=True, help_text='Browser-tab icon for the /ai/ pages. Square, ideally 512×512px or smaller (PNG/ICO). Leave blank to use the default favicon.')
     ai_brand_name = models.CharField(
         max_length=60, default='EduTrellis',
         help_text='The AI assistant\'s name — shown across the chat UI (header, title, model picker) and used '
@@ -389,7 +391,7 @@ class AISiteSettings(models.Model):
         help_text='Short description shown below the preview heading.',
     )
     social_preview_image = models.ImageField(
-        upload_to='ai_branding/social/', blank=True, null=True,
+        upload_to=folders.AI_SOCIAL, blank=True, null=True,
         help_text='Large preview image. 1200×630px is recommended. Leave blank to use the default cover.',
     )
     support_whatsapp_number = models.CharField(
@@ -415,7 +417,7 @@ class AISiteSettings(models.Model):
     pwa_app_name = models.CharField(max_length=60, blank=True, default='EduTrellis AI')
     pwa_short_name = models.CharField(max_length=30, blank=True, default='EduTrellis AI')
     pwa_description = models.CharField(max_length=200, blank=True, default='Chat with EduTrellis AI.')
-    pwa_icon = models.ImageField(upload_to='ai_branding/pwa/', blank=True, null=True, help_text='Square PWA install icon (512×512px recommended). Leave blank to use the bundled default.')
+    pwa_icon = models.ImageField(upload_to=folders.AI_PWA, blank=True, null=True, help_text='Square PWA install icon (512×512px recommended). Leave blank to use the bundled default.')
     pwa_theme_color = models.CharField(max_length=7, blank=True, default='#e8001e')
     pwa_background_color = models.CharField(max_length=7, blank=True, default='#ffffff')
     updated_at = models.DateTimeField(auto_now=True)
@@ -870,7 +872,7 @@ class AICall(models.Model):
     turn_count = models.PositiveIntegerField(default=0, help_text='How many things the caller said.')
     transcript = models.JSONField(default=list, blank=True)
     # Written in pieces while the call runs, so it stays on the server's private disk, not Dropbox.
-    audio = models.FileField(upload_to='ai_calls/', storage=private_storage, blank=True, max_length=200)
+    audio = models.FileField(upload_to=folders.AI_CALLS, storage=private_storage, blank=True, max_length=200)
     audio_mime = models.CharField(max_length=60, blank=True)
     audio_bytes = models.PositiveBigIntegerField(default=0)
     audio_chunks = models.PositiveIntegerField(default=0)
@@ -958,9 +960,9 @@ class ChatUser(models.Model):
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(null=True, blank=True)
-    photo = models.ImageField(upload_to='support_chat/users/', blank=True)
+    photo = models.ImageField(upload_to=folders.CHAT_USER_PHOTOS, blank=True)
     # Banner behind their photo on the EduChats ID card (⋮ → Cover photo).
-    cover = models.ImageField(upload_to='support_chat/covers/', blank=True)
+    cover = models.ImageField(upload_to=folders.CHAT_USER_COVERS, blank=True)
     # Turned off by staff: can't log in, and is logged out of open chats.
     is_active = models.BooleanField(default=True)
     # Chatting without an account; becomes a normal account on sign-up.
@@ -1048,7 +1050,7 @@ class ChatMessage(models.Model):
     kind = models.CharField(max_length=8, choices=KIND_CHOICES, default=KIND_TEXT)
     body = models.TextField(blank=True)   # the text, a caption, or the call summary
     # Served only through support_chat.attachment, which checks who is asking.
-    attachment = models.FileField(upload_to='support_chat/%Y/%m/', blank=True)
+    attachment = models.FileField(upload_to=folders.SUPPORT_FILES, blank=True)
     attachment_name = models.CharField(max_length=200, blank=True)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
@@ -1073,7 +1075,7 @@ class SupportProfile(models.Model):
     display_name = models.CharField(max_length=60, default='Support')
     about = models.CharField(max_length=120, default='We usually reply within a few hours')
     welcome = models.CharField(max_length=300, default='Send us a message, a photo or your location — our team will reply here.')
-    photo = models.ImageField(upload_to='support_chat/profile/', blank=True)
+    photo = models.ImageField(upload_to=folders.SUPPORT_PROFILE, blank=True)
     # Shown on /chats "Forgot password" — people write here to get back in.
     support_email = models.EmailField(default='shifn32@gmail.com', blank=True)
     # Shown in EduChats "Support / Report us" (tap to call); blank uses the site's support number.
@@ -1133,7 +1135,7 @@ class DirectMessage(models.Model):
     kind = models.CharField(max_length=8, choices=KIND_CHOICES, default='text')
     body = models.TextField(blank=True)
     # Served only through direct_chat.dm_attachment, which checks who is asking.
-    attachment = models.FileField(upload_to='educhats/dm/%Y/%m/', blank=True)
+    attachment = models.FileField(upload_to=folders.DM_FILES, blank=True)
     attachment_name = models.CharField(max_length=200, blank=True)
     # Location pins (kind 'location'); a live one keeps moving until live_until.
     latitude = models.FloatField(null=True, blank=True)
@@ -1191,7 +1193,7 @@ class ChatGroup(models.Model):
     """An EduChats group (⋮ → New group): any signed-up members, with admins."""
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500, blank=True)
-    photo = models.ImageField(upload_to='support_chat/groups/', blank=True)
+    photo = models.ImageField(upload_to=folders.GROUP_PHOTOS, blank=True)
     created_by = models.ForeignKey(ChatUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
     # Group settings (admins only): who may send, and who may change name / photo / description.
     only_admins_send = models.BooleanField(default=False)
@@ -1231,7 +1233,7 @@ class GroupMessage(models.Model):
     kind = models.CharField(max_length=8, choices=KIND_CHOICES, default='text')
     body = models.TextField(blank=True)
     # Served only through group_chat.group_file, which checks membership.
-    attachment = models.FileField(upload_to='educhats/groups/%Y/%m/', blank=True)
+    attachment = models.FileField(upload_to=folders.GROUP_FILES, blank=True)
     attachment_name = models.CharField(max_length=200, blank=True)
     # Location pins (kind 'location'); a live one keeps moving until live_until.
     latitude = models.FloatField(null=True, blank=True)
@@ -1275,7 +1277,7 @@ class EduChatsAppSettings(models.Model):
     short_name = models.CharField(max_length=24, default='EduChats')
     description = models.CharField(max_length=200, default='Chat with the EduTrellis support team and people you know.')
     # Square picture, at least 512×512; the install icons are cut from it. Empty = the built-in red chat icon.
-    icon = models.ImageField(upload_to='support_chat/app/', blank=True)
+    icon = models.ImageField(upload_to=folders.CHATS_APP, blank=True)
     theme_color = models.CharField(max_length=7, default='#0f1623')        # status bar / title bar (custom mode)
     background_color = models.CharField(max_length=7, default='#0f1623')   # splash screen while it opens
     # The phone's status bar (top) and navigation bar (bottom) in the installed app:
@@ -1342,7 +1344,7 @@ class Story(models.Model):
     kind = models.CharField(max_length=5, choices=KIND_CHOICES, default='text')
     text = models.CharField(max_length=700, blank=True)   # the text card, or a photo / video caption
     bg = models.CharField(max_length=7, blank=True)       # text card colour
-    media = models.FileField(upload_to='educhats/stories/%Y/%m/', blank=True)
+    media = models.FileField(upload_to=folders.STORIES, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     expires_at = models.DateTimeField(db_index=True)
 
