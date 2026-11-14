@@ -11,9 +11,9 @@ number, or a second support address — do not add one here without it
 being genuinely true.
 """
 
-PHONE_DISPLAY = '+91 96959 53183'
-PHONE_E164 = '+919695953183'           # for tel: links
-WHATSAPP_DIGITS = '919695953183'       # for wa.me links (no leading +)
+PHONE_DISPLAY = '+91 91941 30645'
+PHONE_E164 = '+919194130645'           # for tel: links
+WHATSAPP_DIGITS = '919194130645'       # for wa.me links (no leading +)
 WHATSAPP_LINK = f'https://wa.me/{WHATSAPP_DIGITS}'
 
 EMAIL_SUPPORT = 'support@edutrellis.in'

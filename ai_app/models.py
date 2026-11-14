@@ -395,7 +395,7 @@ class AISiteSettings(models.Model):
         help_text='Large preview image. 1200×630px is recommended. Leave blank to use the default cover.',
     )
     support_whatsapp_number = models.CharField(
-        max_length=20, default='9695953183',
+        max_length=20, default='9194130645',
         help_text='Shown in the in-app "Contact support" popup\'s WhatsApp option, exactly as typed. Also used '
                    'to build its wa.me link — with or without a country code both work.',
     )

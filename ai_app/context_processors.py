@@ -17,7 +17,7 @@ def ai_site_context(request):
     from .models import AISiteSettings
     try:
         obj = AISiteSettings.get_solo()
-        whatsapp_number = obj.support_whatsapp_number or '9695953183'
+        whatsapp_number = obj.support_whatsapp_number or '9194130645'
         whatsapp_digits = re.sub(r'\D', '', whatsapp_number)
         if len(whatsapp_digits) == 10:
             whatsapp_digits = '91' + whatsapp_digits
@@ -41,7 +41,7 @@ def ai_site_context(request):
             'SITE_SOCIAL_PREVIEW_TITLE': 'EduTrellis AI — Free AI Chat Assistant',
             'SITE_SOCIAL_PREVIEW_DESCRIPTION': 'Chat with EduTrellis AI for quick answers, writing, images and learning support — free, right from your browser.',
             'SITE_SOCIAL_PREVIEW_IMAGE_URL': request.build_absolute_uri(static_url('img/og-cover.jpg')),
-            'SITE_SUPPORT_WHATSAPP_DISPLAY': '9695953183',
-            'SITE_SUPPORT_WHATSAPP_LINK': 'https://wa.me/919695953183',
+            'SITE_SUPPORT_WHATSAPP_DISPLAY': '9194130645',
+            'SITE_SUPPORT_WHATSAPP_LINK': 'https://wa.me/919194130645',
             'SITE_SUPPORT_EMAIL': 'support@edutrellis.in',
         }
