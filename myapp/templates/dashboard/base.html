@@ -195,7 +195,9 @@ tbody tr:hover{background:var(--bg-alt)}
 .dash-nav-group>summary .nav-count{font-size:.68rem;font-weight:800;min-width:20px;height:18px;padding:0 .4rem;display:inline-grid;place-items:center;border-radius:50px;background:var(--red);color:#fff}
 .dash-nav-sub .nav-count{margin-left:auto;font-size:.68rem;font-weight:800;min-width:20px;height:18px;padding:0 .4rem;display:inline-grid;place-items:center;border-radius:50px;background:rgba(232,0,30,.12);color:var(--red)}
 </style>
+<meta name="dash-page-head" content="start">
 {% block extra_head %}{% endblock %}
+<meta name="dash-page-head" content="end">
 <!-- shown inside EduChats (⋮ → Backup): just the page, no admin menus -->
 <script>if (window.self !== window.top) document.documentElement.classList.add('dash-embed');</script>
 <style>.dash-embed .dash-sidebar,.dash-embed .dash-scrim,.dash-embed .dash-topbar{display:none !important}.dash-embed .dash-body{padding:1rem}.dash-embed body{background:#fff}</style>
@@ -376,26 +378,34 @@ initPasswordToggles();
     });
   }
 
-  /* Pages can add their own <style> via {% templatetag openblock %} extra_head
-     {% templatetag closeblock %} (backup.html, products.html, etc.) — that
-     renders as one extra <style> element right after base.html's own, since
-     it's the only thing extra_head ever emits. A PJAX swap only touches
-     #dashBody, so without this those pages would render completely
-     unstyled once reached via sidebar nav (they still look fine on a hard
-     refresh, since the browser parses <head> fresh then). Mirror whatever
-     the fetched page's extra <style> is (or remove it if the new page
-     doesn't have one) into a dedicated #dashPageStyle tag here. */
-  function syncPageStyle(doc){
-    var headStyles = doc.querySelectorAll('head > style');
-    var extra = headStyles.length > 1 ? headStyles[headStyles.length - 1] : null;
-    var existing = document.getElementById('dashPageStyle');
-    if (existing) existing.remove();
-    if (extra){
-      var s = document.createElement('style');
-      s.id = 'dashPageStyle';
-      s.textContent = extra.textContent;
-      document.head.appendChild(s);
-    }
+  /* Pages add their own <style> (and sometimes a stylesheet <link>) through
+     the extra_head block, which base.html wraps in two
+     <meta name="dash-page-head"> markers. A PJAX swap only touches #dashBody,
+     so on every sidebar navigation the head between the markers is replaced
+     with the fetched page's — otherwise a page reached through the sidebar
+     renders unstyled until a refresh. (This used to copy "the last <style> in
+     <head>", which broke the day base.html gained its own trailing styles.) */
+  function pageHeadNodes(doc){
+    var start = doc.querySelector('meta[name="dash-page-head"][content="start"]'), nodes = [];
+    if (!start) return nodes;
+    for (var n = start.nextElementSibling; n && !(n.tagName === 'META' && n.getAttribute('name') === 'dash-page-head'); n = n.nextElementSibling) nodes.push(n);
+    return nodes;
+  }
+  function syncPageHead(doc){
+    var end = document.querySelector('meta[name="dash-page-head"][content="end"]');
+    if (!end) return;
+    pageHeadNodes(document).forEach(function(n){ n.remove(); });
+    pageHeadNodes(doc).forEach(function(n){
+      var copy;
+      if (n.tagName === 'SCRIPT') {
+        copy = document.createElement('script');
+        for (var i = 0; i < n.attributes.length; i++) copy.setAttribute(n.attributes[i].name, n.attributes[i].value);
+        copy.textContent = n.textContent;
+      } else {
+        copy = document.importNode(n, true);
+      }
+      end.parentNode.insertBefore(copy, end);
+    });
   }
 
   function loadPage(url, push){
@@ -409,7 +419,7 @@ initPasswordToggles();
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var newBody = doc.getElementById('dashBody');
         if (!newBody) throw new Error('not a dashboard page');
-        syncPageStyle(doc);
+        syncPageHead(doc);
         mainEl.innerHTML = newBody.innerHTML;
         runScripts(mainEl);
         initPasswordToggles(mainEl);
